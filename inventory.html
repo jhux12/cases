@@ -23,25 +23,25 @@
 <body class="bg-gray-900 text-white font-sans p-6">
 
   <!-- Header -->
-<header class="w-full bg-gray-800 border-b border-pink-500 py-4 px-6 rounded-lg mb-6">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-      <h1 class="text-2xl font-bold text-pink-400">🎒 Inventory</h1>
-      <a href="index.html" class="text-white hover:text-pink-400 transition text-sm sm:text-base">&larr; Back to Home</a>
-    </div>
-    <div class="flex flex-wrap items-center gap-2 text-white bg-gray-900 px-4 py-2 rounded-full sm:justify-end sm:w-auto w-full">
-      <div id="username-display" class="text-sm text-gray-300 truncate max-w-[160px] sm:max-w-[200px]"></div>
-      <div class="flex items-center space-x-1 text-sm sm:text-base">
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="20" height="20" class="inline-block" />
-        <span id="user-balance">--</span>
-        <span>coins</span>
+  <header class="w-full bg-gray-800 border-b border-pink-500 py-4 px-6 rounded-lg mb-6">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+        <h1 class="text-2xl font-bold text-pink-400">🎒 Inventory</h1>
+        <a href="index.html" class="text-white hover:text-pink-400 transition text-sm sm:text-base">&larr; Back to Home</a>
       </div>
-      <button id="logout-button" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1 sm:py-2 rounded-full transition text-sm sm:text-base">
-        Logout
-      </button>
+      <div class="flex flex-wrap items-center gap-2 text-white bg-gray-900 px-4 py-2 rounded-full sm:justify-end sm:w-auto w-full">
+        <div id="username-display" class="text-sm text-gray-300 truncate max-w-[160px] sm:max-w-[200px]"></div>
+        <div class="flex items-center space-x-1 text-sm sm:text-base">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="20" height="20" class="inline-block" />
+          <span id="user-balance">--</span>
+          <span>coins</span>
+        </div>
+        <button id="logout-button" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1 sm:py-2 rounded-full transition text-sm sm:text-base">
+          Logout
+        </button>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
 
   <!-- Sort Dropdown and Batch Actions -->
   <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
@@ -76,6 +76,7 @@
     const db = firebase.database();
 
     const selectedItems = new Set();
+    let currentItems = [];
 
     firebase.auth().onAuthStateChanged(user => {
       if (!user) return (window.location.href = "auth.html");
@@ -92,11 +93,11 @@
             return;
           }
 
-          const items = [];
+          currentItems = [];
           inventorySnap.forEach(child => {
             const item = child.val();
             item.key = child.key;
-            items.push(item);
+            currentItems.push(item);
           });
 
           function renderItems(sortedItems) {
@@ -124,7 +125,7 @@
           }
 
           function sortItems(by) {
-            let sorted = [...items];
+            let sorted = [...currentItems];
             if (by === 'value') {
               sorted.sort((a, b) => (b.value || 0) - (a.value || 0));
             } else if (by === 'name') {
@@ -153,7 +154,7 @@
       }
     }
 
-    function sellBack(itemKey, value) {
+    function sellBack(itemKey, value, reload = true) {
       const user = firebase.auth().currentUser;
       if (!user) return;
 
@@ -165,19 +166,41 @@
         const currentBalance = userSnap.val().balance || 0;
         userRef.update({ balance: currentBalance + refund }).then(() => {
           itemRef.remove().then(() => {
-            alert(`Item sold for ${refund} coins.`);
-            location.reload();
+            if (reload) {
+              alert(`Item sold for ${refund} coins.`);
+              location.reload();
+            }
           });
         });
       });
     }
 
     function sellSelected() {
+      if (!confirm("Are you sure you want to sell all selected items?")) return;
+
+      const user = firebase.auth().currentUser;
+      if (!user) return;
+      const userRef = db.ref('users/' + user.uid);
+
+      let totalRefund = 0;
+      const promises = [];
+
       selectedItems.forEach(key => {
-        const itemRef = db.ref('users/' + firebase.auth().currentUser.uid + '/inventory/' + key);
-        itemRef.once('value').then(itemSnap => {
-          const item = itemSnap.val();
-          sellBack(key, item.value);
+        const item = currentItems.find(i => i.key === key);
+        if (item) {
+          const refund = Math.floor((item.value || 0) * 0.8);
+          totalRefund += refund;
+          promises.push(db.ref('users/' + user.uid + '/inventory/' + key).remove());
+        }
+      });
+
+      Promise.all(promises).then(() => {
+        userRef.once('value').then(snapshot => {
+          const balance = snapshot.val().balance || 0;
+          userRef.update({ balance: balance + totalRefund }).then(() => {
+            alert(`Sold selected items for ${totalRefund} coins.`);
+            location.reload();
+          });
         });
       });
     }
@@ -187,6 +210,7 @@
     }
 
     function shipSelected() {
+      if (!confirm("Are you sure you want to ship all selected items?")) return;
       selectedItems.forEach(key => shipItem(key));
     }
 
