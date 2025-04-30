@@ -110,6 +110,13 @@
   .animate-overlay-zoom {
     animation: overlay-zoom 0.3s ease-out forwards;
   }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  .animate-pulse {
+    animation: pulse 0.5s ease-in-out;
+  }
 </style>
 </head>
 <body>
@@ -335,11 +342,12 @@
         caseImageWrapper.classList.add('animate-shake');
         setTimeout(() => {
           caseImageWrapper.classList.remove('animate-shake');
+          caseImageWrapper.classList.add('animate-pulse');
           const winningPrize = currentPrizes[Math.floor(Math.random() * currentPrizes.length)];
           caseImage.src = winningPrize.image;
-          resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
+          resultDiv.innerHTML = `🎉 <strong class="text-yellow-400">You pulled:</strong> <span class="text-white">${winningPrize.name}</span> <span class="uppercase text-sm text-${winningPrize.rarity === 'legendary' ? 'yellow' : winningPrize.rarity === 'ultra rare' ? 'purple' : winningPrize.rarity === 'rare' ? 'blue' : winningPrize.rarity === 'uncommon' ? 'green' : 'gray'}-400 font-bold">(${winningPrize.rarity || 'Unknown'})</span> 🎉`;
           resultDiv.classList.remove('hidden');
-          confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+          confetti({ particleCount: 200, spread: 100, startVelocity: 35, origin: { y: 0.5 } });
           const inventoryRef = db.ref('users/' + user.uid + '/inventory');
           const newItemRef = inventoryRef.push();
           newItemRef.set({
