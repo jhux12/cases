@@ -311,12 +311,14 @@
                     prize.rarity === 'ultra rare' ? 'ring-purple-500' :
                     prize.rarity === 'legendary' ? 'ring-yellow-400 legendary-glow' : 'ring-white';
 
-  const rarityLabel = prize.rarity
-    ? `<div class='text-xs font-semibold text-${ringColor.replace('ring-', '')} uppercase'>${prize.rarity}</div>`
+  // Create a label for the rarity (if it exists)
+  const rarityLabel = prize.rarity 
+    ? `<div class="mt-2 text-xs font-semibold text-${ringColor.replace('ring-', '')} uppercase">${prize.rarity}</div>`
     : '';
 
-  const oddsLabel = prize.odds
-    ? `<div class="text-xs text-gray-300 mt-1">${prize.odds.toFixed(2)}% chance</div>`
+  // Create an odds label if prize.odds is defined as a number
+  const oddsLabel = typeof prize.odds === 'number'
+    ? `<div class="text-xs text-gray-300 mt-1">${parseFloat(prize.odds).toFixed(2)}% chance</div>`
     : '';
 
   return `
@@ -327,13 +329,6 @@
       ${oddsLabel}
     </div>`;
 }).join('');
-        return `
-        <div class="text-center cursor-pointer transition-transform duration-300" onclick="expandPrize('${prize.image}')">
-          <img src="${prize.image}" class="h-24 mx-auto object-contain rounded ring-2 ${ringColor} transition-transform duration-300">
-          <div class="mt-2 text-sm font-semibold text-white">${prize.name}</div>
-          ${label}
-        </div>`;
-      }).join('');
       resultDiv.classList.add('hidden');
       popup.classList.remove('hidden');
     });
