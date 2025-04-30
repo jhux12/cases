@@ -376,6 +376,7 @@ const winningPrize = currentPrizes.find(p => {
             name: winningPrize.name,
             image: winningPrize.image,
             rarity: winningPrize.rarity || 'Unknown',
+            value: winningPrize.value || 0,
             price: selectedCasePrice,
             timestamp: Date.now()
           });
