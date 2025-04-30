@@ -304,6 +304,11 @@
       document.getElementById('popup-price').innerText = selectedCasePrice;
       caseImage.src = data.image;
       currentPrizes = Object.values(data.prizes || {});
+      currentPrizes.sort((a, b) => {
+  const oddsA = parseFloat(a.odds) || 0;
+  const oddsB = parseFloat(b.odds) || 0;
+  return oddsA - oddsB;
+});
       possiblePrizesDiv.innerHTML = currentPrizes.map(prize => {
   const ringColor = prize.rarity === 'common' ? 'ring-gray-500' :
                     prize.rarity === 'uncommon' ? 'ring-green-500' :
