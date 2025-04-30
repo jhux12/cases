@@ -121,7 +121,7 @@ function addPrize(prize = {}) {
       <option value="common" ${prize.rarity === 'common' ? 'selected' : ''}>Common</option>
       <option value="uncommon" ${prize.rarity === 'uncommon' ? 'selected' : ''}>Uncommon</option>
       <option value="rare" ${prize.rarity === 'rare' ? 'selected' : ''}>Rare</option>
-      <option value="ultra" ${prize.rarity === 'ultra' ? 'selected' : ''}>Ultra Rare</option>
+      <option value="ultra" ${prize.rarity === 'ultra rare' ? 'selected' : ''}>Ultra Rare</option>
       <option value="legendary" ${prize.rarity === 'legendary' ? 'selected' : ''}>Legendary</option>
     </select>
     <input type="number" placeholder="Prize Value ($)" value="${prize.value || ''}" class="prize-value w-full p-2 rounded mb-2">
