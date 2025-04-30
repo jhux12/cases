@@ -45,15 +45,17 @@
 
   <!-- Sort Dropdown and Batch Actions -->
   <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-    <div>
-      <label for="sort-select" class="mr-2">Sort by:</label>
+    <div class="flex items-center gap-2">
+      <label><input type="checkbox" id="select-all-checkbox" class="mr-1"> Select All</label>
+      <label for="sort-select" class="ml-4">Sort by:</label>
       <select id="sort-select" class="text-black rounded px-2 py-1">
         <option value="rarity">Rarity</option>
         <option value="value">Value</option>
         <option value="name">Name</option>
       </select>
     </div>
-    <div class="flex gap-2">
+    <div class="flex gap-2 items-center">
+      <span id="selected-total" class="text-sm text-gray-300">Total: 0 coins</span>
       <button onclick="sellSelected()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full">Sell Selected</button>
       <button onclick="shipSelected()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full">Ship Selected</button>
     </div>
@@ -77,6 +79,15 @@
 
     const selectedItems = new Set();
     let currentItems = [];
+
+    function updateTotalValue() {
+      let total = 0;
+      selectedItems.forEach(key => {
+        const item = currentItems.find(i => i.key === key);
+        if (item) total += Math.floor((item.value || 0) * 0.8);
+      });
+      document.getElementById('selected-total').innerText = `Total: ${total} coins`;
+    }
 
     firebase.auth().onAuthStateChanged(user => {
       if (!user) return (window.location.href = "auth.html");
@@ -141,6 +152,16 @@
             sortItems(e.target.value);
           });
 
+          document.getElementById('select-all-checkbox').addEventListener('change', (e) => {
+            if (e.target.checked) {
+              currentItems.forEach(item => selectedItems.add(item.key));
+            } else {
+              selectedItems.clear();
+            }
+            updateTotalValue();
+            sortItems(document.getElementById('sort-select').value);
+          });
+
           sortItems('rarity');
         });
       });
@@ -152,6 +173,7 @@
       } else {
         selectedItems.add(key);
       }
+      updateTotalValue();
     }
 
     function sellBack(itemKey, value, reload = true) {
