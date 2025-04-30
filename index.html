@@ -122,8 +122,6 @@
   <div class="desktop-menu flex items-center space-x-4">
     <div id="user-balance" class="hidden text-white flex items-center space-x-4">
       <div class="coin-box" id="user-balance-box"></div>
-    <a href="inventory.html" id="inventory-link" class="hidden sm:inline-flex px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Inventory</a>
-        <a id="auth-button" href="auth.html" class="hidden sm:inline-block px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Sign in</a>
   </div>
     <a href="inventory.html" id="inventory-link" class="hidden sm:inline-flex px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Inventory</a>
     <a id="auth-button" href="auth.html" class="hidden sm:inline-block px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Sign in</a>
@@ -472,6 +470,65 @@ function expandPrize(imageUrl) {
   overlayImg.src = imageUrl;
   overlay.classList.remove('hidden');
 }
+</script>
+  <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+    authDomain: "cases-e5b4e.firebaseapp.com",
+    databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+    projectId: "cases-e5b4e",
+    storageBucket: "cases-e5b4e.appspot.com",
+    messagingSenderId: "22502548396",
+    appId: "1:22502548396:web:aac335672c21f07524d009"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  window.onload = () => {
+    const mobileAuthButton = document.getElementById('mobile-auth-button');
+    const authButton = document.getElementById('auth-button');
+    const userBalanceDiv = document.getElementById('user-balance');
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById('inventory-link').classList.remove('hidden');
+        const userRef = db.ref('users/' + user.uid);
+        userRef.once('value').then(snapshot => {
+          if (!snapshot.exists()) userRef.set({ balance: 0 });
+          const userData = snapshot.val() || { balance: 0 };
+          userBalanceDiv.innerHTML = `
+            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline-block mr-2" width="18" height="18">
+            <span id="balance-amount">${userData.balance}</span>
+            <span>coins</span>
+            <button id="topup-button" class="text-green-400 text-2xl hover:text-green-500">+</button>
+          `;
+          userBalanceDiv.classList.remove('hidden');
+
+          authButton.innerText = 'Logout';
+          authButton.href = '#';
+          authButton.onclick = (e) => {
+            e.preventDefault();
+            firebase.auth().signOut().then(() => location.reload());
+          };
+
+          mobileAuthButton.innerText = 'Logout';
+          mobileAuthButton.href = '#';
+          mobileAuthButton.onclick = (e) => {
+            e.preventDefault();
+            firebase.auth().signOut().then(() => location.reload());
+          };
+        });
+      } else {
+        userBalanceDiv.classList.add('hidden');
+        authButton.innerText = 'Sign In';
+        authButton.href = 'auth.html';
+
+        mobileAuthButton.innerText = 'Sign In';
+        mobileAuthButton.href = 'auth.html';
+      }
+    });
+  };
 </script>
 </body>
 </html>
