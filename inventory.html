@@ -45,7 +45,11 @@
               <h2 class="font-semibold">${item.name}</h2>
               <p class="text-sm text-gray-400">${item.rarity}</p>
               <div class="mt-4 flex justify-center space-x-2">
-                <button onclick="sellBack('${key}', ${item.price || 0})" class="px-4 py-2 bg-red-500 rounded hover:opacity-80">Sell (-20%)</button>
+                <button onclick="sellBack('${key}', ${item.price || 0})" class="px-4 py-2 bg-red-500 rounded hover:opacity-80">
+  Sell for ${Math.floor((item.price || 0) * 0.8)} 
+  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline-block ml-1" width="16" height="16" />
+</button>
+
                 <button onclick="shipItem('${key}')" class="px-4 py-2 bg-green-500 rounded hover:opacity-80">Ship</button>
               </div>
             </div>`;
