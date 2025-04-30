@@ -23,23 +23,25 @@
 <body class="bg-gray-900 text-white font-sans p-6">
 
   <!-- Header -->
-  <header class="w-full bg-gray-800 border-b border-pink-500 py-4 px-6 flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 rounded-lg space-y-4 lg:space-y-0">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 w-full">
-      <h1 class="text-2xl font-bold text-pink-400 mb-2 sm:mb-0">🎒 Inventory</h1>
-      <a href="index.html" class="text-white hover:text-pink-400 transition">&larr; Back to Home</a>
+<header class="w-full bg-gray-800 border-b border-pink-500 py-4 px-6 rounded-lg mb-6">
+  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+      <h1 class="text-2xl font-bold text-pink-400">🎒 Inventory</h1>
+      <a href="index.html" class="text-white hover:text-pink-400 transition text-sm sm:text-base">&larr; Back to Home</a>
     </div>
-    <div class="flex flex-wrap items-center gap-2 text-white bg-gray-900 px-4 py-2 rounded-full w-full sm:w-auto justify-between">
-      <div id="username-display" class="text-sm text-gray-300 truncate max-w-[150px]"></div>
-      <div class="flex items-center space-x-1">
+    <div class="flex flex-wrap items-center gap-2 text-white bg-gray-900 px-4 py-2 rounded-full sm:justify-end sm:w-auto w-full">
+      <div id="username-display" class="text-sm text-gray-300 truncate max-w-[160px] sm:max-w-[200px]"></div>
+      <div class="flex items-center space-x-1 text-sm sm:text-base">
         <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="20" height="20" class="inline-block" />
         <span id="user-balance">--</span>
         <span>coins</span>
       </div>
-      <button id="logout-button" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition">
+      <button id="logout-button" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1 sm:py-2 rounded-full transition text-sm sm:text-base">
         Logout
       </button>
     </div>
-  </header>
+  </div>
+</header>
 
   <!-- Sort Dropdown and Batch Actions -->
   <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
