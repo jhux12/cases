@@ -19,6 +19,7 @@
     .animate-shake { animation: shake 0.6s; }
   </style>
 </head>
+
 <body>
 
 <!-- Navbar -->
@@ -32,7 +33,7 @@
   </div>
 </nav>
 
-<!-- Hero Section -->
+<!-- Hero -->
 <section class="pt-32 pb-20 px-6 text-center bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 animate-gradient">
   <div class="container mx-auto backdrop-blur-md bg-black bg-opacity-20 rounded-lg p-8 max-w-2xl">
     <h1 class="text-4xl md:text-5xl font-bold mb-6">Open cases and win <span class="text-pink-500">amazing rewards</span></h1>
@@ -40,7 +41,41 @@
   </div>
 </section>
 
-<!-- Top Up Modal -->
+<!-- Cases Section -->
+<section class="py-12 px-6">
+  <div class="container mx-auto">
+    <h2 class="text-2xl font-bold mb-8">Popular Cases</h2>
+    <div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+  </div>
+</section>
+
+<!-- Recent Wins -->
+<section class="py-8 bg-gray-800">
+  <h2 class="text-2xl font-bold text-center mb-4">Recent Wins</h2>
+  <div class="marquee">
+    <div id="recent-wins" class="marquee-content flex space-x-8"></div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="text-center py-6 bg-gray-800 mt-12">
+  &copy; 2025 PrimePull.gg. All rights reserved.
+</footer>
+
+<!-- Popups -->
+<div id="case-price" data-price="0" class="hidden"></div>
+<div id="case-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center px-4 overflow-y-auto z-50">
+  <div class="bg-gray-800 p-6 rounded-lg relative w-full max-w-2xl text-center">
+    <button id="close-popup" class="absolute top-2 right-2 text-xl"><i class="fas fa-times"></i></button>
+    <div id="case-image" class="fade mb-6">
+      <img id="case-main-image" src="" alt="Case" class="mx-auto rounded-lg w-40 h-40 object-contain">
+    </div>
+    <button id="open-case-button" class="px-8 py-3 mb-6 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button">Open Pack</button>
+    <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
+    <div id="result" class="mt-6 text-2xl font-bold hidden"></div>
+  </div>
+</div>
+
 <div id="topup-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
   <div class="bg-gray-800 p-8 rounded-lg w-full max-w-sm text-center relative">
     <button id="close-topup" class="absolute top-2 right-2 text-xl text-white"><i class="fas fa-times"></i></button>
@@ -53,32 +88,13 @@
   </div>
 </div>
 
-<!-- Case Grid -->
-<section class="py-12 px-6">
-  <div class="container mx-auto">
-    <h2 class="text-2xl font-bold mb-8">Popular Cases</h2>
-    <div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-  </div>
-</section>
-
-<!-- Case Popup Modal -->
-<div id="case-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center px-4 overflow-y-auto z-50">
-  <div class="bg-gray-800 p-6 rounded-lg relative w-full max-w-2xl text-center">
-    <button id="close-popup" class="absolute top-2 right-2 text-xl"><i class="fas fa-times"></i></button>
-    <div id="case-image" class="fade mb-6">
-      <img id="case-main-image" src="" alt="Case" class="mx-auto rounded-lg w-40 h-40 object-contain">
-    </div>
-    <button id="popup-open-button" class="px-8 py-3 mb-6 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button">Open Pack</button>
-    <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
-    <div id="result" class="mt-6 text-2xl font-bold hidden"></div>
-  </div>
-</div>
-
 <!-- Firebase Scripts -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
 <script>
+// Firebase Setup
 const firebaseConfig = {
   apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
   authDomain: "cases-e5b4e.firebaseapp.com",
@@ -89,24 +105,147 @@ const firebaseConfig = {
   appId: "1:22502548396:web:aac335672c21f07524d009"
 };
 firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const authButton = document.getElementById('auth-button');
+const userBalanceDiv = document.getElementById('user-balance');
+const topupPopup = document.getElementById('topup-popup');
+const closeTopup = document.getElementById('close-topup');
+const casesContainer = document.getElementById('cases-container');
+const recentWins = document.getElementById('recent-wins');
+const popup = document.getElementById('case-popup');
+const openCaseButton = document.getElementById('open-case-button');
+const caseImage = document.getElementById('case-main-image');
+const caseImageWrapper = document.getElementById('case-image');
+const resultDiv = document.getElementById('result');
+const possiblePrizesDiv = document.getElementById('possible-prizes');
+
+let currentPrizes = [];
 
 function addCoins(amount) {
   const user = firebase.auth().currentUser;
   if (!user) return alert('You must be logged in.');
-  const userRef = firebase.database().ref('users/' + user.uid);
+  const userRef = db.ref('users/' + user.uid);
   userRef.once('value').then(snapshot => {
-    const currentBalance = snapshot.val()?.balance || 0;
+    const currentBalance = snapshot.val().balance || 0;
     const newBalance = currentBalance + amount;
     userRef.update({ balance: newBalance }).then(() => {
       document.getElementById('balance-amount').innerText = newBalance;
-      document.getElementById('topup-popup').classList.add('hidden');
+      topupPopup.classList.add('hidden');
     });
   });
 }
 
+function loadCases() {
+  db.ref('cases').on('value', snapshot => {
+    casesContainer.innerHTML = '';
+    snapshot.forEach(child => {
+      const data = child.val();
+      casesContainer.innerHTML += 
+        <div class="p-4 bg-gray-800 rounded-lg">
+          <img src="${data.image}" class="case-card-img">
+          <h3 class="mt-2 font-semibold">${data.name}</h3>
+          <p class="text-sm text-gray-400 mb-2">$${data.price || '0.00'}</p>
+          <button class="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded open-case glow-button" data-id="${child.key}">Open Pack</button>
+        </div>;
+    });
+    document.querySelectorAll('.open-case').forEach(btn => {
+  btn.onclick = openCasePopup;
+});
+  });
+}
+
+function loadRecentWins() {
+  db.ref('recentWins').on('value', snapshot => {
+    recentWins.innerHTML = '';
+    snapshot.forEach(child => {
+      const win = child.val();
+      recentWins.innerHTML += <div class="flex items-center space-x-2"><img src="${win.image}" class="h-8 w-8 rounded-full object-cover"> <span>${win.name}</span></div>;
+    });
+  });
+}
+let selectedCaseId = null; // add this globally at the top of your script
+let selectedCasePrice = 0; // <-- ✅ NEW
+
+function openCasePopup(e) {
+  const caseId = e.target.dataset.id;
+  selectedCaseId = caseId;
+  
+  db.ref('cases/' + caseId).once('value').then(snapshot => {
+    const data = snapshot.val(); // ✅ FIRST, load the data
+    selectedCasePrice = parseFloat(data.price) || 0; // ✅ THEN set the price after loading
+    document.getElementById('case-price').dataset.price = data.price || '0';
+    caseImage.src = data.image;
+    currentPrizes = Object.values(data.prizes || {});
+    possiblePrizesDiv.innerHTML = currentPrizes.map(prize => 
+      <div class="text-center"><img src="${prize.image}" class="h-16 mx-auto object-contain"><p class="text-sm">${prize.name} (${prize.rarity || 'Unknown'})</p></div>).join('');
+    resultDiv.classList.add('hidden');
+    popup.classList.remove('hidden');
+  });
+}
+
+document.getElementById('close-popup').onclick = () => popup.classList.add('hidden');
+
+openCaseButton.onclick = () => {
+  const user = firebase.auth().currentUser;
+  if (!user) return alert('Please sign in first!');
+
+  if (!selectedCaseId) return alert('No case selected.');
+
+  const userRef = db.ref('users/' + user.uid);
+  userRef.once('value').then(userSnap => {
+    const userData = userSnap.val() || {};
+    const userBalance = parseFloat(userData.balance || 0);
+
+    if (userBalance < selectedCasePrice) {
+      alert('Insufficient balance.');
+      return;
+    }
+
+    const newBalance = userBalance - selectedCasePrice;
+    userRef.update({ balance: newBalance }).then(() => {
+      document.getElementById('balance-amount').innerText = newBalance;
+
+      caseImageWrapper.classList.add('animate-shake');
+      setTimeout(() => {
+        caseImageWrapper.classList.remove('animate-shake');
+        const winningPrize = currentPrizes[Math.floor(Math.random() * currentPrizes.length)];
+        caseImage.src = winningPrize.image;
+        resultDiv.innerHTML = 🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉;
+        resultDiv.classList.remove('hidden');
+        confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+      }, 1000);
+    });
+  });
+};
+closeTopup.onclick = () => topupPopup.classList.add('hidden');
+
+// Load everything
 window.onload = () => {
-  document.getElementById('topup-button').onclick = () => document.getElementById('topup-popup').classList.remove('hidden');
-  document.getElementById('close-topup').onclick = () => document.getElementById('topup-popup').classList.add('hidden');
+  loadCases();
+  loadRecentWins();
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      const userRef = db.ref('users/' + user.uid);
+      userRef.once('value').then(snapshot => {
+        if (!snapshot.exists()) userRef.set({ balance: 0 });
+        const userData = snapshot.val() || { balance: 0 };
+        userBalanceDiv.innerHTML = 
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline-block mr-2" width="18" height="18">
+          <span id="balance-amount">${userData.balance}</span> coins
+          <button id="topup-button" class="text-green-400 text-2xl hover:text-green-500 ml-2">+</button>;
+        userBalanceDiv.classList.remove('hidden');
+        document.getElementById('topup-button').onclick = () => topupPopup.classList.remove('hidden');
+        authButton.innerText = 'Logout';
+        authButton.href = '#';
+        authButton.onclick = (e) => { e.preventDefault(); firebase.auth().signOut().then(() => location.reload()); };
+      });
+    } else {
+      userBalanceDiv.classList.add('hidden');
+      authButton.innerText = 'Sign In';
+      authButton.href = 'auth.html';
+    }
+  });
 };
 </script>
 
