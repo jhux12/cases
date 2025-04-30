@@ -32,17 +32,17 @@
   <main class="space-y-6">
     <section id="cases" class="tab tab-active">
       <h2 class="text-xl font-semibold mb-4">Case & Prize Management</h2>
-      <!-- Add your cases form/logic here -->
+      <div id="case-section" class="bg-gray-800 p-4 rounded">Loading...</div>
     </section>
 
     <section id="users" class="tab">
       <h2 class="text-xl font-semibold mb-4">User Management</h2>
-      <!-- Add your user management logic here -->
+      <div id="user-section" class="bg-gray-800 p-4 rounded">Loading...</div>
     </section>
 
     <section id="orders" class="tab">
       <h2 class="text-xl font-semibold mb-4">Order Management</h2>
-      <!-- Add your orders logic here -->
+      <div id="order-section" class="bg-gray-800 p-4 rounded">Loading...</div>
     </section>
 
     <section id="analytics" class="tab">
@@ -115,9 +115,22 @@
       });
     }
 
-    window.onload = () => {
-      loadAnalytics();
+    async function loadSections() {
+      const [caseHTML, userHTML, orderHTML] = await Promise.all([
+        fetch('case-admin.html').then(r => r.text()),
+        fetch('user-admin.html').then(r => r.text()),
+        fetch('orders-admin.html').then(r => r.text())
+      ]);
+      document.getElementById('case-section').innerHTML = caseHTML;
+      document.getElementById('user-section').innerHTML = userHTML;
+      document.getElementById('order-section').innerHTML = orderHTML;
     }
+
+    window.onload = () => {
+      showTab('cases');
+      loadAnalytics();
+      loadSections();
+    };
   </script>
 </body>
 </html>
