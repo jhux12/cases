@@ -246,7 +246,8 @@
     loadCases();
     loadRecentWins();
     firebase.auth().onAuthStateChanged(user => {
-      if (user) {
+    if (user) {
+      document.getElementById('inventory-link').classList.remove('hidden');
         const userRef = db.ref('users/' + user.uid);
         userRef.once('value').then(snapshot => {
           if (!snapshot.exists()) userRef.set({ balance: 0 });
