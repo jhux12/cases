@@ -8,8 +8,23 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <style>
+  .item-card {
+    background-color: #1f1f2b;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  }
+  .item-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  }
+</style>
 </head>
 <body class="bg-gray-900 text-white font-sans p-6">
+  <div id="balance-display" class="mb-4 flex items-center space-x-2 text-lg">
+  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="20" height="20" />
+  <span id="balance-amount">Loading...</span> coins
+</div>
   <h1 class="text-3xl font-bold mb-6">Your Inventory</h1>
   <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
 
@@ -28,6 +43,11 @@
 
     firebase.auth().onAuthStateChanged(user => {
       if (!user) return (window.location.href = "auth.html");
+      const userRef = db.ref('users/' + user.uid);
+userRef.once('value').then(userSnap => {
+  const balance = userSnap.val().balance || 0;
+  document.getElementById('balance-amount').innerText = balance;
+});
       const inventoryRef = db.ref('users/' + user.uid + '/inventory');
       inventoryRef.once('value').then(snapshot => {
         const container = document.getElementById('inventory-container');
@@ -40,7 +60,7 @@
           const item = child.val();
           const key = child.key;
           container.innerHTML += `
-            <div class="bg-gray-800 rounded-lg p-4 text-center">
+            <div class="item-card rounded-xl p-4 text-center">
               <img src="${item.image}" class="mx-auto mb-2 h-24 object-contain">
               <h2 class="font-semibold">${item.name}</h2>
               <p class="text-sm text-gray-400">${item.rarity}</p>
