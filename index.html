@@ -180,13 +180,13 @@
 </footer>
 
 <!-- Case Popup -->
-  <button id="toggle-odds" class="toggle-odds-btn mx-auto mb-4">Hide Odds</button>
 <div id="case-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center px-4 overflow-y-auto z-50">
   <div class="bg-gradient-to-br from-purple-800/80 to-pink-700/80 p-8 rounded-xl border border-white/10 shadow-2xl w-full max-w-2xl text-center backdrop-blur-md">
     <button id="close-popup" class="absolute top-4 right-4 text-white text-2xl hover:text-pink-300 transition"><i class="fas fa-times"></i></button>
     <div id="case-image" class="fade mb-6">
       <img id="case-main-image" src="" alt="Case" class="mx-auto rounded-xl w-40 h-40 object-contain ring-2 ring-white/20">
     </div>
+    <button id="open-case-button" class="px-8 py-3 mb-6 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button font-semibold text-lg">Open Pack</button>
     <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
     <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"> class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
     <div id="result" class="mt-6 text-2xl font-bold hidden"></div>
@@ -265,9 +265,7 @@
             <img src="${data.image}" class="case-card-img">
             <h3 class="mt-2 font-semibold">${data.name}</h3>
             <p class="text-sm text-gray-400 mb-2">$${data.price || '0.00'}</p>
-            <button class="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded open-case glow-button" data-id="${child.key}">
-  Open Pack for $${data.price || '0.00'} <i class="fas fa-coins coin-icon"></i>
-</button>
+            <button class="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded open-case glow-button enhanced-glow" data-id="${child.key}">Open Pack</button>
           </div>`;
       });
       document.querySelectorAll('.open-case').forEach(btn => {
@@ -296,7 +294,6 @@
     db.ref('cases/' + caseId).once('value').then(snapshot => {
       const data = snapshot.val();
       selectedCasePrice = parseFloat(data.price) || 0;
-      selectedCasePrice = parseFloat(data.price) || 0;
       caseImage.src = data.image;
       currentPrizes = Object.values(data.prizes || {});
       possiblePrizesDiv.innerHTML = currentPrizes.map(prize => {
@@ -310,7 +307,6 @@
         <div class="text-center cursor-pointer transition-transform duration-300" onclick="expandPrize('${prize.image}')">
           <img src="${prize.image}" class="h-24 mx-auto object-contain rounded ring-2 ${ringColor} transition-transform duration-300">
           <div class="mt-2 text-sm font-semibold text-white">${prize.name}</div>
-          <div class="prize-odds mt-1 text-xs text-gray-400">Odds: ${prize.odds || 0}%</div>
           ${label}
         </div>`;
       }).join('');
@@ -450,16 +446,6 @@ function expandPrize(imageUrl) {
   overlayImg.src = imageUrl;
   overlay.classList.remove('hidden');
 }
-</script>
-<script>
-  let showOdds = true;
-  document.getElementById('toggle-odds').addEventListener('click', () => {
-    showOdds = !showOdds;
-    document.querySelectorAll('.prize-odds').forEach(el => {
-      el.classList.toggle('hidden', !showOdds);
-    });
-    document.getElementById('toggle-odds').innerText = showOdds ? 'Hide Odds' : 'Show Odds';
-  });
 </script>
 </body>
 </html>
