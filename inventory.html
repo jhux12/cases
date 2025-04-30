@@ -76,7 +76,7 @@
           inventorySnap.forEach(child => {
             const item = child.val();
             const key = child.key;
-            const refund = Math.floor((item.price || 0) * 0.8);
+            const refund = Math.floor((item.value || 0) * 0.8);
             container.innerHTML += `
               <div class="item-card rounded-lg p-4 text-center">
                 <img src="${item.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
