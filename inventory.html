@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory | PrimePull.gg</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans p-6">
+  <h1 class="text-3xl font-bold mb-6">Your Inventory</h1>
+  <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+      authDomain: "cases-e5b4e.firebaseapp.com",
+      databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+      projectId: "cases-e5b4e",
+      storageBucket: "cases-e5b4e.appspot.com",
+      messagingSenderId: "22502548396",
+      appId: "1:22502548396:web:aac335672c21f07524d009"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) return (window.location.href = "auth.html");
+      const inventoryRef = db.ref('users/' + user.uid + '/inventory');
+      inventoryRef.once('value').then(snapshot => {
+        const container = document.getElementById('inventory-container');
+        if (!snapshot.exists()) {
+          container.innerHTML = "<p>You have no items yet.</p>";
+          return;
+        }
+
+        snapshot.forEach(child => {
+          const item = child.val();
+          const key = child.key;
+          container.innerHTML += `
+            <div class="bg-gray-800 rounded-lg p-4 text-center">
+              <img src="${item.image}" class="mx-auto mb-2 h-24 object-contain">
+              <h2 class="font-semibold">${item.name}</h2>
+              <p class="text-sm text-gray-400">${item.rarity}</p>
+              <div class="mt-4 flex justify-center space-x-2">
+                <button onclick="sellBack('${key}', ${item.price || 0})" class="px-4 py-2 bg-red-500 rounded hover:opacity-80">Sell (-20%)</button>
+                <button onclick="shipItem('${key}')" class="px-4 py-2 bg-green-500 rounded hover:opacity-80">Ship</button>
+              </div>
+            </div>`;
+        });
+      });
+    });
+
+    function sellBack(itemKey, itemPrice) {
+      const user = firebase.auth().currentUser;
+      if (!user) return;
+
+      const refund = Math.floor(itemPrice * 0.8);
+      const userRef = db.ref('users/' + user.uid);
+      const itemRef = db.ref('users/' + user.uid + '/inventory/' + itemKey);
+
+      userRef.once('value').then(userSnap => {
+        const currentBalance = userSnap.val().balance || 0;
+        userRef.update({ balance: currentBalance + refund }).then(() => {
+          itemRef.remove().then(() => {
+            alert(`Item sold for ${refund} coins.`);
+            location.reload();
+          });
+        });
+      });
+    }
+
+    function shipItem(itemKey) {
+      alert("Shipping process coming soon!");
+    }
+  </script>
+</body>
+</html>
