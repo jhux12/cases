@@ -103,6 +103,13 @@
    {
     animation: logo-pulse 4s ease-in-out infinite;
   }
+  @keyframes overlay-zoom {
+    0% { transform: scale(0.75); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .animate-overlay-zoom {
+    animation: overlay-zoom 0.3s ease-out forwards;
+  }
 </style>
 </head>
 <body>
@@ -421,8 +428,8 @@
 </script>
 <div id="prize-overlay" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[100]" onclick="this.classList.add('hidden')">
   <div class="relative" onclick="event.stopPropagation()">
-    <button onclick="document.getElementById('prize-overlay').classList.add('hidden')" class="absolute -top-4 -right-4 text-white text-xl bg-black/60 px-2 py-1 rounded-full">&times;</button>
-    <img id="overlay-image" src="" class="max-w-[90vw] max-h-[90vh] rounded-lg shadow-lg border border-white/20">
+    <button onclick="document.getElementById('prize-overlay').classList.add('hidden')" class="absolute top-2 right-2 text-white text-xl bg-black/70 px-3 py-1 rounded-full z-10 hover:bg-pink-600 transition">&times;</button>
+    <img id="overlay-image" src="" class="w-[300px] sm:w-[400px] rounded-lg shadow-lg border border-white/20 transition-all duration-300 scale-75 opacity-0 animate-overlay-zoom">
   </div>
 </div>
 
