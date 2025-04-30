@@ -187,8 +187,6 @@
     <div id="case-image" class="fade mb-6">
       <img id="case-main-image" src="" alt="Case" class="mx-auto rounded-xl w-40 h-40 object-contain ring-2 ring-white/20">
     </div>
-    document.getElementById('open-case-button').innerHTML = 
-  `Open Pack for $${selectedCasePrice} <i class="fas fa-coins coin-icon"></i>`;
     <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
     <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"> class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
     <div id="result" class="mt-6 text-2xl font-bold hidden"></div>
@@ -297,6 +295,7 @@
     selectedCaseId = caseId;
     db.ref('cases/' + caseId).once('value').then(snapshot => {
       const data = snapshot.val();
+      selectedCasePrice = parseFloat(data.price) || 0;
       selectedCasePrice = parseFloat(data.price) || 0;
       caseImage.src = data.image;
       currentPrizes = Object.values(data.prizes || {});
