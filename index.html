@@ -1,189 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cases.gg | Open Cases and Win</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrimePull.gg | Open Cases and Win</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @keyframes gradientMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-.animate-gradient {
-  background-size: 400% 400%;
-  animation: gradientMove 8s ease infinite;
-}
     @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
     body { font-family: 'Inter', sans-serif; background-color: #0f0f12; color: white; }
-    .scrollbar-hide::-webkit-scrollbar { display: none; }
-    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .case-card-img { height: 200px; width: 100%; object-fit: cover; border-radius: 8px; }
     .fade { transition: opacity 0.5s ease; }
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-10px); } 40% { transform: translateX(10px); } 60% { transform: translateX(-10px); } 80% { transform: translateX(10px); } }
     .animate-shake { animation: shake 0.6s; }
-    .glow-button { animation: glow 1.5s infinite alternate; }
-    @keyframes glow { from { box-shadow: 0 0 5px #a855f7; } to { box-shadow: 0 0 20px #ec4899; } }
-    .rarity-common { color: gray; }
-    .rarity-uncommon { color: green; }
-    .rarity-rare { color: #3b82f6; }
-    .rarity-ultra { color: purple; }
-    .rarity-legendary { color: gold; }
-    .marquee { display: flex; overflow: hidden; white-space: nowrap; }
-    .marquee-content { display: inline-block; animation: marquee 20s linear infinite; }
-    @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-10px); }
+      40% { transform: translateX(10px); }
+      60% { transform: translateX(-10px); }
+      80% { transform: translateX(10px); }
+    }
   </style>
 </head>
-
 <body>
 
-<!-- Navbar -->
-<nav class="navbar fixed w-full z-50 py-4 px-6 flex justify-between items-center border-b border-gray-800 bg-gray-900">
-  <div class="flex items-center space-x-4">
-    <span class="text-xl font-bold text-purple-500">cases.gg</span>
-  </div>
-  <div class="flex items-center space-x-4">
-    <button class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Sign in</button>
-  </div>
-</nav>
+<div id="user-balance" class="text-center p-4 text-lg"></div>
 
-<!-- Hero Section -->
-<section class="pt-32 pb-20 px-6 text-center bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 animate-gradient">
-  <div class="container mx-auto backdrop-blur-md bg-black bg-opacity-20 rounded-lg p-8 max-w-2xl">
-    <h1 class="text-4xl md:text-5xl font-bold mb-6">Open cases and win <span class="text-pink-500">amazing rewards</span></h1>
-    <p class="text-lg text-gray-300 mb-8">Join thousands opening cases daily. Get the rarest skins!</p>
-  </div>
-</section>
-<!-- Popular Cases Section -->
-<section class="py-12 px-6">
-  <div class="container mx-auto">
-    <h2 class="text-2xl font-bold mb-8">Popular Cases</h2>
-    <div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-  </div>
-</section>
-
-<!-- Recent Wins Section -->
-<section class="py-8 bg-gray-800">
-  <h2 class="text-2xl font-bold text-center mb-4">Recent Wins</h2>
-  <div class="marquee">
-    <div id="recent-wins" class="marquee-content flex space-x-8"></div>
-  </div>
-</section>
-
-<!-- Footer -->
-<footer class="text-center py-6 bg-gray-800 mt-12">
-  &copy; 2025 cases.gg. All rights reserved.
-</footer>
+<!-- Case list -->
+<div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6"></div>
 
 <!-- Popup Modal -->
-<div id="case-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center px-4 overflow-y-auto z-50">
-  <div class="bg-gray-800 p-6 rounded-lg relative w-full max-w-2xl text-center">
+<div id="case-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center px-4 z-50">
+  <div class="bg-gray-800 p-6 rounded-lg text-center w-full max-w-xl">
     <button id="close-popup" class="absolute top-2 right-2 text-xl"><i class="fas fa-times"></i></button>
     <div id="case-image" class="fade mb-6">
       <img id="case-main-image" src="" alt="Case" class="mx-auto rounded-lg w-40 h-40 object-contain">
     </div>
-    <button id="open-case-button" class="px-8 py-3 mb-6 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button">Open Case</button>
+    <button id="popup-open-button" class="px-8 py-3 mb-6 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90">Open Pack</button>
     <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
     <div id="result" class="mt-6 text-2xl font-bold hidden"></div>
   </div>
 </div>
 
+<!-- Firebase Scripts -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
 <script>
-const firebaseConfig = { apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE", authDomain: "cases-e5b4e.firebaseapp.com", databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com", projectId: "cases-e5b4e", storageBucket: "cases-e5b4e.appspot.com", messagingSenderId: "22502548396", appId: "1:22502548396:web:aac335672c21f07524d009" };
+const firebaseConfig = {
+  apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+  authDomain: "cases-e5b4e.firebaseapp.com",
+  databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+  projectId: "cases-e5b4e",
+  storageBucket: "cases-e5b4e.appspot.com",
+  messagingSenderId: "22502548396",
+  appId: "1:22502548396:web:aac335672c21f07524d009"
+};
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
 
-const casesContainer = document.getElementById('cases-container');
-const popup = document.getElementById('case-popup');
-const possiblePrizesDiv = document.getElementById('possible-prizes');
-const closePopup = document.getElementById('close-popup');
-const openCaseButton = document.getElementById('open-case-button');
-const caseImage = document.getElementById('case-main-image');
-const caseImageWrapper = document.getElementById('case-image');
-const resultDiv = document.getElementById('result');
-const recentWins = document.getElementById('recent-wins');
+window.onload = () => {
+  const db = firebase.database();
+  const userBalanceDiv = document.getElementById('user-balance');
+  const casesContainer = document.getElementById('cases-container');
+  const popup = document.getElementById('case-popup');
+  const popupOpenButton = document.getElementById('popup-open-button');
+  const caseImage = document.getElementById('case-main-image');
+  const caseImageWrapper = document.getElementById('case-image');
+  const resultDiv = document.getElementById('result');
+  const possiblePrizesDiv = document.getElementById('possible-prizes');
 
-let currentPrizes = [];
+  let currentPrizes = [];
+  let selectedCaseId = null;
+  let selectedCasePrice = 0;
 
-function rarityClass(rarity) {
-  if (!rarity) return ''; rarity = rarity.toLowerCase();
-  if (rarity.includes('common')) return 'rarity-common';
-  if (rarity.includes('uncommon')) return 'rarity-uncommon';
-  if (rarity.includes('rare')) return 'rarity-rare';
-  if (rarity.includes('ultra')) return 'rarity-ultra';
-  if (rarity.includes('legendary')) return 'rarity-legendary';
-  return '';
-}
-
-function loadCases() {
-  db.ref('cases').on('value', snapshot => {
-    casesContainer.innerHTML = '';
-    snapshot.forEach(child => {
-      const data = child.val();
-      const div = document.createElement('div');
-      div.className = 'p-4 bg-gray-800 rounded-lg';
-      div.innerHTML = `<img src="${data.image}" class="w-full rounded-lg"><h3 class="mt-2 font-semibold">${data.name}</h3>
-        <p class="text-sm text-gray-400 mb-2">$${data.price || '0.00'}</p>
-        <button class="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded open-case glow-button" data-id="${child.key}">Open Case</button>`;
-      casesContainer.appendChild(div);
+  function refreshUserBalance(uid) {
+    db.ref('users/' + uid).once('value').then(snapshot => {
+      const balance = snapshot.val()?.balance || 0;
+      userBalanceDiv.innerHTML = `Balance: <strong>${balance}</strong> coins`;
     });
-    document.querySelectorAll('.open-case').forEach(btn => btn.onclick = openCasePopup);
+  }
+
+  function loadCases() {
+    db.ref('cases').on('value', snapshot => {
+      casesContainer.innerHTML = '';
+      snapshot.forEach(child => {
+        const data = child.val();
+        casesContainer.innerHTML += `
+          <div class="p-4 bg-gray-800 rounded-lg">
+            <img src="${data.image}" class="case-card-img">
+            <h3 class="mt-2 font-semibold">${data.name}</h3>
+            <p class="text-sm text-gray-400 mb-2">${data.price || '0.00'} Coins</p>
+            <button class="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded open-case" onclick="openCasePopup('${child.key}')">Open Pack</button>
+          </div>`;
+      });
+    });
+  }
+
+  window.openCasePopup = (caseId) => {
+    selectedCaseId = caseId;
+    db.ref('cases/' + caseId).once('value').then(snapshot => {
+      const data = snapshot.val();
+      selectedCasePrice = parseFloat(data.price || 0);
+      caseImage.src = data.image || '';
+      currentPrizes = Object.values(data.prizes || {});
+      possiblePrizesDiv.innerHTML = currentPrizes.map(prize => `
+        <div class="text-center">
+          <img src="${prize.image}" class="h-16 mx-auto object-contain" />
+          <p class="text-sm">${prize.name} (${prize.rarity || 'Unknown'})</p>
+        </div>`).join('');
+      resultDiv.classList.add('hidden');
+      popup.classList.remove('hidden');
+    });
+  };
+
+  document.getElementById('close-popup').onclick = () => popup.classList.add('hidden');
+
+  popupOpenButton.onclick = () => {
+    console.log('🔥 Clicked Open Pack');
+    const user = firebase.auth().currentUser;
+    if (!user || !selectedCaseId || selectedCasePrice === 0) {
+      alert("Please log in or select a case.");
+      return;
+    }
+
+    const balanceRef = db.ref('users/' + user.uid + '/balance');
+    balanceRef.transaction((currentBalance) => {
+      if (currentBalance === null || currentBalance < selectedCasePrice) return;
+      return currentBalance - selectedCasePrice;
+    }, (error, committed) => {
+      if (error) {
+        console.error('❌ Transaction error:', error);
+      } else if (!committed) {
+        alert('❗ Not enough coins!');
+      } else {
+        refreshUserBalance(user.uid);
+        caseImageWrapper.classList.add('animate-shake');
+        setTimeout(() => {
+          caseImageWrapper.classList.remove('animate-shake');
+          const prize = currentPrizes[Math.floor(Math.random() * currentPrizes.length)];
+          caseImage.src = prize.image;
+          resultDiv.innerHTML = `🎉 You won: <span>${prize.name} (${prize.rarity || 'Unknown'})</span> 🎉`;
+          resultDiv.classList.remove('hidden');
+          confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+        }, 1000);
+      }
+    });
+  };
+
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      refreshUserBalance(user.uid);
+    }
   });
-}
 
-function loadRecentWins() {
-  db.ref('recentWins').on('value', snapshot => {
-    recentWins.innerHTML = '';
-    snapshot.forEach(child => {
-      const win = child.val();
-      recentWins.innerHTML += `<div class="flex items-center space-x-2"><img src="${win.image}" class="h-8 w-8 rounded-full object-cover"> <span>${win.name}</span></div>`;
-    });
-  });
-}
-
-function openCasePopup(e) {
-  const caseId = e.target.dataset.id;
-  db.ref('cases/' + caseId).once('value').then(snapshot => {
-    const data = snapshot.val();
-    if (!data) { alert("Case not found."); return; }
-
-    caseImage.src = data.image || "";
-    currentPrizes = Object.values(data.prizes || {});
-
-    possiblePrizesDiv.innerHTML = '';
-    resultDiv.classList.add('hidden');
-
-    currentPrizes.forEach(prize => {
-      possiblePrizesDiv.innerHTML += `<div class="text-center">
-        <img src="${prize.image}" class="h-16 mx-auto object-contain">
-        <p class="text-sm ${rarityClass(prize.rarity)}">${prize.name} (${prize.rarity || 'Unknown'})</p>
-      </div>`;
-    });
-
-    popup.classList.remove('hidden');
-  }).catch(error => { console.error(error); alert('Error fetching case details.'); });
-}
-
-function shakeAndRevealPrize() {
-  caseImageWrapper.classList.add('animate-shake');
-  setTimeout(() => {
-    caseImageWrapper.classList.remove('animate-shake');
-    const winningPrize = currentPrizes[Math.floor(Math.random() * currentPrizes.length)];
-    caseImage.src = winningPrize.image;
-    resultDiv.innerHTML = `🎉 You won: <span class="${rarityClass(winningPrize.rarity)}">${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
-    resultDiv.classList.remove('hidden');
-    confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
-  }, 1000);
-}
-
-closePopup.onclick = () => popup.classList.add('hidden');
-openCaseButton.onclick = shakeAndRevealPrize;
-window.onload = () => { loadCases(); loadRecentWins(); }
+  loadCases();
+};
 </script>
 
-<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=jaydan1/cases" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</body>
 </html>
