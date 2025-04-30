@@ -97,6 +97,12 @@
   .legendary-glow {
     animation: pulse-glow 2s infinite;
   }
+  
+    50% { opacity: 0.9; transform: scale(1.05); }
+  }
+   {
+    animation: logo-pulse 4s ease-in-out infinite;
+  }
 </style>
 </head>
 <body>
@@ -104,7 +110,7 @@
 <!-- Navbar -->
 <nav class="navbar fixed w-full z-50 py-4 px-6 flex justify-between items-center border-b border-gray-800 bg-gray-900">
   <div class="flex items-center space-x-4">
-    <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(8).png?alt=media&token=3b3e6509-e988-46bc-814c-620cf8830ebb" alt="PrimePull.gg" class="h-10">
+    <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(8).png?alt=media&token=3b3e6509-e988-46bc-814c-620cf8830ebb" alt="PrimePull.gg" class="h-16 transition-transform duration-500 hover:scale-110">
   </div>
   <div class="desktop-menu flex items-center space-x-4">
     <div id="user-balance" class="hidden text-white flex items-center space-x-4">
@@ -125,7 +131,7 @@
 </nav>
 
 <!-- Hero -->
-<section class="pt-32 pb-20 px-6 bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600">
+<section class="pt-24 pb-12 px-6 bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600">
   <div class="container mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-2 items-center gap-8">
     <div class="rounded-xl p-8 shadow-xl bg-gradient-to-r from-purple-600/30 to-pink-500/30 backdrop-blur-md border-2 border-transparent bg-clip-padding transform transition-transform duration-500 hover:rotate-1 hover:scale-105 text-center md:text-left">
       <h1 class="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] text-white animate-fade-up opacity-0">Pack it. Crack it. Brag about it. <span class="emoji-sparkle">🎉</span></h1>
@@ -291,10 +297,11 @@
                           prize.rarity === 'legendary' ? 'ring-yellow-400 legendary-glow' : 'ring-white';
         const label = prize.rarity ? `<div class='mt-2 text-xs font-semibold text-${ringColor.replace('ring-', '')} uppercase'>${prize.rarity}</div>` : '';
         return `
-          <div class="text-center">
-            <img src="${prize.image}" class="h-16 mx-auto object-contain rounded ring-2 ${ringColor}">
-            ${label}
-          </div>`;
+        <div class="text-center cursor-pointer transition-transform duration-300" onclick="expandPrize('${prize.image}')">
+          <img src="${prize.image}" class="h-24 mx-auto object-contain rounded ring-2 ${ringColor} transition-transform duration-300">
+          <div class="mt-2 text-sm font-semibold text-white">${prize.name}</div>
+          ${label}
+        </div>`;
       }).join('');
       resultDiv.classList.add('hidden');
       popup.classList.remove('hidden');
@@ -411,6 +418,21 @@
   }
 
   animateParticles();
+</script>
+<div id="prize-overlay" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[100]" onclick="this.classList.add('hidden')">
+  <div class="relative" onclick="event.stopPropagation()">
+    <button onclick="document.getElementById('prize-overlay').classList.add('hidden')" class="absolute -top-4 -right-4 text-white text-xl bg-black/60 px-2 py-1 rounded-full">&times;</button>
+    <img id="overlay-image" src="" class="max-w-[90vw] max-h-[90vh] rounded-lg shadow-lg border border-white/20">
+  </div>
+</div>
+
+<script>
+function expandPrize(imageUrl) {
+  const overlay = document.getElementById('prize-overlay');
+  const overlayImg = document.getElementById('overlay-image');
+  overlayImg.src = imageUrl;
+  overlay.classList.remove('hidden');
+}
 </script>
 </body>
 </html>
