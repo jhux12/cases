@@ -188,7 +188,7 @@
     </div>
     <button id="open-case-button" class="px-8 py-3 mb-6 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button font-semibold text-lg flex items-center justify-center gap-2 text-white">
   Open for <span id="popup-price">0</span>
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-5 h-5">
+  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-5 h-5 inline-block">
 </button>
     <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
     <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"> class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
@@ -299,6 +299,7 @@
     db.ref('cases/' + caseId).once('value').then(snapshot => {
       const data = snapshot.val();
       selectedCasePrice = parseFloat(data.price) || 0;
+      document.getElementById('popup-price').innerText = selectedCasePrice;
       caseImage.src = data.image;
       currentPrizes = Object.values(data.prizes || {});
       possiblePrizesDiv.innerHTML = currentPrizes.map(prize => {
