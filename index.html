@@ -117,20 +117,6 @@
   .animate-pulse {
     animation: pulse 0.5s ease-in-out;
   }
-  .translate-y-20 { transform: translateY(5rem); }
-  .translate-y-0 { transform: translateY(0); }
-  .opacity-0 { opacity: 0; }
-  .opacity-100 { opacity: 1; }
-@keyframes sparkle-pop {
-  0% { transform: scale(0.5); opacity: 0.8; }
-  100% { transform: scale(2.5); opacity: 0; }
-}
-.sparkle-effect {
-  border-radius: 9999px;
-  transform: scale(0.5);
-  opacity: 0;
-  pointer-events: none;
-}
 </style>
 </head>
 <body>
@@ -209,7 +195,7 @@
     </div>
     <button id="open-case-button" class="px-8 py-3 mb-6 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button font-semibold text-lg">Open Pack</button>
     <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
-    <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
+    <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"> class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
     <div id="result" class="mt-6 text-2xl font-bold hidden"></div>
   </div>
 </div>
@@ -355,11 +341,14 @@
         document.getElementById('balance-amount').innerText = newBalance;
         caseImageWrapper.classList.add('animate-shake');
         caseImageWrapper.classList.remove('animate-shake');
+
+
+          caseImageWrapper.classList.add('animate-pulse');
           const winningPrize = currentPrizes[Math.floor(Math.random() * currentPrizes.length)];
           caseImage.src = winningPrize.image;
-          resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
+          resultDiv.innerHTML = `🎉 <strong class="text-yellow-400">You pulled:</strong> <span class="text-white">${winningPrize.name}</span> <span class="uppercase text-sm text-${winningPrize.rarity === 'legendary' ? 'yellow' : winningPrize.rarity === 'ultra rare' ? 'purple' : winningPrize.rarity === 'rare' ? 'blue' : winningPrize.rarity === 'uncommon' ? 'green' : 'gray'}-400 font-bold">(${winningPrize.rarity || 'Unknown'})</span> 🎉`;
           resultDiv.classList.remove('hidden');
-          confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+          confetti({ particleCount: 200, spread: 100, startVelocity: 35, origin: { y: 0.5 } });
           const inventoryRef = db.ref('users/' + user.uid + '/inventory');
           const newItemRef = inventoryRef.push();
           newItemRef.set({
