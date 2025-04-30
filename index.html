@@ -161,13 +161,14 @@
 
 <!-- Case Popup -->
 <div id="case-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center px-4 overflow-y-auto z-50">
-  <div class="bg-gray-800 p-6 rounded-lg relative w-full max-w-2xl text-center">
-    <button id="close-popup" class="absolute top-2 right-2 text-xl"><i class="fas fa-times"></i></button>
+  <div class="bg-gradient-to-br from-purple-800/80 to-pink-700/80 p-8 rounded-xl border border-white/10 shadow-2xl w-full max-w-2xl text-center backdrop-blur-md">
+    <button id="close-popup" class="absolute top-4 right-4 text-white text-2xl hover:text-pink-300 transition"><i class="fas fa-times"></i></button>
     <div id="case-image" class="fade mb-6">
-      <img id="case-main-image" src="" alt="Case" class="mx-auto rounded-lg w-40 h-40 object-contain">
+      <img id="case-main-image" src="" alt="Case" class="mx-auto rounded-xl w-40 h-40 object-contain ring-2 ring-white/20">
     </div>
-    <button id="open-case-button" class="px-8 py-3 mb-6 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button">Open Pack</button>
-    <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
+    <button id="open-case-button" class="px-8 py-3 mb-6 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button font-semibold text-lg">Open Pack</button>
+    <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
+    <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"> class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
     <div id="result" class="mt-6 text-2xl font-bold hidden"></div>
   </div>
 </div>
@@ -277,7 +278,7 @@
       currentPrizes = Object.values(data.prizes || {});
       possiblePrizesDiv.innerHTML = currentPrizes.map(prize => `
         <div class="text-center">
-          <img src="${prize.image}" class="h-16 mx-auto object-contain">
+          <img src="\${prize.image}" class="h-16 mx-auto object-contain rounded ring-2 \${prize.rarity === 'common' ? 'ring-gray-500' : prize.rarity === 'uncommon' ? 'ring-green-500' : prize.rarity === 'rare' ? 'ring-blue-500' : prize.rarity === 'ultra rare' ? 'ring-purple-500' : prize.rarity === 'legendary' ? 'ring-yellow-400' : 'ring-white'}">
           <p class="text-sm">${prize.name} (${prize.rarity || 'Unknown'})</p>
         </div>`).join('');
       resultDiv.classList.add('hidden');
