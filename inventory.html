@@ -9,23 +9,39 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <style>
-  .item-card {
-    background-color: #1f1f2b;
-    transition: transform 0.2s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
-  }
-  .item-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-  }
-</style>
+    .item-card {
+      background-color: #1f1f2b;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
+    .item-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    }
+  </style>
 </head>
 <body class="bg-gray-900 text-white font-sans p-6">
-  <div id="balance-display" class="mb-4 flex items-center space-x-2 text-lg">
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="20" height="20" />
-  <span id="balance-amount">Loading...</span> coins
-</div>
-  <h1 class="text-3xl font-bold mb-6">Your Inventory</h1>
+
+  <!-- Header -->
+  <header class="w-full bg-gray-800 border-b border-pink-500 py-4 px-6 flex justify-between items-center mb-8 rounded-lg">
+    <div class="flex items-center space-x-4">
+      <h1 class="text-2xl font-bold text-pink-400">🎒 Inventory</h1>
+      <a href="index.html" class="text-white hover:text-pink-400 transition">← Back to Home</a>
+    </div>
+    <div class="flex items-center space-x-4 text-white bg-gray-900 px-4 py-2 rounded-full">
+      <div id="username-display" class="text-sm text-gray-300"></div>
+      <div class="flex items-center space-x-1">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="20" height="20" class="inline-block" />
+        <span id="user-balance">--</span>
+        <span>coins</span>
+      </div>
+      <button id="logout-button" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition">
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <!-- Inventory Items -->
   <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
 
   <script>
@@ -43,36 +59,38 @@
 
     firebase.auth().onAuthStateChanged(user => {
       if (!user) return (window.location.href = "auth.html");
+
       const userRef = db.ref('users/' + user.uid);
-userRef.once('value').then(userSnap => {
-  const balance = userSnap.val().balance || 0;
-  document.getElementById('balance-amount').innerText = balance;
-});
-      const inventoryRef = db.ref('users/' + user.uid + '/inventory');
-      inventoryRef.once('value').then(snapshot => {
-        const container = document.getElementById('inventory-container');
-        if (!snapshot.exists()) {
-          container.innerHTML = "<p>You have no items yet.</p>";
-          return;
-        }
+      userRef.once('value').then(snapshot => {
+        document.getElementById('user-balance').innerText = snapshot.val().balance || 0;
+        document.getElementById('username-display').innerText = user.displayName || user.email;
 
-        snapshot.forEach(child => {
-          const item = child.val();
-          const key = child.key;
-          container.innerHTML += `
-            <div class="item-card rounded-xl p-4 text-center">
-              <img src="${item.image}" class="mx-auto mb-2 h-24 object-contain">
-              <h2 class="font-semibold">${item.name}</h2>
-              <p class="text-sm text-gray-400">${item.rarity}</p>
-              <div class="mt-4 flex justify-center space-x-2">
-                <button onclick="sellBack('${key}', ${item.price || 0})" class="px-4 py-2 bg-red-500 rounded hover:opacity-80">
-  Sell for ${Math.floor((item.price || 0) * 0.8)} 
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline-block ml-1" width="16" height="16" />
-</button>
+        const inventoryRef = db.ref('users/' + user.uid + '/inventory');
+        inventoryRef.once('value').then(inventorySnap => {
+          const container = document.getElementById('inventory-container');
+          if (!inventorySnap.exists()) {
+            container.innerHTML = "<p>You have no items yet.</p>";
+            return;
+          }
 
-                <button onclick="shipItem('${key}')" class="px-4 py-2 bg-green-500 rounded hover:opacity-80">Ship</button>
-              </div>
-            </div>`;
+          inventorySnap.forEach(child => {
+            const item = child.val();
+            const key = child.key;
+            const refund = Math.floor((item.price || 0) * 0.8);
+            container.innerHTML += `
+              <div class="item-card rounded-lg p-4 text-center">
+                <img src="${item.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
+                <h2 class="font-bold text-lg text-pink-300">${item.name}</h2>
+                <p class="text-sm text-gray-400 mb-4">${item.rarity}</p>
+                <div class="flex justify-center gap-2">
+                  <button onclick="sellBack('${key}', ${item.price || 0})" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full flex items-center space-x-1">
+                    <span>Sell for ${refund}</span>
+                    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
+                  </button>
+                  <button onclick="shipItem('${key}')" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full">Ship</button>
+                </div>
+              </div>`;
+          });
         });
       });
     });
@@ -99,6 +117,10 @@ userRef.once('value').then(userSnap => {
     function shipItem(itemKey) {
       alert("Shipping process coming soon!");
     }
+
+    document.getElementById('logout-button').onclick = () => {
+      firebase.auth().signOut().then(() => location.href = "index.html");
+    };
   </script>
 </body>
 </html>
