@@ -100,7 +100,7 @@ const prizesSection = document.getElementById('prizes-section');
 
 function addPrize(prize = {}) {
   const div = document.createElement('div');
-  div.className = "p-4 bg-gray-700 rounded";
+  div.className = "prize-block p-4 bg-gray-700 rounded";
   div.innerHTML = `
     <input type="text" placeholder="Prize Name" value="${prize.name || ''}" class="prize-name w-full p-2 rounded mb-2">
     <input type="text" placeholder="Prize Image URL" value="${prize.image || ''}" class="prize-image w-full p-2 rounded mb-2">
@@ -157,7 +157,7 @@ function saveCase(e) {
   const name = document.getElementById('case-name').value;
   const image = document.getElementById('case-image').value;
   const price = parseFloat(document.getElementById('case-price').value) || 0;
-  const prizesElements = prizesSection.querySelectorAll('div.p-4');
+  const prizesElements = prizesSection.querySelectorAll('div.prize-block');
   const prizes = {};
   prizesElements.forEach((div, idx) => {
     const prizeName = div.querySelector('.prize-name').value;
