@@ -335,7 +335,13 @@
         caseImageWrapper.classList.add('animate-shake');
         setTimeout(() => {
           caseImageWrapper.classList.remove('animate-shake');
-          const winningPrize = currentPrizes[Math.floor(Math.random() * currentPrizes.length)];
+          let totalOdds = currentPrizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+let rand = Math.random() * totalOdds;
+let cumulative = 0;
+const winningPrize = currentPrizes.find(p => {
+  cumulative += p.odds || 0;
+  return rand < cumulative;
+}) || currentPrizes[Math.floor(Math.random() * currentPrizes.length)];
           caseImage.src = winningPrize.image;
           resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
           resultDiv.classList.remove('hidden');
