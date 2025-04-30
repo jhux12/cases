@@ -95,24 +95,28 @@
       });
     });
 
-    function sellBack(itemKey, itemPrice) {
-      const user = firebase.auth().currentUser;
-      if (!user) return;
+    function sellBack(itemKey) {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
 
-      const refund = Math.floor(itemPrice * 0.8);
-      const userRef = db.ref('users/' + user.uid);
-      const itemRef = db.ref('users/' + user.uid + '/inventory/' + itemKey);
+  const userRef = db.ref('users/' + user.uid);
+  const itemRef = db.ref('users/' + user.uid + '/inventory/' + itemKey);
 
-      userRef.once('value').then(userSnap => {
-        const currentBalance = userSnap.val().balance || 0;
-        userRef.update({ balance: currentBalance + refund }).then(() => {
-          itemRef.remove().then(() => {
-            alert(`Item sold for ${refund} coins.`);
-            location.reload();
-          });
+  itemRef.once('value').then(itemSnap => {
+    const item = itemSnap.val();
+    const refund = Math.floor((item.value || 0) * 0.8);
+
+    userRef.once('value').then(userSnap => {
+      const currentBalance = userSnap.val().balance || 0;
+      userRef.update({ balance: currentBalance + refund }).then(() => {
+        itemRef.remove().then(() => {
+          alert(`Item sold for ${refund} coins.`);
+          location.reload();
         });
       });
-    }
+    });
+  });
+}
 
     function shipItem(itemKey) {
       alert("Shipping process coming soon!");
