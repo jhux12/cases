@@ -110,27 +110,6 @@
   .animate-overlay-zoom {
     animation: overlay-zoom 0.3s ease-out forwards;
   }
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
-  .animate-pulse {
-    animation: pulse 0.5s ease-in-out;
-  }
-  .translate-y-20 { transform: translateY(5rem); }
-  .translate-y-0 { transform: translateY(0); }
-  .opacity-0 { opacity: 0; }
-  .opacity-100 { opacity: 1; }
-@keyframes sparkle-pop {
-  0% { transform: scale(0.5); opacity: 0.8; }
-  100% { transform: scale(2.5); opacity: 0; }
-}
-.sparkle-effect {
-  border-radius: 9999px;
-  transform: scale(0.5);
-  opacity: 0;
-  pointer-events: none;
-}
 </style>
 </head>
 <body>
@@ -143,7 +122,8 @@
   <div class="desktop-menu flex items-center space-x-4">
     <div id="user-balance" class="hidden text-white flex items-center space-x-4">
       <div class="coin-box" id="user-balance-box"></div>
-      
+    <a href="inventory.html" id="inventory-link" class="hidden sm:inline-flex px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Inventory</a>
+        <a id="auth-button" href="auth.html" class="hidden sm:inline-block px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Sign in</a>
   </div>
     <a href="inventory.html" id="inventory-link" class="hidden sm:inline-flex px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Inventory</a>
     <a id="auth-button" href="auth.html" class="hidden sm:inline-block px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Sign in</a>
@@ -208,7 +188,7 @@
     </div>
     <button id="open-case-button" class="px-8 py-3 mb-6 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button font-semibold text-lg">Open Pack</button>
     <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
-    <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
+    <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"> class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
     <div id="result" class="mt-6 text-2xl font-bold hidden"></div>
   </div>
 </div>
@@ -353,7 +333,8 @@
       userRef.update({ balance: newBalance }).then(() => {
         document.getElementById('balance-amount').innerText = newBalance;
         caseImageWrapper.classList.add('animate-shake');
-        caseImageWrapper.classList.remove('animate-shake');
+        setTimeout(() => {
+          caseImageWrapper.classList.remove('animate-shake');
           const winningPrize = currentPrizes[Math.floor(Math.random() * currentPrizes.length)];
           caseImage.src = winningPrize.image;
           resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
