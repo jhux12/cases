@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cases.gg | Login & Register</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <style>
+    body { background-color: #0f0f12; color: white; font-family: 'Inter', sans-serif; }
+    .hidden { display: none; }
+    input { color: black; }
+  </style>
+</head>
+<body class="flex items-center justify-center h-screen px-4">
+
+  <div class="bg-gray-900 p-8 rounded shadow-md w-full max-w-md">
+    <h2 id="form-title" class="text-2xl font-bold mb-6 text-center">Login to Cases.gg</h2>
+
+    <!-- Login Form -->
+    <form id="login-form" class="space-y-4">
+      <div>
+        <label>Email</label>
+        <input type="email" id="login-email" class="w-full p-2 rounded bg-gray-700" required />
+      </div>
+      <div>
+        <label>Password</label>
+        <input type="password" id="login-password" class="w-full p-2 rounded bg-gray-700" required />
+      </div>
+      <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">Login</button>
+    </form>
+
+    <!-- Register Form -->
+    <form id="register-form" class="space-y-4 hidden">
+      <div>
+        <label>Name</label>
+        <input type="text" id="register-name" class="w-full p-2 rounded bg-gray-700" required />
+      </div>
+      <div>
+        <label>Username</label>
+        <input type="text" id="register-username" class="w-full p-2 rounded bg-gray-700" required />
+      </div>
+      <div>
+        <label>Email</label>
+        <input type="email" id="register-email" class="w-full p-2 rounded bg-gray-700" required />
+      </div>
+      <div>
+        <label>Phone Number</label>
+        <input type="tel" id="register-phone" class="w-full p-2 rounded bg-gray-700" required />
+      </div>
+      <div>
+        <label>Password</label>
+        <input type="password" id="register-password" class="w-full p-2 rounded bg-gray-700" required />
+      </div>
+      <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded">Register</button>
+    </form>
+
+    <p id="switch-text" class="mt-4 text-sm text-center">
+      Don't have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Register</button>
+    </p>
+  </div>
+
+<script>
+// Firebase Setup
+const firebaseConfig = {
+  apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+  authDomain: "cases-e5b4e.firebaseapp.com",
+  databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+  projectId: "cases-e5b4e",
+  storageBucket: "cases-e5b4e.appspot.com",
+  messagingSenderId: "22502548396",
+  appId: "1:22502548396:web:aac335672c21f07524d009"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+const loginForm = document.getElementById('login-form');
+const registerForm = document.getElementById('register-form');
+const formTitle = document.getElementById('form-title');
+const switchText = document.getElementById('switch-text');
+
+function toggleForms() {
+  loginForm.classList.toggle('hidden');
+  registerForm.classList.toggle('hidden');
+
+  if (loginForm.classList.contains('hidden')) {
+    formTitle.innerText = 'Register for Cases.gg';
+    switchText.innerHTML = 'Already have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Login</button>';
+  } else {
+    formTitle.innerText = 'Login to Cases.gg';
+    switchText.innerHTML = 'Don\'t have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Register</button>';
+  }
+}
+
+// Register
+registerForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const name = document.getElementById('register-name').value;
+  const username = document.getElementById('register-username').value;
+  const email = document.getElementById('register-email').value;
+  const phone = document.getElementById('register-phone').value;
+  const password = document.getElementById('register-password').value;
+
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      const uid = userCredential.user.uid;
+      db.ref('users/' + uid).set({
+        name: name,
+        username: username,
+        email: email,
+        phone: phone,
+        balance: 0,
+        role: 'user'
+      });
+      alert('Registration successful!');
+      window.location.href = 'index.html';
+    })
+    .catch(error => {
+      alert(error.message);
+    });
+});
+
+// Login
+loginForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => {
+      alert('Login successful!');
+      window.location.href = 'index.html';
+    })
+    .catch(error => {
+      alert(error.message);
+    });
+});
+</script>
+
+</body>
+</html>
