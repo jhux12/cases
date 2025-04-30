@@ -220,40 +220,28 @@
     loadCases();
     loadRecentWins();
     firebase.auth().onAuthStateChanged(user => {
-  if (user) {
-    const userRef = db.ref('users/' + user.uid);
-    userRef.once('value').then(snapshot => {
-      if (!snapshot.exists()) {
-        userRef.set({
-          balance: 0,
-          inventory: {}
+      if (user) {
+        const userRef = db.ref('users/' + user.uid);
+        userRef.once('value').then(snapshot => {
+          if (!snapshot.exists()) userRef.set({ balance: 0 });
+          const userData = snapshot.val() || { balance: 0 };
+          userBalanceDiv.innerHTML = `
+            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline-block mr-2" width="18" height="18">
+            <span id="balance-amount">${userData.balance}</span> coins
+            <button id="topup-button" class="text-green-400 text-2xl hover:text-green-500 ml-2">+</button>`;
+          userBalanceDiv.classList.remove('hidden');
+          document.getElementById('topup-button').onclick = () => topupPopup.classList.remove('hidden');
+          authButton.innerText = 'Logout';
+          authButton.href = '#';
+          authButton.onclick = (e) => { e.preventDefault(); firebase.auth().signOut().then(() => location.reload()); };
         });
-      } else if (!snapshot.val().inventory) {
-        userRef.update({ inventory: {} });
+      } else {
+        userBalanceDiv.classList.add('hidden');
+        authButton.innerText = 'Sign In';
+        authButton.href = 'auth.html';
       }
-
-      const userData = snapshot.val() || { balance: 0, inventory: {} };
-      userBalanceDiv.innerHTML = `
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline-block mr-2" width="18" height="18">
-        <span id="balance-amount">${userData.balance}</span> coins
-        <button id="topup-button" class="text-green-400 text-2xl hover:text-green-500 ml-2">+</button>`;
-      userBalanceDiv.classList.remove('hidden');
-
-      document.getElementById('topup-button').onclick = () => topupPopup.classList.remove('hidden');
-      authButton.innerText = 'Logout';
-      authButton.href = '#';
-      authButton.onclick = (e) => {
-        e.preventDefault();
-        firebase.auth().signOut().then(() => location.reload());
-      };
     });
-  } else {
-    userBalanceDiv.classList.add('hidden');
-    authButton.innerText = 'Sign In';
-    authButton.href = 'auth.html';
-  }
-});
-
+  };
 </script>
 
 </body>
