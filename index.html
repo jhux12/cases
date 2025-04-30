@@ -340,36 +340,9 @@
       userRef.update({ balance: newBalance }).then(() => {
         document.getElementById('balance-amount').innerText = newBalance;
         caseImageWrapper.classList.add('animate-shake');
-        caseImageWrapper.innerHTML = `<div id="reel" class="flex gap-2 overflow-hidden justify-center items-center h-40">
-  ${currentPrizes.concat(currentPrizes).map(p => `<img src="${p.image}" class="h-20 w-20 object-contain rounded-lg transition-all duration-75">`).join('')}
-</div>`;
+        caseImageWrapper.classList.remove('animate-shake');
 
-setTimeout(() => {
-  const reel = document.getElementById('reel');
-  let position = 0;
-  let speed = 40;
-  const interval = setInterval(() => {
-    position += speed;
-    reel.scrollLeft = position;
-    speed *= 0.95;
-    if (speed < 2) {
-      clearInterval(interval);
-      const winningPrize = currentPrizes[Math.floor(Math.random() * currentPrizes.length)];
-      caseImageWrapper.innerHTML = `<img id="case-main-image" src="${winningPrize.image}" alt="Case" class="mx-auto rounded-xl w-40 h-40 object-contain ring-2 ring-white/20">`;
-      resultDiv.innerHTML = `🎉 <strong class="text-yellow-400">You pulled:</strong> <span class="text-white">${winningPrize.name}</span> <span class="uppercase text-sm text-${winningPrize.rarity === 'legendary' ? 'yellow' : winningPrize.rarity === 'ultra rare' ? 'purple' : winningPrize.rarity === 'rare' ? 'blue' : winningPrize.rarity === 'uncommon' ? 'green' : 'gray'}-400 font-bold">(${winningPrize.rarity || 'Unknown'})</span> 🎉`;
-      resultDiv.classList.remove('hidden');
-      confetti({ particleCount: 200, spread: 100, startVelocity: 35, origin: { y: 0.5 } });
-      const inventoryRef = db.ref('users/' + user.uid + '/inventory');
-      const newItemRef = inventoryRef.push();
-      newItemRef.set({
-        name: winningPrize.name,
-        image: winningPrize.image,
-        rarity: winningPrize.rarity || 'Unknown',
-        price: selectedCasePrice,
-        timestamp: Date.now()
-      });
-    }
-  }, 60);
+
           caseImageWrapper.classList.add('animate-pulse');
           const winningPrize = currentPrizes[Math.floor(Math.random() * currentPrizes.length)];
           caseImage.src = winningPrize.image;
