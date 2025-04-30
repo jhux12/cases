@@ -1,0 +1,2 @@
+create a website homepage that looks just like courtyard.io
+create a homepage that looks and operates just like cases.gg

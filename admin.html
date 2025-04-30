@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cases.gg Admin Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #0f0f12; color: white; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .input { background: #1f2937; padding: 0.5rem; border-radius: 0.5rem; width: 100%; }
+  </style>
+</head>
+<body class="p-6">
+
+<h1 class="text-3xl font-bold mb-8">Cases.gg Admin Panel</h1>
+
+<section class="mb-12">
+  <h2 class="text-2xl font-bold mb-4">Create New Case</h2>
+  <div class="space-y-4">
+    <input id="case-name" type="text" placeholder="Case Name" class="input">
+    <input id="case-image" type="text" placeholder="Case Image URL" class="input">
+    <input id="case-price" type="number" placeholder="Case Price (e.g. 2.99)" class="input">
+    <button id="create-case" class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded hover:opacity-90">Create Case</button>
+  </div>
+</section>
+
+<section>
+  <h2 class="text-2xl font-bold mb-4">Add Prize to Case</h2>
+  <div class="space-y-4">
+    <select id="case-select" class="input"></select>
+    <input id="prize-name" type="text" placeholder="Prize Name" class="input">
+    <input id="prize-image" type="text" placeholder="Prize Image URL" class="input">
+    <input id="prize-rarity" type="text" placeholder="Rarity (Common, Rare, Ultra, Legendary)" class="input">
+    <input id="prize-odds" type="number" placeholder="Odds % (e.g. 5 for 5%)" class="input">
+    <button id="add-prize" class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded hover:opacity-90">Add Prize</button>
+  </div>
+</section>
+
+<section class="mt-12">
+  <h2 class="text-2xl font-bold mb-4">Existing Cases</h2>
+  <div id="existing-cases" class="space-y-4"></div>
+</section>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = { apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE", authDomain: "cases-e5b4e.firebaseapp.com", databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com", projectId: "cases-e5b4e", storageBucket: "cases-e5b4e.appspot.com", messagingSenderId: "22502548396", appId: "1:22502548396:web:aac335672c21f07524d009" };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const caseSelect = document.getElementById('case-select');
+const existingCasesDiv = document.getElementById('existing-cases');
+
+function refreshCases() {
+  caseSelect.innerHTML = '';
+  existingCasesDiv.innerHTML = '';
+  db.ref('cases').once('value', snapshot => {
+    snapshot.forEach(child => {
+      const data = child.val();
+      const option = document.createElement('option');
+      option.value = child.key;
+      option.textContent = data.name;
+      caseSelect.appendChild(option);
+
+      const div = document.createElement('div');
+      div.className = 'p-4 bg-gray-800 rounded';
+      div.innerHTML = `<h3 class="font-semibold text-lg mb-2">${data.name}</h3><img src="${data.image}" class="h-24 mb-2 object-contain"><p>Price: $${data.price}</p>`;
+      existingCasesDiv.appendChild(div);
+    });
+  });
+}
+
+refreshCases();
+
+document.getElementById('create-case').onclick = () => {
+  const name = document.getElementById('case-name').value.trim();
+  const image = document.getElementById('case-image').value.trim();
+  const price = parseFloat(document.getElementById('case-price').value.trim());
+  if (!name || !image || isNaN(price)) return alert('Please fill all fields.');
+  const newCaseRef = db.ref('cases').push();
+  newCaseRef.set({ name, image, price, prizes: {} }).then(() => {
+    alert('Case created!');
+    refreshCases();
+  });
+};
+
+document.getElementById('add-prize').onclick = () => {
+  const caseId = caseSelect.value;
+  const prizeName = document.getElementById('prize-name').value.trim();
+  const prizeImage = document.getElementById('prize-image').value.trim();
+  const prizeRarity = document.getElementById('prize-rarity').value.trim();
+  const prizeOdds = parseFloat(document.getElementById('prize-odds').value.trim());
+  if (!prizeName || !prizeImage || !prizeRarity || isNaN(prizeOdds)) return alert('Fill all prize fields.');
+  const prizeRef = db.ref(`cases/${caseId}/prizes`).push();
+  prizeRef.set({ name: prizeName, image: prizeImage, rarity: prizeRarity, odds: prizeOdds }).then(() => {
+    alert('Prize added!');
+  });
+};
+</script>
+
+</body>
+</html>
