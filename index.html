@@ -276,11 +276,18 @@
       selectedCasePrice = parseFloat(data.price) || 0;
       caseImage.src = data.image;
       currentPrizes = Object.values(data.prizes || {});
-      possiblePrizesDiv.innerHTML = currentPrizes.map(prize => `
-        <div class="text-center">
-          <img src="\${prize.image}" class="h-16 mx-auto object-contain rounded ring-2 \${prize.rarity === 'common' ? 'ring-gray-500' : prize.rarity === 'uncommon' ? 'ring-green-500' : prize.rarity === 'rare' ? 'ring-blue-500' : prize.rarity === 'ultra rare' ? 'ring-purple-500' : prize.rarity === 'legendary' ? 'ring-yellow-400' : 'ring-white'}">
-          <p class="text-sm">${prize.name} (${prize.rarity || 'Unknown'})</p>
-        </div>`).join('');
+      possiblePrizesDiv.innerHTML = currentPrizes.map(prize => {
+        const ringColor = prize.rarity === 'common' ? 'ring-gray-500' :
+                          prize.rarity === 'uncommon' ? 'ring-green-500' :
+                          prize.rarity === 'rare' ? 'ring-blue-500' :
+                          prize.rarity === 'ultra rare' ? 'ring-purple-500' :
+                          prize.rarity === 'legendary' ? 'ring-yellow-400' : 'ring-white';
+        return `
+          <div class="text-center">
+            <img src="${prize.image}" class="h-16 mx-auto object-contain rounded ring-2 ${ringColor}">
+            <p class="text-sm">${prize.name} (${prize.rarity || 'Unknown'})</p>
+          </div>`;
+      }).join('');
       resultDiv.classList.add('hidden');
       popup.classList.remove('hidden');
     });
