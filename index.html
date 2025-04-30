@@ -25,7 +25,26 @@
       .desktop-menu { display: none; }
       .mobile-menu { display: block; }
     }
-  </style>
+    .glow-button {
+    box-shadow: 0 0 10px rgba(236, 72, 153, 0.7), 0 0 20px rgba(147, 51, 234, 0.5);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .glow-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(236, 72, 153, 0.9), 0 0 30px rgba(147, 51, 234, 0.7);
+  }
+  .frost-hero {
+    backdrop-filter: blur(16px);
+    background: linear-gradient(270deg, rgba(147, 51, 234, 0.4), rgba(236, 72, 153, 0.4));
+    background-size: 400% 400%;
+    animation: gradientMove 15s ease infinite;
+  }
+  @keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+</style>
 </head>
 <body>
 
@@ -35,9 +54,9 @@
     <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(8).png?alt=media&token=3b3e6509-e988-46bc-814c-620cf8830ebb" alt="PrimePull.gg" class="h-10">
   </div>
   <div class="desktop-menu flex items-center space-x-4">
-    <a href="inventory.html" id="inventory-link" class="hidden px-4 py-2 text-white hover:text-pink-400">Inventory</a>
-    <div id="user-balance" class="hidden text-white mr-4 flex items-center space-x-2"></div>
-    <a id="auth-button" href="auth.html" class="hidden sm:inline-block px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Sign in</a>
+    <div id="user-balance" class="hidden text-white flex items-center space-x-2"></div>
+    <a href="inventory.html" id="inventory-link" class="hidden sm:inline-flex px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Inventory</a>
+        <a id="auth-button" href="auth.html" class="hidden sm:inline-block px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Sign in</a>
   </div>
   <div class="mobile-menu">
     <button id="menu-toggle" class="text-white text-2xl"><i class="fas fa-bars"></i></button>
@@ -50,7 +69,7 @@
 
 <!-- Hero -->
 <section class="pt-32 pb-20 px-6 text-center bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600">
-  <div class="container mx-auto backdrop-blur-md bg-black bg-opacity-20 rounded-lg p-8 max-w-2xl">
+  <div class="container mx-auto frost-hero rounded-lg p-8 max-w-2xl">
     <h1 class="text-4xl md:text-5xl font-bold mb-6">Open cases and win <span class="text-pink-500">amazing rewards</span></h1>
     <p class="text-lg text-gray-300 mb-8">Join thousands opening cases daily. Get the rarest skins!</p>
   </div>
@@ -162,7 +181,7 @@
             <img src="${data.image}" class="case-card-img">
             <h3 class="mt-2 font-semibold">${data.name}</h3>
             <p class="text-sm text-gray-400 mb-2">$${data.price || '0.00'}</p>
-            <button class="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded open-case glow-button" data-id="${child.key}">Open Pack</button>
+            <button class="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded open-case glow-button enhanced-glow" data-id="${child.key}">Open Pack</button>
           </div>`;
       });
       document.querySelectorAll('.open-case').forEach(btn => {
