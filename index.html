@@ -304,6 +304,7 @@
       document.getElementById('popup-price').innerText = selectedCasePrice;
       caseImage.src = data.image;
       currentPrizes = Object.values(data.prizes || {});
+      console.log(currentPrizes);
       currentPrizes.sort((a, b) => {
   const oddsA = parseFloat(a.odds) || 0;
   const oddsB = parseFloat(b.odds) || 0;
