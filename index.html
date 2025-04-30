@@ -21,11 +21,24 @@
 </head>
 <body>
 
-<!-- Header / Balance Display -->
-<div id="user-balance" class="text-center p-4 text-lg flex justify-center items-center gap-2">
-  <span>Balance: <strong id="balance-amount">0</strong> coins</span>
-  <button id="topup-button" class="text-green-400 text-2xl hover:text-green-500">+</button>
-</div>
+<!-- Navbar -->
+<nav class="navbar fixed w-full z-50 py-4 px-6 flex justify-between items-center border-b border-gray-800 bg-gray-900">
+  <div class="flex items-center space-x-4">
+    <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.appspot.com/o/Untitled%20design%20(8).png?alt=media&token=3b3e6509-e988-46bc-814c-620cf8830ebb" alt="PrimePull.gg" class="h-10">
+  </div>
+  <div class="flex items-center space-x-4">
+    <div id="user-balance" class="hidden text-white mr-4 flex items-center space-x-2"></div>
+    <a id="auth-button" href="auth.html" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Sign in</a>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="pt-32 pb-20 px-6 text-center bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 animate-gradient">
+  <div class="container mx-auto backdrop-blur-md bg-black bg-opacity-20 rounded-lg p-8 max-w-2xl">
+    <h1 class="text-4xl md:text-5xl font-bold mb-6">Open cases and win <span class="text-pink-500">amazing rewards</span></h1>
+    <p class="text-lg text-gray-300 mb-8">Join thousands opening cases daily. Get the rarest skins!</p>
+  </div>
+</section>
 
 <!-- Top Up Modal -->
 <div id="topup-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
@@ -41,9 +54,14 @@
 </div>
 
 <!-- Case Grid -->
-<div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6"></div>
+<section class="py-12 px-6">
+  <div class="container mx-auto">
+    <h2 class="text-2xl font-bold mb-8">Popular Cases</h2>
+    <div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+  </div>
+</section>
 
-<!-- Popup Modal -->
+<!-- Case Popup Modal -->
 <div id="case-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center px-4 overflow-y-auto z-50">
   <div class="bg-gray-800 p-6 rounded-lg relative w-full max-w-2xl text-center">
     <button id="close-popup" class="absolute top-2 right-2 text-xl"><i class="fas fa-times"></i></button>
@@ -60,7 +78,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
