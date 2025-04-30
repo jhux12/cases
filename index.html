@@ -203,12 +203,22 @@
         document.getElementById('balance-amount').innerText = newBalance;
         caseImageWrapper.classList.add('animate-shake');
         setTimeout(() => {
+          
           caseImageWrapper.classList.remove('animate-shake');
           const winningPrize = currentPrizes[Math.floor(Math.random() * currentPrizes.length)];
           caseImage.src = winningPrize.image;
           resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
           resultDiv.classList.remove('hidden');
           confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+          const inventoryRef = db.ref('users/' + user.uid + '/inventory');
+const newItemRef = inventoryRef.push();
+newItemRef.set({
+  name: winningPrize.name,
+  image: winningPrize.image,
+  rarity: winningPrize.rarity || 'Unknown',
+  price: selectedCasePrice, // optional but helps for sell-back logic
+  timestamp: Date.now()
+});
         }, 1000);
       });
     });
