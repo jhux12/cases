@@ -111,7 +111,7 @@
                   <p class="text-sm text-gray-400 mb-2">Rarity: ${item.rarity}</p>
                   <p class="text-sm text-gray-400 mb-4">Value: ${item.value || 0} coins</p>
                   <div class="flex justify-center gap-2">
-                    <button onclick="sellBack('${item.key}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full flex items-center space-x-1">
+                    <button onclick="sellBack('${item.key}', ${item.value || 0})" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full flex items-center space-x-1">
                       <span>Sell for ${refund}</span>
                       <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
                     </button>
@@ -151,31 +151,33 @@
       }
     }
 
-    function sellBack(itemKey) {
+    function sellBack(itemKey, value) {
       const user = firebase.auth().currentUser;
       if (!user) return;
 
       const userRef = db.ref('users/' + user.uid);
       const itemRef = db.ref('users/' + user.uid + '/inventory/' + itemKey);
 
-      itemRef.once('value').then(itemSnap => {
-        const item = itemSnap.val();
-        const refund = Math.floor((item.value || 0) * 0.8);
-
-        userRef.once('value').then(userSnap => {
-          const currentBalance = userSnap.val().balance || 0;
-          userRef.update({ balance: currentBalance + refund }).then(() => {
-            itemRef.remove().then(() => {
-              alert(`Item sold for ${refund} coins.`);
-              location.reload();
-            });
+      const refund = Math.floor((value || 0) * 0.8);
+      userRef.once('value').then(userSnap => {
+        const currentBalance = userSnap.val().balance || 0;
+        userRef.update({ balance: currentBalance + refund }).then(() => {
+          itemRef.remove().then(() => {
+            alert(`Item sold for ${refund} coins.`);
+            location.reload();
           });
         });
       });
     }
 
     function sellSelected() {
-      selectedItems.forEach(key => sellBack(key));
+      selectedItems.forEach(key => {
+        const itemRef = db.ref('users/' + firebase.auth().currentUser.uid + '/inventory/' + key);
+        itemRef.once('value').then(itemSnap => {
+          const item = itemSnap.val();
+          sellBack(key, item.value);
+        });
+      });
     }
 
     function shipItem(itemKey) {
