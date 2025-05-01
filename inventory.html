@@ -203,15 +203,33 @@
       container.innerHTML = ''; // Clear the current items
 
       sortedItems.forEach(item => {
+        const refund = Math.floor((item.value || 0) * 0.8); // Calculate 80% value for sell price
+        const checked = selectedItems.has(item.key) ? 'checked' : '';
+        
         container.innerHTML += `
           <div class="item-card rounded-lg p-4 text-center">
+            <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-2" ${item.shipped || item.requested ? 'disabled' : ''} />
             <img src="${item.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
             <h2 class="font-bold text-lg text-pink-300">${item.name}</h2>
             <p class="text-sm text-gray-400 mb-2">Rarity: ${item.rarity}</p>
             <p class="text-sm text-gray-400">Value: ${item.value || 0} coins</p>
-            <button onclick="shipItem('${item.key}')" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full">
-              Ship
-            </button>
+            
+            <div class="flex justify-center gap-2">
+              ${item.shipped || item.requested ? `
+                <button disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full flex items-center space-x-1">
+                  <span>Sell for ${refund}</span>
+                  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
+                </button>
+              ` : `
+                <button onclick="sellBack('${item.key}', ${item.value || 0})" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full flex items-center space-x-1">
+                  <span>Sell for ${refund}</span>
+                  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
+                </button>
+              `}
+              <button onclick="shipItem('${item.key}')" class="px-4 py-2 rounded-full ${item.shipped || item.requested ? 'bg-gray-600 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}" ${item.shipped || item.requested ? 'disabled' : ''}>
+                Ship
+              </button>
+            </div>
           </div>
         `;
       });
