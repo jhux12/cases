@@ -137,6 +137,30 @@
 .pulse-balance {
   animation: pulse-balance 0.4s ease;
 }  
+.flip-card {
+  perspective: 1000px;
+}
+.flip-card-inner {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  transform-style: preserve-3d;
+  transition: transform 0.7s ease;
+}
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+}
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
 </style>
 </head>
 <body>
@@ -227,9 +251,25 @@
   <div class="relative bg-gradient-to-br from-purple-800/80 to-pink-700/80 max-h-[90vh] overflow-y-auto p-8 rounded-xl border border-white/10 shadow-2xl w-full max-w-2xl text-center backdrop-blur-md">
     <button id="close-popup" class="absolute top-4 right-4 text-white text-2xl hover:text-pink-300 transition"><i class="fas fa-times"></i></button>
     
-    <div id="case-image" class="fade mb-6">
-      <img id="case-main-image" src="" alt="Case" class="mx-auto rounded-xl w-40 h-40 object-contain ring-2 ring-white/20">
-    </div>
+    <div id="case-image" class="flip-card mx-auto mb-6">
+  <div class="flip-card-inner">
+    <!-- Back of the card (starts visible) -->
+    <img
+      id="case-card-back"
+      class="flip-card-back rounded-xl object-contain ring-2 ring-white/20"
+      src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(9).png?alt=media&token=96f9a9f5-9f64-4b24-a11b-6d2b116c50a5"
+      alt="Card Back"
+    >
+    <!-- Front of the card (revealed after flip) -->
+    <img
+      id="case-card-front"
+      class="flip-card-front rounded-xl object-contain ring-2 ring-white/20"
+      src=""
+      alt="Prize"
+    >
+  </div>
+</div>
+
 
     <div class="flex flex-col items-center mb-6 space-y-1">
       <button id="open-case-button" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button font-semibold text-lg flex items-center justify-center gap-2 text-white">
@@ -443,7 +483,9 @@ const winningPrize = currentPrizes.find(p => {
   cumulative += p.odds || 0;
   return rand < cumulative;
 }) || currentPrizes[Math.floor(Math.random() * currentPrizes.length)];
-          caseImage.src = winningPrize.image;
+          document.getElementById('case-card-front').src = winningPrize.image;
+          document.querySelector('.flip-card').classList.add('flipped');
+
           resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
           resultDiv.classList.remove('hidden');
           confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
