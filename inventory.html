@@ -116,6 +116,25 @@
       renderItems(currentItems);
     });
 
+    // Sorting items based on user selection
+    document.getElementById('sort-select').addEventListener('change', function () {
+      const sortBy = this.value;
+      sortItems(sortBy); // Sort items based on the selected dropdown option
+    });
+
+    function sortItems(by) {
+      let sorted = [...currentItems];
+      if (by === 'value') {
+        sorted.sort((a, b) => (b.value || 0) - (a.value || 0));
+      } else if (by === 'name') {
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (by === 'rarity') {
+        const rarityOrder = ['common', 'uncommon', 'rare', 'ultra rare', 'legendary'];
+        sorted.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
+      }
+      renderItems(sorted);
+    }
+
     function sellSelected() {
       let totalRefund = 0;
       selectedItems.forEach(key => {
