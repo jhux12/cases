@@ -63,6 +63,7 @@
 
   <!-- Inventory Items -->
   <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+
   <!-- Orders Section -->
   <h2 class="text-2xl font-bold text-pink-400 mt-12 mb-4">📦 My Orders</h2>
   <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
@@ -159,6 +160,10 @@
         });
 
         alert("Shipment requested!");
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        selectedItems.clear();
+        updateTotalValue();
+        closeShipmentPopup();
 
         // Re-fetch inventory and re-render items after shipment request
         const inventoryRef = db.ref('users/' + user.uid + '/inventory');
@@ -176,9 +181,6 @@
           renderItems(currentItems); // 🔁 re-render
           document.getElementById('select-all-checkbox').checked = false;
         });
-
-        // Force the page to refresh immediately
-        window.location.reload(true);
       });
     }
 
@@ -217,7 +219,9 @@
           inventorySnap.forEach(child => {
             const item = child.val();
             item.key = child.key;
-            currentItems.push(item);
+            if (!item.requested) { // Only show items not requested for shipment
+              currentItems.push(item);
+            }
           });
 
           function renderItems(sortedItems) {
