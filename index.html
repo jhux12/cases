@@ -287,13 +287,17 @@
     <button id="close-topup" class="absolute top-3 right-3 text-white text-xl hover:text-pink-400"><i class="fas fa-times"></i></button>
     <h2 class="text-3xl font-extrabold mb-4 text-white glow-button">Top Up Coins</h2>
     
-    <div class="space-y-6">
-      <!-- 100 Coins -->
-      <lottie-player
-  src="https://lottie.host/6c4dfc12-6fef-49ae-92a8-e664487af324/l7qp8BOxX6.json"
-  style="width: 100px; height: 100px;"
-  loop autoplay background="transparent">
-</lottie-player>
+    <div onclick="addCoins(100)" class="group bg-gray-900/50 hover:bg-gray-900 rounded-xl p-4 cursor-pointer border border-white/10 transition flex flex-col items-center">
+  <lottie-player
+    src="https://lottie.host/6c4dfc12-6fef-49ae-92a8-e664487af324/l7qp8BOxX6.json"
+    background="transparent"
+    speed="1"
+    style="width: 120px; height: 120px;"
+    loop
+    autoplay>
+  </lottie-player>
+  <p class="text-white text-lg font-semibold mt-3">+100 Coins</p>
+</div>
 
       <!-- 500 Coins -->
       <div onclick="addCoins(500)" class="group bg-gray-900/50 hover:bg-gray-900 rounded-xl p-4 cursor-pointer border border-white/10 transition">
