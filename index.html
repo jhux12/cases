@@ -517,5 +517,64 @@ function expandPrize(imageUrl) {
   overlay.classList.remove('hidden');
 }
 </script>
+  </script>
+
+<!-- ✅ PASTE THIS BELOW THAT SCRIPT -->
+<script>
+  // Toggle mobile dropdown
+  document.getElementById('menu-toggle').onclick = () => {
+    document.getElementById('mobile-dropdown').classList.toggle('hidden');
+  };
+
+  firebase.auth().onAuthStateChanged(user => {
+    const authButton = document.getElementById('auth-button');
+    const mobileAuthButton = document.getElementById('mobile-auth-button');
+    const userBalance = document.getElementById('user-balance');
+    const mobileBalance = document.getElementById('user-balance-mobile');
+    const balanceDesktop = document.getElementById('balance-amount');
+    const balanceMobile = document.getElementById('balance-amount-mobile');
+    const topupButton = document.getElementById('topup-button');
+    const topupButtonMobile = document.getElementById('topup-button-mobile');
+
+    if (user) {
+      const userRef = firebase.database().ref('users/' + user.uid);
+      userRef.once('value').then(snapshot => {
+        const balance = snapshot.val().balance || 0;
+        balanceDesktop.innerText = balance;
+        balanceMobile.innerText = balance;
+        userBalance.classList.remove('hidden');
+        mobileBalance.classList.remove('hidden');
+
+        authButton.innerText = 'Logout';
+        authButton.href = '#';
+        authButton.onclick = (e) => {
+          e.preventDefault();
+          firebase.auth().signOut().then(() => location.reload());
+        };
+
+        mobileAuthButton.innerText = 'Logout';
+        mobileAuthButton.href = '#';
+        mobileAuthButton.onclick = (e) => {
+          e.preventDefault();
+          firebase.auth().signOut().then(() => location.reload());
+        };
+
+        topupButton.onclick = () => document.getElementById('topup-popup').classList.remove('hidden');
+        topupButtonMobile.onclick = () => document.getElementById('topup-popup').classList.remove('hidden');
+      });
+    } else {
+      userBalance.classList.add('hidden');
+      mobileBalance.classList.add('hidden');
+      authButton.innerText = 'Sign In';
+      authButton.href = 'auth.html';
+      mobileAuthButton.innerText = 'Sign In';
+      mobileAuthButton.href = 'auth.html';
+    }
+  });
+</script>
+
+</body>
+</html>
+
 </body>
 </html>
