@@ -99,6 +99,7 @@
     const db = firebase.database();
     let shipmentSelection = [];
 
+    // Function to ship selected items (bulk action)
     function shipSelected() {
       shipmentSelection = [];
       selectedItems.forEach(key => {
@@ -118,6 +119,7 @@
       document.getElementById('shipment-popup').classList.remove('hidden');
     }
 
+    // Function to submit shipment request
     function submitShipmentRequest() {
       const user = firebase.auth().currentUser;
       if (!user) return;
@@ -181,6 +183,41 @@
       document.getElementById('selected-total').innerText = `Total: ${total} coins`;
     }
 
+    // Function to sort items based on selected criteria
+    function sortItems(by) {
+      let sorted = [...currentItems];
+      if (by === 'value') {
+        sorted.sort((a, b) => (b.value || 0) - (a.value || 0));
+      } else if (by === 'name') {
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (by === 'rarity') {
+        const rarityOrder = ['common', 'uncommon', 'rare', 'ultra rare', 'legendary'];
+        sorted.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
+      }
+      renderItems(sorted);
+    }
+
+    // Function to render items
+    function renderItems(sortedItems) {
+      const container = document.getElementById('inventory-container');
+      container.innerHTML = ''; // Clear the current items
+
+      sortedItems.forEach(item => {
+        container.innerHTML += `
+          <div class="item-card rounded-lg p-4 text-center">
+            <img src="${item.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
+            <h2 class="font-bold text-lg text-pink-300">${item.name}</h2>
+            <p class="text-sm text-gray-400 mb-2">Rarity: ${item.rarity}</p>
+            <p class="text-sm text-gray-400">Value: ${item.value || 0} coins</p>
+            <button onclick="shipItem('${item.key}')" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full">
+              Ship
+            </button>
+          </div>
+        `;
+      });
+    }
+
+    // Firebase authentication and data fetching
     firebase.auth().onAuthStateChanged(user => {
       if (!user) return (window.location.href = "auth.html");
 
@@ -205,43 +242,7 @@
             }
           });
 
-          function renderItems(sortedItems) {
-            const container = document.getElementById('inventory-container');
-            container.innerHTML = '';
-            sortedItems.forEach(item => {
-              const refund = Math.floor((item.value || 0) * 0.8);
-              const checked = selectedItems.has(item.key) ? 'checked' : '';
-              container.innerHTML += `
-                <div class="item-card rounded-lg p-4 text-center">
-                  <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-2" ${item.shipped || item.requested ? 'disabled' : ''} />
-                  <img src="${item.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
-                  <h2 class="font-bold text-lg text-pink-300">${item.name}</h2>
-                  <p class="text-sm text-gray-400 mb-2">Rarity: ${item.rarity}</p>
-                  <p class="text-sm text-gray-400">
-                    ${item.shipped ? 'Shipped' : item.requested ? 'Pending Shipment' : 'Not Requested'}
-                  </p>
-                  <p class="text-sm text-gray-400 mb-4">Value: ${item.value || 0} coins</p>
-                  <div class="flex justify-center gap-2">
-                    ${item.shipped || item.requested ? `
-                      <button disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full flex items-center space-x-1">
-                        <span>Sell for ${refund}</span>
-                        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
-                      </button>
-                    ` : `
-                      <button onclick="sellBack('${item.key}', ${item.value || 0})" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full flex items-center space-x-1">
-                        <span>Sell for ${refund}</span>
-                        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
-                      </button>
-                    `}
-                    <button onclick="shipItem('${item.key}')" class="px-4 py-2 rounded-full ${item.shipped || item.requested ? 'bg-gray-600 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}" ${item.shipped || item.requested ? 'disabled' : ''}>
-                      Ship
-                    </button>
-                  </div>
-                </div>`;
-            });
-          }
-
-          sortItems('rarity');
+          sortItems('rarity'); // Default sort
           renderItems(currentItems);
         });
       });
@@ -256,53 +257,7 @@
       updateTotalValue();
     }
 
-    function sellBack(itemKey, value, reload = true) {
-      const user = firebase.auth().currentUser;
-      if (!user) return;
-
-      const userRef = db.ref('users/' + user.uid);
-      const itemRef = db.ref('users/' + user.uid + '/inventory/' + itemKey);
-
-      const refund = Math.floor((value || 0) * 0.8);
-      userRef.once('value').then(userSnap => {
-        const currentBalance = userSnap.val().balance || 0;
-        userRef.update({ balance: currentBalance + refund }).then(() => {
-          itemRef.remove().then(() => {
-            if (reload) {
-              location.reload();
-            }
-          });
-        });
-      });
-    }
-
-    function sellSelected() {
-      const user = firebase.auth().currentUser;
-      if (!user) return;
-      const userRef = db.ref('users/' + user.uid);
-
-      let totalRefund = 0;
-      const promises = [];
-
-      selectedItems.forEach(key => {
-        const item = currentItems.find(i => i.key === key);
-        if (item) {
-          const refund = Math.floor((item.value || 0) * 0.8);
-          totalRefund += refund;
-          promises.push(db.ref('users/' + user.uid + '/inventory/' + key).remove());
-        }
-      });
-
-      Promise.all(promises).then(() => {
-        userRef.once('value').then(snapshot => {
-          const balance = snapshot.val().balance || 0;
-          userRef.update({ balance: balance + totalRefund }).then(() => {
-            location.reload();
-          });
-        });
-      });
-    }
-
+    // Logout function
     document.getElementById('logout-button').onclick = () => {
       firebase.auth().signOut().then(() => location.href = "index.html");
     };
