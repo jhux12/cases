@@ -167,6 +167,17 @@ function submitShipmentRequest() {
     selectedItems.clear();
     updateTotalValue();
     closeShipmentPopup();
+    // Re-fetch inventory and re-render items after shipment request
+const inventoryRef = db.ref('users/' + user.uid + '/inventory');
+inventoryRef.once('value').then(inventorySnap => {
+  currentItems = [];
+  inventorySnap.forEach(child => {
+    const item = child.val();
+    item.key = child.key;
+    currentItems.push(item);
+  });
+  sortItems(document.getElementById('sort-select').value);
+});
   });
 }
 
