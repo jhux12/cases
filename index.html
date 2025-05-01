@@ -143,7 +143,13 @@
     <a id="auth-button" href="auth.html" class="hidden sm:inline-block px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Sign in</a>
   </div>
 </nav>
-
+<div class="mobile-menu">
+  <button id="menu-toggle" class="text-white text-2xl"><i class="fas fa-bars"></i></button>
+  <div id="mobile-dropdown" class="hidden absolute right-6 top-16 bg-gray-900 border border-gray-700 rounded-lg w-48 py-2 z-50">
+    <a href="inventory.html" class="block px-4 py-2 hover:bg-gray-700">Inventory</a>
+    <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 hover:bg-gray-700">Sign in</a>
+  </div>
+</div>
 <!-- Hero -->
 <section class="pt-24 pb-12 px-6 bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600">
   <div class="container mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-2 items-center gap-8">
