@@ -230,6 +230,14 @@
     function approveShipment(id) {
   db.ref('shipments/' + id).update({ status: 'Approved' }).then(() => showToast('✅ Shipment approved'));
 }
+    function deleteShipment(id) {
+  if (confirm('Are you sure you want to delete this shipment?')) {
+    db.ref('shipments/' + id).remove().then(() => {
+      showToast('🗑️ Shipment deleted');
+      loadShipments(); // Refresh the list
+    });
+  }
+}
 
     function saveCase(e) {
       e.preventDefault();
