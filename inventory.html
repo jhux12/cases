@@ -71,6 +71,7 @@
     <input id="ship-address" type="text" placeholder="Address" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
     <input id="ship-city" type="text" placeholder="City" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
     <input id="ship-zip" type="text" placeholder="Zip Code" class="w-full mb-4 px-4 py-2 rounded bg-gray-700" />
+    <input id="ship-phone" type="text" placeholder="Phone Number" class="w-full mb-4 px-4 py-2 rounded bg-gray-700" />
     <p id="shipment-cost" class="text-sm text-gray-300 mb-4"></p>
     <div class="flex justify-end gap-4">
       <button onclick="closeShipmentPopup()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded">Cancel</button>
@@ -124,6 +125,8 @@ function submitShipmentRequest() {
   const address = document.getElementById('ship-address').value.trim();
   const city = document.getElementById('ship-city').value.trim();
   const zip = document.getElementById('ship-zip').value.trim();
+  const phone = document.getElementById('ship-phone').value.trim();
+
 
   if (!name || !address || !city || !zip) {
     alert("Please fill out all fields.");
@@ -148,7 +151,7 @@ function submitShipmentRequest() {
         itemId: item.id,
         name: item.name,
         image: item.image,
-        shippingInfo: { name, address, city, zip },
+        shippingInfo: { name, address, city, zip, phone },
         status: 'Requested',
         timestamp: Date.now()
       });
@@ -219,7 +222,9 @@ function submitShipmentRequest() {
                       <span>Sell for ${refund}</span>
                       <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
                     </button>
-                    <button onclick="shipItem('${item.key}')" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full">Ship</button>
+                     <button onclick="shipItem('${item.key}')" class="px-4 py-2 rounded-full ${item.shipped || item.requested ? 'bg-gray-600 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}" ${item.shipped || item.requested ? 'disabled' : ''}>
+  Ship
+</button>
                   </div>
                 </div>`;
             });
@@ -316,6 +321,21 @@ function submitShipmentRequest() {
         });
       });
     }
+function shipItem(itemKey) {
+  const item = currentItems.find(i => i.key === itemKey);
+  if (!item) return alert('Item not found.');
+
+  shipmentSelection = [{
+    id: item.key,
+    name: item.name,
+    image: item.image,
+    value: item.value || 0
+  }];
+
+  const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
+  document.getElementById('shipment-cost').innerText = `Shipping 1 item will cost ${cost} coins.`;
+  document.getElementById('shipment-popup').classList.remove('hidden');
+}
 
     document.getElementById('logout-button').onclick = () => {
       firebase.auth().signOut().then(() => location.href = "index.html");
