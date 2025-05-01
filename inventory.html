@@ -63,6 +63,9 @@
 
   <!-- Inventory Items -->
   <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+  <!-- Orders Section -->
+<h2 class="text-2xl font-bold text-pink-400 mt-12 mb-4">📦 My Orders</h2>
+<div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
   <!-- Shipment Popup -->
 <div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
   <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
@@ -218,10 +221,17 @@ function submitShipmentRequest() {
 </p>
                   <p class="text-sm text-gray-400 mb-4">Value: ${item.value || 0} coins</p>
                   <div class="flex justify-center gap-2">
-                    <button onclick="sellBack('${item.key}', ${item.value || 0})" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full flex items-center space-x-1">
-                      <span>Sell for ${refund}</span>
-                      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
-                    </button>
+                    ${item.shipped || item.requested ? `
+  <button disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full flex items-center space-x-1">
+    <span>Sell for ${refund}</span>
+    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
+  </button>
+` : `
+  <button onclick="sellBack('${item.key}', ${item.value || 0})" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full flex items-center space-x-1">
+    <span>Sell for ${refund}</span>
+    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
+  </button>
+`}
                      <button onclick="shipItem('${item.key}')" class="px-4 py-2 rounded-full ${item.shipped || item.requested ? 'bg-gray-600 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}" ${item.shipped || item.requested ? 'disabled' : ''}>
   Ship
 </button>
@@ -229,6 +239,32 @@ function submitShipmentRequest() {
                 </div>`;
             });
           }
+          function renderOrders(userId) {
+  const ordersContainer = document.getElementById('orders-container');
+  ordersContainer.innerHTML = '<p class="text-gray-400">Loading orders...</p>';
+
+  firebase.database().ref('shipments').orderByChild('userId').equalTo(userId).once('value').then(snapshot => {
+    ordersContainer.innerHTML = '';
+    if (!snapshot.exists()) {
+      ordersContainer.innerHTML = '<p class="text-gray-500">No orders yet.</p>';
+      return;
+    }
+
+    snapshot.forEach(child => {
+      const order = child.val();
+      ordersContainer.innerHTML += `
+        <div class="item-card rounded-lg p-4 text-center">
+          <img src="${order.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
+          <h2 class="font-bold text-lg text-pink-300">${order.name}</h2>
+          <p class="text-sm text-gray-400 mb-2">Status: 
+            <span class="${order.status === 'Shipped' ? 'text-green-400' : 'text-yellow-400'}">${order.status}</span>
+          </p>
+          <p class="text-sm text-gray-400">Address: ${order.shippingInfo?.city || '-'}, ${order.shippingInfo?.zip || '-'}</p>
+        </div>
+      `;
+    });
+  });
+}
 
           function sortItems(by) {
             let sorted = [...currentItems];
@@ -258,6 +294,7 @@ function submitShipmentRequest() {
           });
 
           sortItems('rarity');
+          renderOrders(user.uid);
         });
       });
     });
