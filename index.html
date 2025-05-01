@@ -206,16 +206,22 @@
 <div id="case-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center px-4 z-50">
   <div class="relative bg-gradient-to-br from-purple-800/80 to-pink-700/80 max-h-[90vh] overflow-y-auto p-8 rounded-xl border border-white/10 shadow-2xl w-full max-w-2xl text-center backdrop-blur-md">
     <button id="close-popup" class="absolute top-4 right-4 text-white text-2xl hover:text-pink-300 transition"><i class="fas fa-times"></i></button>
+    
     <div id="case-image" class="fade mb-6">
       <img id="case-main-image" src="" alt="Case" class="mx-auto rounded-xl w-40 h-40 object-contain ring-2 ring-white/20">
     </div>
- <div class="flex justify-center mb-6">
-  <button id="open-case-button" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button font-semibold text-lg flex items-center justify-center gap-2 text-white">
-    Open for <span id="popup-price">...</span>
-    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-5 h-5 inline-block">
-  </button>
-  <div class="text-sm text-gray-300 mt-2 text-center">Your Balance: 
-    <span id="popup-balance" class="font-semibold">0 coins</span>
+
+    <div class="flex flex-col items-center mb-6 space-y-1">
+      <button id="open-case-button" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button font-semibold text-lg flex items-center justify-center gap-2 text-white">
+        Open for <span id="popup-price">...</span>
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-5 h-5 inline-block">
+      </button>
+      <span id="popup-balance" class="text-sm text-gray-300">Your Balance: ...</span>
+    </div>
+
+    <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
+    <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
+    <div id="result" class="mt-6 text-2xl font-bold hidden"></div>
   </div>
 </div>
     <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
