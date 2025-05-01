@@ -98,6 +98,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     let shipmentSelection = [];
+    const selectedItems = new Set();
+    let currentItems = [];
 
     // Function to handle selecting all items
     document.getElementById('select-all-checkbox').addEventListener('change', function () {
@@ -186,8 +188,37 @@
       document.getElementById('shipment-popup').classList.add('hidden');
     }
 
-    const selectedItems = new Set();
-    let currentItems = [];
+    // Function to sell selected items (bulk action)
+    function sellSelected() {
+      let totalRefund = 0;
+      selectedItems.forEach(key => {
+        const item = currentItems.find(i => i.key === key);
+        if (item) {
+          totalRefund += Math.floor((item.value || 0) * 0.8);
+        }
+      });
+
+      if (totalRefund > 0) {
+        const user = firebase.auth().currentUser;
+        if (!user) return;
+
+        const userRef = db.ref('users/' + user.uid);
+        userRef.once('value').then(snapshot => {
+          const balance = snapshot.val().balance || 0;
+          userRef.update({ balance: balance + totalRefund });
+
+          selectedItems.forEach(key => {
+            const item = currentItems.find(i => i.key === key);
+            if (item) {
+              db.ref('users/' + user.uid + '/inventory/' + key).remove();
+            }
+          });
+
+          alert(`Sold selected items for ${totalRefund} coins.`);
+          window.location.reload(true);
+        });
+      }
+    }
 
     function updateTotalValue() {
       let total = 0;
