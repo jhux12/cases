@@ -257,9 +257,9 @@
                         <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
                       </button>
                     `}
-                    <button onclick="shipItem('${item.key}')" class="px-4 py-2 rounded-full ${item.shipped || item.requested ? 'bg-gray-600 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}" ${item.shipped || item.requested ? 'disabled' : ''}>
-                      Ship
-                    </button>
+                    <button onclick="shipSelected()" class="px-4 py-2 rounded-full ${item.shipped || item.requested ? 'bg-gray-600 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}" ${item.shipped || item.requested ? 'disabled' : ''}>
+  Ship
+</button>
                   </div>
                 </div>`;
             });
