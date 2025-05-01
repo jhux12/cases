@@ -281,18 +281,32 @@
 </div>
 
 <!-- Topup Popup -->
-<div id="topup-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
-  <div class="bg-gray-800 p-8 rounded-lg w-full max-w-sm text-center relative">
-    <button id="close-topup" class="absolute top-2 right-2 text-xl text-white"><i class="fas fa-times"></i></button>
-    <h2 class="text-2xl font-bold mb-6">Top Up Coins</h2>
-    <div class="space-y-4">
-      <button onclick="addCoins(100)" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90">+100 Coins</button>
-      <button onclick="addCoins(500)" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90">+500 Coins</button>
-      <button onclick="addCoins(1000)" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90">+1000 Coins</button>
+<div id="topup-popup" class="fixed inset-0 bg-black/80 hidden flex justify-center items-center z-50">
+  <div class="bg-gradient-to-br from-purple-800/90 to-pink-700/90 p-6 rounded-2xl w-full max-w-md text-center relative border border-white/10 shadow-xl backdrop-blur">
+    <button id="close-topup" class="absolute top-3 right-3 text-white text-xl hover:text-pink-400"><i class="fas fa-times"></i></button>
+    <h2 class="text-3xl font-extrabold mb-4 text-white glow-button">Top Up Coins</h2>
+    
+    <div class="space-y-6">
+      <!-- 100 Coins -->
+      <div onclick="addCoins(100)" class="group bg-gray-900/50 hover:bg-gray-900 rounded-xl p-4 cursor-pointer border border-white/10 transition">
+        <lottie-player src="https://lottie.host/60f6b5ab-bc1e-44ec-ad07-8bdb232ed0e5/snswHnCETt.lottie" loop autoplay></lottie-player>
+        <p class="text-white text-lg font-semibold mt-2">+100 Coins</p>
+      </div>
+
+      <!-- 500 Coins -->
+      <div onclick="addCoins(500)" class="group bg-gray-900/50 hover:bg-gray-900 rounded-xl p-4 cursor-pointer border border-white/10 transition">
+        <lottie-player src="https://lottie.host/60f6b5ab-bc1e-44ec-ad07-8bdb232ed0e5/snswHnCETt.lottie" background="transparent" speed="1" style="width: 120px; height: 120px;" loop autoplay></lottie-player>
+        <p class="text-white text-lg font-semibold mt-2">+500 Coins</p>
+      </div>
+
+      <!-- 1000 Coins -->
+      <div onclick="addCoins(1000)" class="group bg-gray-900/50 hover:bg-gray-900 rounded-xl p-4 cursor-pointer border border-white/10 transition">
+        <lottie-player src="https://lottie.host/60f6b5ab-bc1e-44ec-ad07-8bdb232ed0e5/snswHnCETt.lottie" background="transparent" speed="1" style="width: 140px; height: 140px;" loop autoplay></lottie-player>
+        <p class="text-white text-lg font-semibold mt-2">+1000 Coins</p>
+      </div>
     </div>
   </div>
 </div>
-
 <!-- Firebase Scripts + Logic -->
 <script>
 
