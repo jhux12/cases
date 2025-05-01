@@ -298,19 +298,19 @@ balanceEl.classList.add('pulse-balance');
     });
   }
 
-  function loadRecentWins() {
-    db.ref('recentWins').on('value', snapshot => {
-      recentWins.innerHTML = '';
-      snapshot.forEach(child => {
-        const win = child.val();
-        recentWins.innerHTML += `
-          <div class="flex items-center space-x-1">
-            <img src="${win.image}" class="h-8 w-8 rounded-full object-cover">
-            <span>${win.name}</span>
-          </div>`;
-      });
+ function loadRecentWins() {
+  db.ref('recentWins').on('value', snapshot => {
+    recentWins.innerHTML = '';
+    snapshot.forEach(child => {
+      const win = child.val();
+      recentWins.innerHTML += `
+        <div class="flex items-center space-x-1">
+          <img src="${win.image}" class="h-8 w-8 rounded-full object-cover">
+          <span>${win.name}</span>
+        </div>`;
     });
-  }
+  });
+}
 
   function openCasePopup(e) {
     const caseId = e.target.dataset.id;
