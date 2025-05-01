@@ -340,6 +340,16 @@ balanceEl.classList.add('pulse-balance');
       const data = snapshot.val();
       selectedCasePrice = parseFloat(data.price) || 0;
       document.getElementById('popup-price').innerText = selectedCasePrice;
+
+// Show user balance in popup
+const user = firebase.auth().currentUser;
+if (user) {
+  const userRef = db.ref('users/' + user.uid);
+  userRef.once('value').then(snapshot => {
+    const balance = snapshot.val()?.balance || 0;
+    document.getElementById('popup-balance').innerText = `${balance} coins`;
+  });
+}
       caseImage.src = data.image;
       currentPrizes = Object.values(data.prizes || {});
       console.log(currentPrizes);
