@@ -496,83 +496,39 @@ setTimeout(() => {
   const centerOffset = spinContainer.offsetWidth / 2 - prizeWidth / 2;
   const finalScroll = prizeWidth * (reel.length - 5) - centerOffset;
 
-  let scrollPos = 0;
-  const interval = setInterval(() => {
-    scrollPos += 20;
-    spinContainer.scrollLeft = scrollPos;
+  spinContainer.scrollTo({
+  left: finalScroll,
+  behavior: 'smooth'
+});
 
-    if (scrollPos >= finalScroll) {
-      clearInterval(interval);
+// Wait for scroll animation to finish
+setTimeout(() => {
+  spinContainer.innerHTML = ''; // Clear the reel
+  caseImage.src = winningPrize.image;
+  resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
+  resultDiv.classList.remove('hidden');
+  document.getElementById('spinner').classList.add('hidden');
+  confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
 
-      setTimeout(() => {
-        spinContainer.innerHTML = ''; // Optional: clear animation
-        caseImage.src = winningPrize.image;
-        resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
-        resultDiv.classList.remove('hidden');
-        document.getElementById('spinner').classList.add('hidden');
-        confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+  // Save to inventory
+  const inventoryRef = db.ref('users/' + user.uid + '/inventory');
+  inventoryRef.push({
+    name: winningPrize.name,
+    image: winningPrize.image,
+    rarity: winningPrize.rarity || 'Unknown',
+    value: winningPrize.value || 0,
+    price: selectedCasePrice,
+    timestamp: Date.now()
+  });
 
-        // Save to inventory
-        const inventoryRef = db.ref('users/' + user.uid + '/inventory');
-        inventoryRef.push({
-          name: winningPrize.name,
-          image: winningPrize.image,
-          rarity: winningPrize.rarity || 'Unknown',
-          value: winningPrize.value || 0,
-          price: selectedCasePrice,
-          timestamp: Date.now()
-        });
+  // Add to recent wins
+  db.ref('recentWins').push({
+    name: winningPrize.name,
+    image: winningPrize.image,
+    timestamp: Date.now()
+  });
 
-        // Add to recent wins
-        db.ref('recentWins').push({
-          name: winningPrize.name,
-          image: winningPrize.image,
-          timestamp: Date.now()
-        });
-      }, 300);
-    }
-  }, 16); // ~60 FPS
-}, 100);
-
-
-spinContainer.scrollLeft = 0;
-let scrollPos = 0;
-let scrollInterval = setInterval(() => {
-  scrollPos += 10;
-  spinContainer.scrollLeft = scrollPos;
-
-  if (scrollPos >= spinContainer.scrollWidth - spinContainer.clientWidth) {
-    clearInterval(scrollInterval);
-
-    setTimeout(() => {
-      spinContainer.innerHTML = ''; // Clear animation
-      caseImage.src = winningPrize.image;
-      resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
-      resultDiv.classList.remove('hidden');
-      document.getElementById('spinner').classList.add('hidden');
-      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
-
-      // Save to inventory
-      const inventoryRef = db.ref('users/' + user.uid + '/inventory');
-      inventoryRef.push({
-        name: winningPrize.name,
-        image: winningPrize.image,
-        rarity: winningPrize.rarity || 'Unknown',
-        value: winningPrize.value || 0,
-        price: selectedCasePrice,
-        timestamp: Date.now()
-      });
-
-      // Add to recent wins
-      db.ref('recentWins').push({
-        name: winningPrize.name,
-        image: winningPrize.image,
-        timestamp: Date.now()
-      });
-
-    }, 300);
-  }
-}, 50);
+}, 2200); // Adjust this timeout if needed
 
         }, 1000);
       });
