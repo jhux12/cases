@@ -302,6 +302,9 @@
       if (item && !item.shipped && !item.requested) {
         item.id = item.key; // Ensure item.id is properly set before shipping
         shipmentSelection = [item]; // Set the current item for shipment
+        const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
+document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelection.length} item(s) will cost ${cost} coins.`;
+
         document.getElementById('shipment-popup').classList.remove('hidden');
       }
     }
