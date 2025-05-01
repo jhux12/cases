@@ -375,6 +375,7 @@ balanceEl.classList.add('pulse-balance');
       userRef.update({ balance: newBalance }).then(() => {
         document.getElementById('balance-amount').innerText = newBalance;
         const balanceEl = document.getElementById('balance-amount');
+    
 balanceEl.classList.remove('pulse-balance');
 void balanceEl.offsetWidth; // restart animation
 balanceEl.classList.add('pulse-balance');
@@ -402,6 +403,12 @@ const winningPrize = currentPrizes.find(p => {
             price: selectedCasePrice,
             timestamp: Date.now()
           });
+          const recentWinsRef = db.ref('recentWins');
+recentWinsRef.push({
+  name: winningPrize.name,
+  image: winningPrize.image,
+  timestamp: Date.now()
+});
         }, 1000);
       });
     });
