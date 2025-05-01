@@ -110,6 +110,13 @@
   .animate-overlay-zoom {
     animation: overlay-zoom 0.3s ease-out forwards;
   }
+  @keyframes pulse-balance {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+.pulse-balance {
+  animation: pulse-balance 0.4s ease;
+}  
 </style>
 </head>
 <body>
@@ -120,8 +127,15 @@
     <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(8).png?alt=media&token=3b3e6509-e988-46bc-814c-620cf8830ebb" alt="PrimePull.gg" class="h-16 transition-transform duration-500 hover:scale-110">
   </div>
   <div class="desktop-menu flex items-center space-x-4">
-    <div id="user-balance" class="hidden text-white flex items-center space-x-4">
-      <div class="coin-box" id="user-balance-box"></div>
+    <div id="user-balance" class="hidden flex items-center">
+  <div class="flex items-center bg-gray-800 rounded-md overflow-hidden text-white">
+    <div class="px-3 py-1 text-sm font-semibold bg-gray-900 flex items-center">
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 mr-1" />
+      <span id="balance-amount">0</span> coins
+    </div>
+    <button id="topup-button" class="bg-blue-400 hover:bg-blue-500 text-white px-3 py-1 text-lg font-bold">+</button>
+  </div>
+</div>
   </div>
     <a href="inventory.html" id="inventory-link" class="hidden sm:inline-flex px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Inventory</a>
     <a id="auth-button" href="auth.html" class="hidden sm:inline-block px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Sign in</a>
@@ -253,6 +267,10 @@
       const newBalance = currentBalance + amount;
       userRef.update({ balance: newBalance }).then(() => {
         document.getElementById('balance-amount').innerText = newBalance;
+        const balanceEl = document.getElementById('balance-amount');
+balanceEl.classList.remove('pulse-balance');
+void balanceEl.offsetWidth; // restart animation
+balanceEl.classList.add('pulse-balance');
         topupPopup.classList.add('hidden');
       });
     });
@@ -355,6 +373,10 @@
       const newBalance = userBalance - selectedCasePrice;
       userRef.update({ balance: newBalance }).then(() => {
         document.getElementById('balance-amount').innerText = newBalance;
+        const balanceEl = document.getElementById('balance-amount');
+balanceEl.classList.remove('pulse-balance');
+void balanceEl.offsetWidth; // restart animation
+balanceEl.classList.add('pulse-balance');
         caseImageWrapper.classList.add('animate-shake');
         setTimeout(() => {
           caseImageWrapper.classList.remove('animate-shake');
