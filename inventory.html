@@ -116,10 +116,6 @@ function shipSelected() {
   document.getElementById('shipment-popup').classList.remove('hidden');
 }
 
-function closeShipmentPopup() {
-  document.getElementById('shipment-popup').classList.add('hidden');
-}
-
 function submitShipmentRequest() {
   const user = firebase.auth().currentUser;
   if (!user) return;
@@ -129,7 +125,6 @@ function submitShipmentRequest() {
   const city = document.getElementById('ship-city').value.trim();
   const zip = document.getElementById('ship-zip').value.trim();
   const phone = document.getElementById('ship-phone').value.trim();
-
 
   if (!name || !address || !city || !zip) {
     alert("Please fill out all fields.");
@@ -167,25 +162,29 @@ function submitShipmentRequest() {
     selectedItems.clear();
     updateTotalValue();
     closeShipmentPopup();
+
     // Re-fetch inventory and re-render items after shipment request
-const inventoryRef = db.ref('users/' + user.uid + '/inventory');
-inventoryRef.once('value').then(inventorySnap => {
-  currentItems = [];
-  inventorySnap.forEach(child => {
-    const item = child.val();
-    item.key = child.key;
-    currentItems.push(item);
-  });
-  selectedItems.clear(); // 🧹 clear selected items
-updateTotalValue();    // 💰 reset the total coins display
-const sortBy = document.getElementById('sort-select').value;
-sortItems(sortBy);     // 🗂️ sort again
-renderItems(currentItems); // 🔁 re-render
-  document.getElementById('select-all-checkbox').checked = false;
-});
+    const inventoryRef = db.ref('users/' + user.uid + '/inventory');
+    inventoryRef.once('value').then(inventorySnap => {
+      currentItems = [];
+      inventorySnap.forEach(child => {
+        const item = child.val();
+        item.key = child.key;
+        currentItems.push(item);
+      });
+      selectedItems.clear(); // 🧹 clear selected items
+      updateTotalValue();    // 💰 reset the total coins display
+      const sortBy = document.getElementById('sort-select').value;
+      sortItems(sortBy);     // 🗂️ sort again
+      renderItems(currentItems); // 🔁 re-render
+      document.getElementById('select-all-checkbox').checked = false;
+    });
   });
 }
 
+function closeShipmentPopup() {
+  document.getElementById('shipment-popup').classList.add('hidden');
+}
     const selectedItems = new Set();
     let currentItems = [];
 
