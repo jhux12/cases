@@ -63,6 +63,21 @@
 
   <!-- Inventory Items -->
   <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+  <!-- Shipment Popup -->
+<div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
+  <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
+    <h2 class="text-xl font-bold mb-4">Enter Shipping Info</h2>
+    <input id="ship-name" type="text" placeholder="Full Name" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+    <input id="ship-address" type="text" placeholder="Address" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+    <input id="ship-city" type="text" placeholder="City" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+    <input id="ship-zip" type="text" placeholder="Zip Code" class="w-full mb-4 px-4 py-2 rounded bg-gray-700" />
+    <p id="shipment-cost" class="text-sm text-gray-300 mb-4"></p>
+    <div class="flex justify-end gap-4">
+      <button onclick="closeShipmentPopup()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded">Cancel</button>
+      <button onclick="submitShipmentRequest()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded">Confirm</button>
+    </div>
+  </div>
+</div>
 
   <script>
     const firebaseConfig = {
@@ -76,6 +91,78 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    let shipmentSelection = [];
+
+function shipSelected() {
+  shipmentSelection = [];
+  selectedItems.forEach(key => {
+    const item = currentItems.find(i => i.key === key);
+    if (item) {
+      shipmentSelection.push({ id: item.key, name: item.name, image: item.image, value: item.value || 0 });
+    }
+  });
+
+  if (shipmentSelection.length === 0) {
+    alert("Select items to ship.");
+    return;
+  }
+
+  const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
+  document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelection.length} item(s) will cost ${cost} coins.`;
+  document.getElementById('shipment-popup').classList.remove('hidden');
+}
+
+function closeShipmentPopup() {
+  document.getElementById('shipment-popup').classList.add('hidden');
+}
+
+function submitShipmentRequest() {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  const name = document.getElementById('ship-name').value.trim();
+  const address = document.getElementById('ship-address').value.trim();
+  const city = document.getElementById('ship-city').value.trim();
+  const zip = document.getElementById('ship-zip').value.trim();
+
+  if (!name || !address || !city || !zip) {
+    alert("Please fill out all fields.");
+    return;
+  }
+
+  const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
+  const userRef = db.ref('users/' + user.uid);
+
+  userRef.once('value').then(snapshot => {
+    const balance = snapshot.val().balance || 0;
+    if (balance < cost) {
+      alert(`Insufficient balance. You need ${cost} coins.`);
+      return;
+    }
+
+    userRef.update({ balance: balance - cost });
+
+    shipmentSelection.forEach(item => {
+      db.ref('shipments').push({
+        userId: user.uid,
+        itemId: item.id,
+        name: item.name,
+        image: item.image,
+        shippingInfo: { name, address, city, zip },
+        status: 'Requested',
+        timestamp: Date.now()
+      });
+
+      db.ref(`users/${user.uid}/inventory/${item.id}`).update({ requested: true });
+    });
+
+    alert("Shipment requested!");
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+    selectedItems.clear();
+    updateTotalValue();
+    closeShipmentPopup();
+  });
+}
 
     const selectedItems = new Set();
     let currentItems = [];
@@ -123,6 +210,9 @@
                   <img src="${item.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
                   <h2 class="font-bold text-lg text-pink-300">${item.name}</h2>
                   <p class="text-sm text-gray-400 mb-2">Rarity: ${item.rarity}</p>
+                  <p class="text-sm text-gray-400">
+  ${item.shipped ? 'Shipped' : item.requested ? 'Pending Shipment' : 'Not Requested'}
+</p>
                   <p class="text-sm text-gray-400 mb-4">Value: ${item.value || 0} coins</p>
                   <div class="flex justify-center gap-2">
                     <button onclick="sellBack('${item.key}', ${item.value || 0})" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full flex items-center space-x-1">
@@ -225,15 +315,6 @@
           });
         });
       });
-    }
-
-    function shipItem(itemKey) {
-      alert(`Shipping process coming soon for item ${itemKey}!`);
-    }
-
-    function shipSelected() {
-      if (!confirm("Are you sure you want to ship all selected items?")) return;
-      selectedItems.forEach(key => shipItem(key));
     }
 
     document.getElementById('logout-button').onclick = () => {
