@@ -483,7 +483,12 @@ const winningPrize = currentPrizes.find(p => {
   cumulative += p.odds || 0;
   return rand < cumulative;
 }) || currentPrizes[Math.floor(Math.random() * currentPrizes.length)];
-          document.getElementById('case-card-front').src = winningPrize.image;
+          const frontCard = document.getElementById('case-card-front');
+if (frontCard) {
+  frontCard.src = winningPrize.image;
+} else {
+  console.error('❌ case-card-front element not found.');
+}
           document.querySelector('.flip-card').classList.add('flipped');
 
           resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
