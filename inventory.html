@@ -163,9 +163,14 @@
         userRef.update({ balance: balance - cost });
 
         shipmentSelection.forEach(item => {
+          if (item.id === undefined) {
+            console.error("Item ID is missing:", item);
+            return; // Skip pushing the item if the ID is missing
+          }
+
           db.ref('shipments').push({
             userId: user.uid,
-            itemId: item.id,
+            itemId: item.id,  // Make sure item.id is not undefined
             name: item.name,
             image: item.image,
             shippingInfo: { name, address, city, zip, phone },
@@ -245,7 +250,9 @@
       sortedItems.forEach(item => {
         const refund = Math.floor((item.value || 0) * 0.8); // Calculate 80% value for sell price
         const checked = selectedItems.has(item.key) ? 'checked' : '';
-        
+
+        item.id = item.key;  // Ensure that item.id is properly set before any other operation
+
         container.innerHTML += `
           <div class="item-card rounded-lg p-4 text-center">
             <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-2" ${item.shipped || item.requested ? 'disabled' : ''} />
@@ -287,6 +294,7 @@
     function shipItem(itemKey) {
       const item = currentItems.find(i => i.key === itemKey);
       if (item && !item.shipped && !item.requested) {
+        item.id = item.key; // Ensure item.id is properly set before shipping
         shipmentSelection = [item]; // Set the current item for shipment
         document.getElementById('shipment-popup').classList.remove('hidden');
       }
@@ -319,6 +327,8 @@
           inventorySnap.forEach(child => {
             const item = child.val();
             item.key = child.key;
+            item.id = item.key; // Add this line to ensure item.id is set
+
             if (!item.requested) { // Only show items not requested for shipment
               currentItems.push(item);
             }
