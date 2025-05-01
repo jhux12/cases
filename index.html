@@ -122,6 +122,7 @@
 <body>
 
 <!-- Navbar -->
+<!-- Navbar -->
 <nav class="navbar fixed w-full z-50 py-4 px-6 flex items-center border-b border-gray-800 bg-gray-900">
   <!-- Logo -->
   <div class="flex items-center space-x-2">
@@ -131,24 +132,33 @@
   <!-- Spacer -->
   <div class="flex-1"></div>
 
-  <!-- Right-Aligned Items -->
-  <div class="flex items-center space-x-4">
+  <!-- Desktop Menu -->
+  <div class="hidden sm:flex items-center space-x-4">
     <div id="user-balance" class="hidden items-center text-white bg-gray-800 px-3 py-1 rounded-full text-sm">
       <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" />
       <span id="balance-amount">0</span>
       <span class="ml-1 mr-2">coins</span>
       <button id="topup-button" class="text-green-400 text-xl font-bold hover:text-green-500">+</button>
     </div>
-    <a href="inventory.html" id="inventory-link" class="hidden sm:inline-block px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Inventory</a>
-    <a id="auth-button" href="auth.html" class="hidden sm:inline-block px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Sign in</a>
+    <a href="inventory.html" id="inventory-link" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Inventory</a>
+    <a id="auth-button" href="auth.html" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90">Sign in</a>
+  </div>
+
+  <!-- Mobile Menu Button + Dropdown -->
+  <div class="sm:hidden ml-auto">
+    <button id="menu-toggle" class="text-white text-2xl focus:outline-none">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div id="mobile-dropdown" class="hidden mt-2 bg-gray-800 border border-gray-700 rounded-lg w-48 py-2 absolute right-4 top-16 z-50 shadow-lg">
+      <div id="user-balance-mobile" class="flex items-center justify-between px-4 py-2 text-sm text-white border-b border-gray-700">
+        <span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 mr-1"> <span id="balance-amount-mobile">0</span> coins</span>
+        <button id="topup-button-mobile" class="text-green-400 text-lg font-bold hover:text-green-500">+</button>
+      </div>
+      <a href="inventory.html" class="block px-4 py-2 hover:bg-gray-700">Inventory</a>
+      <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 hover:bg-gray-700">Sign in</a>
+    </div>
   </div>
 </nav>
-<div class="mobile-menu">
-  <button id="menu-toggle" class="text-white text-2xl"><i class="fas fa-bars"></i></button>
-  <div id="mobile-dropdown" class="hidden absolute right-6 top-16 bg-gray-900 border border-gray-700 rounded-lg w-48 py-2 z-50">
-    <a href="inventory.html" class="block px-4 py-2 hover:bg-gray-700">Inventory</a>
-    <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 hover:bg-gray-700">Sign in</a>
-  </div>
 </div>
 <!-- Hero -->
 <section class="pt-24 pb-12 px-6 bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600">
