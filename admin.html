@@ -171,22 +171,36 @@
     }
 
     function loadShipments() {
-      db.ref('shipments').on('value', snapshot => {
-        shipmentList.innerHTML = '';
-        snapshot.forEach(child => {
-          const item = child.val();
-          const div = document.createElement('div');
-          div.className = 'p-4 bg-gray-800 rounded';
-          div.innerHTML = `
-            <p><strong>User:</strong> ${item.userId}</p>
-            <p><strong>Item:</strong> ${item.name}</p>
-            <p><strong>Status:</strong> ${item.status || 'Requested'}</p>
-            <button class="mt-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded" onclick="markShipped('${child.key}')">Mark as Shipped</button>
-          `;
-          shipmentList.appendChild(div);
-        });
-      });
-    }
+  db.ref('shipments').on('value', snapshot => {
+    shipmentList.innerHTML = '';
+    snapshot.forEach(child => {
+      const item = child.val();
+      const info = item.shippingInfo || {};
+      const div = document.createElement('div');
+      div.className = 'p-4 bg-gray-800 rounded';
+      div.innerHTML = `
+        <p><strong>User ID:</strong> ${item.userId}</p>
+        <p><strong>Item:</strong> ${item.name}</p>
+        <p><strong>Status:</strong> ${item.status || 'Requested'}</p>
+        <p><strong>Shipping Info:</strong></p>
+        <ul class="ml-4 text-sm text-gray-300">
+          <li><strong>Name:</strong> ${info.name || '-'}</li>
+          <li><strong>Address:</strong> ${info.address || '-'}</li>
+          <li><strong>City:</strong> ${info.city || '-'}</li>
+          <li><strong>Zip:</strong> ${info.zip || '-'}</li>
+          <li><strong>Phone:</strong> ${info.phone || '-'}</li>
+        </ul>
+        <div class="flex gap-2 mt-2">
+  ${item.status === 'Requested' ? `
+    <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded" onclick="approveShipment('${child.key}')">Approve</button>
+  ` : ''}
+  <button class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded" onclick="markShipped('${child.key}')">Mark as Shipped</button>
+</div>
+      `;
+      shipmentList.appendChild(div);
+    });
+  });
+}
 
     function editCase(id) {
       db.ref('cases/' + id).once('value').then(snapshot => {
@@ -212,6 +226,9 @@
     function markShipped(id) {
       db.ref('shipments/' + id).update({ status: 'Shipped' }).then(() => showToast('📦 Marked as shipped'));
     }
+    function approveShipment(id) {
+  db.ref('shipments/' + id).update({ status: 'Approved' }).then(() => showToast('✅ Shipment approved'));
+}
 
     function saveCase(e) {
       e.preventDefault();
