@@ -305,14 +305,23 @@
         document.getElementById('shipment-popup').classList.remove('hidden');
       }
     }
-
     function sellBack(itemKey, itemValue) {
-      const item = currentItems.find(i => i.key === itemKey);
-      if (item) {
-        const refund = Math.floor(itemValue * 0.8); // Calculate refund (80% of the value)
-        alert(`Selling ${item.name} for ${refund} coins.`);
-      }
-    }
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  const refund = Math.floor(itemValue * 0.8);
+  const userRef = db.ref('users/' + user.uid);
+  const itemRef = db.ref('users/' + user.uid + '/inventory/' + itemKey);
+
+  userRef.once('value').then(snapshot => {
+    const balance = snapshot.val().balance || 0;
+    userRef.update({ balance: balance + refund }).then(() => {
+      itemRef.remove().then(() => {
+        window.location.reload(true); // Reload to reflect changes
+      });
+    });
+  });
+}
 
     firebase.auth().onAuthStateChanged(user => {
       if (!user) return (window.location.href = "auth.html");
