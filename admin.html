@@ -32,6 +32,12 @@
   <main class="space-y-6">
     <section id="cases" class="tab tab-active">
       <h2 class="text-xl font-semibold mb-4">Case & Prize Management</h2>
+      <form onsubmit="return saveNewCase()" class="mb-4 space-y-2">
+        <input type="text" id="newCaseName" placeholder="Case Name" class="w-full p-2 rounded">
+        <input type="text" id="newCaseImage" placeholder="Image URL" class="w-full p-2 rounded">
+        <input type="number" id="newCasePrice" placeholder="Price" class="w-full p-2 rounded">
+        <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded">Add Case</button>
+      </form>
       <div id="case-section" class="bg-gray-800 p-4 rounded"></div>
     </section>
 
@@ -86,6 +92,20 @@
       document.getElementById(id).classList.add('tab-active');
     }
 
+    function saveNewCase() {
+      const name = document.getElementById('newCaseName').value;
+      const image = document.getElementById('newCaseImage').value;
+      const price = parseFloat(document.getElementById('newCasePrice').value) || 0;
+      const newRef = db.ref('cases').push();
+      newRef.set({ name, image, price, prizes: {} }).then(() => {
+        document.getElementById('newCaseName').value = '';
+        document.getElementById('newCaseImage').value = '';
+        document.getElementById('newCasePrice').value = '';
+        loadCases();
+      });
+      return false;
+    }
+
     function loadCases() {
       const caseSection = document.getElementById('case-section');
       db.ref('cases').once('value').then(snapshot => {
@@ -95,13 +115,17 @@
           const div = document.createElement('div');
           div.className = 'p-4 bg-gray-700 rounded mb-4';
           div.innerHTML = `
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center mb-2">
               <div>
                 <p class="text-lg font-bold">${data.name}</p>
                 <p class="text-sm text-gray-300">Price: ${data.price || 0}</p>
               </div>
-              <button onclick="deleteCase('${child.key}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded">Delete</button>
+              <div class="space-x-2">
+                <button onclick="editPrizes('${child.key}')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Edit</button>
+                <button onclick="deleteCase('${child.key}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded">Delete</button>
+              </div>
             </div>
+            <div id="prizes-${child.key}" class="ml-4"></div>
           `;
           caseSection.appendChild(div);
         });
@@ -114,73 +138,53 @@
       }
     }
 
-    function loadAnalytics() {
-      let totalSpent = 0;
-      let totalEarned = 0;
-      let caseCounts = {};
-      let userSpend = {};
-
-      db.ref('users').once('value').then(snapshot => {
-        snapshot.forEach(user => {
-          const userData = user.val();
-          totalSpent += userData.totalSpent || 0;
-          totalEarned += userData.totalEarned || 0;
-          userSpend[user.key] = userData.totalSpent || 0;
+    function editPrizes(caseId) {
+      const prizeDiv = document.getElementById(`prizes-${caseId}`);
+      prizeDiv.innerHTML = 'Loading prizes...';
+      db.ref(`cases/${caseId}/prizes`).once('value').then(snapshot => {
+        prizeDiv.innerHTML = '';
+        snapshot.forEach(child => {
+          const prize = child.val();
+          const prizeId = child.key;
+          const container = document.createElement('div');
+          container.className = 'mb-2';
+          container.innerHTML = `
+            <input value="${prize.name}" placeholder="Name" class="mr-2 p-1 rounded text-black" id="name-${caseId}-${prizeId}">
+            <input value="${prize.image}" placeholder="Image URL" class="mr-2 p-1 rounded text-black" id="img-${caseId}-${prizeId}">
+            <input value="${prize.rarity}" placeholder="Rarity" class="mr-2 p-1 rounded text-black" id="rarity-${caseId}-${prizeId}">
+            <input value="${prize.value}" placeholder="Value" class="mr-2 p-1 rounded text-black" id="value-${caseId}-${prizeId}">
+            <input value="${prize.odds}" placeholder="Odds" class="mr-2 p-1 rounded text-black" id="odds-${caseId}-${prizeId}">
+            <button onclick="updatePrize('${caseId}', '${prizeId}')" class="px-2 py-1 bg-yellow-500 hover:bg-yellow-600 rounded">Save</button>
+            <button onclick="deletePrize('${caseId}', '${prizeId}')" class="px-2 py-1 bg-red-500 hover:bg-red-600 rounded">Delete</button>
+          `;
+          prizeDiv.appendChild(container);
         });
-
-        const topUser = Object.entries(userSpend).sort((a, b) => b[1] - a[1])[0];
-        document.getElementById('top-user').innerText = topUser ? `${topUser[0]} (${topUser[1]} coins)` : 'N/A';
-        document.getElementById('total-spent').innerText = totalSpent.toLocaleString();
-        document.getElementById('total-earned').innerText = totalEarned.toLocaleString();
-      });
-
-      db.ref('caseOpens').once('value').then(snapshot => {
-        snapshot.forEach(c => {
-          caseCounts[c.key] = (caseCounts[c.key] || 0) + 1;
-        });
-        const topCase = Object.entries(caseCounts).sort((a, b) => b[1] - a[1])[0];
-        document.getElementById('top-case').innerText = topCase ? `${topCase[0]} (${topCase[1]} opens)` : 'N/A';
+        const addBtn = document.createElement('button');
+        addBtn.textContent = 'Add New Prize';
+        addBtn.className = 'mt-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded';
+        addBtn.onclick = () => addPrize(caseId);
+        prizeDiv.appendChild(addBtn);
       });
     }
 
-    async function loadSections() {
-      const userSnap = await db.ref('users').once('value');
-      const userSection = document.getElementById('user-section');
-      userSection.innerHTML = '';
-      userSnap.forEach(user => {
-        const data = user.val();
-        const div = document.createElement('div');
-        div.className = 'p-4 bg-gray-700 rounded mb-4';
-        div.innerHTML = `
-          <div class="flex justify-between items-center">
-            <div>
-              <p class="text-lg font-bold">${data.email || user.key}</p>
-              <p class="text-sm">Coins: <span class="text-yellow-300">${data.balance || 0}</span></p>
-            </div>
-            <input type="number" class="w-24 p-1 text-black rounded" value="${data.balance || 0}" onchange="updateUserBalance('${user.key}', this.value)">
-          </div>
-        `;
-        userSection.appendChild(div);
-      });
-
-      const orderSnap = await db.ref('shipments').once('value');
-      const orderSection = document.getElementById('order-section');
-      orderSection.innerHTML = '';
-      orderSnap.forEach(order => {
-        const data = order.val();
-        const div = document.createElement('div');
-        div.className = 'p-4 bg-gray-700 rounded mb-4';
-        div.innerHTML = `
-          <p class="font-bold">${data.itemName}</p>
-          <p class="text-sm">User: ${data.user || 'Unknown'}</p>
-          <p class="text-sm">Status: <span class="text-green-400">${data.status || 'Pending'}</span></p>
-        `;
-        orderSection.appendChild(div);
+    function updatePrize(caseId, prizeId) {
+      const prizeRef = db.ref(`cases/${caseId}/prizes/${prizeId}`);
+      prizeRef.update({
+        name: document.getElementById(`name-${caseId}-${prizeId}`).value,
+        image: document.getElementById(`img-${caseId}-${prizeId}`).value,
+        rarity: document.getElementById(`rarity-${caseId}-${prizeId}`).value,
+        value: parseFloat(document.getElementById(`value-${caseId}-${prizeId}`).value) || 0,
+        odds: parseFloat(document.getElementById(`odds-${caseId}-${prizeId}`).value) || 0
       });
     }
 
-    function updateUserBalance(uid, newBalance) {
-      db.ref('users/' + uid).update({ balance: parseFloat(newBalance) || 0 });
+    function deletePrize(caseId, prizeId) {
+      db.ref(`cases/${caseId}/prizes/${prizeId}`).remove().then(() => editPrizes(caseId));
+    }
+
+    function addPrize(caseId) {
+      const newRef = db.ref(`cases/${caseId}/prizes`).push();
+      newRef.set({ name: '', image: '', rarity: '', value: 0, odds: 0 }).then(() => editPrizes(caseId));
     }
 
     window.onload = () => {
