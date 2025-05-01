@@ -483,7 +483,7 @@ if (frontCard) {
   console.error('❌ case-card-front element not found.');
 }
           document.querySelector('.flip-card').classList.add('flipped');
-
+          playRaritySound(winningPrize.rarity || "common");
           resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
           resultDiv.classList.remove('hidden');
           confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
@@ -649,6 +649,36 @@ function expandPrize(imageUrl) {
     }
   });
 </script>
+
+  <script>
+function playRaritySound(rarity) {
+  let audioUrl = "";
+
+  switch (rarity.toLowerCase()) {
+    case "common":
+      audioUrl = "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5";
+      break;
+    case "uncommon":
+    case "rare":
+      audioUrl = "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8";
+      break;
+    case "ultra rare":
+      audioUrl = "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de";
+      break;
+    case "legendary":
+      audioUrl = "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0";
+      break;
+    default:
+      return;
+  }
+
+  const audio = new Audio(audioUrl);
+  audio.play().catch(err => console.warn("Sound error:", err));
+}
+</script>
+
+</body>
+</html>
 
 </body>
 </html>
