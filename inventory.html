@@ -195,7 +195,7 @@
       selectedItems.forEach(key => {
         const item = currentItems.find(i => i.key === key);
         if (item) {
-          totalRefund += Math.floor((item.value || 0) * 0.8);
+          totalRefund += Math.floor((item.value || 0) * 0.8); // 80% of the item's value
         }
       });
 
@@ -225,7 +225,7 @@
       let total = 0;
       selectedItems.forEach(key => {
         const item = currentItems.find(i => i.key === key);
-        if (item) total += Math.floor((item.value || 0) * 0.8);
+        if (item) total += Math.floor((item.value || 0) * 0.8); // Calculate 80% value for sell price
       });
       document.getElementById('selected-total').innerText = `Total: ${total} coins`;
     }
