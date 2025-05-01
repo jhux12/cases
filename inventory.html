@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Inventory | PrimePull.gg</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com"></script> 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -172,7 +172,9 @@
           inventorySnap.forEach(child => {
             const item = child.val();
             item.key = child.key;
-            currentItems.push(item);
+            if (!item.requested) { // Only show items not requested for shipment
+              currentItems.push(item);
+            }
           });
           selectedItems.clear(); // 🧹 clear selected items
           updateTotalValue();    // 💰 reset the total coins display
@@ -181,6 +183,9 @@
           renderItems(currentItems); // 🔁 re-render
           document.getElementById('select-all-checkbox').checked = false;
         });
+
+        // Force the page to refresh immediately
+        window.location.reload(true);
       });
     }
 
