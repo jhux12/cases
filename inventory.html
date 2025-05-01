@@ -159,32 +159,8 @@
           db.ref(`users/${user.uid}/inventory/${item.id}`).update({ requested: true });
         });
 
-        alert("Shipment requested!");
-        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-        selectedItems.clear();
-        updateTotalValue();
+        // Close the shipment popup and refresh the page
         closeShipmentPopup();
-
-        // Re-fetch inventory and re-render items after shipment request
-        const inventoryRef = db.ref('users/' + user.uid + '/inventory');
-        inventoryRef.once('value').then(inventorySnap => {
-          currentItems = [];
-          inventorySnap.forEach(child => {
-            const item = child.val();
-            item.key = child.key;
-            if (!item.requested) { // Only show items not requested for shipment
-              currentItems.push(item);
-            }
-          });
-          selectedItems.clear(); // 🧹 clear selected items
-          updateTotalValue();    // 💰 reset the total coins display
-          const sortBy = document.getElementById('sort-select').value;
-          sortItems(sortBy);     // 🗂️ sort again
-          renderItems(currentItems); // 🔁 re-render
-          document.getElementById('select-all-checkbox').checked = false;
-        });
-
-        // Force the page to refresh immediately
         window.location.reload(true);
       });
     }
@@ -257,73 +233,16 @@
                         <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
                       </button>
                     `}
-                    <button onclick="shipSelected()" class="px-4 py-2 rounded-full ${item.shipped || item.requested ? 'bg-gray-600 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}" ${item.shipped || item.requested ? 'disabled' : ''}>
-  Ship
-</button>
+                    <button onclick="shipItem('${item.key}')" class="px-4 py-2 rounded-full ${item.shipped || item.requested ? 'bg-gray-600 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}" ${item.shipped || item.requested ? 'disabled' : ''}>
+                      Ship
+                    </button>
                   </div>
                 </div>`;
             });
           }
 
-          function renderOrders(userId) {
-            const ordersContainer = document.getElementById('orders-container');
-            ordersContainer.innerHTML = '<p class="text-gray-400">Loading orders...</p>';
-
-            firebase.database().ref('shipments').orderByChild('userId').equalTo(userId).once('value').then(snapshot => {
-              ordersContainer.innerHTML = '';
-              if (!snapshot.exists()) {
-                ordersContainer.innerHTML = '<p class="text-gray-500">No orders yet.</p>';
-                return;
-              }
-
-              snapshot.forEach(child => {
-                const order = child.val();
-                ordersContainer.innerHTML += `
-                  <div class="item-card rounded-lg p-4 text-center">
-                    <img src="${order.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
-                    <h2 class="font-bold text-lg text-pink-300">${order.name}</h2>
-                    <p class="text-sm text-gray-400 mb-2">Status: 
-                      <span class="${order.status === 'Shipped' ? 'text-green-400' : 'text-yellow-400'}">${order.status}</span>
-                    </p>
-                    <p class="text-sm text-gray-400">Address: ${order.shippingInfo?.city || '-'}, ${order.shippingInfo?.zip || '-'}</p>
-                  </div>
-                `;
-              });
-            });
-          }
-
-          function sortItems(by) {
-            let sorted = [...currentItems];
-            if (by === 'value') {
-              sorted.sort((a, b) => (b.value || 0) - (a.value || 0));
-            } else if (by === 'name') {
-              sorted.sort((a, b) => a.name.localeCompare(b.name));
-            } else if (by === 'rarity') {
-              const rarityOrder = ['common', 'uncommon', 'rare', 'ultra rare', 'legendary'];
-              sorted.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
-            }
-            renderItems(sorted);
-          }
-
-          document.getElementById('sort-select').addEventListener('change', (e) => {
-            sortItems(e.target.value);
-          });
-
-          document.getElementById('select-all-checkbox').addEventListener('change', (e) => {
-            selectedItems.clear(); // Clear existing selection
-            if (e.target.checked) {
-              currentItems.forEach(item => {
-                if (!item.shipped && !item.requested) {
-                  selectedItems.add(item.key); // Only select valid items
-                }
-              });
-            }
-            updateTotalValue();
-            sortItems(document.getElementById('sort-select').value);
-          });
-
           sortItems('rarity');
-          renderOrders(user.uid);
+          renderItems(currentItems);
         });
       });
     });
@@ -350,7 +269,6 @@
         userRef.update({ balance: currentBalance + refund }).then(() => {
           itemRef.remove().then(() => {
             if (reload) {
-              alert(`Item sold for ${refund} coins.`);
               location.reload();
             }
           });
@@ -359,8 +277,6 @@
     }
 
     function sellSelected() {
-      if (!confirm("Are you sure you want to sell all selected items?")) return;
-
       const user = firebase.auth().currentUser;
       if (!user) return;
       const userRef = db.ref('users/' + user.uid);
@@ -381,7 +297,6 @@
         userRef.once('value').then(snapshot => {
           const balance = snapshot.val().balance || 0;
           userRef.update({ balance: balance + totalRefund }).then(() => {
-            alert(`Sold selected items for ${totalRefund} coins.`);
             location.reload();
           });
         });
