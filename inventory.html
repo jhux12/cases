@@ -116,6 +116,37 @@
       renderItems(currentItems);
     });
 
+    function sellSelected() {
+      let totalRefund = 0;
+      selectedItems.forEach(key => {
+        const item = currentItems.find(i => i.key === key);
+        if (item) {
+          totalRefund += Math.floor((item.value || 0) * 0.8); // 80% of the item's value
+        }
+      });
+
+      if (totalRefund > 0) {
+        const user = firebase.auth().currentUser;
+        if (!user) return;
+
+        const userRef = db.ref('users/' + user.uid);
+        userRef.once('value').then(snapshot => {
+          const balance = snapshot.val().balance || 0;
+          userRef.update({ balance: balance + totalRefund }); // Add refund to the user's balance
+
+          selectedItems.forEach(key => {
+            const item = currentItems.find(i => i.key === key);
+            if (item) {
+              db.ref('users/' + user.uid + '/inventory/' + key).remove(); // Remove the item from the inventory
+            }
+          });
+
+          alert(`Sold selected items for ${totalRefund} coins.`);
+          window.location.reload(true); // Reload to reflect updated inventory
+        });
+      }
+    }
+
     function shipSelected() {
       shipmentSelection = [];
       selectedItems.forEach(key => {
@@ -190,37 +221,6 @@
       document.getElementById('shipment-popup').classList.add('hidden');
     }
 
-    function sellSelected() {
-      let totalRefund = 0;
-      selectedItems.forEach(key => {
-        const item = currentItems.find(i => i.key === key);
-        if (item) {
-          totalRefund += Math.floor((item.value || 0) * 0.8); // 80% of the item's value
-        }
-      });
-
-      if (totalRefund > 0) {
-        const user = firebase.auth().currentUser;
-        if (!user) return;
-
-        const userRef = db.ref('users/' + user.uid);
-        userRef.once('value').then(snapshot => {
-          const balance = snapshot.val().balance || 0;
-          userRef.update({ balance: balance + totalRefund }); // Add refund to the user's balance
-
-          selectedItems.forEach(key => {
-            const item = currentItems.find(i => i.key === key);
-            if (item) {
-              db.ref('users/' + user.uid + '/inventory/' + key).remove(); // Remove the item from the inventory
-            }
-          });
-
-          alert(`Sold selected items for ${totalRefund} coins.`);
-          window.location.reload(true); // Reload to reflect updated inventory
-        });
-      }
-    }
-
     function updateTotalValue() {
       let total = 0;
       selectedItems.forEach(key => {
@@ -228,19 +228,6 @@
         if (item) total += Math.floor((item.value || 0) * 0.8); // Calculate 80% value for sell price
       });
       document.getElementById('selected-total').innerText = `Total: ${total} coins`;
-    }
-
-    function sortItems(by) {
-      let sorted = [...currentItems];
-      if (by === 'value') {
-        sorted.sort((a, b) => (b.value || 0) - (a.value || 0));
-      } else if (by === 'name') {
-        sorted.sort((a, b) => a.name.localeCompare(b.name));
-      } else if (by === 'rarity') {
-        const rarityOrder = ['common', 'uncommon', 'rare', 'ultra rare', 'legendary'];
-        sorted.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
-      }
-      renderItems(sorted);
     }
 
     function renderItems(sortedItems) {
