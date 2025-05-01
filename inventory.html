@@ -63,25 +63,27 @@
 
   <!-- Inventory Items -->
   <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+
   <!-- Orders Section -->
-<h2 class="text-2xl font-bold text-pink-400 mt-12 mb-4">📦 My Orders</h2>
-<div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+  <h2 class="text-2xl font-bold text-pink-400 mt-12 mb-4">📦 My Orders</h2>
+  <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+
   <!-- Shipment Popup -->
-<div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
-  <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
-    <h2 class="text-xl font-bold mb-4">Enter Shipping Info</h2>
-    <input id="ship-name" type="text" placeholder="Full Name" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-    <input id="ship-address" type="text" placeholder="Address" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-    <input id="ship-city" type="text" placeholder="City" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-    <input id="ship-zip" type="text" placeholder="Zip Code" class="w-full mb-4 px-4 py-2 rounded bg-gray-700" />
-    <input id="ship-phone" type="text" placeholder="Phone Number" class="w-full mb-4 px-4 py-2 rounded bg-gray-700" />
-    <p id="shipment-cost" class="text-sm text-gray-300 mb-4"></p>
-    <div class="flex justify-end gap-4">
-      <button onclick="closeShipmentPopup()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded">Cancel</button>
-      <button onclick="submitShipmentRequest()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded">Confirm</button>
+  <div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
+    <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
+      <h2 class="text-xl font-bold mb-4">Enter Shipping Info</h2>
+      <input id="ship-name" type="text" placeholder="Full Name" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+      <input id="ship-address" type="text" placeholder="Address" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+      <input id="ship-city" type="text" placeholder="City" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+      <input id="ship-zip" type="text" placeholder="Zip Code" class="w-full mb-4 px-4 py-2 rounded bg-gray-700" />
+      <input id="ship-phone" type="text" placeholder="Phone Number" class="w-full mb-4 px-4 py-2 rounded bg-gray-700" />
+      <p id="shipment-cost" class="text-sm text-gray-300 mb-4"></p>
+      <div class="flex justify-end gap-4">
+        <button onclick="closeShipmentPopup()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded">Cancel</button>
+        <button onclick="submitShipmentRequest()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded">Confirm</button>
+      </div>
     </div>
   </div>
-</div>
 
   <script>
     const firebaseConfig = {
@@ -97,94 +99,95 @@
     const db = firebase.database();
     let shipmentSelection = [];
 
-function shipSelected() {
-  shipmentSelection = [];
-  selectedItems.forEach(key => {
-    const item = currentItems.find(i => i.key === key);
-    if (item) {
-      shipmentSelection.push({ id: item.key, name: item.name, image: item.image, value: item.value || 0 });
-    }
-  });
-
-  if (shipmentSelection.length === 0) {
-    alert("Select items to ship.");
-    return;
-  }
-
-  const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
-  document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelection.length} item(s) will cost ${cost} coins.`;
-  document.getElementById('shipment-popup').classList.remove('hidden');
-}
-
-function submitShipmentRequest() {
-  const user = firebase.auth().currentUser;
-  if (!user) return;
-
-  const name = document.getElementById('ship-name').value.trim();
-  const address = document.getElementById('ship-address').value.trim();
-  const city = document.getElementById('ship-city').value.trim();
-  const zip = document.getElementById('ship-zip').value.trim();
-  const phone = document.getElementById('ship-phone').value.trim();
-
-  if (!name || !address || !city || !zip) {
-    alert("Please fill out all fields.");
-    return;
-  }
-
-  const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
-  const userRef = db.ref('users/' + user.uid);
-
-  userRef.once('value').then(snapshot => {
-    const balance = snapshot.val().balance || 0;
-    if (balance < cost) {
-      alert(`Insufficient balance. You need ${cost} coins.`);
-      return;
-    }
-
-    userRef.update({ balance: balance - cost });
-
-    shipmentSelection.forEach(item => {
-      db.ref('shipments').push({
-        userId: user.uid,
-        itemId: item.id,
-        name: item.name,
-        image: item.image,
-        shippingInfo: { name, address, city, zip, phone },
-        status: 'Requested',
-        timestamp: Date.now()
+    function shipSelected() {
+      shipmentSelection = [];
+      selectedItems.forEach(key => {
+        const item = currentItems.find(i => i.key === key);
+        if (item) {
+          shipmentSelection.push({ id: item.key, name: item.name, image: item.image, value: item.value || 0 });
+        }
       });
 
-      db.ref(`users/${user.uid}/inventory/${item.id}`).update({ requested: true });
-    });
+      if (shipmentSelection.length === 0) {
+        alert("Select items to ship.");
+        return;
+      }
 
-    alert("Shipment requested!");
-    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-    selectedItems.clear();
-    updateTotalValue();
-    closeShipmentPopup();
+      const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
+      document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelection.length} item(s) will cost ${cost} coins.`;
+      document.getElementById('shipment-popup').classList.remove('hidden');
+    }
 
-    // Re-fetch inventory and re-render items after shipment request
-    const inventoryRef = db.ref('users/' + user.uid + '/inventory');
-    inventoryRef.once('value').then(inventorySnap => {
-      currentItems = [];
-      inventorySnap.forEach(child => {
-        const item = child.val();
-        item.key = child.key;
-        currentItems.push(item);
+    function submitShipmentRequest() {
+      const user = firebase.auth().currentUser;
+      if (!user) return;
+
+      const name = document.getElementById('ship-name').value.trim();
+      const address = document.getElementById('ship-address').value.trim();
+      const city = document.getElementById('ship-city').value.trim();
+      const zip = document.getElementById('ship-zip').value.trim();
+      const phone = document.getElementById('ship-phone').value.trim();
+
+      if (!name || !address || !city || !zip) {
+        alert("Please fill out all fields.");
+        return;
+      }
+
+      const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
+      const userRef = db.ref('users/' + user.uid);
+
+      userRef.once('value').then(snapshot => {
+        const balance = snapshot.val().balance || 0;
+        if (balance < cost) {
+          alert(`Insufficient balance. You need ${cost} coins.`);
+          return;
+        }
+
+        userRef.update({ balance: balance - cost });
+
+        shipmentSelection.forEach(item => {
+          db.ref('shipments').push({
+            userId: user.uid,
+            itemId: item.id,
+            name: item.name,
+            image: item.image,
+            shippingInfo: { name, address, city, zip, phone },
+            status: 'Requested',
+            timestamp: Date.now()
+          });
+
+          db.ref(`users/${user.uid}/inventory/${item.id}`).update({ requested: true });
+        });
+
+        alert("Shipment requested!");
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        selectedItems.clear();
+        updateTotalValue();
+        closeShipmentPopup();
+
+        // Re-fetch inventory and re-render items after shipment request
+        const inventoryRef = db.ref('users/' + user.uid + '/inventory');
+        inventoryRef.once('value').then(inventorySnap => {
+          currentItems = [];
+          inventorySnap.forEach(child => {
+            const item = child.val();
+            item.key = child.key;
+            currentItems.push(item);
+          });
+          selectedItems.clear(); // 🧹 clear selected items
+          updateTotalValue();    // 💰 reset the total coins display
+          const sortBy = document.getElementById('sort-select').value;
+          sortItems(sortBy);     // 🗂️ sort again
+          renderItems(currentItems); // 🔁 re-render
+          document.getElementById('select-all-checkbox').checked = false;
+        });
       });
-      selectedItems.clear(); // 🧹 clear selected items
-      updateTotalValue();    // 💰 reset the total coins display
-      const sortBy = document.getElementById('sort-select').value;
-      sortItems(sortBy);     // 🗂️ sort again
-      renderItems(currentItems); // 🔁 re-render
-      document.getElementById('select-all-checkbox').checked = false;
-    });
-  });
-}
+    }
 
-function closeShipmentPopup() {
-  document.getElementById('shipment-popup').classList.add('hidden');
-}
+    function closeShipmentPopup() {
+      document.getElementById('shipment-popup').classList.add('hidden');
+    }
+
     const selectedItems = new Set();
     let currentItems = [];
 
@@ -216,7 +219,9 @@ function closeShipmentPopup() {
           inventorySnap.forEach(child => {
             const item = child.val();
             item.key = child.key;
-            currentItems.push(item);
+            if (!item.requested) { // Only show items not requested for shipment
+              currentItems.push(item);
+            }
           });
 
           function renderItems(sortedItems) {
@@ -232,54 +237,55 @@ function closeShipmentPopup() {
                   <h2 class="font-bold text-lg text-pink-300">${item.name}</h2>
                   <p class="text-sm text-gray-400 mb-2">Rarity: ${item.rarity}</p>
                   <p class="text-sm text-gray-400">
-  ${item.shipped ? 'Shipped' : item.requested ? 'Pending Shipment' : 'Not Requested'}
-</p>
+                    ${item.shipped ? 'Shipped' : item.requested ? 'Pending Shipment' : 'Not Requested'}
+                  </p>
                   <p class="text-sm text-gray-400 mb-4">Value: ${item.value || 0} coins</p>
                   <div class="flex justify-center gap-2">
                     ${item.shipped || item.requested ? `
-  <button disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full flex items-center space-x-1">
-    <span>Sell for ${refund}</span>
-    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
-  </button>
-` : `
-  <button onclick="sellBack('${item.key}', ${item.value || 0})" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full flex items-center space-x-1">
-    <span>Sell for ${refund}</span>
-    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
-  </button>
-`}
-                     <button onclick="shipItem('${item.key}')" class="px-4 py-2 rounded-full ${item.shipped || item.requested ? 'bg-gray-600 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}" ${item.shipped || item.requested ? 'disabled' : ''}>
-  Ship
-</button>
+                      <button disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full flex items-center space-x-1">
+                        <span>Sell for ${refund}</span>
+                        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
+                      </button>
+                    ` : `
+                      <button onclick="sellBack('${item.key}', ${item.value || 0})" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full flex items-center space-x-1">
+                        <span>Sell for ${refund}</span>
+                        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
+                      </button>
+                    `}
+                    <button onclick="shipItem('${item.key}')" class="px-4 py-2 rounded-full ${item.shipped || item.requested ? 'bg-gray-600 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}" ${item.shipped || item.requested ? 'disabled' : ''}>
+                      Ship
+                    </button>
                   </div>
                 </div>`;
             });
           }
+
           function renderOrders(userId) {
-  const ordersContainer = document.getElementById('orders-container');
-  ordersContainer.innerHTML = '<p class="text-gray-400">Loading orders...</p>';
+            const ordersContainer = document.getElementById('orders-container');
+            ordersContainer.innerHTML = '<p class="text-gray-400">Loading orders...</p>';
 
-  firebase.database().ref('shipments').orderByChild('userId').equalTo(userId).once('value').then(snapshot => {
-    ordersContainer.innerHTML = '';
-    if (!snapshot.exists()) {
-      ordersContainer.innerHTML = '<p class="text-gray-500">No orders yet.</p>';
-      return;
-    }
+            firebase.database().ref('shipments').orderByChild('userId').equalTo(userId).once('value').then(snapshot => {
+              ordersContainer.innerHTML = '';
+              if (!snapshot.exists()) {
+                ordersContainer.innerHTML = '<p class="text-gray-500">No orders yet.</p>';
+                return;
+              }
 
-    snapshot.forEach(child => {
-      const order = child.val();
-      ordersContainer.innerHTML += `
-        <div class="item-card rounded-lg p-4 text-center">
-          <img src="${order.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
-          <h2 class="font-bold text-lg text-pink-300">${order.name}</h2>
-          <p class="text-sm text-gray-400 mb-2">Status: 
-            <span class="${order.status === 'Shipped' ? 'text-green-400' : 'text-yellow-400'}">${order.status}</span>
-          </p>
-          <p class="text-sm text-gray-400">Address: ${order.shippingInfo?.city || '-'}, ${order.shippingInfo?.zip || '-'}</p>
-        </div>
-      `;
-    });
-  });
-}
+              snapshot.forEach(child => {
+                const order = child.val();
+                ordersContainer.innerHTML += `
+                  <div class="item-card rounded-lg p-4 text-center">
+                    <img src="${order.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
+                    <h2 class="font-bold text-lg text-pink-300">${order.name}</h2>
+                    <p class="text-sm text-gray-400 mb-2">Status: 
+                      <span class="${order.status === 'Shipped' ? 'text-green-400' : 'text-yellow-400'}">${order.status}</span>
+                    </p>
+                    <p class="text-sm text-gray-400">Address: ${order.shippingInfo?.city || '-'}, ${order.shippingInfo?.zip || '-'}</p>
+                  </div>
+                `;
+              });
+            });
+          }
 
           function sortItems(by) {
             let sorted = [...currentItems];
@@ -299,17 +305,17 @@ function closeShipmentPopup() {
           });
 
           document.getElementById('select-all-checkbox').addEventListener('change', (e) => {
-  selectedItems.clear(); // Clear existing selection
-  if (e.target.checked) {
-    currentItems.forEach(item => {
-      if (!item.shipped && !item.requested) {
-        selectedItems.add(item.key); // Only select valid items
-      }
-    });
-  }
-  updateTotalValue();
-  sortItems(document.getElementById('sort-select').value);
-});
+            selectedItems.clear(); // Clear existing selection
+            if (e.target.checked) {
+              currentItems.forEach(item => {
+                if (!item.shipped && !item.requested) {
+                  selectedItems.add(item.key); // Only select valid items
+                }
+              });
+            }
+            updateTotalValue();
+            sortItems(document.getElementById('sort-select').value);
+          });
 
           sortItems('rarity');
           renderOrders(user.uid);
@@ -376,21 +382,6 @@ function closeShipmentPopup() {
         });
       });
     }
-function shipItem(itemKey) {
-  const item = currentItems.find(i => i.key === itemKey);
-  if (!item) return alert('Item not found.');
-
-  shipmentSelection = [{
-    id: item.key,
-    name: item.name,
-    image: item.image,
-    value: item.value || 0
-  }];
-
-  const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
-  document.getElementById('shipment-cost').innerText = `Shipping 1 item will cost ${cost} coins.`;
-  document.getElementById('shipment-popup').classList.remove('hidden');
-}
 
     document.getElementById('logout-button').onclick = () => {
       firebase.auth().signOut().then(() => location.href = "index.html");
