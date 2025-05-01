@@ -417,6 +417,7 @@ balanceEl.classList.add('pulse-balance');
       const newBalance = userBalance - selectedCasePrice;
       userRef.update({ balance: newBalance }).then(() => {
         document.getElementById('balance-amount').innerText = newBalance;
+        document.getElementById('popup-balance').innerText = `${newBalance} coins`;
         const balanceEl = document.getElementById('balance-amount');
     
 balanceEl.classList.remove('pulse-balance');
