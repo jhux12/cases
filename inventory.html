@@ -206,17 +206,17 @@
         const userRef = db.ref('users/' + user.uid);
         userRef.once('value').then(snapshot => {
           const balance = snapshot.val().balance || 0;
-          userRef.update({ balance: balance + totalRefund });
+          userRef.update({ balance: balance + totalRefund }); // Add refund to the user's balance
 
           selectedItems.forEach(key => {
             const item = currentItems.find(i => i.key === key);
             if (item) {
-              db.ref('users/' + user.uid + '/inventory/' + key).remove();
+              db.ref('users/' + user.uid + '/inventory/' + key).remove(); // Remove the item from the inventory
             }
           });
 
           alert(`Sold selected items for ${totalRefund} coins.`);
-          window.location.reload(true);
+          window.location.reload(true); // Reload to reflect updated inventory
         });
       }
     }
