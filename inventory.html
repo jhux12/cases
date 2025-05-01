@@ -176,7 +176,12 @@ inventoryRef.once('value').then(inventorySnap => {
     item.key = child.key;
     currentItems.push(item);
   });
-  sortItems(document.getElementById('sort-select').value);
+  selectedItems.clear(); // 🧹 clear selected items
+updateTotalValue();    // 💰 reset the total coins display
+const sortBy = document.getElementById('sort-select').value;
+sortItems(sortBy);     // 🗂️ sort again
+renderItems(currentItems); // 🔁 re-render
+  document.getElementById('select-all-checkbox').checked = false;
 });
   });
 }
@@ -223,7 +228,7 @@ inventoryRef.once('value').then(inventorySnap => {
               const checked = selectedItems.has(item.key) ? 'checked' : '';
               container.innerHTML += `
                 <div class="item-card rounded-lg p-4 text-center">
-                  <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-2" />
+                  <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-2" ${item.shipped || item.requested ? 'disabled' : ''} />
                   <img src="${item.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
                   <h2 class="font-bold text-lg text-pink-300">${item.name}</h2>
                   <p class="text-sm text-gray-400 mb-2">Rarity: ${item.rarity}</p>
@@ -295,14 +300,17 @@ inventoryRef.once('value').then(inventorySnap => {
           });
 
           document.getElementById('select-all-checkbox').addEventListener('change', (e) => {
-            if (e.target.checked) {
-              currentItems.forEach(item => selectedItems.add(item.key));
-            } else {
-              selectedItems.clear();
-            }
-            updateTotalValue();
-            sortItems(document.getElementById('sort-select').value);
-          });
+  selectedItems.clear(); // Clear existing selection
+  if (e.target.checked) {
+    currentItems.forEach(item => {
+      if (!item.shipped && !item.requested) {
+        selectedItems.add(item.key); // Only select valid items
+      }
+    });
+  }
+  updateTotalValue();
+  sortItems(document.getElementById('sort-select').value);
+});
 
           sortItems('rarity');
           renderOrders(user.uid);
