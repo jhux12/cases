@@ -339,27 +339,34 @@ balanceEl.classList.add('pulse-balance');
     const caseId = e.target.dataset.id;
     selectedCaseId = caseId;
     db.ref('cases/' + caseId).once('value').then(snapshot => {
-      const data = snapshot.val();
-      selectedCasePrice = parseFloat(data.price) || 0;
-      document.getElementById('popup-price').innerText = selectedCasePrice;
+  const data = snapshot.val();
 
-// Show user balance in popup
-const user = firebase.auth().currentUser;
-if (user) {
-  const userRef = db.ref('users/' + user.uid);
-  userRef.once('value').then(snapshot => {
-    const balance = snapshot.val()?.balance || 0;
-    document.getElementById('popup-balance').innerText = `${balance} coins`;
+  // 🚨 Prevent crash if data is null
+  if (!data) {
+    alert('Error: Case not found.');
+    return;
+  }
+
+  selectedCasePrice = parseFloat(data.price) || 0;
+
+  // Show user balance in popup
+  const user = firebase.auth().currentUser;
+  if (user) {
+    const userRef = db.ref('users/' + user.uid);
+    userRef.once('value').then(snapshot => {
+      const balance = snapshot.val()?.balance || 0;
+      document.getElementById('popup-balance').innerText = `${balance} coins`;
+    });
+  }
+
+  caseImage.src = data.image;
+  currentPrizes = Object.values(data.prizes || {});
+  console.log(currentPrizes);
+  currentPrizes.sort((a, b) => {
+    const oddsA = parseFloat(a.odds) || 0;
+    const oddsB = parseFloat(b.odds) || 0;
+    return oddsA - oddsB;
   });
-}
-      caseImage.src = data.image;
-      currentPrizes = Object.values(data.prizes || {});
-      console.log(currentPrizes);
-      currentPrizes.sort((a, b) => {
-  const oddsA = parseFloat(a.odds) || 0;
-  const oddsB = parseFloat(b.odds) || 0;
-  return oddsA - oddsB;
-});
       possiblePrizesDiv.innerHTML = currentPrizes.map(prize => {
   const ringColor = prize.rarity === 'common' ? 'ring-gray-500' :
                     prize.rarity === 'uncommon' ? 'ring-green-500' :
