@@ -182,10 +182,10 @@
           sortItems(sortBy);     // 🗂️ sort again
           renderItems(currentItems); // 🔁 re-render
           document.getElementById('select-all-checkbox').checked = false;
-        });
 
-        // Force the page to refresh immediately
-        window.location.reload(true);
+          // Hard refresh the page
+          window.location.reload();
+        });
       });
     }
 
