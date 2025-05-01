@@ -214,6 +214,9 @@
     Open for <span id="popup-price">...</span>
     <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-5 h-5 inline-block">
   </button>
+  <div class="text-sm text-gray-300 mt-2 text-center">Your Balance: 
+    <span id="popup-balance" class="font-semibold">0 coins</span>
+  </div>
 </div>
     <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
     <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"> class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
@@ -278,6 +281,8 @@
       const newBalance = currentBalance + amount;
       userRef.update({ balance: newBalance }).then(() => {
         document.getElementById('balance-amount').innerText = newBalance;
+        document.getElementById('popup-balance').innerText = `${newBalance} coins`;
+
         const balanceEl = document.getElementById('balance-amount');
 balanceEl.classList.remove('pulse-balance');
 void balanceEl.offsetWidth; // restart animation
@@ -385,7 +390,10 @@ balanceEl.classList.add('pulse-balance');
     userRef.once('value').then(userSnap => {
       const userData = userSnap.val() || {};
       const userBalance = parseFloat(userData.balance || 0);
-      if (userBalance < selectedCasePrice) return alert('Insufficient balance.');
+      if (userBalance < selectedCasePrice) {
+  topupPopup.classList.remove('hidden');
+  return;
+}
 
       const newBalance = userBalance - selectedCasePrice;
       userRef.update({ balance: newBalance }).then(() => {
