@@ -99,6 +99,21 @@
     const db = firebase.database();
     let shipmentSelection = [];
 
+    // Function to handle selecting all items
+    document.getElementById('select-all-checkbox').addEventListener('change', function () {
+      if (this.checked) {
+        currentItems.forEach(item => {
+          if (!item.shipped && !item.requested) {
+            selectedItems.add(item.key);
+          }
+        });
+      } else {
+        selectedItems.clear();
+      }
+      updateTotalValue();
+      renderItems(currentItems);
+    });
+
     // Function to ship selected items (bulk action)
     function shipSelected() {
       shipmentSelection = [];
@@ -262,6 +277,23 @@
 
           sortItems('rarity'); // Default sort
           renderItems(currentItems);
+        });
+
+        const ordersRef = db.ref('shipments').orderByChild('userId').equalTo(user.uid);
+        ordersRef.once('value').then(ordersSnap => {
+          const ordersContainer = document.getElementById('orders-container');
+          ordersContainer.innerHTML = '';
+          ordersSnap.forEach(order => {
+            const orderData = order.val();
+            ordersContainer.innerHTML += `
+              <div class="item-card rounded-lg p-4 text-center">
+                <img src="${orderData.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
+                <h2 class="font-bold text-lg text-pink-300">${orderData.name}</h2>
+                <p class="text-sm text-gray-400 mb-2">Status: ${orderData.status}</p>
+                <p class="text-sm text-gray-400">Shipping Info: ${orderData.shippingInfo?.name}</p>
+              </div>
+            `;
+          });
         });
       });
     });
