@@ -195,6 +195,7 @@
     <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded" onclick="approveShipment('${child.key}')">Approve</button>
   ` : ''}
   <button class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded" onclick="markShipped('${child.key}')">Mark as Shipped</button>
+  <button class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded" onclick="deleteShipment('${child.key}')">Delete</button>
 </div>
       `;
       shipmentList.appendChild(div);
