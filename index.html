@@ -480,6 +480,9 @@ balanceEl.classList.add('pulse-balance');
 
   document.getElementById('close-popup').onclick = () => popup.classList.add('hidden');
   closeTopup.onclick = () => topupPopup.classList.add('hidden');
+  document.getElementById('topup-button-mobile').onclick = () => {
+  topupPopup.classList.remove('hidden');
+};
 
   openCaseButton.onclick = () => {
       let countdown = 5;
