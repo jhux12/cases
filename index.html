@@ -240,9 +240,14 @@
 
 <!-- Recent Wins -->
 <section class="py-8 bg-gray-800">
-  <h2 class="text-2xl font-bold text-center mb-4">Recent Wins</h2>
-  <div class="marquee">
-    <div id="recent-wins" class="marquee-content flex space-x-8"></div>
+  <h2 class="text-2xl font-bold text-center mb-4 text-white">Recent Wins</h2>
+
+  <!-- Card-style display -->
+  <div id="recent-wins-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-4"></div>
+
+  <!-- Marquee-style display -->
+  <div class="marquee mt-8">
+    <div id="recent-wins-marquee" class="marquee-content flex space-x-8"></div>
   </div>
 </section>
 
@@ -304,7 +309,7 @@
   const topupPopup = document.getElementById('topup-popup');
   const closeTopup = document.getElementById('close-topup');
   const casesContainer = document.getElementById('cases-container');
-  const recentWins = document.getElementById('recent-wins');
+  const recentWinsGrid = document.getElementById('recent-wins-grid'); // ✅ updated ID here
   const popup = document.getElementById('case-popup');
   const openCaseButton = document.getElementById('open-case-button');
   const caseImage = document.getElementById('case-main-image');
