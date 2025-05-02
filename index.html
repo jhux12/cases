@@ -551,6 +551,7 @@ if (frontCard) {
             value: winningPrize.value || 0,
             price: selectedCasePrice,
             timestamp: Date.now()
+            showInventoryToast(winningPrize.name);
           });
           const recentWinsRef = db.ref('recentWins');
           const casesContainer = document.getElementById('cases-container');
@@ -639,6 +640,16 @@ function expandPrize(imageUrl) {
   overlayImg.src = imageUrl;
   overlay.classList.remove('hidden');
 }
+function showInventoryToast(itemName) {
+  const toast = document.getElementById('inventory-toast');
+  const nameSpan = document.getElementById('toast-item-name');
+  nameSpan.textContent = itemName;
+  toast.classList.remove('hidden');
+
+  setTimeout(() => {
+    toast.classList.add('hidden');
+  }, 3000); // Hide after 3 seconds
+}
 function playRaritySound(rarity) {
   let audioUrl = "";
 
@@ -714,5 +725,9 @@ function startAutoScrollCarousel(containerId, speed = 0.5) {
     startAutoScrollCarousel("recent-wins-carousel", 0.5);
   };
 </script>
+  <!-- Toast Notification -->
+<div id="inventory-toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg text-center font-semibold hidden z-[9999]">
+  Item added to inventory: <span id="toast-item-name"></span>
+</div>
 </body>
 </html>
