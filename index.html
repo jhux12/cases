@@ -583,20 +583,6 @@ recentWinsRef.push({
 });
 
 });
-
-          }).then(() => {
-            showInventoryToast(winningPrize.name);
-          });
-          const recentWinsRef = db.ref('recentWins');
-          const casesContainer = document.getElementById('cases-container');
-          const recentWinsGrid = document.getElementById('recent-wins-grid');
-          const recentWinsMarquee = document.getElementById('recent-wins-marquee');
-
-recentWinsRef.push({
-  name: winningPrize.name,
-  image: winningPrize.image,
-  timestamp: Date.now()
-});
         }, 1000);
       });
     });
