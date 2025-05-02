@@ -372,25 +372,36 @@ balanceEl.classList.add('pulse-balance');
     .orderByChild('timestamp')
     .limitToLast(10)
     .on('value', snapshot => {
-      recentWins.innerHTML = '';
-const wins = [];
-snapshot.forEach(child => {
-  wins.push(child.val());
-});
+      recentWinsGrid.innerHTML = '';
+      recentWinsMarquee.innerHTML = '';
 
-// Show latest first
-wins.reverse().forEach(win => {
-  recentWins.innerHTML += `
-    <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg transform hover:scale-[1.02] transition-transform duration-300 w-full sm:w-64">
-      <img src="${win.image}" class="w-full h-32 object-cover" />
-      <div class="p-4">
-        <h3 class="text-white text-lg font-semibold truncate">${win.name}</h3>
-      </div>
-    </div>
-  `;
-});
+      const wins = [];
+      snapshot.forEach(child => {
+        wins.push(child.val());
+      });
+
+      // Show latest first
+      wins.reverse().forEach(win => {
+        // Card view
+        recentWinsGrid.innerHTML += `
+          <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg transform hover:scale-[1.02] transition-transform duration-300 w-full sm:w-64">
+            <img src="${win.image}" class="w-full h-32 object-cover" />
+            <div class="p-4">
+              <h3 class="text-white text-lg font-semibold truncate">${win.name}</h3>
+            </div>
+          </div>
+        `;
+
+        // Marquee view
+        recentWinsMarquee.innerHTML += `
+          <div class="bg-gray-700/50 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 shadow-md">
+            <img src="${win.image}" class="h-8 w-8 rounded-full object-cover border-2 border-white/20">
+            <span class="text-sm font-medium text-white">${win.name}</span>
+          </div>
+        `;
+      });
     });
- }
+}
 
   function openCasePopup(e) {
     const caseId = e.target.dataset.id;
@@ -510,6 +521,10 @@ if (frontCard) {
             timestamp: Date.now()
           });
           const recentWinsRef = db.ref('recentWins');
+          const casesContainer = document.getElementById('cases-container');
+          const recentWinsGrid = document.getElementById('recent-wins-grid');
+          const recentWinsMarquee = document.getElementById('recent-wins-marquee');
+
 recentWinsRef.push({
   name: winningPrize.name,
   image: winningPrize.image,
