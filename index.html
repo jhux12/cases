@@ -252,9 +252,7 @@
   <h2 class="text-2xl font-bold text-center mb-4 text-white">Recent Wins</h2>
 
   <!-- Card-style display -->
-  <div id="recent-wins-carousel"
-     class="flex overflow-x-auto gap-4 px-4 py-2 scrollbar-hide snap-x snap-mandatory w-full">
-</div>
+  <div id="recent-wins-carousel" class="flex overflow-x-auto gap-4 px-4 py-2 scrollbar-hide snap-x snap-mandatory w-full">
   <!-- Cards will be injected here -->
 </div>
 
@@ -627,51 +625,7 @@ function expandPrize(imageUrl) {
   overlayImg.src = imageUrl;
   overlay.classList.remove('hidden');
 }
-</script>
 
-<!-- ✅ PASTE THIS BELOW THAT SCRIPT -->
-<script>
-  // Toggle mobile dropdown
-  document.getElementById('menu-toggle').onclick = () => {
-    document.getElementById('mobile-dropdown').classList.toggle('hidden');
-  };
-
-  firebase.auth().onAuthStateChanged(user => {
-    const authButton = document.getElementById('auth-button');
-    const mobileAuthButton = document.getElementById('mobile-auth-button');
-    const userBalance = document.getElementById('user-balance');
-    const mobileBalance = document.getElementById('user-balance-mobile');
-    const balanceDesktop = document.getElementById('balance-amount');
-    const balanceMobile = document.getElementById('balance-amount-mobile');
-    const topupButton = document.getElementById('topup-button');
-    const topupButtonMobile = document.getElementById('topup-button-mobile');
-
-    if (user) {
-      const userRef = firebase.database().ref('users/' + user.uid);
-      userRef.once('value').then(snapshot => {
-        const balance = snapshot.val().balance || 0;
-        balanceDesktop.innerText = balance;
-        balanceMobile.innerText = balance;
-        userBalance.classList.remove('hidden');
-        mobileBalance.classList.remove('hidden');
-
-        authButton.innerText = 'Logout';
-        authButton.href = '#';
-        authButton.onclick = (e) => {
-          e.preventDefault();
-          firebase.auth().signOut().then(() => location.reload());
-        };
-
-        mobileAuthButton.innerText = 'Logout';
-        mobileAuthButton.href = '#';
-        mobileAuthButton.onclick = (e) => {
-          e.preventDefault();
-          firebase.auth().signOut().then(() => location.reload());
-        };
-
-        topupButton.onclick = () => document.getElementById('topup-popup').classList.remove('hidden');
-        topupButtonMobile.onclick = () => document.getElementById('topup-popup').classList.remove('hidden');
-      });
     } else {
       userBalance.classList.add('hidden');
       mobileBalance.classList.add('hidden');
@@ -681,7 +635,6 @@ function expandPrize(imageUrl) {
       mobileAuthButton.href = 'auth.html';
     }
   });
-</script>
 
   <script>
 function playRaritySound(rarity) {
@@ -708,6 +661,29 @@ function playRaritySound(rarity) {
   const audio = new Audio(audioUrl);
   audio.play().catch(err => console.warn("Sound error:", err));
 }
+    function startAutoScrollCarousel(containerId, speed = 1) {
+    const container = document.getElementById(containerId);
+    let scrollAmount = 0;
+
+    setInterval(() => {
+      if (!container) return;
+      scrollAmount += speed;
+      container.scrollLeft = scrollAmount;
+
+      // Reset scroll if we've reached the end
+      if (scrollAmount >= container.scrollWidth - container.clientWidth) {
+        scrollAmount = 0;
+      }
+    }, 20); // Adjust interval for speed
+  }
+
+  window.onload = () => {
+    loadCases();
+    loadRecentWins();
+    startAutoScrollCarousel("recent-wins-carousel", 1); // ✅ <-- start the scroll here
+    firebase.auth().onAuthStateChanged(...); // your existing code
+  };
+</script>
 </script>
 
 </body>
