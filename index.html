@@ -255,7 +255,7 @@
   <h2 class="text-2xl font-bold text-center mb-4 text-white">Recent Wins</h2>
 
   <!-- Card-style display -->
-  <div id="recent-wins-carousel" class="flex overflow-x-auto gap-4 px-4 py-2 scrollbar-hide snap-x snap-mandatory w-full">
+<div id="recent-wins-carousel" class="flex overflow-x-auto gap-4 px-4 py-2 scrollbar-hide w-full scroll-smooth">
   <!-- Cards will be injected here -->
 </div>
 
@@ -672,22 +672,21 @@ function playRaritySound(rarity) {
   const audio = new Audio(audioUrl);
   audio.play().catch(err => console.warn("Sound error:", err));
 }
-   function startAutoScrollCarousel(containerId, speed = 30) {
+   <script>
+function startAutoScrollCarousel(containerId, speed = 0.5) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  const totalScrollWidth = container.scrollWidth;
-  let start = null;
+  container.style.scrollBehavior = "auto"; // Prevent snapping
+  let scrollPos = 0;
 
-  function step(timestamp) {
-    if (!start) start = timestamp;
-    const progress = timestamp - start;
-
-    container.scrollLeft = (progress / speed) % totalScrollWidth;
-    requestAnimationFrame(step);
-  }
-
-  requestAnimationFrame(step);
+  setInterval(() => {
+    scrollPos += speed;
+    if (scrollPos >= container.scrollWidth - container.clientWidth) {
+      scrollPos = 0;
+    }
+    container.scrollLeft = scrollPos;
+  }, 16); // ~60fps
 }
 </script>
 
