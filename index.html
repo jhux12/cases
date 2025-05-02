@@ -658,10 +658,6 @@ function playRaritySound(rarity) {
   }
 }
 
-
-  const audio = new Audio(audioUrl);
-  audio.play().catch(err => console.warn("Sound error:", err));
-}
 function startAutoScrollCarousel(containerId, speed = 0.5) {
   const container = document.getElementById(containerId);
   if (!container) return;
