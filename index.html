@@ -296,12 +296,23 @@
   <i class="fas fa-shield-alt mr-2 text-green-400"></i> Provably Fair
 </div>
     <div class="flex flex-col items-center mb-6 space-y-1 pt-4">
-      <button id="open-case-button" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button font-semibold text-lg flex items-center justify-center gap-2 text-white">
-        Open for <span id="popup-price">...</span>
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-5 h-5 inline-block">
-      </button>
-      <span id="popup-balance" class="text-sm text-gray-300">Your Balance: ...</span>
+  <!-- Provably Fair Badge -->
+  <div class="relative flex justify-center">
+    <div id="provably-fair-badge" class="flex items-center text-sm text-green-400 font-semibold cursor-pointer">
+      <i class="fas fa-shield-alt mr-2 text-green-400"></i> Provably Fair
     </div>
+    <div id="fair-tooltip" class="absolute top-full mt-2 bg-gray-800 text-white text-xs rounded-lg px-4 py-2 shadow-lg hidden z-50 w-64 text-center left-1/2 transform -translate-x-1/2">
+      Each result is generated using a hashed server seed + your client seed and nonce. You can verify fairness anytime.
+    </div>
+  </div>
+
+  <!-- Open Button + Balance -->
+  <button id="open-case-button" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button font-semibold text-lg flex items-center justify-center gap-2 text-white">
+    Open for <span id="popup-price">...</span>
+    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-5 h-5 inline-block">
+  </button>
+  <span id="popup-balance" class="text-sm text-gray-300">Your Balance: ...</span>
+</div>
 
     <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
     <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
@@ -781,5 +792,25 @@ mobileAuthButton.href = 'auth.html';
 <div id="inventory-toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg text-center font-semibold hidden z-[9999]">
   Item added to inventory: <span id="toast-item-name"></span>
 </div>
+  <script>
+  document.getElementById('provably-fair-badge').addEventListener('click', () => {
+    const tooltip = document.getElementById('fair-tooltip');
+    tooltip.classList.toggle('hidden');
+  });
+
+  window.addEventListener('click', (e) => {
+    const badge = document.getElementById('provably-fair-badge');
+    const tooltip = document.getElementById('fair-tooltip');
+    if (!badge.contains(e.target) && !tooltip.contains(e.target)) {
+      tooltip.classList.add('hidden');
+    }
+  });
+</script>
+
+<!-- Toast Notification -->
+<div id="inventory-toast" ...>...</div>
+</body>
+</html>
+
 </body>
 </html>
