@@ -756,10 +756,20 @@ async function sha256(message) {
       e.preventDefault();
       firebase.auth().signOut().then(() => location.reload());
     };
+    const mobileAuthButton = document.getElementById('mobile-auth-button');
+mobileAuthButton.innerText = 'Logout';
+mobileAuthButton.href = '#';
+mobileAuthButton.onclick = (e) => {
+  e.preventDefault();
+  firebase.auth().signOut().then(() => location.reload());
+};
+
   } else {
     userBalanceDiv.classList.add('hidden');
     authButton.innerText = 'Sign In';
     authButton.href = 'auth.html';
+    mobileAuthButton.innerText = 'Sign In';
+mobileAuthButton.href = 'auth.html';
   }
 });
   };
