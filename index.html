@@ -473,6 +473,21 @@ balanceEl.classList.add('pulse-balance');
   closeTopup.onclick = () => topupPopup.classList.add('hidden');
 
   openCaseButton.onclick = () => {
+      let countdown = 5;
+openCaseButton.disabled = true;
+openCaseButton.classList.add('opacity-50', 'cursor-not-allowed');
+const originalText = openCaseButton.innerHTML;
+
+const interval = setInterval(() => {
+  openCaseButton.innerHTML = `Please wait... (${countdown}s)`;
+  countdown--;
+  if (countdown < 0) {
+    clearInterval(interval);
+    openCaseButton.disabled = false;
+    openCaseButton.classList.remove('opacity-50', 'cursor-not-allowed');
+    openCaseButton.innerHTML = originalText;
+  }
+}, 1000);
     const user = firebase.auth().currentUser;
     if (!user) return alert('Please sign in first!');
     if (!selectedCaseId || selectedCasePrice === 0) return alert('No case selected or invalid case price.');
@@ -510,6 +525,9 @@ if (frontCard) {
   console.error('❌ case-card-front element not found.');
 }
           document.querySelector('.flip-card').classList.add('flipped');
+          setTimeout(() => {
+  document.querySelector('.flip-card').classList.remove('flipped');
+}, 5000); // ⏳ flips back after 5 seconds — adjust as needed
           playRaritySound(winningPrize.rarity || "common");
           resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
           resultDiv.classList.remove('hidden');
