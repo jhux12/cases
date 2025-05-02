@@ -727,87 +727,87 @@ async function sha256(message) {
     });
   }
 
-  window.onload = () => {
-    loadCases();
-    loadRecentWins();
-    startAutoScrollCarousel("recent-wins-carousel", 0.5);
+ window.onload = () => {
+  loadCases();
+  loadRecentWins();
+  startAutoScrollCarousel("recent-wins-carousel", 0.5);
 
-   firebase.auth().onAuthStateChanged(async user => {
-  if (user) {
-    document.getElementById('inventory-link').classList.remove('hidden');
-    const userRef = db.ref('users/' + user.uid);
-    const snapshot = await userRef.once('value');
+  const mobileAuthButton = document.getElementById('mobile-auth-button'); // ✅ Move this outside
 
-    if (!snapshot.exists()) {
-      await userRef.set({ balance: 0 });
+  firebase.auth().onAuthStateChanged(async user => {
+    if (user) {
+      document.getElementById('inventory-link').classList.remove('hidden');
+      const userRef = db.ref('users/' + user.uid);
+      const snapshot = await userRef.once('value');
+
+      if (!snapshot.exists()) {
+        await userRef.set({ balance: 0 });
+      }
+
+      const userData = snapshot.val() || { balance: 0 };
+
+      // ✅ Add provably fair setup if not already present
+      if (!userData.provablyFair) {
+        const serverSeed = generateRandomString(64);
+        const serverSeedHash = await sha256(serverSeed);
+        await userRef.child('provablyFair').set({
+          serverSeed: serverSeed,
+          serverSeedHash: serverSeedHash,
+          clientSeed: 'default',
+          nonce: 0
+        });
+      }
+
+      document.getElementById('balance-amount').innerText = userData.balance;
+      document.getElementById('popup-balance').innerText = `${userData.balance} coins`;
+      document.getElementById('balance-amount-mobile').innerText = userData.balance;
+      userBalanceDiv.classList.remove('hidden');
+      authButton.innerText = 'Logout';
+      authButton.href = '#';
+      authButton.onclick = (e) => {
+        e.preventDefault();
+        firebase.auth().signOut().then(() => location.reload());
+      };
+
+      mobileAuthButton.innerText = 'Logout';
+      mobileAuthButton.href = '#';
+      mobileAuthButton.onclick = (e) => {
+        e.preventDefault();
+        firebase.auth().signOut().then(() => location.reload());
+      };
+
+    } else {
+      userBalanceDiv.classList.add('hidden');
+      authButton.innerText = 'Sign In';
+      authButton.href = 'auth.html';
+      mobileAuthButton.innerText = 'Sign In';
+      mobileAuthButton.href = 'auth.html';
     }
-
-    const userData = snapshot.val() || { balance: 0 };
-
-    // ✅ Add provably fair setup if not already present
-    if (!userData.provablyFair) {
-      const serverSeed = generateRandomString(64);
-      const serverSeedHash = await sha256(serverSeed);
-      await userRef.child('provablyFair').set({
-        serverSeed: serverSeed,
-        serverSeedHash: serverSeedHash,
-        clientSeed: 'default',
-        nonce: 0
-      });
-    }
-
-    document.getElementById('balance-amount').innerText = userData.balance;
-    document.getElementById('popup-balance').innerText = `${userData.balance} coins`;
-    document.getElementById('balance-amount-mobile').innerText = userData.balance;
-    userBalanceDiv.classList.remove('hidden');
-    authButton.innerText = 'Logout';
-    authButton.href = '#';
-    authButton.onclick = (e) => {
-      e.preventDefault();
-      firebase.auth().signOut().then(() => location.reload());
-    };
-    const mobileAuthButton = document.getElementById('mobile-auth-button');
-mobileAuthButton.innerText = 'Logout';
-mobileAuthButton.href = '#';
-mobileAuthButton.onclick = (e) => {
-  e.preventDefault();
-  firebase.auth().signOut().then(() => location.reload());
+  });
 };
-
-  } else {
-    userBalanceDiv.classList.add('hidden');
-    authButton.innerText = 'Sign In';
-    authButton.href = 'auth.html';
-    mobileAuthButton.innerText = 'Sign In';
-mobileAuthButton.href = 'auth.html';
-  }
-});
-  };
 </script>
   
   <!-- Toast Notification -->
 <div id="inventory-toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg text-center font-semibold hidden z-[9999]">
   Item added to inventory: <span id="toast-item-name"></span>
 </div>
-  <script>
-  document.getElementById('provably-fair-badge').addEventListener('click', () => {
-    const tooltip = document.getElementById('fair-tooltip');
-    tooltip.classList.toggle('hidden');
+
+<script>
+  const fairBadge = document.getElementById("provably-fair-badge");
+  const fairTooltip = document.getElementById("fair-tooltip");
+
+  fairBadge.addEventListener("click", (e) => {
+    e.stopPropagation(); // Prevents outside click from firing immediately
+    fairTooltip.classList.toggle("hidden");
   });
 
-  window.addEventListener('click', (e) => {
-    const badge = document.getElementById('provably-fair-badge');
-    const tooltip = document.getElementById('fair-tooltip');
-    if (!badge.contains(e.target) && !tooltip.contains(e.target)) {
-      tooltip.classList.add('hidden');
+  window.addEventListener("click", (e) => {
+    if (!fairTooltip.classList.contains("hidden") &&
+        !fairBadge.contains(e.target) &&
+        !fairTooltip.contains(e.target)) {
+      fairTooltip.classList.add("hidden");
     }
   });
 </script>
-
-<!-- Toast Notification -->
-<div id="inventory-toast" ...>...</div>
-</body>
-</html>
-
 </body>
 </html>
