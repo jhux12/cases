@@ -523,36 +523,67 @@ balanceEl.classList.remove('pulse-balance');
 void balanceEl.offsetWidth; // restart animation
 balanceEl.classList.add('pulse-balance');
         setTimeout(() => {
-          let totalOdds = currentPrizes.reduce((sum, p) => sum + (p.odds || 0), 0);
-let rand = Math.random() * totalOdds;
-let cumulative = 0;
-const winningPrize = currentPrizes.find(p => {
-  cumulative += p.odds || 0;
-  return rand < cumulative;
-}) || currentPrizes[Math.floor(Math.random() * currentPrizes.length)];
-          const frontCard = document.getElementById('case-card-front');
-if (frontCard) {
-  frontCard.src = winningPrize.image;
-} else {
-  console.error('❌ case-card-front element not found.');
-}
-          document.querySelector('.flip-card').classList.add('flipped');
-          setTimeout(() => {
+          const fairRef = db.ref(`users/${user.uid}/provablyFair`);
+fairRef.once('value').then(async fairSnap => {
+  const fairData = fairSnap.val();
+  const { serverSeed, clientSeed, nonce } = fairData;
+
+  const combined = `${serverSeed}:${clientSeed}:${nonce}`;
+  const hash = await sha256(combined);
+  const rand = parseInt(hash.substring(0, 8), 16) / 0xffffffff;
+
+  // Increment nonce for next roll
+  fairRef.update({ nonce: nonce + 1 });
+
+  let totalOdds = currentPrizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+  let cumulative = 0;
+  const winningPrize = currentPrizes.find(p => {
+    cumulative += p.odds || 0;
+    return rand * totalOdds < cumulative;
+  }) || currentPrizes[Math.floor(rand * currentPrizes.length)];
+
+  // Then proceed with: frontCard.src = winningPrize.image ...
+  const frontCard = document.getElementById('case-card-front');
+  if (frontCard) {
+    frontCard.src = winningPrize.image;
+  } else {
+    console.error('❌ case-card-front element not found.');
+  }
+
+  document.querySelector('.flip-card').classList.add('flipped');
+setTimeout(() => {
   document.querySelector('.flip-card').classList.remove('flipped');
-}, 5000); // ⏳ flips back after 5 seconds — adjust as needed
-          playRaritySound(winningPrize.rarity || "common");
-          resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
-          resultDiv.classList.remove('hidden');
-          confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
-          const inventoryRef = db.ref('users/' + user.uid + '/inventory');
-          const newItemRef = inventoryRef.push();
-          newItemRef.set({
-            name: winningPrize.name,
-            image: winningPrize.image,
-            rarity: winningPrize.rarity || 'Unknown',
-            value: winningPrize.value || 0,
-            price: selectedCasePrice,
-            timestamp: Date.now()
+}, 5000); // flips back after 5 seconds
+
+playRaritySound(winningPrize.rarity || "common");
+
+resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
+resultDiv.classList.remove('hidden');
+
+confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+
+const inventoryRef = db.ref('users/' + user.uid + '/inventory');
+const newItemRef = inventoryRef.push();
+newItemRef.set({
+  name: winningPrize.name,
+  image: winningPrize.image,
+  rarity: winningPrize.rarity || 'Unknown',
+  value: winningPrize.value || 0,
+  price: selectedCasePrice,
+  timestamp: Date.now()
+}).then(() => {
+  showInventoryToast(winningPrize.name);
+});
+
+const recentWinsRef = db.ref('recentWins');
+recentWinsRef.push({
+  name: winningPrize.name,
+  image: winningPrize.image,
+  timestamp: Date.now()
+});
+
+});
+
           }).then(() => {
             showInventoryToast(winningPrize.name);
           });
@@ -685,36 +716,67 @@ function startAutoScrollCarousel(containerId, speed = 0.5) {
 };
 
 Object.values(audioMap).forEach(audio => audio.load());
+function generateRandomString(length) {
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += charset.charAt(Math.floor(Math.random() * charset.length));
+  }
+  return result;
+}
+
+async function sha256(message) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
   window.onload = () => {
     loadCases();
     loadRecentWins();
     startAutoScrollCarousel("recent-wins-carousel", 0.5);
 
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        document.getElementById('inventory-link').classList.remove('hidden');
-        const userRef = db.ref('users/' + user.uid);
-        userRef.once('value').then(snapshot => {
-          if (!snapshot.exists()) userRef.set({ balance: 0 });
-          const userData = snapshot.val() || { balance: 0 };
-          document.getElementById('balance-amount').innerText = userData.balance;
-          document.getElementById('popup-balance').innerText = `${userData.balance} coins`;
-          document.getElementById('balance-amount-mobile').innerText = userData.balance;
-          userBalanceDiv.classList.remove('hidden');
-          authButton.innerText = 'Logout';
-          authButton.href = '#';
-          authButton.onclick = (e) => {
-            e.preventDefault();
-            firebase.auth().signOut().then(() => location.reload());
-          };
-        });
-      } else {
-        userBalanceDiv.classList.add('hidden');
-        authButton.innerText = 'Sign In';
-        authButton.href = 'auth.html';
-      }
-    });
+   firebase.auth().onAuthStateChanged(async user => {
+  if (user) {
+    document.getElementById('inventory-link').classList.remove('hidden');
+    const userRef = db.ref('users/' + user.uid);
+    const snapshot = await userRef.once('value');
+
+    if (!snapshot.exists()) {
+      await userRef.set({ balance: 0 });
+    }
+
+    const userData = snapshot.val() || { balance: 0 };
+
+    // ✅ Add provably fair setup if not already present
+    if (!userData.provablyFair) {
+      const serverSeed = generateRandomString(64);
+      const serverSeedHash = await sha256(serverSeed);
+      await userRef.child('provablyFair').set({
+        serverSeed: serverSeed,
+        serverSeedHash: serverSeedHash,
+        clientSeed: 'default',
+        nonce: 0
+      });
+    }
+
+    document.getElementById('balance-amount').innerText = userData.balance;
+    document.getElementById('popup-balance').innerText = `${userData.balance} coins`;
+    document.getElementById('balance-amount-mobile').innerText = userData.balance;
+    userBalanceDiv.classList.remove('hidden');
+    authButton.innerText = 'Logout';
+    authButton.href = '#';
+    authButton.onclick = (e) => {
+      e.preventDefault();
+      firebase.auth().signOut().then(() => location.reload());
+    };
+  } else {
+    userBalanceDiv.classList.add('hidden');
+    authButton.innerText = 'Sign In';
+    authButton.href = 'auth.html';
+  }
+});
   };
 </script>
   
