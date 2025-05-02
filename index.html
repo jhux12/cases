@@ -220,7 +220,6 @@
   </div>
 </nav>
 
-</div>
 <!-- Hero -->
 <section class="pt-32 pb-20 px-6 bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600">
   <div class="container mx-auto max-w-6xl flex flex-col md:flex-row items-center justify-center gap-10">
@@ -400,7 +399,6 @@ balanceEl.classList.add('pulse-balance');
       snapshot.forEach(child => {
         wins.push(child.val());
       });
-
       wins.reverse().forEach(win => {
         recentWinsCarousel.innerHTML += `
   <div class="w-[140px] sm:w-[160px] bg-gray-800 rounded-xl shadow-md snap-start transform hover:scale-105 transition-transform duration-300 flex-shrink-0">
@@ -690,42 +688,38 @@ function startAutoScrollCarousel(containerId, speed = 0.5) {
     container.scrollLeft = scrollPos;
   }, 16); // ~60fps
 }
-    loadCases();
-  loadRecentWins();
-
-  firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-      document.getElementById('inventory-link').classList.remove('hidden');
-      const userRef = db.ref('users/' + user.uid);
-      userRef.once('value').then(snapshot => {
-        if (!snapshot.exists()) userRef.set({ balance: 0 });
-        const userData = snapshot.val() || { balance: 0 };
-        document.getElementById('balance-amount').innerText = userData.balance;
-        document.getElementById('popup-balance').innerText = `${userData.balance} coins`;
-        document.getElementById('balance-amount-mobile').innerText = userData.balance;
-        userBalanceDiv.classList.remove('hidden');
-        authButton.innerText = 'Logout';
-        authButton.href = '#';
-        authButton.onclick = (e) => {
-          e.preventDefault();
-          firebase.auth().signOut().then(() => location.reload());
-        };
-      });
-    } else {
-      userBalanceDiv.classList.add('hidden');
-      authButton.innerText = 'Sign In';
-      authButton.href = 'auth.html';
-    }
-  });
-</script>
-  
-<script>
   window.onload = () => {
     loadCases();
     loadRecentWins();
     startAutoScrollCarousel("recent-wins-carousel", 0.5);
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById('inventory-link').classList.remove('hidden');
+        const userRef = db.ref('users/' + user.uid);
+        userRef.once('value').then(snapshot => {
+          if (!snapshot.exists()) userRef.set({ balance: 0 });
+          const userData = snapshot.val() || { balance: 0 };
+          document.getElementById('balance-amount').innerText = userData.balance;
+          document.getElementById('popup-balance').innerText = `${userData.balance} coins`;
+          document.getElementById('balance-amount-mobile').innerText = userData.balance;
+          userBalanceDiv.classList.remove('hidden');
+          authButton.innerText = 'Logout';
+          authButton.href = '#';
+          authButton.onclick = (e) => {
+            e.preventDefault();
+            firebase.auth().signOut().then(() => location.reload());
+          };
+        });
+      } else {
+        userBalanceDiv.classList.add('hidden');
+        authButton.innerText = 'Sign In';
+        authButton.href = 'auth.html';
+      }
+    });
   };
 </script>
+  
   <!-- Toast Notification -->
 <div id="inventory-toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg text-center font-semibold hidden z-[9999]">
   Item added to inventory: <span id="toast-item-name"></span>
