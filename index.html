@@ -559,8 +559,24 @@ recentWinsRef.push({
       });
     });
   };
+function startAutoScrollCarousel(containerId, speed = 0.5) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
 
-  window.onload = () => {
+  container.style.scrollBehavior = "auto";
+  let scrollPos = 0;
+
+  setInterval(() => {
+    scrollPos += speed;
+    if (scrollPos >= container.scrollWidth - container.clientWidth) {
+      scrollPos = 0;
+    }
+    container.scrollLeft = scrollPos;
+  }, 16); // ~60 FPS
+}
+</script>
+
+  function playRaritySound(rarity) {
     loadCases();
     loadRecentWins();
     firebase.auth().onAuthStateChanged(user => {
@@ -672,7 +688,6 @@ function playRaritySound(rarity) {
   const audio = new Audio(audioUrl);
   audio.play().catch(err => console.warn("Sound error:", err));
 }
-   <script>
 function startAutoScrollCarousel(containerId, speed = 0.5) {
   const container = document.getElementById(containerId);
   if (!container) return;
