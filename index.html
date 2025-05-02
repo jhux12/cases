@@ -252,7 +252,9 @@
   <h2 class="text-2xl font-bold text-center mb-4 text-white">Recent Wins</h2>
 
   <!-- Card-style display -->
-  <div id="recent-wins-carousel" class="flex overflow-x-auto gap-4 px-4 py-2 scrollbar-hide snap-x snap-mandatory">
+  <div id="recent-wins-carousel"
+     class="flex overflow-x-auto gap-4 px-4 py-2 scrollbar-hide snap-x snap-mandatory w-full">
+</div>
   <!-- Cards will be injected here -->
 </div>
 
@@ -393,13 +395,15 @@ balanceEl.classList.add('pulse-balance');
 
       wins.reverse().forEach(win => {
         recentWinsCarousel.innerHTML += `
-          <div class="min-w-[180px] bg-gray-800 rounded-xl shadow-md snap-start transform hover:scale-105 transition-transform duration-300 flex-shrink-0">
-            <img src="${win.image}" class="w-full h-28 object-cover rounded-t-xl">
-            <div class="p-2 text-center">
-              <span class="text-white text-sm font-medium truncate block">${win.name}</span>
-            </div>
-          </div>
-        `;
+  <div class="min-w-[180px] bg-gray-800 rounded-xl shadow-md snap-start transform hover:scale-105 transition-transform duration-300 flex-shrink-0">
+    <div class="w-full h-[110px] overflow-hidden rounded-t-xl">
+      <img src="${win.image}" class="w-full h-full object-contain" />
+    </div>
+    <div class="p-2 text-center">
+      <span class="text-white text-sm font-medium truncate block">${win.name}</span>
+    </div>
+  </div>
+`;
       });
     });
 }
