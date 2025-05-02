@@ -551,6 +551,7 @@ if (frontCard) {
             value: winningPrize.value || 0,
             price: selectedCasePrice,
             timestamp: Date.now()
+          }).then(() => {
             showInventoryToast(winningPrize.name);
           });
           const recentWinsRef = db.ref('recentWins');
