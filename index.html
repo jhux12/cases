@@ -114,13 +114,16 @@
     0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
     50% { box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.6); }
   }
-  .legendary-glow {
+    .legendary-glow {
     animation: pulse-glow 2s infinite;
   }
-  
+
+  @keyframes logo-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.9; transform: scale(1.05); }
   }
-   {
+
+  .logo-pulse {
     animation: logo-pulse 4s ease-in-out infinite;
   }
   @keyframes overlay-zoom {
@@ -643,18 +646,6 @@ function expandPrize(imageUrl) {
   overlayImg.src = imageUrl;
   overlay.classList.remove('hidden');
 }
-
-    } else {
-      userBalance.classList.add('hidden');
-      mobileBalance.classList.add('hidden');
-      authButton.innerText = 'Sign In';
-      authButton.href = 'auth.html';
-      mobileAuthButton.innerText = 'Sign In';
-      mobileAuthButton.href = 'auth.html';
-    }
-  });
-
-  <script>
 function playRaritySound(rarity) {
   let audioUrl = "";
 
@@ -699,7 +690,6 @@ function playRaritySound(rarity) {
     loadCases();
     loadRecentWins();
     startAutoScrollCarousel("recent-wins-carousel", 1); // ✅ <-- start the scroll here
-    firebase.auth().onAuthStateChanged(...); // your existing code
   };
 </script>
 </script>
