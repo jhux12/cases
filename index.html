@@ -165,6 +165,15 @@
 }
 
 </style>
+  <style>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+  }
+</style>
 </head>
 <body>
 
@@ -243,7 +252,9 @@
   <h2 class="text-2xl font-bold text-center mb-4 text-white">Recent Wins</h2>
 
   <!-- Card-style display -->
-  <div id="recent-wins-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-4"></div>
+  <div id="recent-wins-carousel" class="flex overflow-x-auto gap-4 px-4 py-2 scrollbar-hide snap-x snap-mandatory">
+  <!-- Cards will be injected here -->
+</div>
 
   <!-- Marquee-style display -->
   <div class="marquee mt-8">
@@ -309,7 +320,7 @@
   const topupPopup = document.getElementById('topup-popup');
   const closeTopup = document.getElementById('close-topup');
   const casesContainer = document.getElementById('cases-container');
-  const recentWinsGrid = document.getElementById('recent-wins-grid');
+  const recentWinsCarousel = document.getElementById('recent-wins-carousel');
   const recentWinsMarquee = document.getElementById('recent-wins-marquee');
   const popup = document.getElementById('case-popup');
   const openCaseButton = document.getElementById('open-case-button');
@@ -373,36 +384,26 @@ balanceEl.classList.add('pulse-balance');
     .orderByChild('timestamp')
     .limitToLast(10)
     .on('value', snapshot => {
-      recentWinsGrid.innerHTML = '';
-      recentWinsMarquee.innerHTML = '';
+      recentWinsCarousel.innerHTML = '';
 
       const wins = [];
       snapshot.forEach(child => {
         wins.push(child.val());
       });
 
-      // Show latest first
       wins.reverse().forEach(win => {
-        // Card view
-        recentWinsGrid.innerHTML += `
-          <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg transform hover:scale-[1.02] transition-transform duration-300 w-full sm:w-64">
-            <img src="${win.image}" class="w-full h-32 object-cover" />
-            <div class="p-4">
-              <h3 class="text-white text-lg font-semibold truncate">${win.name}</h3>
+        recentWinsCarousel.innerHTML += `
+          <div class="min-w-[180px] bg-gray-800 rounded-xl shadow-md snap-start transform hover:scale-105 transition-transform duration-300 flex-shrink-0">
+            <img src="${win.image}" class="w-full h-28 object-cover rounded-t-xl">
+            <div class="p-2 text-center">
+              <span class="text-white text-sm font-medium truncate block">${win.name}</span>
             </div>
-          </div>
-        `;
-
-        // Marquee view
-        recentWinsMarquee.innerHTML += `
-          <div class="bg-gray-700/50 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 shadow-md">
-            <img src="${win.image}" class="h-8 w-8 rounded-full object-cover border-2 border-white/20">
-            <span class="text-sm font-medium text-white">${win.name}</span>
           </div>
         `;
       });
     });
 }
+
 
   function openCasePopup(e) {
     const caseId = e.target.dataset.id;
