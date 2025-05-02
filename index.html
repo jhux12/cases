@@ -672,6 +672,34 @@ function startAutoScrollCarousel(containerId, speed = 0.5) {
     container.scrollLeft = scrollPos;
   }, 16); // ~60fps
 }
+    loadCases();
+  loadRecentWins();
+
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      document.getElementById('inventory-link').classList.remove('hidden');
+      const userRef = db.ref('users/' + user.uid);
+      userRef.once('value').then(snapshot => {
+        if (!snapshot.exists()) userRef.set({ balance: 0 });
+        const userData = snapshot.val() || { balance: 0 };
+        document.getElementById('balance-amount').innerText = userData.balance;
+        document.getElementById('popup-balance').innerText = `${userData.balance} coins`;
+        document.getElementById('balance-amount-mobile').innerText = userData.balance;
+        userBalanceDiv.classList.remove('hidden');
+        authButton.innerText = 'Logout';
+        authButton.href = '#';
+        authButton.onclick = (e) => {
+          e.preventDefault();
+          firebase.auth().signOut().then(() => location.reload());
+        };
+      });
+    } else {
+      userBalanceDiv.classList.add('hidden');
+      authButton.innerText = 'Sign In';
+      authButton.href = 'auth.html';
+    }
+  });
+
 </script>
 
 </body>
