@@ -580,7 +580,8 @@ recentWinsRef.push({
           document.getElementById('topup-button').onclick = () => topupPopup.classList.remove('hidden');
           authButton.innerText = 'Logout';
           authButton.href = '#';
-          authButton.onclick = (e) => { e.preventDefault(); firebase.auth().signOut().then(() => location.reload()); };
+          authButton.onclick = (e) => { e.preventDefault(); firebase.auth().signOut().then(() => location.reload()); 
+};
         });
       } else {
         userBalanceDiv.classList.add('hidden');
@@ -588,6 +589,7 @@ recentWinsRef.push({
         authButton.href = 'auth.html';
       }
     });
+    startAutoScrollCarousel("recent-wins-carousel", 30);
   };
 </script>
 <script>
@@ -670,28 +672,24 @@ function playRaritySound(rarity) {
   const audio = new Audio(audioUrl);
   audio.play().catch(err => console.warn("Sound error:", err));
 }
-    function startAutoScrollCarousel(containerId, speed = 1) {
-    const container = document.getElementById(containerId);
-    let scrollAmount = 0;
+   function startAutoScrollCarousel(containerId, speed = 30) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
 
-    setInterval(() => {
-      if (!container) return;
-      scrollAmount += speed;
-      container.scrollLeft = scrollAmount;
+  const totalScrollWidth = container.scrollWidth;
+  let start = null;
 
-      // Reset scroll if we've reached the end
-      if (scrollAmount >= container.scrollWidth - container.clientWidth) {
-        scrollAmount = 0;
-      }
-    }, 20); // Adjust interval for speed
+  function step(timestamp) {
+    if (!start) start = timestamp;
+    const progress = timestamp - start;
+
+    container.scrollLeft = (progress / speed) % totalScrollWidth;
+    requestAnimationFrame(step);
   }
 
-  window.onload = () => {
-    loadCases();
-    loadRecentWins();
-    startAutoScrollCarousel("recent-wins-carousel", 1); // ✅ <-- start the scroll here
+  requestAnimationFrame(step);
+}
   };
-</script>
 </script>
 
 </body>
