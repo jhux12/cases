@@ -535,7 +535,7 @@ let cumulative = 0;
 const winningPrize = currentPrizes.find(p => {
   cumulative += p.odds || 0;
   console.log(`Checking ${p.name}: rand * totalOdds = ${rand * totalOdds}, cumulative = ${cumulative}`);
-  return rand * totalOdds < cumulative;
+  return rand * totalOdds <= cumulative;
 }) || currentPrizes[Math.floor(rand * currentPrizes.length)];
 
 console.log("Selected Prize:", winningPrize.name, winningPrize.rarity);
