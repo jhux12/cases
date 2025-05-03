@@ -523,7 +523,12 @@ fairRef.once('value').then(async fairSnap => {
 
   // Increment nonce for next roll
   fairRef.update({ nonce: nonce + 1 });
-
+// 🔐 Sort prizes by odds to ensure proper cumulative logic
+currentPrizes.sort((a, b) => {
+  const oddsA = parseFloat(a.odds) || 0;
+  const oddsB = parseFloat(b.odds) || 0;
+  return oddsA - oddsB;
+});
   let totalOdds = currentPrizes.reduce((sum, p) => sum + (p.odds || 0), 0);
   let cumulative = 0;
   const winningPrize = currentPrizes.find(p => {
