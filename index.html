@@ -351,7 +351,9 @@
   let selectedCaseId = null;
   let selectedCasePrice = 0;
   let currentPrizes = [];
-
+document.getElementById('topup-button').onclick = () => {
+  topupPopup.classList.remove('hidden');
+};
   document.getElementById('menu-toggle').onclick = () => {
     document.getElementById('mobile-dropdown').classList.toggle('hidden');
   };
