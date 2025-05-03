@@ -520,11 +520,7 @@ fairRef.once('value').then(async fairSnap => {
   // Increment nonce for next roll
  await fairRef.update({ nonce: nonce + 1 });
 // 🔐 Sort prizes by odds to ensure proper cumulative logic
-currentPrizes.sort((a, b) => {
-  const oddsA = parseFloat(a.odds) || 0;
-  const oddsB = parseFloat(b.odds) || 0;
-  return oddsA - oddsB;
-});
+currentPrizes = [...currentPrizes].sort((a, b) => (a.odds || 0) - (b.odds || 0));
   console.log("Current Prizes:", currentPrizes.map(p => ({ name: p.name, odds: p.odds, rarity: p.rarity })));
 console.log("Random value (0-1):", rand);
 
