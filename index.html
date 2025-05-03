@@ -529,12 +529,20 @@ currentPrizes.sort((a, b) => {
   const oddsB = parseFloat(b.odds) || 0;
   return oddsA - oddsB;
 });
-  let totalOdds = currentPrizes.reduce((sum, p) => sum + (p.odds || 0), 0);
-  let cumulative = 0;
-  const winningPrize = currentPrizes.find(p => {
-    cumulative += p.odds || 0;
-    return rand * totalOdds < cumulative;
-  }) || currentPrizes[Math.floor(rand * currentPrizes.length)];
+  console.log("Current Prizes:", currentPrizes.map(p => ({ name: p.name, odds: p.odds, rarity: p.rarity })));
+console.log("Random value (0-1):", rand);
+
+let totalOdds = currentPrizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+console.log("Total Odds:", totalOdds);
+
+let cumulative = 0;
+const winningPrize = currentPrizes.find(p => {
+  cumulative += p.odds || 0;
+  console.log(`Checking ${p.name}: rand * totalOdds = ${rand * totalOdds}, cumulative = ${cumulative}`);
+  return rand * totalOdds < cumulative;
+}) || currentPrizes[Math.floor(rand * currentPrizes.length)];
+
+console.log("Selected Prize:", winningPrize.name, winningPrize.rarity);
 
   // Then proceed with: frontCard.src = winningPrize.image ...
   const frontCard = document.getElementById('case-card-front');
