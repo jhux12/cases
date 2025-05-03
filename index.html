@@ -469,118 +469,118 @@ possiblePrizesDiv.innerHTML = [...currentPrizes].sort((a, b) => (a.odds || 0) - 
   topupPopup.classList.remove('hidden');
 };
 
-  openCaseButton.onclick = () => {
-      let countdown = 5;
-openCaseButton.disabled = true;
-openCaseButton.classList.add('opacity-50', 'cursor-not-allowed');
-const originalText = openCaseButton.innerHTML;
+ openCaseButton.onclick = () => {
+  let countdown = 5;
+  openCaseButton.disabled = true;
+  openCaseButton.classList.add('opacity-50', 'cursor-not-allowed');
+  const originalText = openCaseButton.innerHTML;
 
-const interval = setInterval(() => {
-  openCaseButton.innerHTML = `Please wait... (${countdown}s)`;
-  countdown--;
-  if (countdown < 0) {
-    clearInterval(interval);
-    openCaseButton.disabled = false;
-    openCaseButton.classList.remove('opacity-50', 'cursor-not-allowed');
-    openCaseButton.innerHTML = originalText;
-  }
-}, 1000);
-    const user = firebase.auth().currentUser;
-    if (!user) return alert('Please sign in first!');
-    if (!selectedCaseId || selectedCasePrice === 0) return alert('No case selected or invalid case price.');
+  const interval = setInterval(() => {
+    openCaseButton.innerHTML = `Please wait... (${countdown}s)`;
+    countdown--;
+    if (countdown < 0) {
+      clearInterval(interval);
+      openCaseButton.disabled = false;
+      openCaseButton.classList.remove('opacity-50', 'cursor-not-allowed');
+      openCaseButton.innerHTML = originalText;
+    }
+  }, 1000);
 
-    const userRef = db.ref('users/' + user.uid);
-    userRef.once('value').then(userSnap => {
-      const userData = userSnap.val() || {};
-      const userBalance = parseFloat(userData.balance || 0);
-      if (userBalance < selectedCasePrice) {
-  topupPopup.classList.remove('hidden');
-  return;
-}
+  const user = firebase.auth().currentUser;
+  if (!user) return alert('Please sign in first!');
+  if (!selectedCaseId || selectedCasePrice === 0) return alert('No case selected or invalid case price.');
 
-      const newBalance = userBalance - selectedCasePrice;
-      userRef.update({ balance: newBalance }).then(() => {
-        document.getElementById('balance-amount').innerText = newBalance;
-        document.getElementById('popup-balance').innerText = `${newBalance} coins`;
-        const balanceEl = document.getElementById('balance-amount');
-    
-balanceEl.classList.remove('pulse-balance');
-void balanceEl.offsetWidth; // restart animation
-balanceEl.classList.add('pulse-balance');
-        setTimeout(() => {
-          const fairRef = db.ref(`users/${user.uid}/provablyFair`);
-fairRef.once('value').then(async fairSnap => {
-  const fairData = fairSnap.val();
-  const { serverSeed, clientSeed, nonce } = fairData;
+  const userRef = db.ref('users/' + user.uid);
+  userRef.once('value').then(userSnap => {
+    const userData = userSnap.val() || {};
+    const userBalance = parseFloat(userData.balance || 0);
+    if (userBalance < selectedCasePrice) {
+      topupPopup.classList.remove('hidden');
+      return;
+    }
 
-  const combined = `${serverSeed}:${clientSeed}:${nonce}`;
-  const hash = await sha256(combined);
-  const rand = parseInt(hash.substring(0, 8), 16) / 0xffffffff;
+    const newBalance = userBalance - selectedCasePrice;
+    userRef.update({ balance: newBalance }).then(() => {
+      document.getElementById('balance-amount').innerText = newBalance;
+      document.getElementById('popup-balance').innerText = `${newBalance} coins`;
 
-  // Increment nonce for next roll
- await fairRef.update({ nonce: nonce + 1 });
-// 🔐 Sort prizes by odds to ensure proper cumulative logic
-currentPrizes = [...currentPrizes].sort((a, b) => (a.odds || 0) - (b.odds || 0));
-  console.log("Current Prizes:", currentPrizes.map(p => ({ name: p.name, odds: p.odds, rarity: p.rarity })));
-console.log("Random value (0-1):", rand);
+      const balanceEl = document.getElementById('balance-amount');
+      balanceEl.classList.remove('pulse-balance');
+      void balanceEl.offsetWidth;
+      balanceEl.classList.add('pulse-balance');
 
-let totalOdds = currentPrizes.reduce((sum, p) => sum + (p.odds || 0), 0);
-console.log("Total Odds:", totalOdds);
+      setTimeout(() => {
+        const fairRef = db.ref(`users/${user.uid}/provablyFair`);
+        fairRef.once('value').then(async fairSnap => {
+          const fairData = fairSnap.val();
+          const { serverSeed, clientSeed, nonce } = fairData;
 
-let cumulative = 0;
-const winningPrize = currentPrizes.find(p => {
-  cumulative += p.odds || 0;
-  console.log(`Checking ${p.name}: rand * totalOdds = ${rand * totalOdds}, cumulative = ${cumulative}`);
-  return rand * totalOdds <= cumulative;
-}) || currentPrizes[Math.floor(rand * currentPrizes.length)];
+          const combined = `${serverSeed}:${clientSeed}:${nonce}`;
+          const hash = await sha256(combined);
+          const rand = parseInt(hash.substring(0, 8), 16) / 0xffffffff;
 
-console.log("Selected Prize:", winningPrize.name, winningPrize.rarity);
+          // Increment nonce for next roll
+          await fairRef.update({ nonce: nonce + 1 });
 
-  // Then proceed with: frontCard.src = winningPrize.image ...
-  const frontCard = document.getElementById('case-card-front');
-  if (frontCard) {
-    frontCard.src = winningPrize.image;
-  } else {
-    console.error('❌ case-card-front element not found.');
-  }
+          // ✅ Sort a copy of currentPrizes for provably fair selection
+          const sortedPrizes = [...currentPrizes].sort((a, b) => {
+            const oddsA = parseFloat(a.odds) || 0;
+            const oddsB = parseFloat(b.odds) || 0;
+            return oddsA - oddsB;
+          });
 
-  document.querySelector('.flip-card').classList.add('flipped');
-setTimeout(() => {
-  document.querySelector('.flip-card').classList.remove('flipped');
-}, 5000); // flips back after 5 seconds
+          console.log("Current Prizes:", sortedPrizes.map(p => ({ name: p.name, odds: p.odds, rarity: p.rarity })));
+          console.log("Random value (0-1):", rand);
 
-playRaritySound(winningPrize.rarity || "common");
+          let totalOdds = sortedPrizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+          let cumulative = 0;
+          const winningPrize = sortedPrizes.find(p => {
+            cumulative += p.odds || 0;
+            return rand * totalOdds < cumulative;
+          }) || sortedPrizes[Math.floor(rand * sortedPrizes.length)];
 
-resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
-resultDiv.classList.remove('hidden');
+          console.log("Selected Prize:", winningPrize.name, winningPrize.rarity);
 
-confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+          const frontCard = document.getElementById('case-card-front');
+          if (frontCard) {
+            frontCard.src = winningPrize.image;
+          }
 
-const inventoryRef = db.ref('users/' + user.uid + '/inventory');
-const newItemRef = inventoryRef.push();
-newItemRef.set({
-  name: winningPrize.name,
-  image: winningPrize.image,
-  rarity: winningPrize.rarity || 'Unknown',
-  value: winningPrize.value || 0,
-  price: selectedCasePrice,
-  timestamp: Date.now()
-}).then(() => {
-  showInventoryToast(winningPrize.name);
-});
+          document.querySelector('.flip-card').classList.add('flipped');
+          setTimeout(() => {
+            document.querySelector('.flip-card').classList.remove('flipped');
+          }, 5000);
 
-const recentWinsRef = db.ref('recentWins');
-recentWinsRef.push({
-  name: winningPrize.name,
-  image: winningPrize.image,
-  timestamp: Date.now()
-});
+          playRaritySound(winningPrize.rarity || "common");
 
-});
-        }, 1000);
-      });
+          resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
+          resultDiv.classList.remove('hidden');
+          confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+
+          const inventoryRef = db.ref('users/' + user.uid + '/inventory');
+          const newItemRef = inventoryRef.push();
+          newItemRef.set({
+            name: winningPrize.name,
+            image: winningPrize.image,
+            rarity: winningPrize.rarity || 'Unknown',
+            value: winningPrize.value || 0,
+            price: selectedCasePrice,
+            timestamp: Date.now()
+          }).then(() => {
+            showInventoryToast(winningPrize.name);
+          });
+
+          const recentWinsRef = db.ref('recentWins');
+          recentWinsRef.push({
+            name: winningPrize.name,
+            image: winningPrize.image,
+            timestamp: Date.now()
+          });
+        });
+      }, 1000);
     });
-  };
+  });
+};
 function startAutoScrollCarousel(containerId, speed = 0.5) {
   const container = document.getElementById(containerId);
   if (!container) return;
