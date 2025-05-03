@@ -522,7 +522,7 @@ fairRef.once('value').then(async fairSnap => {
   const rand = parseInt(hash.substring(0, 8), 16) / 0xffffffff;
 
   // Increment nonce for next roll
-  fairRef.update({ nonce: nonce + 1 });
+ await fairRef.update({ nonce: nonce + 1 });
 // 🔐 Sort prizes by odds to ensure proper cumulative logic
 currentPrizes.sort((a, b) => {
   const oddsA = parseFloat(a.odds) || 0;
