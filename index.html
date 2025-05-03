@@ -514,6 +514,10 @@ possiblePrizesDiv.innerHTML = [...currentPrizes].sort((a, b) => (a.odds || 0) - 
         fairRef.once('value').then(async fairSnap => {
           const fairData = fairSnap.val();
           const { serverSeed, clientSeed, nonce } = fairData;
+          currentPrizes = [...currentPrizes].sort((a, b) => (a.odds || 0) - (b.odds || 0));
+          console.log("Sorted Prizes:", currentPrizes.map(p => `${p.name} (${p.odds}%)`));
+
+
 
           const combined = `${serverSeed}:${clientSeed}:${nonce}`;
           const hash = await sha256(combined);
