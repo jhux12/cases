@@ -522,24 +522,33 @@ possiblePrizesDiv.innerHTML = [...currentPrizes].sort((a, b) => (a.odds || 0) - 
           // Increment nonce for next roll
           await fairRef.update({ nonce: nonce + 1 });
 
-          // ✅ Sort a copy of currentPrizes for provably fair selection
-          const sortedPrizes = [...currentPrizes].sort((a, b) => {
-            const oddsA = parseFloat(a.odds) || 0;
-            const oddsB = parseFloat(b.odds) || 0;
-            return oddsA - oddsB;
-          });
+         const sortedPrizes = [...currentPrizes].sort((a, b) => {
+  return (a.odds || 0) - (b.odds || 0);
+});
 
-          console.log("Current Prizes:", sortedPrizes.map(p => ({ name: p.name, odds: p.odds, rarity: p.rarity })));
-          console.log("Random value (0-1):", rand);
+console.log("Sorted Prizes:", sortedPrizes.map(p => ({ name: p.name, odds: p.odds })));
+console.log("Random value (0-1):", rand);
 
-          let totalOdds = sortedPrizes.reduce((sum, p) => sum + (p.odds || 0), 0);
-          let cumulative = 0;
-          const winningPrize = sortedPrizes.find(p => {
-            cumulative += p.odds || 0;
-            return rand * totalOdds < cumulative;
-          }) || sortedPrizes[Math.floor(rand * sortedPrizes.length)];
+let totalOdds = sortedPrizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+console.log("Total Odds:", totalOdds);
 
-          console.log("Selected Prize:", winningPrize.name, winningPrize.rarity);
+let cumulative = 0;
+let winningPrize = null;
+
+for (let p of sortedPrizes) {
+  cumulative += p.odds || 0;
+  console.log(`Checking ${p.name}: rand * totalOdds = ${rand * totalOdds}, cumulative = ${cumulative}`);
+  if (rand * totalOdds < cumulative) {
+    winningPrize = p;
+    break;
+  }
+}
+
+if (!winningPrize) {
+  winningPrize = sortedPrizes[sortedPrizes.length - 1]; // fallback
+}
+
+console.log("Selected Prize:", winningPrize.name, winningPrize.rarity);
 
           const frontCard = document.getElementById('case-card-front');
           if (frontCard) {
