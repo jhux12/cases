@@ -176,26 +176,6 @@
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;     /* Firefox */
   }
-    .glass-popup {
-  background: linear-gradient(270deg, rgba(30, 30, 36, 0.6), rgba(18, 18, 24, 0.6));
-  background-size: 400% 400%;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-  animation: gradientMove 15s ease infinite, fade-glass 0.5s ease-out;
-}
-
-@keyframes fade-glass {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
 </style>
 </head>
 <body>
@@ -344,7 +324,7 @@
 
 <!-- Case Popup -->
 <div id="case-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center px-4 z-50">
-<div class="relative glass-popup max-h-[90vh] overflow-y-auto p-8 rounded-xl w-full max-w-2xl text-center">
+  <div class="relative bg-gradient-to-br from-purple-800/80 to-pink-700/80 max-h-[90vh] overflow-y-auto p-8 rounded-xl border border-white/10 shadow-2xl w-full max-w-2xl text-center backdrop-blur-md">
     <button id="close-popup" class="absolute top-4 right-4 text-white text-2xl hover:text-pink-300 transition"><i class="fas fa-times"></i></button>
     
 <div class="flex justify-center mb-8"> <!-- Increased margin-bottom -->
@@ -771,9 +751,8 @@ function startAutoScrollCarousel(containerId, speed = 0.5) {
 
   const audioMap = {
   common: new Audio("https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5"),
-  uncommon: new Audio("https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5"),
   rare: new Audio("https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8"),
-  ultra rare: new Audio("https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de"),
+  ultrarare: new Audio("https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de"),
   legendary: new Audio("https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0")
 };
 
