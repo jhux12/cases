@@ -9,6 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script>
   // 1) Your Firebase config
   const firebaseConfig = {
@@ -345,6 +346,7 @@
     <div id="fair-tooltip" class="absolute top-full mt-2 bg-gray-800 text-white text-xs rounded-lg px-4 py-2 shadow-lg hidden z-50 w-64 text-center left-1/2 transform -translate-x-1/2">
       Each result is generated using a hashed server seed + your client seed and nonce. You can verify fairness anytime.
     </div>
+    <div id="fair-hash" class="mt-2 text-xs text-gray-400 italic hidden"></div>
   </div>
 
     <div class="flex flex-col items-center mb-6 space-y-1 pt-4">
@@ -559,9 +561,20 @@ possiblePrizesDiv.innerHTML = [...currentPrizes].sort((a, b) => (a.odds || 0) - 
 
       setTimeout(() => {
         const fairRef = db.ref(`users/${user.uid}/provablyFair`);
-        fairRef.once('value').then(async fairSnap => {
-          const fairData = fairSnap.val();
-          const { serverSeed, clientSeed, nonce } = fairData;
+       fairRef.once('value').then(async fairSnap => {
+  const fairData = fairSnap.val();
+
+  if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') {
+    alert('Missing provably fair data. Please log out and back in.');
+    return;
+  }
+
+  const { serverSeed, clientSeed, nonce } = fairData;
+         const fairHashDiv = document.getElementById('fair-hash');
+if (fairHashDiv) {
+  fairHashDiv.innerText = `Server Seed Hash: ${fairData.serverSeedHash}`;
+  fairHashDiv.classList.remove('hidden');
+}
           currentPrizes = [...currentPrizes].sort((a, b) => (a.odds || 0) - (b.odds || 0));
           console.log("Sorted Prizes:", currentPrizes.map(p => `${p.name} (${p.odds}%)`));
 
@@ -772,6 +785,18 @@ async function sha256(message) {
   const data = encoder.encode(message);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+  function generateRandomString(length) {
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += charset.charAt(Math.floor(Math.random() * charset.length));
+  }
+  return result;
+}
+
+function sha256(input) {
+  return CryptoJS.SHA256(input).toString(CryptoJS.enc.Hex);
 }
  function loadCases() {
   db.ref('cases').on('value', snapshot => {
