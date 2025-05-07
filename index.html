@@ -812,18 +812,6 @@ async function sha256(message) {
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
-  function generateRandomString(length) {
-  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += charset.charAt(Math.floor(Math.random() * charset.length));
-  }
-  return result;
-}
-
-function sha256(input) {
-  return CryptoJS.SHA256(input).toString(CryptoJS.enc.Hex);
-}
  function loadCases() {
   db.ref('cases').on('value', snapshot => {
     casesContainer.innerHTML = '';
