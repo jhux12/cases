@@ -944,7 +944,7 @@ firebase.auth().onAuthStateChanged(async user => {
     logoutDesktop.style.display = "none";
   }
 
-  if (signinDesktop) {
+    if (signinDesktop) {
     signinDesktop.style.display = "block";
   }
 
@@ -952,7 +952,8 @@ firebase.auth().onAuthStateChanged(async user => {
     mobileAuthButton.innerText = "Sign In";
     mobileAuthButton.href = "auth.html";
     mobileAuthButton.onclick = null;
-});
+  }
+}); // ✅ closes firebase.auth().onAuthStateChanged
 </script>
   
   <!-- Toast Notification -->
