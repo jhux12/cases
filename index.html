@@ -617,11 +617,9 @@ possiblePrizesDiv.innerHTML = [...currentPrizes].sort((a, b) => (a.odds || 0) - 
     return;
   }
 
-  const { serverSeed, clientSeed, nonce } = fairData;
-         const fairHashDiv = document.getElementById('fair-hash');
-if (fairHashDiv) {
+ const { serverSeed, clientSeed, nonce } = fairData;
 document.getElementById('pf-server-hash').innerText = fairData.serverSeedHash;
-}
+
           currentPrizes = [...currentPrizes].sort((a, b) => (a.odds || 0) - (b.odds || 0));
           console.log("Sorted Prizes:", currentPrizes.map(p => `${p.name} (${p.odds}%)`));
 
