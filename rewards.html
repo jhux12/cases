@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rewards | Packly.gg</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f0f12;
+      color: white;
+    }
+    .premium-box {
+      background: linear-gradient(145deg, #1c1f26, #0e0f13);
+      border: 1px solid rgba(255, 215, 0, 0.15);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+    }
+    .premium-button {
+      background: linear-gradient(to right, #d4af37, #b8860b);
+      color: white;
+      font-weight: 600;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+    .premium-button:hover {
+      box-shadow: 0 0 12px #ffd700;
+      transform: scale(1.05);
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #1f1f1f;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      z-index: 999;
+      display: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Navbar and Rewards content (unchanged) -->
+<!-- ... (omitted for brevity, already correct) ... -->
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+    authDomain: "cases-e5b4e.firebaseapp.com",
+    databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+    projectId: "cases-e5b4e",
+    storageBucket: "cases-e5b4e.appspot.com",
+    messagingSenderId: "22502548396",
+    appId: "1:22502548396:web:aac335672c21f07524d009"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  auth.onAuthStateChanged(async user => {
+    if (user) {
+      const userRef = db.ref('users/' + user.uid);
+      const snapshot = await userRef.once('value');
+      const data = snapshot.val() || { balance: 0 };
+      document.getElementById('balance-amount').innerText = data.balance || 0;
+      document.getElementById('username-display').innerText = user.displayName || user.email || 'User';
+
+      const now = Date.now();
+      const lastClaim = data.lastBonusClaim || 0;
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+
+      const claimButton = document.getElementById('claim-bonus');
+      const toast = document.getElementById('toast');
+      const countdown = document.getElementById('countdown-timer');
+
+      if (now - lastClaim < twentyFourHours) {
+        claimButton.disabled = true;
+        claimButton.innerText = "Come back later";
+        const updateCountdown = () => {
+          const nowTime = Date.now();
+          const left = twentyFourHours - (nowTime - lastClaim);
+          if (left <= 0) return location.reload();
+          const h = Math.floor(left / (1000 * 60 * 60));
+          const m = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60));
+          const s = Math.floor((left % (1000 * 60)) / 1000);
+          countdown.innerText = `Next claim in ${h}h ${m}m ${s}s`;
+          countdown.classList.remove('hidden');
+        };
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+      }
+
+      claimButton.onclick = async () => {
+        if (now - lastClaim >= twentyFourHours) {
+          const streak = (data.streak || 0) >= 7 ? 1 : (data.streak || 0) + 1;
+          const streakBonus = 5 * streak;
+          const totalReward = 10 + streakBonus;
+          const newBalance = (data.balance || 0) + totalReward;
+
+          await userRef.update({
+            balance: newBalance,
+            lastBonusClaim: Date.now(),
+            streak: streak
+          });
+
+          document.getElementById('balance-amount').innerText = newBalance;
+          claimButton.disabled = true;
+          claimButton.innerText = "Come back later";
+          toast.innerText = `✅ Bonus claimed! ${totalReward} coins added to your balance.`;
+          toast.style.display = 'block';
+          setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+      };
+
+      document.getElementById('logout-desktop').onclick = (e) => {
+        e.preventDefault();
+        auth.signOut().then(() => location.reload());
+      };
+
+    } else {
+      window.location.href = 'auth.html';
+    }
+  });
+</script>
+</body>
+</html>
