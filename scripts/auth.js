@@ -7,6 +7,10 @@ window.addEventListener('DOMContentLoaded', () => {
     if (user) {
       const userRef = firebase.database().ref('users/' + user.uid);
       const snapshot = await userRef.once('value');
+      
+      console.log("Auth user:", user.uid);
+      console.log("User data from Firebase:", snapshot.val());
+      
       const userData = snapshot.val() || {};
       
 
