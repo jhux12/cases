@@ -711,25 +711,7 @@ document.getElementById('set-client-seed').onclick = async () => {
   loadCases();
   loadRecentWins();
   startAutoScrollCarousel("recent-wins-carousel", 0.5);
-     // Hamburger toggle
-  document.getElementById('menu-toggle').addEventListener('click', () => {
-    const dropdown = document.getElementById('mobile-dropdown');
-    dropdown.classList.toggle('hidden');
-  });
-
-// Username dropdown toggle
-document.getElementById('dropdown-toggle').addEventListener('click', (e) => {
-  e.stopPropagation();
-  const menu = document.getElementById('user-dropdown');
-  menu.classList.toggle('hidden');
-});
-window.addEventListener('click', (e) => {
-  const menu = document.getElementById('user-dropdown');
-  if (!menu.contains(e.target)) {
-    menu.classList.add('hidden');
-  }
-});
-
+   
 // Firebase Auth logic
 firebase.auth().onAuthStateChanged(async user => {
   const logoutDesktop = document.getElementById('logout-desktop');
