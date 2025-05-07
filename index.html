@@ -712,53 +712,6 @@ document.getElementById('set-client-seed').onclick = async () => {
   loadRecentWins();
   startAutoScrollCarousel("recent-wins-carousel", 0.5);
    
-// Firebase Auth logic
-firebase.auth().onAuthStateChanged(async user => {
-  const logoutDesktop = document.getElementById('logout-desktop');
-  const signinDesktop = document.getElementById('signin-desktop');
-  const usernameEl = document.getElementById('username-display');
-
-  if (user) {
-    if (signinDesktop) {
-      signinDesktop.style.display = "none";
-    }
-
-    const username = user.displayName || user.email || "User";
-    if (usernameEl) usernameEl.innerText = username;
-
-    const invLink = document.getElementById('inventory-link');
-    if (invLink) invLink.classList.remove('hidden');
-
-    const userRef = db.ref('users/' + user.uid);
-    const snapshot = await userRef.once('value');
-
-    if (!snapshot.exists()) {
-      await userRef.set({ balance: 0 });
-    }
-
-    const userData = snapshot.val() || { balance: 0 };
-    const fairRef = userRef.child('provablyFair');
-const fairSnap = await fairRef.once('value');
-const fairData = fairSnap.val();
-const input = document.getElementById('client-seed-input');
-if (input && fairData && fairData.clientSeed) {
-  input.value = fairData.clientSeed;
-}
-const now = Date.now();
-const oneDay = 24 * 60 * 60 * 1000;
-
-if (!fairData || !fairData.lastRotation || (now - fairData.lastRotation > oneDay)) {
-  const newServerSeed = generateRandomString(64);
-  const newServerSeedHash = await sha256(newServerSeed);
-  
-  await fairRef.set({
-    serverSeed: newServerSeed,
-    serverSeedHash: newServerSeedHash,
-    clientSeed: 'default',
-    nonce: 0,
-    lastRotation: now
-  });
-
   console.log("🔄 Server seed rotated (or created) for fairness.");
 }
 
