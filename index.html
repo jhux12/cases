@@ -308,12 +308,6 @@ possiblePrizesDiv.innerHTML = [...currentPrizes].sort((a, b) => (a.odds || 0) - 
     });
   }
 
-  document.getElementById('close-popup').onclick = () => popup.classList.add('hidden');
-  closeTopup.onclick = () => topupPopup.classList.add('hidden');
-  document.getElementById('topup-button-mobile').onclick = () => {
-  topupPopup.classList.remove('hidden');
-};
-
  openCaseButton.onclick = () => {
   let countdown = 5;
   openCaseButton.disabled = true;
@@ -518,22 +512,7 @@ function startAutoScrollCarousel(containerId, speed = 0.5) {
 </div>
 
 <script>
-function expandPrize(imageUrl) {
-  const overlay = document.getElementById('prize-overlay');
-  const overlayImg = document.getElementById('overlay-image');
-  overlayImg.src = imageUrl;
-  overlay.classList.remove('hidden');
-}
-function showInventoryToast(itemName) {
-  const toast = document.getElementById('inventory-toast');
-  const nameSpan = document.getElementById('toast-item-name');
-  nameSpan.textContent = itemName;
-  toast.classList.remove('hidden');
 
-  setTimeout(() => {
-    toast.classList.add('hidden');
-  }, 3000); // Hide after 3 seconds
-}
 function playRaritySound(rarity) {
   const audio = audioMap[rarity.toLowerCase()];
   if (audio) {
