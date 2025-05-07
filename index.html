@@ -12,6 +12,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <script src="scripts/firebase-config.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="styles/main.css">
@@ -199,54 +201,57 @@
     <h2 class="text-3xl font-bold mb-6 text-yellow-300">Top Up Your Coins</h2>
     <p class="mb-8 text-gray-400">Choose a package and securely checkout with Stripe</p>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <form action="/create-checkout-session" method="POST" class="bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500 hover:scale-105 transition-transform">
-        <input type="hidden" name="amount" value="100">
-<h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
-  100 Coins
-</h3>        <p class="text-yellow-400 mb-4">$1.00</p>
+      
+      <form onsubmit="redirectToCheckout(event, 'coins_100')" class="bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500 hover:scale-105 transition-transform">
+        <h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
+          100 Coins
+        </h3>
+        <p class="text-yellow-400 mb-4">$1.00</p>
         <button type="submit" class="w-full bg-yellow-500 text-black py-2 rounded-full font-bold hover:bg-yellow-400">Buy</button>
       </form>
-      <form action="/create-checkout-session" method="POST" class="bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500 hover:scale-105 transition-transform">
-        <input type="hidden" name="amount" value="500">
-<h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
-  500 Coins
-</h3>
+
+      <form onsubmit="redirectToCheckout(event, 'coins_500')" class="bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500 hover:scale-105 transition-transform">
+        <h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
+          500 Coins
+        </h3>
         <p class="text-yellow-400 mb-4">$5.00</p>
         <button type="submit" class="w-full bg-yellow-500 text-black py-2 rounded-full font-bold hover:bg-yellow-400">Buy</button>
       </form>
-      <form action="/create-checkout-session" method="POST" class="bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500 hover:scale-105 transition-transform">
-        <input type="hidden" name="amount" value="1000">
-<h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
-  1000 Coins
-</h3>
+
+      <form onsubmit="redirectToCheckout(event, 'coins_1000')" class="bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500 hover:scale-105 transition-transform">
+        <h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
+          1000 Coins
+        </h3>
         <p class="text-yellow-400 mb-4">$10.00</p>
         <button type="submit" class="w-full bg-yellow-500 text-black py-2 rounded-full font-bold hover:bg-yellow-400">Buy</button>
       </form>
-      <form action="/create-checkout-session" method="POST" class="bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500 hover:scale-105 transition-transform">
-        <input type="hidden" name="amount" value="2000">
-<h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
-  2000 Coins
-</h3>
+
+      <form onsubmit="redirectToCheckout(event, 'coins_2000')" class="bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500 hover:scale-105 transition-transform">
+        <h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
+          2000 Coins
+        </h3>
         <p class="text-yellow-400 mb-4">$20.00</p>
         <button type="submit" class="w-full bg-yellow-500 text-black py-2 rounded-full font-bold hover:bg-yellow-400">Buy</button>
       </form>
-      <form action="/create-checkout-session" method="POST" class="relative bg-yellow-900 p-4 rounded-xl shadow-lg border-2 border-yellow-400 hover:scale-105 transition-transform">
+
+      <form onsubmit="redirectToCheckout(event, 'coins_5500')" class="relative bg-yellow-900 p-4 rounded-xl shadow-lg border-2 border-yellow-400 hover:scale-105 transition-transform">
         <span class="absolute -top-3 -right-3 bg-yellow-300 text-black text-xs font-bold px-3 py-1 rounded-full shadow-md">+500 Bonus!</span>
-        <input type="hidden" name="amount" value="5500">
-<h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
-  5500 Coins
-</h3>
+        <h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
+          5500 Coins
+        </h3>
         <p class="text-yellow-300 mb-4">$50.00</p>
         <button type="submit" class="w-full bg-yellow-400 text-black py-2 rounded-full font-bold hover:bg-yellow-300">Buy &amp; Get Bonus</button>
       </form>
+
     </div>
   </div>
 </div>
+
 
 
 <!-- Firebase Scripts + Logic -->
@@ -726,6 +731,44 @@ window.onload = () => {
 <script src="scripts/wins.js"></script>
 <script src="scripts/popups.js"></script>
 <script src="scripts/footer.js"></script>
+  <script>
+  const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4"); // 🔁 Replace with your actual Stripe public key
+
+  function redirectToCheckout(event, priceId) {
+    event.preventDefault();
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      alert("Please sign in to purchase coins.");
+      return;
+    }
+
+    const checkoutSessionRef = firebase
+      .firestore()
+      .collection("customers")
+      .doc(user.uid)
+      .collection("checkout_sessions")
+      .add({
+        price: priceId,
+        success_url: window.location.href,
+        cancel_url: window.location.href,
+        allow_promotion_codes: true
+      });
+
+    checkoutSessionRef.then((docRef) => {
+      docRef.onSnapshot((snap) => {
+        const { error, sessionId } = snap.data();
+        if (error) {
+          alert(`An error occurred: ${error.message}`);
+        }
+        if (sessionId) {
+          stripe.redirectToCheckout({ sessionId });
+        }
+      });
+    });
+  }
+</script>
+
 
 </body>
 </html>
