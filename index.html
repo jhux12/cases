@@ -701,8 +701,8 @@ paymentsRef.onSnapshot(async snapshot => {
 
           if (!productSnap.empty) {
             const product = productSnap.docs[0].data();
-            const coinAmount = parseInt(product.metadata?.coin_amount || "0");
-            const bonusAmount = parseInt(product.metadata?.bonus || "0");
+            const coinAmount = parseInt(product.coin_amount || "0");
+            const bonusAmount = parseInt(product.bonus || "0");
             const totalCoins = coinAmount + bonusAmount;
 
             // 💰 Add coins to Realtime DB
