@@ -842,6 +842,7 @@ async function sha256(message) {
 }
 
  window.onload = () => {
+ const mobileAuthButton = document.getElementById('mobile-auth-button'); // ✅ Move this outside
   loadCases();
   loadRecentWins();
   startAutoScrollCarousel("recent-wins-carousel", 0.5);
@@ -850,9 +851,6 @@ async function sha256(message) {
     const dropdown = document.getElementById('mobile-dropdown');
     dropdown.classList.toggle('hidden');
   });
-
-  const mobileAuthButton = document.getElementById('mobile-auth-button'); // ✅ Move this outside
-
 
 // Username dropdown toggle
 document.getElementById('dropdown-toggle').addEventListener('click', (e) => {
@@ -869,16 +867,15 @@ window.addEventListener('click', (e) => {
 
 // Firebase Auth logic
 firebase.auth().onAuthStateChanged(async user => {
-  const mobileAuthButton = document.getElementById('mobile-auth-button');
   const logoutDesktop = document.getElementById('logout-desktop');
   const signinDesktop = document.getElementById('signin-desktop');
   const usernameEl = document.getElementById('username-display');
 
   if (user) {
-
     if (signinDesktop) {
-  signinDesktop.style.display = "none";
-}
+      signinDesktop.style.display = "none";
+    }
+
     const username = user.displayName || user.email || "User";
     if (usernameEl) usernameEl.innerText = username;
 
@@ -930,30 +927,28 @@ firebase.auth().onAuthStateChanged(async user => {
       };
     }
 
-} else {
-  // User is signed out
-  document.getElementById('user-balance').classList.add('hidden');
-  document.getElementById('balance-amount').innerText = '0';
-  document.getElementById('username-display').innerText = "User";
+  } else {
+    // User is signed out
+    document.getElementById('user-balance').classList.add('hidden');
+    document.getElementById('balance-amount').innerText = '0';
+    document.getElementById('username-display').innerText = "User";
 
-  const logoutDesktop = document.getElementById('logout-desktop');
-  const signinDesktop = document.getElementById('signin-desktop');
-  const mobileAuthButton = document.getElementById('mobile-auth-button');
-
-  if (logoutDesktop) {
-    logoutDesktop.style.display = "none";
-  }
+    if (logoutDesktop) {
+      logoutDesktop.style.display = "none";
+    }
 
     if (signinDesktop) {
-    signinDesktop.style.display = "block";
-  }
+      signinDesktop.style.display = "block";
+    }
 
-  if (mobileAuthButton) {
-    mobileAuthButton.innerText = "Sign In";
-    mobileAuthButton.href = "auth.html";
-    mobileAuthButton.onclick = null;
+    if (mobileAuthButton) {
+      mobileAuthButton.innerText = "Sign In";
+      mobileAuthButton.href = "auth.html";
+      mobileAuthButton.onclick = null;
+    }
   }
 }); // ✅ closes firebase.auth().onAuthStateChanged
+
 </script>
   
   <!-- Toast Notification -->
