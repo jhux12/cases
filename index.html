@@ -234,7 +234,7 @@
     <span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 mr-1"> <span id="balance-amount-mobile">0</span> coins</span>
     <button id="topup-button-mobile" class="text-green-400 text-lg font-bold hover:text-green-500">+</button>
   </div>
-  <a href="inventory.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm">Inventory</a>
+<a id="inventory-link" href="inventory.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm hidden">Inventory</a>
   <a href="how-it-works.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm">How It Works</a>
   <a href="rewards.html" class="block px-4 py-2 hover:bg-gray-700 text-yellow-400 text-sm">
   <i class="fas fa-gift mr-2"></i> Rewards
@@ -430,9 +430,6 @@
 document.getElementById('topup-button').onclick = () => {
   topupPopup.classList.remove('hidden');
 };
-  document.getElementById('menu-toggle').onclick = () => {
-    document.getElementById('mobile-dropdown').classList.toggle('hidden');
-  };
 
   function addCoins(amount) {
     const user = firebase.auth().currentUser;
