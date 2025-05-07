@@ -974,34 +974,6 @@ firebase.auth().onAuthStateChanged(async user => {
     if (logoutDesktop) logoutDesktop.style.display = "none";
   }
 });
-
-
-      document.getElementById('balance-amount').innerText = userData.balance;
-      document.getElementById('popup-balance').innerText = `${userData.balance} coins`;
-      document.getElementById('balance-amount-mobile').innerText = userData.balance;
-      userBalanceDiv.classList.remove('hidden');
-      authButton.innerText = 'Logout';
-      authButton.href = '#';
-      authButton.onclick = (e) => {
-        e.preventDefault();
-        firebase.auth().signOut().then(() => location.reload());
-      };
-
-      mobileAuthButton.innerText = 'Logout';
-      mobileAuthButton.href = '#';
-      mobileAuthButton.onclick = (e) => {
-        e.preventDefault();
-        firebase.auth().signOut().then(() => location.reload());
-      };
-
-    } else {
-      userBalanceDiv.classList.add('hidden');
-      authButton.innerText = 'Sign In';
-      authButton.href = 'auth.html';
-      mobileAuthButton.innerText = 'Sign In';
-      mobileAuthButton.href = 'auth.html';
-    }
-  });
 };
 </script>
   
