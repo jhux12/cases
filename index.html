@@ -962,17 +962,33 @@ firebase.auth().onAuthStateChanged(async user => {
       };
     }
 
-  } else {
-    // Not signed in
-    document.getElementById('user-balance').classList.add('hidden');
-    document.getElementById('balance-amount').innerText = '0';
-    if (usernameEl) usernameEl.innerText = 'User';
-    if (mobileAuthButton) {
-      mobileAuthButton.innerText = "Sign In";
-      mobileAuthButton.href = "auth.html";
-    }
-    if (logoutDesktop) logoutDesktop.style.display = "none";
+ } else {
+  // Not signed in
+  document.getElementById('user-balance').classList.add('hidden');
+  document.getElementById('balance-amount').innerText = '0';
+  if (usernameEl) usernameEl.innerText = 'User';
+
+  // Desktop auth button
+  const authButton = document.getElementById('auth-button');
+  if (authButton) {
+    authButton.innerText = "Sign In";
+    authButton.href = "auth.html";
+    authButton.classList.remove("hidden"); // make sure it's visible
+    authButton.onclick = null;
   }
+
+  // Mobile auth button
+  const mobileAuthButton = document.getElementById('mobile-auth-button');
+  if (mobileAuthButton) {
+    mobileAuthButton.innerText = "Sign In";
+    mobileAuthButton.href = "auth.html";
+    mobileAuthButton.classList.remove("hidden"); // make sure it's visible
+    mobileAuthButton.onclick = null;
+  }
+
+  // Hide logout if you have it
+  if (logoutDesktop) logoutDesktop.style.display = "none";
+}
 });
 };
 </script>
