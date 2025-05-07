@@ -406,11 +406,17 @@
     <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
     <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
     <div id="result" class="mt-6 text-2xl font-bold hidden"></div>
+  <div class="text-xs text-gray-400 italic">Copy these into a fair checker to verify your roll.</div>
     <div id="verify-fairness" class="mt-4 hidden text-left text-sm bg-black/40 p-4 rounded-lg border border-white/10 space-y-2">
   <div><strong>Server Seed:</strong> <span id="pf-server-seed" class="break-all text-gray-300"></span></div>
   <div><strong>Client Seed:</strong> <span id="pf-client-seed" class="break-all text-gray-300"></span></div>
   <div><strong>Nonce:</strong> <span id="pf-nonce" class="text-gray-300"></span></div>
   <div><strong>Server Seed Hash:</strong> <span id="pf-server-hash" class="break-all text-gray-300"></span></div>
+      <div>
+  <label for="client-seed-input" class="text-sm font-semibold text-white">Client Seed:</label>
+  <input type="text" id="client-seed-input" placeholder="Enter your own seed" class="mt-1 block w-full bg-black/20 border border-white/20 rounded px-3 py-1 text-white placeholder-gray-400 text-sm">
+  <button id="set-client-seed" class="mt-2 text-xs text-yellow-400 hover:underline">Save Client Seed</button>
+</div>
   <div class="text-xs text-gray-400 italic">Copy these into a fair checker to verify your roll.</div>
 </div>
   </div>
@@ -863,7 +869,19 @@ async function sha256(message) {
     });
   });
 }
+document.getElementById('set-client-seed').onclick = async () => {
+  const user = firebase.auth().currentUser;
+  const input = document.getElementById('client-seed-input');
+  if (!user || !input.value) return alert('You must be logged in and provide a seed.');
 
+  const fairRef = db.ref('users/' + user.uid + '/provablyFair');
+  await fairRef.update({
+    clientSeed: input.value,
+    nonce: 0 // reset nonce when client seed changes
+  });
+
+  alert('✅ Client seed updated!');
+};
  window.onload = () => {
  const mobileAuthButton = document.getElementById('mobile-auth-button'); // ✅ Move this outside
   loadCases();
@@ -913,6 +931,30 @@ firebase.auth().onAuthStateChanged(async user => {
     }
 
     const userData = snapshot.val() || { balance: 0 };
+    const fairRef = userRef.child('provablyFair');
+const fairSnap = await fairRef.once('value');
+const fairData = fairSnap.val();
+const input = document.getElementById('client-seed-input');
+if (input && fairData && fairData.clientSeed) {
+  input.value = fairData.clientSeed;
+}
+const now = Date.now();
+const oneDay = 24 * 60 * 60 * 1000;
+
+if (!fairData || !fairData.lastRotation || (now - fairData.lastRotation > oneDay)) {
+  const newServerSeed = generateRandomString(64);
+  const newServerSeedHash = await sha256(newServerSeed);
+  
+  await fairRef.set({
+    serverSeed: newServerSeed,
+    serverSeedHash: newServerSeedHash,
+    clientSeed: 'default',
+    nonce: 0,
+    lastRotation: now
+  });
+
+  console.log("🔄 Server seed rotated (or created) for fairness.");
+}
 
     // Setup provably fair
     if (!userData.provablyFair) {
