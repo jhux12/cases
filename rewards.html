@@ -48,8 +48,33 @@
 </head>
 <body class="min-h-screen">
 
-<!-- Navbar and Rewards content (unchanged) -->
-<!-- ... (omitted for brevity, already correct) ... -->
+<!-- Daily Bonus Section -->
+<section class="pt-32 px-6">
+  <div class="max-w-3xl mx-auto text-center">
+    <h1 class="text-3xl font-bold mb-6">Daily Rewards</h1>
+    <div class="premium-box p-6 rounded-xl text-center">
+      <i class="fas fa-gift fa-4x text-yellow-400 animate-bounce mb-4"></i>
+      <h2 class="text-xl font-semibold mb-2">Claim Your Daily Bonus</h2>
+      <p class="mb-2 text-sm text-gray-300">Come back every 24 hours to claim 10 free coins!</p>
+      <p id="countdown-timer" class="mb-4 text-xs text-yellow-300 hidden"></p>
+      <button id="claim-bonus" class="premium-button px-6 py-2">Claim Bonus</button>
+      <div class="mt-6">
+        <h3 class="text-sm font-semibold text-white mb-2">Streak Rewards</h3>
+        <div class="flex justify-between items-center text-xs text-gray-300">
+          <div class="flex-1 text-center">Day 1<br><span class="block text-yellow-400">+15</span></div>
+          <div class="flex-1 text-center">Day 2<br><span class="block text-yellow-400">+20</span></div>
+          <div class="flex-1 text-center">Day 3<br><span class="block text-yellow-400">+25</span></div>
+          <div class="flex-1 text-center">Day 4<br><span class="block text-yellow-400">+30</span></div>
+          <div class="flex-1 text-center">Day 5<br><span class="block text-yellow-400">+35</span></div>
+          <div class="flex-1 text-center">Day 6<br><span class="block text-yellow-400">+40</span></div>
+          <div class="flex-1 text-center">Day 7<br><span class="block text-yellow-400">+45</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="toast" class="toast">✅ Bonus claimed! 10 coins added to your balance.</div>
 
 <script>
   const firebaseConfig = {
