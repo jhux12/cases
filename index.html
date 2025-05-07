@@ -557,7 +557,8 @@ async function sha256(message) {
   const data = encoder.encode(message);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
-  
+} // ✅ properly closes sha256 function
+
 document.getElementById('set-client-seed').onclick = async () => {
   const user = firebase.auth().currentUser;
   const input = document.getElementById('client-seed-input');
@@ -571,74 +572,75 @@ document.getElementById('set-client-seed').onclick = async () => {
 
   alert('✅ Client seed updated!');
 };
- window.onload = () => {
- const mobileAuthButton = document.getElementById('mobile-auth-button'); // ✅ Move this outside
+
+window.onload = () => {
+  const mobileAuthButton = document.getElementById('mobile-auth-button');
+  const logoutDesktop = document.getElementById('logout-desktop');
+  const signinDesktop = document.getElementById('signin-desktop');
+
   loadCases();
   loadRecentWins();
   startAutoScrollCarousel("recent-wins-carousel", 0.5);
-   
-  console.log("🔄 Server seed rotated (or created) for fairness.");
-}
 
-    // Setup provably fair
-    if (!userData.provablyFair) {
-      const serverSeed = generateRandomString(64);
-      const serverSeedHash = await sha256(serverSeed);
-      await userRef.child('provablyFair').set({
-        serverSeed,
-        serverSeedHash,
-        clientSeed: 'default',
-        nonce: 0
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      const userRef = db.ref('users/' + user.uid);
+      userRef.once('value').then(async snapshot => {
+        const userData = snapshot.val() || {};
+
+        // Setup provably fair
+        if (!userData.provablyFair) {
+          const serverSeed = generateRandomString(64);
+          const serverSeedHash = await sha256(serverSeed);
+          await userRef.child('provablyFair').set({
+            serverSeed,
+            serverSeedHash,
+            clientSeed: 'default',
+            nonce: 0
+          });
+        }
+
+        // Update balances
+        document.getElementById('balance-amount').innerText = userData.balance || 0;
+        document.getElementById('balance-amount-mobile').innerText = userData.balance || 0;
+        document.getElementById('popup-balance').innerText = `${userData.balance || 0} coins`;
+        document.getElementById('user-balance').classList.remove('hidden');
+
+        if (logoutDesktop) {
+          logoutDesktop.onclick = (e) => {
+            e.preventDefault();
+            firebase.auth().signOut().then(() => location.reload());
+          };
+        }
+
+        if (mobileAuthButton) {
+          mobileAuthButton.innerText = "Logout";
+          mobileAuthButton.href = "#";
+          mobileAuthButton.onclick = (e) => {
+            e.preventDefault();
+            firebase.auth().signOut().then(() => location.reload());
+          };
+        }
       });
+
+    } else {
+      // User is signed out
+      document.getElementById('user-balance').classList.add('hidden');
+      document.getElementById('balance-amount').innerText = '0';
+      document.getElementById('username-display').innerText = "User";
+
+      if (logoutDesktop) logoutDesktop.style.display = "none";
+      if (signinDesktop) signinDesktop.style.display = "block";
+
+      if (mobileAuthButton) {
+        mobileAuthButton.innerText = "Sign In";
+        mobileAuthButton.href = "auth.html";
+        mobileAuthButton.onclick = null;
+      }
     }
+  });
+};
 
-    // Update balances
-    document.getElementById('balance-amount').innerText = userData.balance;
-    document.getElementById('balance-amount-mobile').innerText = userData.balance;
-    document.getElementById('popup-balance').innerText = `${userData.balance} coins`;
-    document.getElementById('user-balance').classList.remove('hidden');
-
-    // Desktop logout
-    if (logoutDesktop) {
-      logoutDesktop.onclick = (e) => {
-        e.preventDefault();
-        firebase.auth().signOut().then(() => location.reload());
-      };
-    }
-
-    // Mobile logout
-    if (mobileAuthButton) {
-      mobileAuthButton.innerText = "Logout";
-      mobileAuthButton.href = "#";
-      mobileAuthButton.onclick = (e) => {
-        e.preventDefault();
-        firebase.auth().signOut().then(() => location.reload());
-      };
-    }
-
-  } else {
-    // User is signed out
-    document.getElementById('user-balance').classList.add('hidden');
-    document.getElementById('balance-amount').innerText = '0';
-    document.getElementById('username-display').innerText = "User";
-
-    if (logoutDesktop) {
-      logoutDesktop.style.display = "none";
-    }
-
-    if (signinDesktop) {
-      signinDesktop.style.display = "block";
-    }
-
-    if (mobileAuthButton) {
-      mobileAuthButton.innerText = "Sign In";
-      mobileAuthButton.href = "auth.html";
-      mobileAuthButton.onclick = null;
-   }
-  }
-}); // ✅ closes firebase.auth().onAuthStateChanged
-
-}; // ✅ closes window.onload
 </script>
   
   <!-- Toast Notification -->
