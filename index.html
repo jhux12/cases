@@ -509,7 +509,11 @@ balanceEl.classList.add('pulse-balance');
           </div>
           <div class="p-2 text-center">
 <span class="text-white text-sm font-medium truncate block">${prize.name}</span>
-<span class="text-xs text-yellow-400 uppercase font-bold">${prize.rarity}</span>
+<span class="text-xs uppercase font-bold ${
+  prize.rarity === 'legendary' ? 'text-yellow-400' :
+  prize.rarity === 'ultra rare' ? 'text-purple-400' :
+  'text-gray-400'
+}">${prize.rarity}</span>
           </div>
         </div>
       `;
