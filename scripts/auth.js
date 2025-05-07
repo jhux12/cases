@@ -8,11 +8,16 @@ window.addEventListener('DOMContentLoaded', () => {
       const userRef = firebase.database().ref('users/' + user.uid);
       const snapshot = await userRef.once('value');
       const userData = snapshot.val() || {};
+      
 
       document.getElementById('balance-amount').innerText = userData.balance || 0;
       document.getElementById('balance-amount-mobile').innerText = userData.balance || 0;
       document.getElementById('popup-balance').innerText = `${userData.balance || 0} coins`;
       document.getElementById('user-balance').classList.remove('hidden');
+      if (userData.username) {
+  document.getElementById('username-display').innerText = userData.username;
+}
+
 
       if (logoutDesktop) {
         logoutDesktop.style.display = "block";
