@@ -208,7 +208,11 @@
   <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg hidden z-50">
     <a href="inventory.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700">Inventory</a>
     <a href="how-it-works.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700">How It Works</a>
-    <a id="logout-desktop" href="#" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700">Logout</a>
+    <!-- Sign In (shows when logged out) -->
+<a id="signin-desktop" href="auth.html" class="block px-4 py-2 text-sm text-green-400 hover:bg-gray-700">Sign In</a>
+
+<!-- Logout (shows when logged in) -->
+<a id="logout-desktop" href="#" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700">Logout</a>
   </div>
 </div>
 
@@ -859,37 +863,8 @@ function sha256(input) {
     dropdown.classList.toggle('hidden');
   });
 
-  firebase.auth().onAuthStateChanged(async user => {
-    if (user) {
-      // ✅ Set username in nav
-      document.getElementById('username-display').innerText = user.displayName || user.email || "User";
-
-      // ✅ Mobile logout logic
-      document.getElementById('mobile-auth-button').innerText = "Logout";
-      document.getElementById('mobile-auth-button').href = "#";
-      document.getElementById('mobile-auth-button').onclick = (e) => {
-        e.preventDefault();
-        firebase.auth().signOut().then(() => location.reload());
-      };
-
-      // ✅ Desktop logout logic (if element exists)
-      const logoutDesktop = document.getElementById('logout-desktop');
-      if (logoutDesktop) {
-        logoutDesktop.onclick = (e) => {
-          e.preventDefault();
-          firebase.auth().signOut().then(() => location.reload());
-        };
-      }
-    }
-  });
-
   const mobileAuthButton = document.getElementById('mobile-auth-button'); // ✅ Move this outside
 
-  // Hamburger toggle
-document.getElementById('menu-toggle').addEventListener('click', () => {
-  const dropdown = document.getElementById('mobile-dropdown');
-  dropdown.classList.toggle('hidden');
-});
 
 // Username dropdown toggle
 document.getElementById('dropdown-toggle').addEventListener('click', (e) => {
@@ -908,9 +883,14 @@ window.addEventListener('click', (e) => {
 firebase.auth().onAuthStateChanged(async user => {
   const mobileAuthButton = document.getElementById('mobile-auth-button');
   const logoutDesktop = document.getElementById('logout-desktop');
+  const signinDesktop = document.getElementById('signin-desktop');
   const usernameEl = document.getElementById('username-display');
 
   if (user) {
+
+    if (signinDesktop) {
+  signinDesktop.style.display = "none";
+}
     const username = user.displayName || user.email || "User";
     if (usernameEl) usernameEl.innerText = username;
 
@@ -962,34 +942,31 @@ firebase.auth().onAuthStateChanged(async user => {
       };
     }
 
- } else {
-  // Not signed in
+} else {
+  // User is signed out
   document.getElementById('user-balance').classList.add('hidden');
   document.getElementById('balance-amount').innerText = '0';
-  if (usernameEl) usernameEl.innerText = 'User';
+  document.getElementById('username-display').innerText = "User";
 
-  // Desktop auth button
-  const authButton = document.getElementById('auth-button');
-  if (authButton) {
-    authButton.innerText = "Sign In";
-    authButton.href = "auth.html";
-    authButton.classList.remove("hidden"); // make sure it's visible
-    authButton.onclick = null;
+  const logoutDesktop = document.getElementById('logout-desktop');
+  const signinDesktop = document.getElementById('signin-desktop');
+  const mobileAuthButton = document.getElementById('mobile-auth-button');
+
+  if (logoutDesktop) {
+    logoutDesktop.style.display = "none";
   }
 
-  // Mobile auth button
-  const mobileAuthButton = document.getElementById('mobile-auth-button');
+  if (signinDesktop) {
+    signinDesktop.style.display = "block";
+  }
+
   if (mobileAuthButton) {
     mobileAuthButton.innerText = "Sign In";
     mobileAuthButton.href = "auth.html";
-    mobileAuthButton.classList.remove("hidden"); // make sure it's visible
     mobileAuthButton.onclick = null;
   }
-
-  // Hide logout if you have it
-  if (logoutDesktop) logoutDesktop.style.display = "none";
 }
-});
+
 };
 </script>
   
