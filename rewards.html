@@ -9,7 +9,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles/main.css">
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -50,12 +49,36 @@
 <body class="min-h-screen">
 
 <!-- Navbar -->
-<div id="navbar-container"></div>
-<script>
-  fetch("/components/navbar.html")
-    .then(res => res.text())
-    .then(html => document.getElementById("navbar-container").innerHTML = html);
-</script>
+<nav class="navbar fixed w-full z-50 py-3 px-4 flex items-center justify-between bg-gray-900 border-b border-gray-800" style="min-height: 72px;">
+  <div class="flex items-center gap-4">
+    <a href="index.html">
+      <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(12).png?alt=media&token=40696ba9-f512-4316-8dec-bab9a4f037c8" class="h-10 sm:h-12">
+    </a>
+  </div>
+  <div class="hidden sm:flex items-center gap-4 relative">
+    <a href="rewards.html" class="flex items-center gap-1 text-yellow-400 font-semibold hover:text-yellow-300 transition">
+      <i class="fas fa-gift"></i> Rewards
+    </a>
+    <div id="user-balance" class="flex items-center gap-1 bg-gray-800 text-white px-3 py-1 rounded-full text-sm hidden">
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
+      <span id="balance-amount">0</span>
+      <span>coins</span>
+    </div>
+    <div class="relative">
+      <button id="dropdown-toggle" class="flex items-center space-x-2 text-white focus:outline-none">
+        <i class="fas fa-user-circle text-xl"></i>
+        <span id="username-display">User</span>
+        <i class="fas fa-chevron-down text-xs"></i>
+      </button>
+      <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg hidden z-50">
+        <a href="inventory.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700">Inventory</a>
+        <a href="how-it-works.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700">How It Works</a>
+        <a id="signin-desktop" href="auth.html" class="block px-4 py-2 text-sm text-green-400 hover:bg-gray-700">Sign In</a>
+        <a id="logout-desktop" href="#" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700 hidden">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
 
 <!-- Daily Bonus Section -->
 <section class="pt-32 px-6">
@@ -67,126 +90,99 @@
       <p class="mb-2 text-sm text-gray-300">Come back every 24 hours to claim 10 free coins!</p>
       <p id="countdown-timer" class="mb-4 text-xs text-yellow-300 hidden"></p>
       <button id="claim-bonus" class="premium-button px-6 py-2">Claim Bonus</button>
-
-      <div class="mt-8">
-        <h3 class="text-lg font-semibold text-white mb-4">Streak Rewards</h3>
-        <div class="grid grid-cols-7 gap-4">
-          <div class="streak-box bg-gray-800 p-4 rounded-lg text-center" data-day="1">
-            <div class="text-yellow-400 font-bold">Day 1</div>
-            <div>+15</div>
-            <div class="checkmark hidden text-green-400 mt-1"><i class="fas fa-check-circle"></i></div>
-          </div>
-          <div class="streak-box bg-gray-800 p-4 rounded-lg text-center" data-day="2">
-            <div class="text-yellow-400 font-bold">Day 2</div>
-            <div>+20</div>
-            <div class="checkmark hidden text-green-400 mt-1"><i class="fas fa-check-circle"></i></div>
-          </div>
-          <div class="streak-box bg-gray-800 p-4 rounded-lg text-center" data-day="3">
-            <div class="text-yellow-400 font-bold">Day 3</div>
-            <div>+25</div>
-            <div class="checkmark hidden text-green-400 mt-1"><i class="fas fa-check-circle"></i></div>
-          </div>
-          <div class="streak-box bg-gray-800 p-4 rounded-lg text-center" data-day="4">
-            <div class="text-yellow-400 font-bold">Day 4</div>
-            <div>+30</div>
-            <div class="checkmark hidden text-green-400 mt-1"><i class="fas fa-check-circle"></i></div>
-          </div>
-          <div class="streak-box bg-gray-800 p-4 rounded-lg text-center" data-day="5">
-            <div class="text-yellow-400 font-bold">Day 5</div>
-            <div>+35</div>
-            <div class="checkmark hidden text-green-400 mt-1"><i class="fas fa-check-circle"></i></div>
-          </div>
-          <div class="streak-box bg-gray-800 p-4 rounded-lg text-center" data-day="6">
-            <div class="text-yellow-400 font-bold">Day 6</div>
-            <div>+40</div>
-            <div class="checkmark hidden text-green-400 mt-1"><i class="fas fa-check-circle"></i></div>
-          </div>
-          <div class="streak-box bg-gray-800 p-4 rounded-lg text-center" data-day="7">
-            <div class="text-yellow-400 font-bold">Day 7</div>
-            <div>+45</div>
-            <div class="checkmark hidden text-green-400 mt-1"><i class="fas fa-check-circle"></i></div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </section>
 
 <div id="toast" class="toast">✅ Bonus claimed! 10 coins added to your balance.</div>
 
-<script src="/scripts/firebase-config.js"></script>
 <script>
-  firebase.auth().onAuthStateChanged(async user => {
-    if (user) {
-      const userRef = firebase.database().ref('users/' + user.uid);
-      const snapshot = await userRef.once('value');
-      const data = snapshot.val() || {};
+  // Firebase setup
+  const firebaseConfig = {
+    apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+    authDomain: "cases-e5b4e.firebaseapp.com",
+    databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+    projectId: "cases-e5b4e",
+    storageBucket: "cases-e5b4e.appspot.com",
+    messagingSenderId: "22502548396",
+    appId: "1:22502548396:web:aac335672c21f07524d009"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
 
-      document.getElementById('balance-amount').innerText = data.balance || 0;
-      document.getElementById('username-display').innerText = data.username || 'User';
+  // UI toggle
+  const dropdownToggle = document.getElementById('dropdown-toggle');
+  const userDropdown = document.getElementById('user-dropdown');
+  dropdownToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    userDropdown.classList.toggle('hidden');
+  });
+  window.addEventListener('click', () => {
+    userDropdown.classList.add('hidden');
+  });
 
-      const now = Date.now();
-      const lastClaim = data.lastBonusClaim || 0;
-      const twentyFourHours = 24 * 60 * 60 * 1000;
+  auth.onAuthStateChanged(async user => {
+    if (!user) return window.location.href = 'auth.html';
+    
+    const userRef = db.ref('users/' + user.uid);
+    const snapshot = await userRef.once('value');
+    const data = snapshot.val() || {};
 
-      const claimButton = document.getElementById('claim-bonus');
-      const toast = document.getElementById('toast');
-      const countdown = document.getElementById('countdown-timer');
+    const balance = data.balance || 0;
+    document.getElementById('balance-amount').innerText = balance;
+    document.getElementById('user-balance').classList.remove('hidden');
+    document.getElementById('username-display').innerText = data.username || user.displayName || user.email || 'User';
 
-      const streak = data.streak || 0;
-      const eligible = now - lastClaim >= twentyFourHours;
+    document.getElementById('signin-desktop').classList.add('hidden');
+    document.getElementById('logout-desktop').classList.remove('hidden');
 
-      document.querySelectorAll('.streak-box').forEach(box => {
-        const day = parseInt(box.dataset.day);
-        if (day <= streak) {
-          box.querySelector('.checkmark').classList.remove('hidden');
-        }
-      });
+    document.getElementById('logout-desktop').onclick = (e) => {
+      e.preventDefault();
+      auth.signOut().then(() => location.reload());
+    };
 
-      if (!eligible) {
-        claimButton.disabled = true;
-        claimButton.innerText = "Come back later";
-        const updateCountdown = () => {
-          const nowTime = Date.now();
-          const left = twentyFourHours - (nowTime - lastClaim);
-          if (left <= 0) return location.reload();
-          const h = Math.floor(left / (1000 * 60 * 60));
-          const m = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60));
-          const s = Math.floor((left % (1000 * 60)) / 1000);
-          countdown.innerText = `Next claim in ${h}h ${m}m ${s}s`;
-          countdown.classList.remove('hidden');
-        };
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
-      }
+    // Bonus logic
+    const claimButton = document.getElementById('claim-bonus');
+    const toast = document.getElementById('toast');
+    const countdown = document.getElementById('countdown-timer');
 
-      claimButton.onclick = async () => {
-        if (eligible) {
-          const newStreak = streak >= 7 ? 1 : streak + 1;
-          const streakBonus = 5 * newStreak;
-          const totalReward = 10 + streakBonus;
-          const newBalance = (data.balance || 0) + totalReward;
+    const now = Date.now();
+    const lastClaim = data.lastBonusClaim || 0;
+    const delay = 24 * 60 * 60 * 1000;
 
-          await userRef.update({
-            balance: newBalance,
-            lastBonusClaim: Date.now(),
-            streak: newStreak
-          });
-
-          document.getElementById('balance-amount').innerText = newBalance;
-          toast.innerText = `✅ Bonus claimed! ${totalReward} coins added to your balance.`;
-          toast.style.display = 'block';
-          setTimeout(() => { toast.style.display = 'none'; }, 3000);
-          location.reload();
-        }
-      };
-    } else {
-      window.location.href = 'auth.html';
+    if (now - lastClaim < delay) {
+      claimButton.disabled = true;
+      claimButton.innerText = "Come back later";
+      countdown.classList.remove("hidden");
+      setInterval(() => {
+        const remaining = delay - (Date.now() - lastClaim);
+        if (remaining <= 0) return location.reload();
+        const h = Math.floor(remaining / (1000 * 60 * 60));
+        const m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((remaining % (1000 * 60)) / 1000);
+        countdown.innerText = `Next claim in ${h}h ${m}m ${s}s`;
+      }, 1000);
     }
+
+    claimButton.onclick = async () => {
+      if (now - lastClaim < delay) return;
+      const streak = (data.streak || 0) >= 7 ? 1 : (data.streak || 0) + 1;
+      const bonus = 10 + 5 * streak;
+      await userRef.update({
+        balance: balance + bonus,
+        lastBonusClaim: Date.now(),
+        streak: streak
+      });
+      document.getElementById('balance-amount').innerText = balance + bonus;
+      toast.innerText = `✅ Bonus claimed! ${bonus} coins added to your balance.`;
+      toast.style.display = 'block';
+      setTimeout(() => toast.style.display = 'none', 3000);
+      claimButton.disabled = true;
+      claimButton.innerText = "Come back later";
+    };
   });
 </script>
-<script src="/scripts/navbar.js"></script>
-<script src="/scripts/auth.js"></script>
+
 </body>
 </html>
-
