@@ -747,6 +747,7 @@ window.onload = () => {
       .doc(user.uid)
       .collection("checkout_sessions")
       .add({
+        mode: "payment",
         price: priceId,
         success_url: window.location.href,
         cancel_url: window.location.href,
