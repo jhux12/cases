@@ -678,61 +678,58 @@ firebase.auth().onAuthStateChanged(async user => {
       };
     }
 
-    // ✅ Listen for Stripe payments and add coins
-    const paymentsRef = firebase.firestore()
-      .collection("customers")
-      .doc(user.uid)
-      .collection("payments");
+    // ✅ Listen for Stripe payments and update coins based on Firestore metadata
+const paymentsRef = firebase.firestore()
+  .collection("customers")
+  .doc(user.uid)
+  .collection("payments");
 
-    paymentsRef.onSnapshot(snapshot => {
-      snapshot.docChanges().forEach(change => {
-        if (change.type === "added") {
-          const payment = change.doc.data();
+paymentsRef.onSnapshot(async snapshot => {
+  snapshot.docChanges().forEach(async change => {
+    if (change.type === "added") {
+      const payment = change.doc.data();
 
-          if (payment.status === "succeeded" && !payment.processed) {
-            const amountPaid = payment.amount_total / 100; // cents to dollars
-let coinsToAdd = amountPaid * 100;
+      if (payment.status === "succeeded" && !payment.processed) {
+        const priceId = payment.price;
 
-// Optional: Add bonus coins based on Stripe price ID
-const priceId = payment.price;
+        try {
+          // 🔍 Lookup matching product in Firestore
+          const productSnap = await firebase.firestore()
+            .collection("products")
+            .where("priceId", "==", priceId)
+            .get();
 
-switch (priceId) {
-  case "price_1RMAfJI76TkBIa1xTqo9xmtq": // 5500 Coins $50 Pack (with bonus)
-    coinsToAdd = 5500;
-    break;
-  case "price_1RMAf3I76TkBIa1xnc97kpdE": // 2000 Coins for $20
-    coinsToAdd = 2000;
-    break;
-  case "price_1RMAelI76TkBIa1x2qEv8FDm": // 1000 Coins for $10
-    coinsToAdd = 1000;
-    break;
-  case "price_1RMAePI76TkBIa1x97hQ8cxx": // 500 Coins for $5
-    coinsToAdd = 500;
-    break;
-  case "price_1RMAdnI76TkBIa1xcaolfel9": // 100 Coins for $1
-    coinsToAdd = 100;
-    break;
-  default:
-    // fallback for unrecognized price
-    coinsToAdd = amountPaid * 100;
-}
+          if (!productSnap.empty) {
+            const product = productSnap.docs[0].data();
+            const coinAmount = parseInt(product.metadata?.coin_amount || "0");
+            const bonusAmount = parseInt(product.metadata?.bonus || "0");
+            const totalCoins = coinAmount + bonusAmount;
 
+            // 💰 Add coins to Realtime DB
             userRef.once('value').then(snap => {
               const currentBalance = snap.val()?.balance || 0;
-              userRef.update({ balance: currentBalance + coinsToAdd }).then(() => {
-                // Update display
-                document.getElementById('balance-amount').innerText = currentBalance + coinsToAdd;
-                document.getElementById('balance-amount-mobile').innerText = currentBalance + coinsToAdd;
-                document.getElementById('popup-balance').innerText = `${currentBalance + coinsToAdd} coins`;
+              const newBalance = currentBalance + totalCoins;
+
+              userRef.update({ balance: newBalance }).then(() => {
+                document.getElementById('balance-amount').innerText = newBalance;
+                document.getElementById('balance-amount-mobile').innerText = newBalance;
+                document.getElementById('popup-balance').innerText = `${newBalance} coins`;
               });
             });
 
-            // Mark payment as processed
+            // ✅ Mark payment as processed
             change.doc.ref.update({ processed: true });
+          } else {
+            console.warn("⚠️ No matching product found for priceId:", priceId);
           }
+        } catch (error) {
+          console.error("🔥 Error processing Stripe payment:", error);
         }
-      });
-    });
+      }
+    }
+  });
+});
+
 
   } else {
     // User is signed out
