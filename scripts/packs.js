@@ -1,7 +1,8 @@
-
 function loadCases() {
   const casesContainer = document.getElementById("cases-container");
-  db.ref("cases").on("value", snapshot => {
+  
+  // Use global Firebase compat SDK
+  firebase.database().ref("cases").on("value", snapshot => {
     casesContainer.innerHTML = "";
 
     snapshot.forEach(child => {
