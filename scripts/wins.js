@@ -1,7 +1,8 @@
 function loadRecentWins() {
   const recentWinsCarousel = document.getElementById('recent-wins-carousel');
 
-  db.ref('cases').once('value').then(snapshot => {
+  // Use the compat global Firebase API
+  firebase.database().ref('cases').once('value').then(snapshot => {
     if (!recentWinsCarousel) return;
 
     recentWinsCarousel.innerHTML = '';
@@ -38,4 +39,3 @@ function loadRecentWins() {
     });
   });
 }
-
