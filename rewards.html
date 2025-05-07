@@ -187,8 +187,15 @@ rewards.forEach((reward, index) => {
     const countdown = document.getElementById('countdown-timer');
 
     const now = Date.now();
-    const lastClaim = data.lastBonusClaim || 0;
-    const delay = 24 * 60 * 60 * 1000;
+const lastClaim = data.lastBonusClaim || 0;
+const delay = 24 * 60 * 60 * 1000;
+const timeSinceLastClaim = now - lastClaim;
+
+if (timeSinceLastClaim > delay * 2) {
+  await userRef.update({ streak: 0 });
+  data.streak = 0;
+}
+
 
     if (now - lastClaim < delay) {
       claimButton.disabled = true;
