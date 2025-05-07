@@ -127,6 +127,29 @@
   .logo-pulse {
     animation: logo-pulse 4s ease-in-out infinite;
   }
+    .premium-popup {
+  background: linear-gradient(145deg, #1c1f26, #0e0f13);
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+}
+
+.premium-button {
+  background: linear-gradient(to right, #d4af37, #b8860b);
+  color: white;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.premium-button:hover {
+  box-shadow: 0 0 12px #ffd700;
+  transform: scale(1.05);
+}
+
+.premium-glow {
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
   @keyframes overlay-zoom {
     0% { transform: scale(0.75); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
@@ -347,8 +370,8 @@
 
 <!-- Case Popup -->
 <div id="case-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center px-4 z-50">
-  <div class="relative bg-gradient-to-br from-purple-800/80 to-pink-700/80 max-h-[90vh] overflow-y-auto p-8 rounded-xl border border-white/10 shadow-2xl w-full max-w-2xl text-center backdrop-blur-md">
-    <button id="close-popup" class="absolute top-4 right-4 text-white text-2xl hover:text-pink-300 transition"><i class="fas fa-times"></i></button>
+<div class="relative premium-popup max-h-[90vh] overflow-y-auto p-8 rounded-xl w-full max-w-2xl text-center backdrop-blur-md">
+<button id="close-popup" class="absolute top-4 right-4 text-white text-2xl hover:text-pink-300 transition"><i class="fas fa-times"></i></button>
     
 <div class="flex justify-center mb-8"> <!-- Increased margin-bottom -->
   <div id="case-image" class="flip-card w-40 h-64 sm:w-48 sm:h-72">
@@ -368,13 +391,12 @@
     <div id="fair-tooltip" class="absolute top-full mt-2 bg-gray-800 text-white text-xs rounded-lg px-4 py-2 shadow-lg hidden z-50 w-64 text-center left-1/2 transform -translate-x-1/2">
       Each result is generated using a hashed server seed + your client seed and nonce. You can verify fairness anytime.
     </div>
-    <div id="fair-hash" class="mt-2 text-xs text-gray-400 italic hidden"></div>
   </div>
 
     <div class="flex flex-col items-center mb-6 space-y-1 pt-4">
 
   <!-- Open Button + Balance -->
-  <button id="open-case-button" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:opacity-90 glow-button font-semibold text-lg flex items-center justify-center gap-2 text-white">
+  <button id="open-case-button" class="px-8 py-3 premium-button premium-glow font-semibold text-lg flex items-center justify-center gap-2">
     Open for <span id="popup-price">...</span>
     <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-5 h-5 inline-block">
   </button>
@@ -388,6 +410,7 @@
   <div><strong>Server Seed:</strong> <span id="pf-server-seed" class="break-all text-gray-300"></span></div>
   <div><strong>Client Seed:</strong> <span id="pf-client-seed" class="break-all text-gray-300"></span></div>
   <div><strong>Nonce:</strong> <span id="pf-nonce" class="text-gray-300"></span></div>
+  <div><strong>Server Seed Hash:</strong> <span id="pf-server-hash" class="break-all text-gray-300"></span></div>
   <div class="text-xs text-gray-400 italic">Copy these into a fair checker to verify your roll.</div>
 </div>
   </div>
@@ -423,7 +446,7 @@
   const caseImageWrapper = document.getElementById('case-image');
   const resultDiv = document.getElementById('result');
   const possiblePrizesDiv = document.getElementById('possible-prizes');
-
+  
   let selectedCaseId = null;
   let selectedCasePrice = 0;
   let currentPrizes = [];
@@ -597,8 +620,7 @@ possiblePrizesDiv.innerHTML = [...currentPrizes].sort((a, b) => (a.odds || 0) - 
   const { serverSeed, clientSeed, nonce } = fairData;
          const fairHashDiv = document.getElementById('fair-hash');
 if (fairHashDiv) {
-  fairHashDiv.innerText = `Server Seed Hash: ${fairData.serverSeedHash}`;
-  fairHashDiv.classList.remove('hidden');
+document.getElementById('pf-server-hash').innerText = fairData.serverSeedHash;
 }
           currentPrizes = [...currentPrizes].sort((a, b) => (a.odds || 0) - (b.odds || 0));
           console.log("Sorted Prizes:", currentPrizes.map(p => `${p.name} (${p.odds}%)`));
