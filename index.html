@@ -606,6 +606,10 @@ window.onload = () => {
         document.getElementById('popup-balance').innerText = `${userData.balance || 0} coins`;
         document.getElementById('user-balance').classList.remove('hidden');
 
+        if (userData.username) {
+    document.getElementById('username-display').innerText = userData.username;
+  }
+
         if (logoutDesktop) {
           logoutDesktop.onclick = (e) => {
             e.preventDefault();
