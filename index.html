@@ -945,10 +945,11 @@ firebase.auth().onAuthStateChanged(async user => {
       mobileAuthButton.innerText = "Sign In";
       mobileAuthButton.href = "auth.html";
       mobileAuthButton.onclick = null;
-    }
+   }
   }
 }); // ✅ closes firebase.auth().onAuthStateChanged
 
+}; // ✅ closes window.onload
 </script>
   
   <!-- Toast Notification -->
