@@ -1,30 +1,24 @@
-import { db, auth } from './firebase-config.js';
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { ref, get, set, child, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-
 window.addEventListener('DOMContentLoaded', () => {
   const mobileAuthButton = document.getElementById('mobile-auth-button');
   const logoutDesktop = document.getElementById('logout-desktop');
   const signinDesktop = document.getElementById('signin-desktop');
 
-  onAuthStateChanged(auth, async (user) => {
+  firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
-      const userRef = ref(db, 'users/' + user.uid);
-      const snapshot = await get(userRef);
+      const userRef = firebase.database().ref('users/' + user.uid);
+      const snapshot = await userRef.once('value');
       const userData = snapshot.val() || {};
 
-      // Update UI with user data
       document.getElementById('balance-amount').innerText = userData.balance || 0;
       document.getElementById('balance-amount-mobile').innerText = userData.balance || 0;
       document.getElementById('popup-balance').innerText = `${userData.balance || 0} coins`;
       document.getElementById('user-balance').classList.remove('hidden');
 
-      // Show logout, hide signin
       if (logoutDesktop) {
         logoutDesktop.style.display = "block";
         logoutDesktop.onclick = (e) => {
           e.preventDefault();
-          signOut(auth).then(() => location.reload());
+          firebase.auth().signOut().then(() => location.reload());
         };
       }
 
@@ -35,12 +29,11 @@ window.addEventListener('DOMContentLoaded', () => {
         mobileAuthButton.href = "#";
         mobileAuthButton.onclick = (e) => {
           e.preventDefault();
-          signOut(auth).then(() => location.reload());
+          firebase.auth().signOut().then(() => location.reload());
         };
       }
 
     } else {
-      // User signed out
       document.getElementById('user-balance').classList.add('hidden');
       document.getElementById('balance-amount').innerText = '0';
       document.getElementById('username-display').innerText = "User";
