@@ -678,59 +678,6 @@ firebase.auth().onAuthStateChanged(async user => {
       };
     }
 
-    // ✅ Listen for Stripe payments and update coins based on Firestore metadata
-const paymentsRef = firebase.firestore()
-  .collection("customers")
-  .doc(user.uid)
-  .collection("payments");
-
-paymentsRef.onSnapshot(async snapshot => {
-  snapshot.docChanges().forEach(async change => {
-    if (change.type === "added") {
-      const payment = change.doc.data();
-
-      if (payment.status === "succeeded" && !payment.processed) {
-        const priceId = payment.price;
-
-        try {
-          // 🔍 Lookup matching product in Firestore
-          const productSnap = await firebase.firestore()
-            .collection("products")
-            .where("priceId", "==", priceId)
-            .get();
-
-          if (!productSnap.empty) {
-            const product = productSnap.docs[0].data();
-            const coinAmount = parseInt(product.coin_amount || "0");
-            const bonusAmount = parseInt(product.bonus || "0");
-            const totalCoins = coinAmount + bonusAmount;
-
-            // 💰 Add coins to Realtime DB
-            userRef.once('value').then(snap => {
-              const currentBalance = snap.val()?.balance || 0;
-              const newBalance = currentBalance + totalCoins;
-
-              userRef.update({ balance: newBalance }).then(() => {
-                document.getElementById('balance-amount').innerText = newBalance;
-                document.getElementById('balance-amount-mobile').innerText = newBalance;
-                document.getElementById('popup-balance').innerText = `${newBalance} coins`;
-              });
-            });
-
-            // ✅ Mark payment as processed
-            change.doc.ref.update({ processed: true });
-          } else {
-            console.warn("⚠️ No matching product found for priceId:", priceId);
-          }
-        } catch (error) {
-          console.error("🔥 Error processing Stripe payment:", error);
-        }
-      }
-    }
-  });
-});
-
-
   } else {
     // User is signed out
     document.getElementById('user-balance').classList.add('hidden');
