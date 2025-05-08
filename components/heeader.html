@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Packly.gg | Virtual Packs, Real Cards.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar fixed w-full z-50 py-3 px-4 flex items-center justify-between bg-gray-900 border-b border-gray-800" style="min-height: 72px;">
+  <!-- Left: Logo -->
+  <div class="flex items-center gap-4">
+    <a href="index.html">
+    <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(12).png?alt=media&token=40696ba9-f512-4316-8dec-bab9a4f037c8" class="h-10 sm:h-12">
+    </a>
+  </div>
+
+  <!-- Right: Desktop Menu -->
+  <div class="hidden sm:flex items-center gap-4 relative">
+    <a href="rewards.html" class="flex items-center gap-1 text-yellow-400 font-semibold hover:text-yellow-300 transition">
+  <i class="fas fa-gift"></i> Rewards
+</a>
+    <!-- Coin Balance -->
+    <div id="user-balance" class="flex items-center gap-1 bg-gray-800 text-white px-3 py-1 rounded-full text-sm">
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
+      <span id="balance-amount">0</span>
+      <span>coins</span>
+      <button id="topup-button" class="text-green-400 font-bold ml-1">+</button>
+    </div>
+
+    <!-- Username + Dropdown (click-based) -->
+<div class="relative">
+  <button id="dropdown-toggle" class="flex items-center space-x-2 text-white focus:outline-none">
+    <i class="fas fa-user-circle text-xl"></i>
+    <span id="username-display">User</span>
+    <i class="fas fa-chevron-down text-xs"></i>
+  </button>
+  <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg hidden z-50">
+    <a href="inventory.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700">Inventory</a>
+    <a href="how-it-works.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700">How It Works</a>
+    <!-- Sign In (shows when logged out) -->
+<a id="signin-desktop" href="auth.html" class="block px-4 py-2 text-sm text-green-400 hover:bg-gray-700">Sign In</a>
+
+<!-- Logout (shows when logged in) -->
+<a id="logout-desktop" href="#" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700">Logout</a>
+  </div>
+</div>
+
+  </div>
+
+  <!-- Mobile Hamburger -->
+  <div class="sm:hidden">
+    <button id="menu-toggle" class="text-white text-2xl">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+</nav>
+  <!-- Mobile Dropdown -->
+<div id="mobile-dropdown" class="hidden mt-2 bg-gray-800 border border-gray-700 rounded-lg w-48 py-2 fixed right-4 top-[72px] z-[9999] shadow-lg sm:hidden">
+  <div id="user-balance-mobile" class="flex items-center justify-between px-4 py-2 text-sm text-white border-b border-gray-700">
+    <span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 mr-1"> <span id="balance-amount-mobile">0</span> coins</span>
+    <button id="topup-button-mobile" class="text-green-400 text-lg font-bold hover:text-green-500">+</button>
+  </div>
+<a id="inventory-link" href="inventory.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm hidden">Inventory</a>
+  <a href="how-it-works.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm">How It Works</a>
+  <a href="rewards.html" class="block px-4 py-2 hover:bg-gray-700 text-yellow-400 text-sm">
+  <i class="fas fa-gift mr-2"></i> Rewards
+</a>
+  <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 hover:bg-gray-700 text-red-400 text-sm">Sign In</a>
+</div>
+
+
+<!-- Hero -->
+<section class="pt-20 pb-12 px-6 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+  <div class="container mx-auto max-w-6xl flex flex-col md:flex-row items-center justify-between gap-10">
+    
+    <!-- Text Box -->
+    <div class="bg-black/30 border border-white/10 rounded-2xl p-6 md:p-8 text-center md:text-left shadow-xl backdrop-blur-md">
+      <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-white tracking-tight leading-tight">
+        Virtual packs,<br>real cards. <span class="emoji-sparkle">✨</span>
+      </h1>
+      <p class="text-md md:text-lg text-gray-300 mb-6 leading-relaxed">
+        Open digital packs. Win real graded cards. It's time to test your luck on Packly.gg.
+      </p>
+      <a href="#cases" class="inline-block px-6 py-2 bg-yellow-400 text-black rounded-full font-semibold border border-yellow-500 hover:bg-yellow-300 transition-all duration-200 shadow-md hover:scale-105">
+        Start Opening
+      </a>
+    </div>
+
+    <!-- Pack Image -->
+    <div class="relative w-32 md:w-44 rounded-xl shadow-2xl ring-2 ring-pink-500/20 hover:ring-yellow-400/40 transition duration-300">
+      <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(13).png?alt=media&token=c5062628-843e-4726-b842-135706f5a9a7" alt="pack" class="rounded-xl object-contain">
+      <div class="absolute inset-0 z-0 pointer-events-none">
+        <canvas id="particles" class="w-full h-full"></canvas>
+      </div>
+    </div>
+
+  </div>
+</section>
+<!-- Cases Section -->
+<section class="py-12 px-6">
+  <div class="container mx-auto">
+    <h2 class="text-2xl font-bold mb-8">Popular Cases</h2>
+    <div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+  </div>
+</section>
+
+<!-- Recent Wins -->
+<section class="py-8 bg-gray-800">
+  <h2 class="text-2xl font-bold text-center mb-4 text-white flex items-center justify-center gap-3">
+  <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full animate-pulse font-bold tracking-widest">LIVE</span>
+  <span>Live Wins</span>
+</h2>
+
+  <!-- Card-style display -->
+<div id="recent-wins-carousel" class="flex overflow-x-auto gap-4 px-4 py-2 scrollbar-hide w-full scroll-smooth">
+  <!-- Cards will be injected here -->
+</div>
+
+  <!-- Marquee-style display -->
+  <div class="marquee mt-8">
+    <div id="recent-wins-marquee" class="marquee-content flex space-x-8"></div>
+  </div>
+</section>
+
+
+<footer class="text-center py-6 bg-gray-800 mt-12"></footer>
+
+<!-- Case Popup -->
+<div id="case-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center px-4 z-50">
+<div class="relative premium-popup max-h-[90vh] overflow-y-auto p-8 rounded-xl w-full max-w-2xl text-center backdrop-blur-md">
+<button id="close-popup" class="absolute top-4 right-4 text-white text-2xl hover:text-pink-300 transition"><i class="fas fa-times"></i></button>
+    
+<div class="flex justify-center mb-8"> <!-- Increased margin-bottom -->
+  <div id="case-image" class="flip-card w-40 h-64 sm:w-48 sm:h-72">
+    <div class="flip-card-inner w-full h-full">
+      <!-- Back of the card -->
+      <img id="case-card-back" class="flip-card-back w-full h-full rounded-xl object-contain ring-2 ring-white/20" src="" alt="Card Back" />
+      <!-- Front of the card -->
+      <img id="case-card-front" class="flip-card-front w-full h-full rounded-xl object-contain ring-2 ring-white/20" src="" alt="Prize" />
+    </div>
+  </div>
+</div>
+     <!-- Provably Fair Badge -->
+  <div class="relative flex justify-center">
+    <div id="provably-fair-badge" class="flex items-center text-sm text-green-400 font-semibold cursor-pointer">
+      <i class="fas fa-shield-alt mr-2 text-green-400"></i> Provably Fair
+    </div>
+    <div id="fair-tooltip" class="absolute top-full mt-2 bg-gray-800 text-white text-xs rounded-lg px-4 py-2 shadow-lg hidden z-50 w-64 text-center left-1/2 transform -translate-x-1/2">
+      Each result is generated using a hashed server seed + your client seed and nonce. You can verify fairness anytime.
+    </div>
+  </div>
+
+    <div class="flex flex-col items-center mb-6 space-y-1 pt-4">
+
+  <!-- Open Button + Balance -->
+  <button id="open-case-button" class="px-8 py-3 premium-button premium-glow font-semibold text-lg flex items-center justify-center gap-2">
+    Open for <span id="popup-price">...</span>
+    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-5 h-5 inline-block">
+  </button>
+  <span id="popup-balance" class="text-sm text-gray-300">Your Balance: ...</span>
+</div>
+
+    <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
+    <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
+    <div id="result" class="mt-6 text-2xl font-bold hidden"></div>
+  <div class="text-xs text-gray-400 italic">Copy these into a fair checker to verify your roll.</div>
+    <div id="verify-fairness" class="mt-4 hidden text-left text-sm bg-black/40 p-4 rounded-lg border border-white/10 space-y-2">
+  <div><strong>Server Seed:</strong> <span id="pf-server-seed" class="break-all text-gray-300"></span></div>
+  <div><strong>Client Seed:</strong> <span id="pf-client-seed" class="break-all text-gray-300"></span></div>
+  <div><strong>Nonce:</strong> <span id="pf-nonce" class="text-gray-300"></span></div>
+  <div><strong>Server Seed Hash:</strong> <span id="pf-server-hash" class="break-all text-gray-300"></span></div>
+      <div>
+  <label for="client-seed-input" class="text-sm font-semibold text-white">Client Seed:</label>
+  <input type="text" id="client-seed-input" placeholder="Enter your own seed" class="mt-1 block w-full bg-black/20 border border-white/20 rounded px-3 py-1 text-white placeholder-gray-400 text-sm">
+  <button id="set-client-seed" class="mt-2 text-xs text-yellow-400 hover:underline">Save Client Seed</button>
+</div>
+  <div class="text-xs text-gray-400 italic">Copy these into a fair checker to verify your roll.</div>
+</div>
+  </div>
+</div>
+
+<!-- Topup Popup -->
+<div id="topup-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
+  <div class="bg-gray-800 p-8 rounded-lg w-full max-w-xl text-center relative">
+    <button id="close-topup" class="absolute top-2 right-2 text-xl text-white">
+      <i class="fas fa-times"></i>
+    </button>
+    <h2 class="text-3xl font-bold mb-6 text-yellow-300">Top Up Your Coins</h2>
+    <p class="mb-8 text-gray-400">Choose a package and securely checkout with Stripe</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+      <form onsubmit="redirectToCheckout(event, 'price_1RMAdnI76TkBIa1xcaolfel9')" class="bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500 hover:scale-105 transition-transform">
+        <h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
+          100 Coins
+        </h3>
+        <p class="text-yellow-400 mb-4">$1.00</p>
+        <button type="submit" class="w-full bg-yellow-500 text-black py-2 rounded-full font-bold hover:bg-yellow-400">Buy</button>
+      </form>
+
+      <form onsubmit="redirectToCheckout(event, 'price_1RMAePI76TkBIa1x97hQ8cxx')" class="bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500 hover:scale-105 transition-transform">
+        <h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
+          500 Coins
+        </h3>
+        <p class="text-yellow-400 mb-4">$5.00</p>
+        <button type="submit" class="w-full bg-yellow-500 text-black py-2 rounded-full font-bold hover:bg-yellow-400">Buy</button>
+      </form>
+
+      <form onsubmit="redirectToCheckout(event, 'price_1RMAelI76TkBIa1x2qEv8FDm')" class="bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500 hover:scale-105 transition-transform">
+        <h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
+          1000 Coins
+        </h3>
+        <p class="text-yellow-400 mb-4">$10.00</p>
+        <button type="submit" class="w-full bg-yellow-500 text-black py-2 rounded-full font-bold hover:bg-yellow-400">Buy</button>
+      </form>
+
+      <form onsubmit="redirectToCheckout(event, 'price_1RMAf3I76TkBIa1xnc97kpdE')" class="bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500 hover:scale-105 transition-transform">
+        <h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
+          2000 Coins
+        </h3>
+        <p class="text-yellow-400 mb-4">$20.00</p>
+        <button type="submit" class="w-full bg-yellow-500 text-black py-2 rounded-full font-bold hover:bg-yellow-400">Buy</button>
+      </form>
+
+      <form onsubmit="redirectToCheckout(event, 'price_1RMAfJI76TkBIa1xTqo9xmtq')" class="relative bg-yellow-900 p-4 rounded-xl shadow-lg border-2 border-yellow-400 hover:scale-105 transition-transform">
+        <span class="absolute -top-3 -right-3 bg-yellow-300 text-black text-xs font-bold px-3 py-1 rounded-full shadow-md">+500 Bonus!</span>
+        <h3 class="text-xl font-semibold mb-2 text-white flex items-center justify-center gap-2">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5" />
+          5500 Coins
+        </h3>
+        <p class="text-yellow-300 mb-4">$50.00</p>
+        <button type="submit" class="w-full bg-yellow-400 text-black py-2 rounded-full font-bold hover:bg-yellow-300">Buy &amp; Get Bonus</button>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- Firebase Scripts + Logic -->
+<script>
+
+
+  const authButton = document.getElementById('auth-button');
+  const userBalanceDiv = document.getElementById('user-balance');
+  const topupPopup = document.getElementById('topup-popup');
+  const closeTopup = document.getElementById('close-topup');
+  const casesContainer = document.getElementById('cases-container');
+  const recentWinsCarousel = document.getElementById('recent-wins-carousel');
+  const recentWinsMarquee = document.getElementById('recent-wins-marquee');
+  const popup = document.getElementById('case-popup');
+  const openCaseButton = document.getElementById('open-case-button');
+  const caseImage = document.getElementById('case-main-image');
+  const caseImageWrapper = document.getElementById('case-image');
+  const resultDiv = document.getElementById('result');
+  const possiblePrizesDiv = document.getElementById('possible-prizes');
+  
+  let selectedCaseId = null;
+  let selectedCasePrice = 0;
+  let currentPrizes = [];
+document.getElementById('topup-button').onclick = () => {
+  topupPopup.classList.remove('hidden');
+};
+
+  function addCoins(amount) {
+    const user = firebase.auth().currentUser;
+    if (!user) return alert('You must be logged in.');
+    const userRef = db.ref('users/' + user.uid);
+    const paymentsRef = firebase.firestore()
+  .collection("customers")
+  .doc(user.uid)
+  .collection("payments");
+
+paymentsRef.onSnapshot(async snapshot => {
+  for (const change of snapshot.docChanges()) {
+    if (change.type === "added") {
+      const payment = change.doc.data();
+const priceId = payment?.metadata?.priceId || payment?.price?.id;
+
+      console.log("💳 New payment detected:", payment);
+      console.log("🔍 Extracted priceId:", priceId);
+
+      if (payment.status === "succeeded" && !payment.processed && priceId) {
+        try {
+          const productSnap = await firebase.firestore()
+            .collection("products")
+            .where("priceId", "==", priceId)
+            .get();
+
+          if (!productSnap.empty) {
+            const product = productSnap.docs[0].data();
+            const coins = parseInt(product.coin_amount || "0");
+            const bonus = parseInt(product.bonus || "0");
+            const total = coins + bonus;
+
+            console.log(`✅ Crediting user with ${total} coins`);
+
+            const currentSnap = await userRef.once("value");
+            const currentBalance = currentSnap.val()?.balance || 0;
+            const newBalance = currentBalance + total;
+
+            await userRef.update({ balance: newBalance });
+
+            document.getElementById("balance-amount").innerText = newBalance;
+            document.getElementById("balance-amount-mobile").innerText = newBalance;
+            document.getElementById("popup-balance").innerText = `${newBalance} coins`;
+
+            await change.doc.ref.update({ processed: true });
+          } else {
+            console.warn("⚠️ No product found for priceId:", priceId);
+          }
+        } catch (err) {
+          console.error("🔥 Error processing payment:", err);
+        }
+      }
+    }
+  }
+});
+    userRef.once('value').then(snapshot => {
+      const currentBalance = snapshot.val().balance || 0;
+      const newBalance = currentBalance + amount;
+      userRef.update({ balance: newBalance }).then(() => {
+        document.getElementById('balance-amount').innerText = newBalance;
+        document.getElementById('popup-balance').innerText = `${newBalance} coins`;
+        document.getElementById('popup-balance').innerText = `${newBalance} coins`;
+
+        const balanceEl = document.getElementById('balance-amount');
+balanceEl.classList.remove('pulse-balance');
+void balanceEl.offsetWidth; // restart animation
+balanceEl.classList.add('pulse-balance');
+        topupPopup.classList.add('hidden');
+      });
+    });
+  }
+  function openCasePopup(e) {
+    const caseId = e.target.dataset.id;
+    selectedCaseId = caseId;
+    db.ref('cases/' + caseId).once('value').then(snapshot => {
+  const data = snapshot.val();
+
+  // 🚨 Prevent crash if data is null
+  if (!data) {
+    alert('Error: Case not found.');
+    return;
+  }
+
+  selectedCasePrice = parseFloat(data.price) || 0;
+  document.getElementById('popup-price').innerText = data.price || '0';
+  document.getElementById('case-card-back').src = data.image;
+
+  // Show user balance in popup
+  const user = firebase.auth().currentUser;
+  if (user) {
+    const userRef = db.ref('users/' + user.uid);
+    userRef.once('value').then(snapshot => {
+      const balance = snapshot.val()?.balance || 0;
+      document.getElementById('popup-balance').innerText = `${balance} coins`;
+    });
+  }
+
+  currentPrizes = Object.values(data.prizes || {});
+console.log(currentPrizes);
+
+possiblePrizesDiv.innerHTML = [...currentPrizes].sort((a, b) => (a.odds || 0) - (b.odds || 0)).map(prize => {
+  const ringColor = prize.rarity === 'common' ? 'ring-gray-500' :
+                    prize.rarity === 'uncommon' ? 'ring-green-500' :
+                    prize.rarity === 'rare' ? 'ring-blue-500' :
+                    prize.rarity === 'ultra rare' ? 'ring-purple-500' :
+                    prize.rarity === 'legendary' ? 'ring-yellow-400 legendary-glow' : 'ring-white';
+
+  // Create a label for the rarity (if it exists)
+  const rarityLabel = prize.rarity 
+    ? `<div class="mt-2 text-xs font-semibold text-${ringColor.replace('ring-', '')} uppercase">${prize.rarity}</div>`
+    : '';
+
+  // Create an odds label if prize.odds is defined as a number
+  const oddsLabel = typeof prize.odds === 'number'
+    ? `<div class="text-xs text-gray-300 mt-1">${parseFloat(prize.odds).toFixed(2)}% chance</div>`
+    : '';
+
+  return `
+    <div class="text-center cursor-pointer transition-transform duration-300" onclick="expandPrize('${prize.image}')">
+      <img src="${prize.image}" class="h-28 mx-auto object-contain rounded ring-2 ${ringColor} transition-transform duration-300">
+      <div class="mt-2 text-sm font-semibold text-white">${prize.name}</div>
+      ${rarityLabel}
+      ${oddsLabel}
+    </div>`;
+}).join('');
+      resultDiv.classList.add('hidden');
+      popup.classList.remove('hidden');
+    });
+  }
+
+ openCaseButton.onclick = () => {
+  let countdown = 5;
+  openCaseButton.disabled = true;
+  openCaseButton.classList.add('opacity-50', 'cursor-not-allowed');
+  const originalText = openCaseButton.innerHTML;
+
+  const interval = setInterval(() => {
+    openCaseButton.innerHTML = `Please wait... (${countdown}s)`;
+    countdown--;
+    if (countdown < 0) {
+      clearInterval(interval);
+      openCaseButton.disabled = false;
+      openCaseButton.classList.remove('opacity-50', 'cursor-not-allowed');
+      openCaseButton.innerHTML = originalText;
+    }
+  }, 1000);
+
+  const user = firebase.auth().currentUser;
+  if (!user) return alert('Please sign in first!');
+  if (!selectedCaseId || selectedCasePrice === 0) return alert('No case selected or invalid case price.');
+
+  const userRef = db.ref('users/' + user.uid);
+  userRef.once('value').then(userSnap => {
+    const userData = userSnap.val() || {};
+    const userBalance = parseFloat(userData.balance || 0);
+    if (userBalance < selectedCasePrice) {
+      topupPopup.classList.remove('hidden');
+      return;
+    }
+
+    const newBalance = userBalance - selectedCasePrice;
+    userRef.update({ balance: newBalance }).then(() => {
+      document.getElementById('balance-amount').innerText = newBalance;
+      document.getElementById('popup-balance').innerText = `${newBalance} coins`;
+
+      const balanceEl = document.getElementById('balance-amount');
+      balanceEl.classList.remove('pulse-balance');
+      void balanceEl.offsetWidth;
+      balanceEl.classList.add('pulse-balance');
+
+      setTimeout(() => {
+        const fairRef = db.ref(`users/${user.uid}/provablyFair`);
+       fairRef.once('value').then(async fairSnap => {
+  const fairData = fairSnap.val();
+
+  if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') {
+    alert('Missing provably fair data. Please log out and back in.');
+    return;
+  }
+
+ const { serverSeed, clientSeed, nonce } = fairData;
+document.getElementById('pf-server-hash').innerText = fairData.serverSeedHash;
+
+          currentPrizes = [...currentPrizes].sort((a, b) => (a.odds || 0) - (b.odds || 0));
+          console.log("Sorted Prizes:", currentPrizes.map(p => `${p.name} (${p.odds}%)`));
+
+
+
+          const combined = `${serverSeed}:${clientSeed}:${nonce}`;
+          const hash = await sha256(combined);
+          const rand = parseInt(hash.substring(0, 8), 16) / 0xffffffff;
+
+          // Increment nonce for next roll
+          await fairRef.update({ nonce: nonce + 1 });
+
+         const sortedPrizes = [...currentPrizes].sort((a, b) => {
+  return (a.odds || 0) - (b.odds || 0);
+});
+
+console.log("Sorted Prizes:", sortedPrizes.map(p => ({ name: p.name, odds: p.odds })));
+console.log("Random value (0-1):", rand);
+
+let totalOdds = sortedPrizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+console.log("Total Odds:", totalOdds);
+
+let cumulative = 0;
+let winningPrize = null;
+
+for (let p of sortedPrizes) {
+  cumulative += p.odds || 0;
+  console.log(`Checking ${p.name}: rand * totalOdds = ${rand * totalOdds}, cumulative = ${cumulative}`);
+  if (rand * totalOdds < cumulative) {
+    winningPrize = p;
+    break;
+  }
+}
+
+if (!winningPrize) {
+  winningPrize = sortedPrizes[sortedPrizes.length - 1]; // fallback
+}
+
+console.log("Selected Prize:", winningPrize.name, winningPrize.rarity);
+
+          const frontCard = document.getElementById('case-card-front');
+          if (frontCard) {
+            frontCard.src = winningPrize.image;
+          }
+
+          document.querySelector('.flip-card').classList.add('flipped');
+          setTimeout(() => {
+            document.querySelector('.flip-card').classList.remove('flipped');
+          }, 5000);
+
+          playRaritySound(winningPrize.rarity || "common");
+
+          resultDiv.innerHTML = `🎉 You won: <span>${winningPrize.name} (${winningPrize.rarity || 'Unknown'})</span> 🎉`;
+          resultDiv.classList.remove('hidden');
+         document.getElementById('pf-server-seed').innerText = serverSeed;
+document.getElementById('pf-client-seed').innerText = clientSeed;
+document.getElementById('pf-nonce').innerText = nonce;
+document.getElementById('verify-fairness').classList.remove('hidden');
+          confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+
+          const inventoryRef = db.ref('users/' + user.uid + '/inventory');
+          const newItemRef = inventoryRef.push();
+          newItemRef.set({
+            name: winningPrize.name,
+            image: winningPrize.image,
+            rarity: winningPrize.rarity || 'Unknown',
+            value: winningPrize.value || 0,
+            price: selectedCasePrice,
+            timestamp: Date.now()
+          }).then(() => {
+            showInventoryToast(winningPrize.name);
+          });
+
+          const recentWinsRef = db.ref('recentWins');
+          recentWinsRef.push({
+            name: winningPrize.name,
+            image: winningPrize.image,
+            timestamp: Date.now()
+          });
+        });
+      }, 1000);
+    });
+  });
+};
+function startAutoScrollCarousel(containerId, speed = 0.5) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.style.scrollBehavior = "auto";
+  let scrollPos = 0;
+
+  setInterval(() => {
+    scrollPos += speed;
+    if (scrollPos >= container.scrollWidth - container.clientWidth) {
+      scrollPos = 0;
+    }
+    container.scrollLeft = scrollPos;
+  }, 16); // ~60 FPS
+}
+</script>
+
+<script>
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+
+  function resizeCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  for (let i = 0; i < 30; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 1.5 + 1,
+      dx: (Math.random() - 0.5) * 0.5,
+      dy: (Math.random() - 0.5) * 0.5
+    });
+  }
+
+  function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    for (let p of particles) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      p.x += p.dx;
+      p.y += p.dy;
+
+      if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+    }
+    requestAnimationFrame(animateParticles);
+  }
+
+  animateParticles();
+</script>
+<div id="prize-overlay" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[100]" onclick="this.classList.add('hidden')">
+  <div class="relative" onclick="event.stopPropagation()">
+    <button onclick="document.getElementById('prize-overlay').classList.add('hidden')" class="absolute top-2 right-2 text-white text-xl bg-black/70 px-3 py-1 rounded-full z-10 hover:bg-pink-600 transition">&times;</button>
+    <img id="overlay-image" src="" class="w-[300px] sm:w-[400px] rounded-lg shadow-lg border border-white/20 transition-all duration-300 scale-75 opacity-0 animate-overlay-zoom">
+  </div>
+</div>
+
+<script>
+
+function playRaritySound(rarity) {
+  const audio = audioMap[rarity.toLowerCase()];
+  if (audio) {
+    audio.currentTime = 0; // restart sound
+    audio.play().catch(err => console.warn("Sound error:", err));
+  }
+}
+
+function startAutoScrollCarousel(containerId, speed = 0.5) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.style.scrollBehavior = "auto"; // Prevent snapping
+  let scrollPos = 0;
+
+  setInterval(() => {
+    scrollPos += speed;
+    if (scrollPos >= container.scrollWidth - container.clientWidth) {
+      scrollPos = 0;
+    }
+    container.scrollLeft = scrollPos;
+  }, 16); // ~60fps
+}
+
+  const audioMap = {
+  common: new Audio("https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5"),
+  uncommon: new Audio("https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8"),
+  rare: new Audio("https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8"),
+  "ultra rare": new Audio("https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de"),
+  legendary: new Audio("https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0")
+};
+
+Object.values(audioMap).forEach(audio => audio.load());
+function generateRandomString(length) {
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += charset.charAt(Math.floor(Math.random() * charset.length));
+  }
+  return result;
+}
+
+async function sha256(message) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+} // ✅ properly closes sha256 function
+
+document.getElementById('set-client-seed').onclick = async () => {
+  const user = firebase.auth().currentUser;
+  const input = document.getElementById('client-seed-input');
+  if (!user || !input.value) return alert('You must be logged in and provide a seed.');
+
+  const fairRef = db.ref('users/' + user.uid + '/provablyFair');
+  await fairRef.update({
+    clientSeed: input.value,
+    nonce: 0 // reset nonce when client seed changes
+  });
+
+  alert('✅ Client seed updated!');
+};
+
+window.onload = () => {
+  const mobileAuthButton = document.getElementById('mobile-auth-button');
+  const logoutDesktop = document.getElementById('logout-desktop');
+  const signinDesktop = document.getElementById('signin-desktop');
+
+  loadCases();
+  loadRecentWins();
+  startAutoScrollCarousel("recent-wins-carousel", 0.5);
+
+firebase.auth().onAuthStateChanged(async user => {
+  if (user) {
+    const userRef = db.ref('users/' + user.uid);
+    const snapshot = await userRef.once('value');
+    const userData = snapshot.val() || {};
+
+    // Setup Provably Fair if missing
+        const paymentsRef = firebase.firestore()
+      .collection("customers")
+      .doc(user.uid)
+      .collection("payments");
+
+    paymentsRef.onSnapshot(async snapshot => {
+      for (const change of snapshot.docChanges()) {
+        if (change.type === "added") {
+          const payment = change.doc.data();
+          const priceId = payment?.metadata?.priceId || payment?.price?.id;
+
+          console.log("💳 New payment detected:", payment);
+          console.log("🔍 Extracted priceId:", priceId);
+
+          if (payment.status === "succeeded" && !payment.processed && priceId) {
+            try {
+              const productSnap = await firebase.firestore()
+                .collection("products")
+                .where("priceId", "==", priceId)
+                .get();
+
+              if (!productSnap.empty) {
+                const product = productSnap.docs[0].data();
+                const coins = parseInt(product.coin_amount || "0");
+                const bonus = parseInt(product.bonus || "0");
+                const total = coins + bonus;
+
+                console.log(`✅ Crediting user with ${total} coins`);
+
+                const currentSnap = await userRef.once("value");
+                const currentBalance = currentSnap.val()?.balance || 0;
+                const newBalance = currentBalance + total;
+
+                await userRef.update({ balance: newBalance });
+
+                document.getElementById("balance-amount").innerText = newBalance;
+                document.getElementById("balance-amount-mobile").innerText = newBalance;
+                document.getElementById("popup-balance").innerText = `${newBalance} coins`;
+
+                await change.doc.ref.update({ processed: true });
+              } else {
+                console.warn("⚠️ No product found for priceId:", priceId);
+              }
+            } catch (err) {
+              console.error("🔥 Error processing payment:", err);
+            }
+          }
+        }
+      }
+    });
+
+    if (!userData.provablyFair) {
+      const serverSeed = generateRandomString(64);
+      const serverSeedHash = await sha256(serverSeed);
+      await userRef.child('provablyFair').set({
+        serverSeed,
+        serverSeedHash,
+        clientSeed: 'default',
+        nonce: 0
+      });
+    }
+
+    // Update balances in DOM
+    const balance = userData.balance || 0;
+    document.getElementById('balance-amount').innerText = balance;
+    document.getElementById('balance-amount-mobile').innerText = balance;
+    document.getElementById('popup-balance').innerText = `${balance} coins`;
+    document.getElementById('user-balance').classList.remove('hidden');
+
+    if (userData.username) {
+      document.getElementById('username-display').innerText = userData.username;
+    }
+
+    if (logoutDesktop) {
+      logoutDesktop.onclick = (e) => {
+        e.preventDefault();
+        firebase.auth().signOut().then(() => location.reload());
+      };
+    }
+
+    if (mobileAuthButton) {
+      mobileAuthButton.innerText = "Logout";
+      mobileAuthButton.href = "#";
+      mobileAuthButton.onclick = (e) => {
+        e.preventDefault();
+        firebase.auth().signOut().then(() => location.reload());
+      };
+    }
+
+  } else {
+    // User is signed out
+    document.getElementById('user-balance').classList.add('hidden');
+    document.getElementById('balance-amount').innerText = '0';
+    document.getElementById('username-display').innerText = "User";
+
+    if (logoutDesktop) logoutDesktop.style.display = "none";
+    if (signinDesktop) signinDesktop.style.display = "block";
+
+    if (mobileAuthButton) {
+      mobileAuthButton.innerText = "Sign In";
+      mobileAuthButton.href = "auth.html";
+      mobileAuthButton.onclick = null;
+    }
+  }
+});
+};
+
+</script>
+  
+  <!-- Toast Notification -->
+<div id="inventory-toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg text-center font-semibold hidden z-[9999]">
+  Item added to inventory: <span id="toast-item-name"></span>
+</div>
+
+<script>
+  const fairBadge = document.getElementById("provably-fair-badge");
+  const fairTooltip = document.getElementById("fair-tooltip");
+
+  fairBadge.addEventListener("click", (e) => {
+    e.stopPropagation(); // Prevents outside click from firing immediately
+    fairTooltip.classList.toggle("hidden");
+  });
+
+  window.addEventListener("click", (e) => {
+    if (!fairTooltip.classList.contains("hidden") &&
+        !fairBadge.contains(e.target) &&
+        !fairTooltip.contains(e.target)) {
+      fairTooltip.classList.add("hidden");
+    }
+  });
+</script>
+<!-- Core Functional Scripts -->
+<script type="module" src="scripts/auth.js"></script>
+<script src="scripts/navbar.js"></script>
+<script src="scripts/hero.js"></script>
+<script src="scripts/features.js"></script>
+<script src="scripts/packs.js"></script>
+<script src="scripts/wins.js"></script>
+<script src="scripts/popups.js"></script>
+<script src="scripts/footer.js"></script>
+  <script>
+  const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
+
+ function redirectToCheckout(event, priceId) {
+  event.preventDefault();
+
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Please sign in to purchase coins.");
+    return;
+  }
+
+  firebase.firestore()
+    .collection("customers")
+    .doc(user.uid)
+    .collection("checkout_sessions")
+    .add({
+      mode: "payment",
+      success_url: window.location.href,
+      cancel_url: window.location.href,
+      allow_promotion_codes: true,
+      line_items: [{ price: priceId, quantity: 1 }], // ✅ ensure line_items for newer API
+      metadata: { priceId } // ✅ store it in metadata
+    })
+    .then((docRef) => {
+      docRef.onSnapshot((snap) => {
+        const { error, sessionId } = snap.data();
+        if (error) {
+          alert(`An error occurred: ${error.message}`);
+        }
+        if (sessionId) {
+          stripe.redirectToCheckout({ sessionId });
+        }
+      });
+    });
+}
+</script>
+</body>
+</html>
