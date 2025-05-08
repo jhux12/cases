@@ -499,6 +499,24 @@ if (!winningPrize) {
 }
 
 console.log("Selected Prize:", winningPrize.name, winningPrize.rarity);
+         if (!winningPrize) {
+  winningPrize = sortedPrizes[sortedPrizes.length - 1]; // fallback
+}
+
+console.log("Selected Prize:", winningPrize.name, winningPrize.rarity);
+
+const rarity = (winningPrize.rarity || "").toLowerCase();
+const glowClassMap = {
+  "common": "glow-common",
+  "uncommon": "glow-uncommon",
+  "rare": "glow-rare",
+  "ultra rare": "glow-ultra",
+  "legendary": "glow-legendary"
+};
+
+const flipCard = document.querySelector('.flip-card');
+Object.values(glowClassMap).forEach(cls => flipCard.classList.remove(cls)); // Remove existing glow
+flipCard.classList.add(glowClassMap[rarity] || ""); // Apply new glow
 
           const frontCard = document.getElementById('case-card-front');
           if (frontCard) {
