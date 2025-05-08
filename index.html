@@ -783,7 +783,7 @@ firebase.auth().onAuthStateChanged(async user => {
           const payment = change.doc.data();
           const priceId = payment.price?.id;
 
-if (payment.status === "succeeded" && priceId && payment.processed !== true)
+if (payment.status === "succeeded" && priceId) {
             try {
               const productSnap = await firebase.firestore()
                 .collection("products")
