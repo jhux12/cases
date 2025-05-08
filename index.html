@@ -922,6 +922,29 @@ firebase.auth().onAuthStateChanged(async user => {
     });
 }
 </script>
+  <script>
+  const menuToggle = document.getElementById('menu-toggle');
+  const mobileDropdown = document.getElementById('mobile-dropdown');
+
+  // Toggle dropdown on click
+  if (menuToggle && mobileDropdown) {
+    menuToggle.addEventListener('click', (e) => {
+      e.stopPropagation(); // prevent triggering outside click
+      mobileDropdown.classList.toggle('hidden');
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', (event) => {
+      if (
+        !mobileDropdown.classList.contains('hidden') &&
+        !mobileDropdown.contains(event.target) &&
+        !menuToggle.contains(event.target)
+      ) {
+        mobileDropdown.classList.add('hidden');
+      }
+    });
+  }
+</script>
 </body>
 </html>
 
