@@ -8,14 +8,22 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="scripts/navbar.js"></script>
+  <script>
+  fetch('/components/header.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('main-header').innerHTML = html;
+      const script = document.createElement('script');
+      script.src = 'scripts/navbar.js';
+      document.body.appendChild(script);
+    });
+</script>
   <style>
     body {
       background: radial-gradient(circle at top, #2b0a49, #0f0c29);
       font-family: 'Inter', sans-serif;
       color: white;
     }
-    <div id="main-header"></div>
     .item-card {
       background: linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
       border: 1px solid rgba(255,255,255,0.1);
@@ -61,7 +69,7 @@
 <body class="p-6">
 
   <!-- Header Component -->
-  <div id="main-header"></div>
+ <div id="main-header"></div>
 
   <!-- Hero Section -->
   <section class="inventory-hero">
@@ -418,6 +426,5 @@ document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelecti
       firebase.auth().signOut().then(() => location.href = "index.html");
     };
   </script>
-  <script>loadHeader();</script>
 </body>
 </html>
