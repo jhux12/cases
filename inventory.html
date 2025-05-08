@@ -10,18 +10,19 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <style>
     body {
-      background: linear-gradient(to right, #111827, #1f2937);
+      background: linear-gradient(to right, #7c3aed, #ec4899);
       font-family: 'Inter', sans-serif;
       color: white;
     }
     .item-card {
-      background: #1e1b2e;
-      transition: all 0.3s ease;
-      border: 2px solid #27253a;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 1rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     .item-card:hover {
       transform: scale(1.02);
-      border-color: #ec4899;
+      box-shadow: 0 0 15px rgba(236,72,153,0.4);
     }
     .btn {
       font-weight: 600;
@@ -29,6 +30,10 @@
     }
     .btn:hover {
       transform: scale(1.05);
+    }
+    select {
+      background-color: white;
+      color: black;
     }
   </style>
 </head>
