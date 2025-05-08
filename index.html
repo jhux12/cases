@@ -730,6 +730,7 @@ firebase.auth().onAuthStateChanged(async user => {
 <script src="scripts/popups.js"></script>
 <script src="scripts/footer.js"></script>
  <script>
+  <script>
   const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
 
   function redirectToCheckout(event, priceId) {
@@ -767,7 +768,7 @@ firebase.auth().onAuthStateChanged(async user => {
     });
   }
 
-  // ✅ Stripe payment listener (fixes priceId extraction)
+  // ✅ Stripe payment listener
   firebase.auth().onAuthStateChanged(async user => {
     if (!user) return;
 
@@ -777,52 +778,52 @@ firebase.auth().onAuthStateChanged(async user => {
       .doc(user.uid)
       .collection("payments");
 
-  paymentsRef.onSnapshot(async snapshot => {
-  for (const change of snapshot.docChanges()) {
-    if (change.type === "added") {
-      const payment = change.doc.data();
-      const priceId = payment?.price?.id || payment?.price;
+    paymentsRef.onSnapshot(async snapshot => {
+      for (const change of snapshot.docChanges()) {
+        if (change.type === "added") {
+          const payment = change.doc.data();
+          const priceId = payment?.price?.id || payment?.price;
 
-      console.log("💳 New payment detected:", payment);
-      console.log("🔍 Extracted priceId:", priceId);
+          console.log("💳 New payment detected:", payment);
+          console.log("🔍 Extracted priceId:", priceId);
 
-      // Only continue if payment is successful and hasn't been processed
-      if (payment.status === "succeeded" && !payment.processed && priceId) {
-        try {
-          const productSnap = await firebase.firestore()
-            .collection("products")
-            .where("priceId", "==", priceId)
-            .get();
+          if (payment.status === "succeeded" && !payment.processed && priceId) {
+            try {
+              const productSnap = await firebase.firestore()
+                .collection("products")
+                .where("priceId", "==", priceId)
+                .get();
 
-          if (!productSnap.empty) {
-            const product = productSnap.docs[0].data();
-            const coins = parseInt(product.coin_amount || "0");
-            const bonus = parseInt(product.bonus || "0");
-            const total = coins + bonus;
+              if (!productSnap.empty) {
+                const product = productSnap.docs[0].data();
+                const coins = parseInt(product.coin_amount || "0");
+                const bonus = parseInt(product.bonus || "0");
+                const total = coins + bonus;
 
-            console.log(`✅ Crediting user with ${total} coins`);
+                console.log(`✅ Crediting user with ${total} coins`);
 
-            const currentSnap = await userRef.once("value");
-            const currentBalance = currentSnap.val()?.balance || 0;
-            const newBalance = currentBalance + total;
+                const currentSnap = await userRef.once("value");
+                const currentBalance = currentSnap.val()?.balance || 0;
+                const newBalance = currentBalance + total;
 
-            await userRef.update({ balance: newBalance });
+                await userRef.update({ balance: newBalance });
 
-            document.getElementById("balance-amount").innerText = newBalance;
-            document.getElementById("balance-amount-mobile").innerText = newBalance;
-                        document.getElementById("popup-balance").innerText = `${newBalance} coins`;
+                document.getElementById("balance-amount").innerText = newBalance;
+                document.getElementById("balance-amount-mobile").innerText = newBalance;
+                document.getElementById("popup-balance").innerText = `${newBalance} coins`;
 
-            await change.doc.ref.update({ processed: true }); // ✅ Mark as done
-          } else {
-            console.warn("⚠️ No product found for priceId:", priceId);
+                await change.doc.ref.update({ processed: true });
+              } else {
+                console.warn("⚠️ No product found for priceId:", priceId);
+              }
+            } catch (err) {
+              console.error("🔥 Error processing payment:", err);
+            }
           }
-        } catch (err) {
-          console.error("🔥 Error processing payment:", err);
         }
       }
-    }
-  }
-});
+    });
+  });
 </script>
 </body>
 </html>
