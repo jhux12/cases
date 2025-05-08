@@ -729,8 +729,8 @@ firebase.auth().onAuthStateChanged(async user => {
 <script src="scripts/wins.js"></script>
 <script src="scripts/popups.js"></script>
 <script src="scripts/footer.js"></script>
-  <script>
-  const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4"); // 🔁 Replace with your actual Stripe public key
+ <script>
+  const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
 
   function redirectToCheckout(event, priceId) {
     event.preventDefault();
@@ -766,8 +766,60 @@ firebase.auth().onAuthStateChanged(async user => {
       });
     });
   }
-</script>
 
+  // ✅ Stripe payment listener (fixes priceId extraction)
+  firebase.auth().onAuthStateChanged(async user => {
+    if (!user) return;
+
+    const userRef = firebase.database().ref('users/' + user.uid);
+    const paymentsRef = firebase.firestore()
+      .collection("customers")
+      .doc(user.uid)
+      .collection("payments");
+
+    paymentsRef.onSnapshot(async snapshot => {
+      snapshot.docChanges().forEach(async change => {
+        if (change.type === "added") {
+          const payment = change.doc.data();
+          const priceId = payment.price?.id;
+
+          if (payment.status === "succeeded" && !payment.processed && priceId) {
+            try {
+              const productSnap = await firebase.firestore()
+                .collection("products")
+                .where("priceId", "==", priceId)
+                .get();
+
+              if (!productSnap.empty) {
+                const product = productSnap.docs[0].data();
+                const coinAmount = parseInt(product.coin_amount || "0");
+                const bonusAmount = parseInt(product.bonus || "0");
+                const totalCoins = coinAmount + bonusAmount;
+
+                userRef.once('value').then(snap => {
+                  const currentBalance = snap.val()?.balance || 0;
+                  const newBalance = currentBalance + totalCoins;
+
+                  userRef.update({ balance: newBalance }).then(() => {
+                    document.getElementById('balance-amount').innerText = newBalance;
+                    document.getElementById('balance-amount-mobile').innerText = newBalance;
+                    document.getElementById('popup-balance').innerText = `${newBalance} coins`;
+                  });
+                });
+
+                change.doc.ref.update({ processed: true });
+              } else {
+                console.warn("⚠️ No matching product found for priceId:", priceId);
+              }
+            } catch (error) {
+              console.error("🔥 Error processing Stripe payment:", error);
+            }
+          }
+        }
+      });
+    });
+  });
+</script>
 
 </body>
 </html>
