@@ -14,7 +14,6 @@
   <script src="https://js.stripe.com/v3/"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="styles/main.css">
 </head>
@@ -281,6 +280,56 @@ document.getElementById('topup-button').onclick = () => {
     const user = firebase.auth().currentUser;
     if (!user) return alert('You must be logged in.');
     const userRef = db.ref('users/' + user.uid);
+    const paymentsRef = firebase.firestore()
+  .collection("customers")
+  .doc(user.uid)
+  .collection("payments");
+
+paymentsRef.onSnapshot(async snapshot => {
+  for (const change of snapshot.docChanges()) {
+    if (change.type === "added") {
+      const payment = change.doc.data();
+const priceId = payment?.metadata?.priceId || payment?.price?.id;
+
+      console.log("💳 New payment detected:", payment);
+      console.log("🔍 Extracted priceId:", priceId);
+
+      if (payment.status === "succeeded" && !payment.processed && priceId) {
+        try {
+          const productSnap = await firebase.firestore()
+            .collection("products")
+            .where("priceId", "==", priceId)
+            .get();
+
+          if (!productSnap.empty) {
+            const product = productSnap.docs[0].data();
+            const coins = parseInt(product.coin_amount || "0");
+            const bonus = parseInt(product.bonus || "0");
+            const total = coins + bonus;
+
+            console.log(`✅ Crediting user with ${total} coins`);
+
+            const currentSnap = await userRef.once("value");
+            const currentBalance = currentSnap.val()?.balance || 0;
+            const newBalance = currentBalance + total;
+
+            await userRef.update({ balance: newBalance });
+
+            document.getElementById("balance-amount").innerText = newBalance;
+            document.getElementById("balance-amount-mobile").innerText = newBalance;
+            document.getElementById("popup-balance").innerText = `${newBalance} coins`;
+
+            await change.doc.ref.update({ processed: true });
+          } else {
+            console.warn("⚠️ No product found for priceId:", priceId);
+          }
+        } catch (err) {
+          console.error("🔥 Error processing payment:", err);
+        }
+      }
+    }
+  }
+});
     userRef.once('value').then(snapshot => {
       const currentBalance = snapshot.val().balance || 0;
       const newBalance = currentBalance + amount;
@@ -640,6 +689,57 @@ firebase.auth().onAuthStateChanged(async user => {
     const userData = snapshot.val() || {};
 
     // Setup Provably Fair if missing
+        const paymentsRef = firebase.firestore()
+      .collection("customers")
+      .doc(user.uid)
+      .collection("payments");
+
+    paymentsRef.onSnapshot(async snapshot => {
+      for (const change of snapshot.docChanges()) {
+        if (change.type === "added") {
+          const payment = change.doc.data();
+          const priceId = payment?.metadata?.priceId || payment?.price?.id;
+
+          console.log("💳 New payment detected:", payment);
+          console.log("🔍 Extracted priceId:", priceId);
+
+          if (payment.status === "succeeded" && !payment.processed && priceId) {
+            try {
+              const productSnap = await firebase.firestore()
+                .collection("products")
+                .where("priceId", "==", priceId)
+                .get();
+
+              if (!productSnap.empty) {
+                const product = productSnap.docs[0].data();
+                const coins = parseInt(product.coin_amount || "0");
+                const bonus = parseInt(product.bonus || "0");
+                const total = coins + bonus;
+
+                console.log(`✅ Crediting user with ${total} coins`);
+
+                const currentSnap = await userRef.once("value");
+                const currentBalance = currentSnap.val()?.balance || 0;
+                const newBalance = currentBalance + total;
+
+                await userRef.update({ balance: newBalance });
+
+                document.getElementById("balance-amount").innerText = newBalance;
+                document.getElementById("balance-amount-mobile").innerText = newBalance;
+                document.getElementById("popup-balance").innerText = `${newBalance} coins`;
+
+                await change.doc.ref.update({ processed: true });
+              } else {
+                console.warn("⚠️ No product found for priceId:", priceId);
+              }
+            } catch (err) {
+              console.error("🔥 Error processing payment:", err);
+            }
+          }
+        }
+      }
+    });
+
     if (!userData.provablyFair) {
       const serverSeed = generateRandomString(64);
       const serverSeedHash = await sha256(serverSeed);
@@ -765,63 +865,6 @@ firebase.auth().onAuthStateChanged(async user => {
       });
     });
 }
-
-  // ✅ Stripe payment listener
-  firebase.auth().onAuthStateChanged(async user => {
-  if (!user) return;
-
-  const userRef = firebase.database().ref('users/' + user.uid);
-  const paymentsRef = firebase.firestore()
-    .collection("customers")
-    .doc(user.uid)
-    .collection("payments");
-
-  paymentsRef.onSnapshot(async snapshot => {
-    for (const change of snapshot.docChanges()) {
-      if (change.type === "added") {
-        const payment = change.doc.data();
-        const priceId = payment?.metadata?.priceId; // ✅ Get from metadata
-
-        console.log("💳 New payment detected:", payment);
-        console.log("🔍 Extracted priceId:", priceId);
-
-        if (payment.status === "succeeded" && !payment.processed && priceId) {
-          try {
-            const productSnap = await firebase.firestore()
-              .collection("products")
-              .where("priceId", "==", priceId)
-              .get();
-
-            if (!productSnap.empty) {
-              const product = productSnap.docs[0].data();
-              const coins = parseInt(product.coin_amount || "0");
-              const bonus = parseInt(product.bonus || "0");
-              const total = coins + bonus;
-
-              console.log(`✅ Crediting user with ${total} coins`);
-
-              const currentSnap = await userRef.once("value");
-              const currentBalance = currentSnap.val()?.balance || 0;
-              const newBalance = currentBalance + total;
-
-              await userRef.update({ balance: newBalance });
-
-              document.getElementById("balance-amount").innerText = newBalance;
-              document.getElementById("balance-amount-mobile").innerText = newBalance;
-              document.getElementById("popup-balance").innerText = `${newBalance} coins`;
-
-              await change.doc.ref.update({ processed: true });
-            } else {
-              console.warn("⚠️ No product found for priceId:", priceId);
-            }
-          } catch (err) {
-            console.error("🔥 Error processing payment:", err);
-          }
-        }
-      }
-    }
-  });
-});
 </script>
 </body>
 </html>
