@@ -238,3 +238,19 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+.glow-common {
+  box-shadow: 0 0 15px 4px rgba(156, 163, 175, 0.5); /* gray */
+}
+.glow-uncommon {
+  box-shadow: 0 0 20px 5px rgba(34, 197, 94, 0.6); /* green */
+}
+.glow-rare {
+  box-shadow: 0 0 20px 6px rgba(59, 130, 246, 0.6); /* blue */
+}
+.glow-ultra {
+  box-shadow: 0 0 25px 7px rgba(168, 85, 247, 0.6); /* purple */
+}
+.glow-legendary {
+  box-shadow: 0 0 30px 10px rgba(250, 204, 21, 0.8); /* yellow */
+}
