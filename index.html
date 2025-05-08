@@ -738,6 +738,27 @@ window.onload = () => {
   loadRecentWins();
   startAutoScrollCarousel("recent-wins-carousel", 0.5);
 
+    const menuToggle = document.getElementById('menu-toggle');
+  const mobileDropdown = document.getElementById('mobile-dropdown');
+
+  if (menuToggle && mobileDropdown) {
+    menuToggle.addEventListener('click', (e) => {
+      e.stopPropagation(); // prevent outside click close from firing
+      mobileDropdown.classList.toggle('hidden');
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (event) => {
+      if (
+        !mobileDropdown.classList.contains('hidden') &&
+        !mobileDropdown.contains(event.target) &&
+        !menuToggle.contains(event.target)
+      ) {
+        mobileDropdown.classList.add('hidden');
+      }
+    });
+  }
+
 firebase.auth().onAuthStateChanged(async user => {
   if (user) {
     const userRef = db.ref('users/' + user.uid);
@@ -921,30 +942,6 @@ firebase.auth().onAuthStateChanged(async user => {
       });
     });
 }
-</script>
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const menuToggle = document.getElementById('menu-toggle');
-    const mobileDropdown = document.getElementById('mobile-dropdown');
-
-    if (menuToggle && mobileDropdown) {
-      menuToggle.addEventListener('click', (e) => {
-        e.stopPropagation(); // prevent outside click close from firing
-        mobileDropdown.classList.toggle('hidden');
-      });
-
-      // Close on outside click
-      document.addEventListener('click', (event) => {
-        if (
-          !mobileDropdown.classList.contains('hidden') &&
-          !mobileDropdown.contains(event.target) &&
-          !menuToggle.contains(event.target)
-        ) {
-          mobileDropdown.classList.add('hidden');
-        }
-      });
-    }
-  });
 </script>
 </body>
 </html>
