@@ -112,16 +112,24 @@
 </section>
 <!-- Cases Section -->
 <section class="py-12 px-6">
-  <div class="container mx-auto">
-    <h2 class="text-2xl font-bold mb-8">Popular Cases</h2>
-    <div class="flex justify-end mb-4">
-  <label for="sort-cases" class="mr-2 text-white font-medium">Sort by:</label>
-  <select id="sort-cases" class="text-black rounded px-3 py-1">
-    <option value="default">All</option>
-    <option value="popular">Popular</option>
-    <option value="new">New</option>
-  </select>
-</div>
+  <div class="container mx-auto cosmic-section cosmic-stars">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-bold text-white">Popular Cases</h2>
+      <div class="flex items-center">
+        <label for="sort-cases" class="mr-2 text-white font-medium">Sort by:</label>
+        <select id="sort-cases" class="text-black rounded px-3 py-1">
+          <option value="default">All</option>
+          <option value="popular">Popular</option>
+          <option value="new">New</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Cases Grid -->
+    <div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+  </div>
+</section>
+
 
     <div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
   </div>
