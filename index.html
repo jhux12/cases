@@ -943,6 +943,29 @@ firebase.auth().onAuthStateChanged(async user => {
     });
 }
 </script>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const menuToggle = document.getElementById("menu-toggle");
+  const mobileDropdown = document.getElementById("mobile-dropdown");
+
+  if (menuToggle && mobileDropdown) {
+    menuToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      mobileDropdown.classList.toggle("hidden");
+    });
+
+    document.addEventListener("click", (event) => {
+      if (
+        !mobileDropdown.classList.contains("hidden") &&
+        !mobileDropdown.contains(event.target) &&
+        !menuToggle.contains(event.target)
+      ) {
+        mobileDropdown.classList.add("hidden");
+      }
+    });
+  }
+});
+</script>
 </body>
 </html>
 
