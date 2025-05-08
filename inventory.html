@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PrimePull.gg | Inventory</title>
+  <title>Packly.gg | Inventory</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <style>
     body {
-      background: linear-gradient(to right, #7c3aed, #ec4899);
+      background: radial-gradient(circle at top, #2b0a49, #0f0c29);
       font-family: 'Inter', sans-serif;
       color: white;
     }
@@ -35,19 +35,34 @@
       background-color: white;
       color: black;
     }
+    .inventory-hero {
+      background: linear-gradient(to right, rgba(76,29,149,0.6), rgba(190,24,93,0.6));
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    .inventory-hero h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .inventory-hero p {
+      color: #cbd5e1;
+      margin-top: 0.5rem;
+      font-size: 1.125rem;
+    }
   </style>
 </head>
 <body class="p-6">
 
   <!-- Hero Section -->
-  <section class="text-center mb-10">
-    <h1 class="text-4xl md:text-5xl font-extrabold text-pink-400 mb-2">🎒 Your Inventory</h1>
-    <p class="text-gray-300 text-lg">Manage your winnings – sell them for coins or ship them straight to your door!</p>
-    <div class="mt-4">
-      <a href="index.html" class="text-pink-500 hover:underline">&larr; Back to Packly</a>
-    </div>
+  <section class="inventory-hero">
+    <h1>🎒 Ship or sell back your items.</h1>
+    <p>Your prized pulls, safely stored and ready to ship or sell. Welcome to your vault.</p>
   </section>
-
   <!-- User Info -->
   <div class="flex flex-col md:flex-row justify-between items-center bg-gray-800 border border-pink-500 p-4 rounded-lg mb-6">
     <div>
