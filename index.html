@@ -810,7 +810,7 @@ firebase.auth().onAuthStateChanged(async user => {
 
             document.getElementById("balance-amount").innerText = newBalance;
             document.getElementById("balance-amount-mobile").innerText = newBalance;
-            document.getElementById("popup-balance").innerText = `${newBalance} coins`;
+                        document.getElementById("popup-balance").innerText = `${newBalance} coins`;
 
             await change.doc.ref.update({ processed: true }); // ✅ Mark as done
           } else {
@@ -824,6 +824,3 @@ firebase.auth().onAuthStateChanged(async user => {
   }
 });
 </script>
-
-</body>
-</html>
