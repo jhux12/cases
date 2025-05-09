@@ -70,7 +70,7 @@
 
   <!-- Inventory content will load here dynamically -->
   <main class="p-6">
-  <!-- User Info -->
+ <!-- User Info -->
   <div class="flex flex-col md:flex-row justify-between items-center bg-gray-800 border border-pink-500 p-4 rounded-lg mb-6">
     <div>
       <div class="text-gray-400 text-sm">Logged in as:</div>
@@ -420,6 +420,8 @@ document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelecti
       firebase.auth().signOut().then(() => location.href = "index.html");
     };
   </script>
+  </main>
+  <footer></footer>
   <script>
   // Toggle dropdown
   document.getElementById('dropdown-toggle')?.addEventListener('click', () => {
@@ -431,6 +433,5 @@ document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelecti
     document.getElementById('mobile-dropdown')?.classList.toggle('hidden');
   });
 </script>
-
 </body>
 </html>
