@@ -87,13 +87,20 @@
     if (!user) return alert('Please sign in to send a message.');
 
     const formRef = db.ref('supportCases').push();
-    await formRef.set({
-      uid: user.uid,
-      email: document.getElementById('email').value,
-      subject: document.getElementById('subject').value,
-      status: 'Open',
-      messages: [{ sender: 'user', text: document.getElementById('message').value, timestamp: Date.now() }]
-    });
+    const newMessageKey = db.ref().push().key;
+await formRef.set({
+  uid: user.uid,
+  email: document.getElementById('email').value,
+  subject: document.getElementById('subject').value,
+  status: 'Open',
+  messages: {
+    [newMessageKey]: {
+      sender: 'user',
+      text: document.getElementById('message').value,
+      timestamp: Date.now()
+    }
+  }
+});
     alert('✅ Message sent successfully!');
     document.getElementById('contact-form').reset();
   });
@@ -110,7 +117,7 @@
       }
       snapshot.forEach(child => {
         const data = child.val();
-        const messagesHtml = data.messages.map(msg => {
+const messagesHtml = Object.values(data.messages || {}).map(msg => {
           const color = msg.sender === 'admin' ? 'text-yellow-300' : 'text-white';
           return `<p class="text-sm ${color}"><strong>${msg.sender}:</strong> ${msg.text}</p>`;
         }).join('');
@@ -140,9 +147,14 @@
 
     const caseRef = db.ref('supportCases/' + caseId + '/messages');
     caseRef.once('value').then(snapshot => {
-      const messages = snapshot.val() || [];
-      messages.push({ sender: 'user', text: replyText, timestamp: Date.now() });
-      db.ref('supportCases/' + caseId + '/messages').set(messages);
+      const newReplyKey = db.ref().push().key;
+const updates = {};
+updates[`supportCases/${caseId}/messages/${newReplyKey}`] = {
+  sender: 'user',
+  text: replyText,
+  timestamp: Date.now()
+};
+db.ref().update(updates);
       textarea.value = '';
     });
   }
