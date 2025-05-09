@@ -9,23 +9,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
       font-family: 'Inter', sans-serif;
       background-color: #0f0f12;
       color: white;
-    }
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 50;
-    }
-    .faq-section {
-      margin-top: 120px;
-      padding: 2rem;
     }
     .faq-card {
       background-color: #1f1f2b;
@@ -45,39 +34,43 @@
     }
   </style>
 </head>
-<body>
+<body class="min-h-screen">
   <header></header>
 
-  <section class="faq-section">
-    <h1 class="text-4xl font-extrabold text-pink-400 mb-6 text-center">Frequently Asked Questions</h1>
+  <section class="pt-32 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-4xl font-extrabold text-pink-400 mb-8 text-center">Frequently Asked Questions</h1>
 
-    <div class="faq-card">
-      <div class="faq-question">💳 How do I purchase coins?</div>
-      <div class="faq-answer">Click the plus (+) icon near your coin balance or visit the rewards page. Choose a package and complete checkout securely via Stripe.</div>
-    </div>
+      <div class="faq-card">
+        <div class="faq-question">💳 How do I purchase coins?</div>
+        <div class="faq-answer">Click the plus (+) icon near your coin balance or visit the rewards page. Choose a package and complete checkout securely via Stripe.</div>
+      </div>
 
-    <div class="faq-card">
-      <div class="faq-question">🏱 What are virtual packs?</div>
-      <div class="faq-answer">Virtual packs contain real collectible cards. When opened, you either receive a digital version or choose to ship the physical card.</div>
-    </div>
+      <div class="faq-card">
+        <div class="faq-question">🎁 What are virtual packs?</div>
+        <div class="faq-answer">Virtual packs contain real collectible cards. When opened, you either receive a digital version or choose to ship the physical card.</div>
+      </div>
 
-    <div class="faq-card">
-      <div class="faq-question">🚚 How does shipping work?</div>
-      <div class="faq-answer">Once you win an item, visit your inventory, select items, and click "Ship Selected". Enter your shipping info and we'll handle the rest!</div>
-    </div>
+      <div class="faq-card">
+        <div class="faq-question">🚚 How does shipping work?</div>
+        <div class="faq-answer">Once you win an item, visit your inventory, select items, and click "Ship Selected". Enter your shipping info and we'll handle the rest!</div>
+      </div>
 
-    <div class="faq-card">
-      <div class="faq-question">♻️ Can I sell back items I don't want?</div>
-      <div class="faq-answer">Yes! You can sell back items for 80% of their value in coins. Just go to your inventory and click "Sell Selected".</div>
-    </div>
+      <div class="faq-card">
+        <div class="faq-question">♻️ Can I sell back items I don't want?</div>
+        <div class="faq-answer">Yes! You can sell back items for 80% of their value in coins. Just go to your inventory and click "Sell Selected".</div>
+      </div>
 
-    <div class="faq-card">
-      <div class="faq-question">🛡️ Is Packly.gg legit?</div>
-      <div class="faq-answer">Absolutely. All transactions are secured by Stripe, and our pack odds are provably fair and transparent.</div>
+      <div class="faq-card">
+        <div class="faq-question">🛡️ Is Packly.gg legit?</div>
+        <div class="faq-answer">Absolutely. All transactions are secured by Stripe, and our pack odds are provably fair and transparent.</div>
+      </div>
     </div>
   </section>
 
   <footer></footer>
+
+  <div id="topup-popup-container"></div>
 
   <!-- Firebase Config -->
   <script>
@@ -93,30 +86,31 @@
     firebase.initializeApp(firebaseConfig);
   </script>
 
-  <!-- Scripts -->
-  <script src="scripts/header.js"></script>
-  <script src="scripts/navbar.js"></script>
-  <script src="scripts/footer.js"></script>
-  <div id="topup-popup-container"></div>
+  <!-- Load Header, Footer, Topup and Navbar -->
   <script>
-    <script>
-  fetch("/cases/components/topup.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("topup-popup-container").innerHTML = html;
+    Promise.all([
+      fetch("/cases/components/topup.html").then(res => res.text()),
+      fetch("/cases/components/header.html").then(res => res.text()),
+      fetch("/cases/components/footer.html").then(res => res.text())
+    ]).then(([topupHTML, headerHTML, footerHTML]) => {
+      document.getElementById("topup-popup-container").innerHTML = topupHTML;
+      document.querySelector("header").innerHTML = headerHTML;
+      document.querySelector("footer").innerHTML = footerHTML;
 
       const navScript = document.createElement("script");
       navScript.src = "scripts/navbar.js";
       document.body.appendChild(navScript);
     });
-</script>
+  </script>
+
+  <!-- Stripe -->
   <script src="https://js.stripe.com/v3/"></script>
+  <script src="scripts/topup.js"></script>
   <script>
     const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
 
     function redirectToCheckout(event, priceId) {
       event.preventDefault();
-
       const user = firebase.auth().currentUser;
       if (!user) {
         alert("Please sign in to purchase coins.");
@@ -150,4 +144,3 @@
   </script>
 </body>
 </html>
-
