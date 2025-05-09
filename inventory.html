@@ -22,7 +22,7 @@
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 1.5rem;
       padding: 2rem;
-      margin: 96px 1.5rem 2rem; /* 96px = 24 * 4 = space below nav */
+      margin: 120px 1.5rem 2rem; /* 96px = 24 * 4 = space below nav */
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       text-align: center;
     }
@@ -367,54 +367,56 @@ document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelecti
   });
 }
 
-    firebase.auth().onAuthStateChanged(user => {
-      if (!user) return (window.location.href = "auth.html");
+   document.addEventListener("DOMContentLoaded", () => {
+  firebase.auth().onAuthStateChanged(user => {
+    if (!user) return (window.location.href = "auth.html");
 
-      const userRef = db.ref('users/' + user.uid);
-      userRef.once('value').then(snapshot => {
-        document.getElementById('user-balance').innerText = snapshot.val().balance || 0;
-        document.getElementById('username-display').innerText = user.displayName || user.email;
+    const userRef = db.ref('users/' + user.uid);
+    userRef.once('value').then(snapshot => {
+      const data = snapshot.val();
+      document.getElementById('user-balance').innerText = data.balance || 0;
+      document.getElementById('username-display').innerText = user.displayName || user.email;
+    });
 
-        const inventoryRef = db.ref('users/' + user.uid + '/inventory');
-        inventoryRef.once('value').then(inventorySnap => {
-          if (!inventorySnap.exists()) {
-            document.getElementById('inventory-container').innerHTML = "<p>You have no items yet.</p>";
-            return;
-          }
+    // Load inventory and orders (keep this part below your existing auth check)
+    const inventoryRef = db.ref('users/' + user.uid + '/inventory');
+    inventoryRef.once('value').then(inventorySnap => {
+      if (!inventorySnap.exists()) {
+        document.getElementById('inventory-container').innerHTML = "<p>You have no items yet.</p>";
+        return;
+      }
 
-          currentItems = [];
-          inventorySnap.forEach(child => {
-            const item = child.val();
-            item.key = child.key;
-            item.id = item.key; // Add this line to ensure item.id is set
+      currentItems = [];
+      inventorySnap.forEach(child => {
+        const item = child.val();
+        item.key = child.key;
+        item.id = item.key;
+        if (!item.requested) currentItems.push(item);
+      });
 
-            if (!item.requested) { // Only show items not requested for shipment
-              currentItems.push(item);
-            }
-          });
+      sortItems('rarity');
+      renderItems(currentItems);
+    });
 
-          sortItems('rarity'); // Default sort
-          renderItems(currentItems);
-        });
-
-        const ordersRef = db.ref('shipments').orderByChild('userId').equalTo(user.uid);
-        ordersRef.once('value').then(ordersSnap => {
-          const ordersContainer = document.getElementById('orders-container');
-          ordersContainer.innerHTML = '';
-          ordersSnap.forEach(order => {
-            const orderData = order.val();
-            ordersContainer.innerHTML += `
-              <div class="item-card rounded-lg p-4 text-center">
-                <img src="${orderData.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
-                <h2 class="font-bold text-lg text-pink-300">${orderData.name}</h2>
-                <p class="text-sm text-gray-400 mb-2">Status: ${orderData.status}</p>
-                <p class="text-sm text-gray-400">Shipping Info: ${orderData.shippingInfo?.name}</p>
-              </div>
-            `;
-          });
-        });
+    const ordersRef = db.ref('shipments').orderByChild('userId').equalTo(user.uid);
+    ordersRef.once('value').then(ordersSnap => {
+      const ordersContainer = document.getElementById('orders-container');
+      ordersContainer.innerHTML = '';
+      ordersSnap.forEach(order => {
+        const orderData = order.val();
+        ordersContainer.innerHTML += `
+          <div class="item-card rounded-lg p-4 text-center">
+            <img src="${orderData.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
+            <h2 class="font-bold text-lg text-pink-300">${orderData.name}</h2>
+            <p class="text-sm text-gray-400 mb-2">Status: ${orderData.status}</p>
+            <p class="text-sm text-gray-400">Shipping Info: ${orderData.shippingInfo?.name}</p>
+          </div>
+        `;
       });
     });
+  });
+});
+
 
     document.getElementById('logout-button').onclick = () => {
       firebase.auth().signOut().then(() => location.href = "index.html");
