@@ -52,7 +52,9 @@ firebase.auth().onAuthStateChanged(async (user) => {
 
               document.getElementById("balance-amount").innerText = newBalance;
               document.getElementById("balance-amount-mobile").innerText = newBalance;
-              document.getElementById("popup-balance")?.innerText = `${newBalance} coins`;
+
+              const popupBalance = document.getElementById("popup-balance");
+              if (popupBalance) popupBalance.innerText = `${newBalance} coins`;
 
               await change.doc.ref.update({ processed: true });
             }
