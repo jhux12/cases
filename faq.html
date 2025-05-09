@@ -102,7 +102,7 @@
     fetch("/cases/components/topup.html")
       .then(res => res.text())
       .then(html => {
-        document.getElementById("topup-popup-container").innerHTML = html;
+        const script = document.getElementById("topup-popup-container").innerHTML = html;
         script.src = "scripts/navbar.js";
       document.body.appendChild(script);
       });
