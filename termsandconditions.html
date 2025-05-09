@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contact Us | Packly.gg</title>
+  <title>Terms & Conditions | Packly.gg</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -38,33 +38,43 @@
 
 <header></header>
 
-<!-- Contact Us Section -->
+<!-- Terms and Conditions Section -->
 <section class="pt-32 px-6">
   <div class="max-w-3xl mx-auto text-center">
-    <h1 class="text-3xl font-bold mb-6">Contact Us</h1>
+    <h1 class="text-3xl font-bold mb-6">Terms and Conditions</h1>
     <div class="terms-box p-6 rounded-xl text-left terms-text">
-      <form id="contact-form" class="space-y-4">
-        <div>
-          <label for="email" class="block text-sm font-semibold mb-1">Email</label>
-          <input type="email" id="email" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required />
-        </div>
-        <div>
-          <label for="subject" class="block text-sm font-semibold mb-1">Subject</label>
-          <input type="text" id="subject" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required />
-        </div>
-        <div>
-          <label for="message" class="block text-sm font-semibold mb-1">Message</label>
-          <textarea id="message" rows="4" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required></textarea>
-        </div>
-        <button type="submit" class="bg-yellow-400 text-black font-bold px-6 py-2 rounded hover:bg-yellow-300 transition">Submit</button>
-      </form>
+      <p>Last updated: May 9th, 2025</p>
+      <p>By accessing or using Packly.gg, you agree to the following terms and conditions. Please read them carefully. This agreement governs your use of our website and services, and constitutes a legally binding agreement between you and Packly.gg.</p>
 
-      <div class="mt-12">
-        <h2 class="text-2xl font-bold mb-4 text-white">Your Open Support Cases</h2>
-        <div id="user-cases" class="space-y-4">
-          <!-- Filled dynamically -->
-        </div>
-      </div>
+      <h2>1. Eligibility</h2>
+      <p>You must be at least 18 years old or the legal age in your jurisdiction to access or use Packly.gg. Use is prohibited where restricted or illegal.</p>
+
+      <h2>2. Virtual Goods and Fair System</h2>
+      <p>All virtual prizes and coins are for entertainment purposes only. Prizes are determined using a provably fair system and are not subject to change due to interface glitches or display errors.</p>
+
+      <h2>3. Payments and Wallet</h2>
+      <p>All purchases on Packly.gg are final and processed via Stripe. Wallet top-ups hold no real-world cash value and cannot be refunded or transferred. Coins can only be used within Packly.gg's games or promotions.</p>
+
+      <h2>4. Account Usage and Security</h2>
+      <p>You may only register one account per person. Sharing, selling, or using multiple accounts is strictly prohibited. You are responsible for maintaining your account’s security.</p>
+
+      <h2>5. Abuse, Cheating, and Conduct</h2>
+      <p>Cheating, farming free rewards, using bots, exploiting bugs, or other abusive behavior is grounds for immediate suspension or termination of your account without notice or refund.</p>
+
+      <h2>6. Shipping</h2>
+      <p>Physical shipping is available only for eligible items clearly marked as such. Users must provide accurate shipping information. Packly.gg is not liable for failed deliveries due to incorrect addresses.</p>
+
+      <h2>7. Arbitration and Legal Disputes</h2>
+      <p>All disputes must first attempt to be resolved through good-faith negotiation. Unresolved disputes will be handled via individual binding arbitration in accordance with Delaware law. You waive the right to participate in class actions.</p>
+
+      <h2>8. Disclaimer</h2>
+      <p>Packly.gg is provided "as-is." We offer no warranties of service availability, uninterrupted access, or specific outcomes. We are not affiliated with any trademarked brands or manufacturers shown.</p>
+
+      <h2>9. Policy Changes</h2>
+      <p>We reserve the right to modify these terms at any time. Continued use of Packly.gg after changes constitutes acceptance of the revised terms.</p>
+
+      <h2>10. Contact</h2>
+      <p>If you have questions, concerns, or legal requests, please contact us at support@packly.gg.</p>
     </div>
   </div>
 </section>
@@ -83,45 +93,23 @@
   const auth = firebase.auth();
   const db = firebase.database();
 
-  document.getElementById('contact-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const user = firebase.auth().currentUser;
-    if (!user) return alert('Please sign in to send a message.');
+  auth.onAuthStateChanged(async user => {
+    if (!user) return window.location.href = 'auth.html';
 
-    const formRef = firebase.database().ref('supportCases').push();
-    await formRef.set({
-      uid: user.uid,
-      email: document.getElementById('email').value,
-      subject: document.getElementById('subject').value,
-      message: document.getElementById('message').value,
-      status: 'Received',
-      adminReply: '',
-      timestamp: Date.now()
-    });
-    alert('✅ Message sent successfully!');
-    document.getElementById('contact-form').reset();
-  });
+    const userRef = db.ref('users/' + user.uid);
+    const snapshot = await userRef.once('value');
+    const data = snapshot.val() || {};
+    const balance = data.balance || 0;
 
-  auth.onAuthStateChanged(user => {
-    if (!user) return;
-    const supportCasesRef = firebase.database().ref('supportCases');
-    supportCasesRef.orderByChild('uid').equalTo(user.uid).once('value').then(snapshot => {
-      const container = document.getElementById('user-cases');
-      if (!snapshot.exists()) {
-        container.innerHTML = '<p class="text-gray-400">You have not submitted any support cases yet.</p>';
-        return;
-      }
-      snapshot.forEach(child => {
-        const data = child.val();
-        container.innerHTML += `
-          <div class="p-4 bg-gray-800 border border-gray-700 rounded-lg">
-            <h3 class="font-semibold text-yellow-300">${data.subject}</h3>
-            <p class="text-sm text-gray-400 mb-2">${data.message}</p>
-            <p class="text-sm text-green-400 font-semibold">Status: ${data.status}</p>
-            ${data.adminReply ? `<div class="mt-2 p-2 bg-gray-700 rounded text-sm text-white"><strong>Admin Reply:</strong> ${data.adminReply}</div>` : ''}
-          </div>`;
-      });
-    });
+    document.getElementById('balance-amount').innerText = balance;
+    document.getElementById('user-balance').classList.remove('hidden');
+    document.getElementById('username-display').innerText = data.username || user.displayName || user.email || 'User';
+    document.getElementById('signin-desktop').classList.add('hidden');
+    document.getElementById('logout-desktop').classList.remove('hidden');
+    document.getElementById('logout-desktop').onclick = (e) => {
+      e.preventDefault();
+      auth.signOut().then(() => location.reload());
+    };
   });
 </script>
 
