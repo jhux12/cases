@@ -99,16 +99,17 @@
   <script src="scripts/footer.js"></script>
   <div id="topup-popup-container"></div>
   <script>
-    fetch("/cases/components/topup.html")
-      .then(res => res.text())
-      .then(html => {
-        const script = document.getElementById("topup-popup-container").innerHTML = html;
-        script.src = "scripts/navbar.js";
-document.addEventListener("DOMContentLoaded", () => {
-  document.body.appendChild(navScript);
-      });
+    <script>
+  fetch("/cases/components/topup.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("topup-popup-container").innerHTML = html;
+
+      const navScript = document.createElement("script");
+      navScript.src = "scripts/navbar.js";
+      document.body.appendChild(navScript);
     });
-  </script>
+</script>
   <script src="https://js.stripe.com/v3/"></script>
   <script>
     const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
