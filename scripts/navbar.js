@@ -1,27 +1,42 @@
-document.addEventListener('DOMContentLoaded', () => {
-  // Hamburger toggle
-  const menuToggle = document.getElementById('menu-toggle');
-  const mobileDropdown = document.getElementById('mobile-dropdown');
+document.addEventListener("DOMContentLoaded", () => {
+  // Dropdown toggle
+  const dropdownToggle = document.getElementById("dropdown-toggle");
+  const userDropdown = document.getElementById("user-dropdown");
 
-  if (menuToggle && mobileDropdown) {
-    menuToggle.addEventListener('click', () => {
-      mobileDropdown.classList.toggle('hidden');
+  if (dropdownToggle && userDropdown) {
+    dropdownToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      userDropdown.classList.toggle("hidden");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (
+        !userDropdown.classList.contains("hidden") &&
+        !userDropdown.contains(e.target) &&
+        !dropdownToggle.contains(e.target)
+      ) {
+        userDropdown.classList.add("hidden");
+      }
     });
   }
 
-  // Username dropdown toggle
-  const dropdownToggle = document.getElementById('dropdown-toggle');
-  const userDropdown = document.getElementById('user-dropdown');
+  // Mobile menu toggle
+  const menuToggle = document.getElementById("menu-toggle");
+  const mobileDropdown = document.getElementById("mobile-dropdown");
 
-  if (dropdownToggle && userDropdown) {
-    dropdownToggle.addEventListener('click', (e) => {
+  if (menuToggle && mobileDropdown) {
+    menuToggle.addEventListener("click", (e) => {
       e.stopPropagation();
-      userDropdown.classList.toggle('hidden');
+      mobileDropdown.classList.toggle("hidden");
     });
 
-    window.addEventListener('click', (e) => {
-      if (!userDropdown.contains(e.target)) {
-        userDropdown.classList.add('hidden');
+    document.addEventListener("click", (event) => {
+      if (
+        !mobileDropdown.classList.contains("hidden") &&
+        !mobileDropdown.contains(event.target) &&
+        !menuToggle.contains(event.target)
+      ) {
+        mobileDropdown.classList.add("hidden");
       }
     });
   }
