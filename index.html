@@ -435,12 +435,21 @@ possiblePrizesDiv.innerHTML = [...currentPrizes]
     : '';
 
   return `
-    <div class="text-center cursor-pointer transition-transform duration-300" onclick="expandPrize('${prize.image}')">
-      <img src="${prize.image}" class="h-28 mx-auto object-contain rounded ring-2 ${ringColor} transition-transform duration-300">
-      <div class="mt-2 text-sm font-semibold text-white">${prize.name}</div>
-      ${rarityLabel}
-      ${oddsLabel}
-    </div>`;
+  <div class="text-center cursor-pointer transition-transform duration-300" onclick="expandPrize('${prize.image}')">
+    <img src="${prize.image}" class="h-28 mx-auto object-contain rounded ring-2 ${ringColor} transition-transform duration-300">
+    
+    ${typeof prize.value === 'number' ? `
+      <div class="text-xs text-yellow-300 flex justify-center items-center gap-1 mt-1">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" alt="coin">
+        ${prize.value} coins
+      </div>
+    ` : ''}
+
+    <div class="mt-2 text-sm font-semibold text-white">${prize.name}</div>
+    ${rarityLabel}
+    ${oddsLabel}
+  </div>
+`;
 }).join('');
       resultDiv.classList.add('hidden');
       popup.classList.remove('hidden');
