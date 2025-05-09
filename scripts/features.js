@@ -1,40 +1,54 @@
 document.addEventListener('DOMContentLoaded', () => {
   const featuresSection = document.createElement('section');
-  featuresSection.className = 'bg-[#0f0f12] py-16 px-6 text-white';
+  featuresSection.className = 'bg-[#0f0f12] py-16 px-6 text-white border-t border-gray-800';
   featuresSection.innerHTML = `
-    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-      <div>
-        <div class="flex justify-center mb-4">
-          <div class="bg-purple-600 p-4 rounded-full">
-            <i class="fas fa-certificate text-2xl text-white"></i>
+    <div class="max-w-7xl mx-auto text-center">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
+        <div class="p-4 rounded-lg hover:scale-105 transition duration-300">
+          <div class="flex justify-center mb-4">
+            <div class="bg-purple-600 p-4 rounded-full shadow-md">
+              <i class="fas fa-certificate text-2xl text-white"></i>
+            </div>
           </div>
+          <h3 class="text-lg font-extrabold text-purple-300 mb-2">100% Authentic Items</h3>
+          <p class="text-gray-400 text-sm">
+            Every item is verified from trusted sources like StockX and official retailers. Real gear, guaranteed.
+          </p>
         </div>
-        <h3 class="text-lg font-extrabold text-purple-300 mb-2">100% Authentic Items</h3>
-        <p class="text-gray-300 text-sm">
-          Every item is verified authentic from trusted sources like StockX or official retailers, guaranteeing the real deal every time.
-        </p>
+        <div class="p-4 rounded-lg hover:scale-105 transition duration-300">
+          <div class="flex justify-center mb-4">
+            <div class="bg-purple-600 p-4 rounded-full shadow-md">
+              <i class="fas fa-exchange-alt text-2xl text-white"></i>
+            </div>
+          </div>
+          <h3 class="text-lg font-extrabold text-purple-300 mb-2">Exchange or Re-Roll</h3>
+          <p class="text-gray-400 text-sm">
+            Don’t want it? Instantly trade or sell back for coins. No fees. No wait.
+          </p>
+        </div>
+        <div class="p-4 rounded-lg hover:scale-105 transition duration-300">
+          <div class="flex justify-center mb-4">
+            <div class="bg-purple-600 p-4 rounded-full shadow-md">
+              <i class="fas fa-shipping-fast text-2xl text-white"></i>
+            </div>
+          </div>
+          <h3 class="text-lg font-extrabold text-purple-300 mb-2">Fast Global Shipping</h3>
+          <p class="text-gray-400 text-sm">
+            We ship worldwide. Or keep it digital by converting items into coin instantly.
+          </p>
+        </div>
       </div>
-      <div>
-        <div class="flex justify-center mb-4">
-          <div class="bg-purple-600 p-4 rounded-full">
-            <i class="fas fa-exchange-alt text-2xl text-white"></i>
-          </div>
+
+      <div class="mt-12">
+        <h4 class="text-sm uppercase text-gray-500 tracking-widest mb-4">Accepted Payment Methods</h4>
+        <div class="flex justify-center items-center gap-6 flex-wrap">
+          <img src="https://cdn-icons-png.flaticon.com/128/196/196561.png" alt="Visa" class="h-8">
+          <img src="https://cdn-icons-png.flaticon.com/128/349/349221.png" alt="MasterCard" class="h-8">
+          <img src="https://cdn-icons-png.flaticon.com/128/196/196578.png" alt="Amex" class="h-8">
+          <img src="https://cdn-icons-png.flaticon.com/128/196/196565.png" alt="PayPal" class="h-8">
+          <img src="https://cdn-icons-png.flaticon.com/128/742/742751.png" alt="Apple Pay" class="h-8">
+          <img src="https://cdn-icons-png.flaticon.com/128/174/174861.png" alt="Google Pay" class="h-8">
         </div>
-        <h3 class="text-lg font-extrabold text-purple-300 mb-2">Exchange Unwanted Items</h3>
-        <p class="text-gray-300 text-sm">
-          Turn items into coins instantly. Trade, sell, or re-roll with no fees or hidden costs—your items, your choice.
-        </p>
-      </div>
-      <div>
-        <div class="flex justify-center mb-4">
-          <div class="bg-purple-600 p-4 rounded-full">
-            <i class="fas fa-shipping-fast text-2xl text-white"></i>
-          </div>
-        </div>
-        <h3 class="text-lg font-extrabold text-purple-300 mb-2">Worldwide Shipping</h3>
-        <p class="text-gray-300 text-sm">
-          Claim your prize and have it shipped anywhere globally, or convert it into coin balance instantly.
-        </p>
       </div>
     </div>
   `;
