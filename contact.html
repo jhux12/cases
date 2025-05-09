@@ -4,99 +4,168 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Contact Us | Packly.gg</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f0f12;
+      color: white;
+    }
+    .terms-box {
+      background: linear-gradient(145deg, #1c1f26, #0e0f13);
+      border: 1px solid rgba(255, 215, 0, 0.15);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+    }
+    .terms-text p {
+      margin-bottom: 1rem;
+      color: #cbd5e1;
+    }
+    .terms-text h2 {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f9fafb;
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-white">
+<body class="min-h-screen">
 
-  <!-- Header (Loaded from component) -->
-  <div id="header-placeholder"></div>
+<header></header>
 
-  <!-- Page Content -->
-  <section class="max-w-4xl mx-auto px-4 py-12">
-    <h1 class="text-3xl font-bold mb-6 text-yellow-400">Contact Us</h1>
-    <p class="mb-8 text-gray-300">If you have any issues with your orders, questions about your packs, or just want to reach out, use the form below and we’ll get back to you as soon as possible.</p>
+<!-- Contact Us Section -->
+<section class="pt-32 px-6">
+  <div class="max-w-3xl mx-auto text-center">
+    <h1 class="text-3xl font-bold mb-6">Contact Us</h1>
+    <div class="terms-box p-6 rounded-xl text-left terms-text">
+      <form id="contact-form" class="space-y-4">
+        <div>
+          <label for="email" class="block text-sm font-semibold mb-1">Email</label>
+          <input type="email" id="email" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required />
+        </div>
+        <div>
+          <label for="subject" class="block text-sm font-semibold mb-1">Subject</label>
+          <input type="text" id="subject" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required />
+        </div>
+        <div>
+          <label for="message" class="block text-sm font-semibold mb-1">Message</label>
+          <textarea id="message" rows="4" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required></textarea>
+        </div>
+        <button type="submit" class="bg-yellow-400 text-black font-bold px-6 py-2 rounded hover:bg-yellow-300 transition">Submit</button>
+      </form>
 
-    <!-- Contact Form -->
-    <form id="contact-form" class="space-y-4 bg-gray-800 p-6 rounded-lg shadow-lg">
-      <div>
-        <label for="email" class="block text-sm font-semibold mb-1">Email</label>
-        <input type="email" id="email" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required />
-      </div>
-      <div>
-        <label for="subject" class="block text-sm font-semibold mb-1">Subject</label>
-        <input type="text" id="subject" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required />
-      </div>
-      <div>
-        <label for="message" class="block text-sm font-semibold mb-1">Message</label>
-        <textarea id="message" rows="4" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required></textarea>
-      </div>
-      <button type="submit" class="bg-yellow-400 text-black font-bold px-6 py-2 rounded hover:bg-yellow-300 transition">Submit</button>
-    </form>
-
-    <!-- Case Status Viewer -->
-    <div class="mt-12">
-      <h2 class="text-2xl font-bold mb-4 text-white">Your Open Support Cases</h2>
-      <div id="user-cases" class="space-y-4">
-        <!-- Filled dynamically -->
+      <div class="mt-12">
+        <h2 class="text-2xl font-bold mb-4 text-white">Your Open Support Cases</h2>
+        <div id="user-cases" class="space-y-4">
+          <!-- Filled dynamically -->
+        </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Footer (Loaded from component) -->
-  <footer id="footer-placeholder" class="mt-16"></footer>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+    authDomain: "cases-e5b4e.firebaseapp.com",
+    databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+    projectId: "cases-e5b4e",
+    storageBucket: "cases-e5b4e.appspot.com",
+    messagingSenderId: "22502548396",
+    appId: "1:22502548396:web:aac335672c21f07524d009"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
 
-  <!-- Scripts -->
-  <script src="scripts/header.js"></script>
-  <script src="scripts/navbar.js"></script>
-  <script src="scripts/footer.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="scripts/firebase-config.js"></script>
-  <script>
-    // Contact Form Submission
-    document.getElementById('contact-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const user = firebase.auth().currentUser;
-      if (!user) return alert('Please sign in to send a message.');
+  document.getElementById('contact-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const user = firebase.auth().currentUser;
+    if (!user) return alert('Please sign in to send a message.');
 
-      const formRef = firebase.database().ref('supportCases').push();
-      await formRef.set({
-        uid: user.uid,
-        email: document.getElementById('email').value,
-        subject: document.getElementById('subject').value,
-        message: document.getElementById('message').value,
-        status: 'Received',
-        adminReply: '',
-        timestamp: Date.now()
-      });
-      alert('✅ Message sent successfully!');
-      document.getElementById('contact-form').reset();
+    const formRef = firebase.database().ref('supportCases').push();
+    await formRef.set({
+      uid: user.uid,
+      email: document.getElementById('email').value,
+      subject: document.getElementById('subject').value,
+      message: document.getElementById('message').value,
+      status: 'Received',
+      adminReply: '',
+      timestamp: Date.now()
     });
+    alert('✅ Message sent successfully!');
+    document.getElementById('contact-form').reset();
+  });
 
-    // Load user's case statuses with admin replies
-    firebase.auth().onAuthStateChanged(user => {
-      if (!user) return;
-      const supportCasesRef = firebase.database().ref('supportCases');
-      supportCasesRef.orderByChild('uid').equalTo(user.uid).once('value').then(snapshot => {
-        const container = document.getElementById('user-cases');
-        if (!snapshot.exists()) {
-          container.innerHTML = '<p class="text-gray-400">You have not submitted any support cases yet.</p>';
-          return;
-        }
-        snapshot.forEach(child => {
-          const data = child.val();
-          container.innerHTML += `
-            <div class="p-4 bg-gray-800 border border-gray-700 rounded-lg">
-              <h3 class="font-semibold text-yellow-300">${data.subject}</h3>
-              <p class="text-sm text-gray-400 mb-2">${data.message}</p>
-              <p class="text-sm text-green-400 font-semibold">Status: ${data.status}</p>
-              ${data.adminReply ? `<div class="mt-2 p-2 bg-gray-700 rounded text-sm text-white"><strong>Admin Reply:</strong> ${data.adminReply}</div>` : ''}
-            </div>`;
+  auth.onAuthStateChanged(user => {
+    if (!user) return;
+    const supportCasesRef = firebase.database().ref('supportCases');
+    supportCasesRef.orderByChild('uid').equalTo(user.uid).once('value').then(snapshot => {
+      const container = document.getElementById('user-cases');
+      if (!snapshot.exists()) {
+        container.innerHTML = '<p class="text-gray-400">You have not submitted any support cases yet.</p>';
+        return;
+      }
+      snapshot.forEach(child => {
+        const data = child.val();
+        container.innerHTML += `
+          <div class="p-4 bg-gray-800 border border-gray-700 rounded-lg">
+            <h3 class="font-semibold text-yellow-300">${data.subject}</h3>
+            <p class="text-sm text-gray-400 mb-2">${data.message}</p>
+            <p class="text-sm text-green-400 font-semibold">Status: ${data.status}</p>
+            ${data.adminReply ? `<div class="mt-2 p-2 bg-gray-700 rounded text-sm text-white"><strong>Admin Reply:</strong> ${data.adminReply}</div>` : ''}
+          </div>`;
+      });
+    });
+  });
+</script>
+
+<script src="scripts/header.js"></script>
+<script src="scripts/navbar.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="scripts/topup.js"></script>
+
+<script>
+  const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
+
+  function redirectToCheckout(event, priceId) {
+    event.preventDefault();
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      alert("Please sign in to purchase coins.");
+      return;
+    }
+
+    firebase.firestore()
+      .collection("customers")
+      .doc(user.uid)
+      .collection("checkout_sessions")
+      .add({
+        mode: "payment",
+        success_url: window.location.href,
+        cancel_url: window.location.href,
+        allow_promotion_codes: true,
+        line_items: [{ price: priceId, quantity: 1 }],
+        metadata: { priceId }
+      })
+      .then((docRef) => {
+        docRef.onSnapshot((snap) => {
+          const { error, sessionId } = snap.data();
+          if (error) {
+            alert(`An error occurred: ${error.message}`);
+          }
+          if (sessionId) {
+            stripe.redirectToCheckout({ sessionId });
+          }
         });
       });
-    });
-  </script>
+  }
+</script>
 </body>
 </html>
