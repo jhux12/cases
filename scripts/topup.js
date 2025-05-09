@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById("topup-popup")) return;
 
     try {
-      const res = await fetch("/components/topup.html");
+      const res = await fetch("/cases/components/topup.html");
       const html = await res.text();
       document.body.insertAdjacentHTML("beforeend", html);
 
