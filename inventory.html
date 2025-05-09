@@ -167,6 +167,43 @@
         document.getElementById("topup-popup-container").innerHTML = html;
       });
   </script>
+  <script>
+  const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
+
+  function redirectToCheckout(event, priceId) {
+    event.preventDefault(); // This stops the form from refreshing the page
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      alert("Please sign in to purchase coins.");
+      return;
+    }
+
+    firebase.firestore()
+      .collection("customers")
+      .doc(user.uid)
+      .collection("checkout_sessions")
+      .add({
+        mode: "payment",
+        success_url: window.location.href,
+        cancel_url: window.location.href,
+        allow_promotion_codes: true,
+        line_items: [{ price: priceId, quantity: 1 }],
+        metadata: { priceId }
+      })
+      .then((docRef) => {
+        docRef.onSnapshot((snap) => {
+          const { error, sessionId } = snap.data();
+          if (error) {
+            alert(`An error occurred: ${error.message}`);
+          }
+          if (sessionId) {
+            stripe.redirectToCheckout({ sessionId });
+          }
+        });
+      });
+  }
+</script>
 </body>
 </html>
 
