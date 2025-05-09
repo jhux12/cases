@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="p-4 rounded-lg hover:scale-105 transition duration-300">
           <div class="flex justify-center mb-4">
             <div class="bg-purple-600 p-4 rounded-full shadow-md">
-              <i class="fas fa-certificate text-2xl text-white"></i>
+              <i class="fas fa-certificate fa-beat text-2xl text-white"></i>
             </div>
           </div>
           <h3 class="text-lg font-extrabold text-purple-300 mb-2">100% Authentic Items</h3>
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="p-4 rounded-lg hover:scale-105 transition duration-300">
           <div class="flex justify-center mb-4">
             <div class="bg-purple-600 p-4 rounded-full shadow-md">
-              <i class="fas fa-exchange-alt text-2xl text-white"></i>
+              <i class="fas fa-exchange-alt fa-fade text-2xl text-white"></i>
             </div>
           </div>
           <h3 class="text-lg font-extrabold text-purple-300 mb-2">Exchange or Re-Roll</h3>
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="p-4 rounded-lg hover:scale-105 transition duration-300">
           <div class="flex justify-center mb-4">
             <div class="bg-purple-600 p-4 rounded-full shadow-md">
-              <i class="fas fa-shipping-fast text-2xl text-white"></i>
+              <i class="fas fa-truck-fast fa-bounce text-2xl text-white"></i>
             </div>
           </div>
           <h3 class="text-lg font-extrabold text-purple-300 mb-2">Fast Global Shipping</h3>
@@ -54,4 +54,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.body.insertBefore(featuresSection, document.querySelector('footer'));
 });
-
