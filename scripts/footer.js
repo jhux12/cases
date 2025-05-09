@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
               </svg>
               Instagram
             </a>
+            <a Made with /a> ❤️
           </div>
 
         </div>
