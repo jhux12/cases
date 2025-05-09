@@ -12,10 +12,21 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     body {
+      margin: 0;
+      padding: 0;
       font-family: 'Inter', sans-serif;
       background-color: #0f0f12;
       color: white;
     }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 50;
+    }
+
     .inventory-hero {
       background: linear-gradient(to right, rgba(76,29,149,0.6), rgba(190,24,93,0.6));
       border: 1px solid rgba(255,255,255,0.1);
@@ -25,32 +36,39 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       text-align: center;
     }
+
     .inventory-hero h1 {
       font-size: 2.5rem;
       font-weight: 800;
       color: #fff;
     }
+
     .inventory-hero p {
       color: #cbd5e1;
       margin-top: 0.5rem;
       font-size: 1.125rem;
     }
+
     .item-card {
       background-color: #1f1f2b;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       box-shadow: 0 4px 14px rgba(0,0,0,0.3);
     }
+
     .item-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 20px rgba(0,0,0,0.4);
     }
+
     .btn {
       font-weight: 600;
       transition: all 0.3s ease;
     }
+
     .btn:hover {
       transform: scale(1.05);
     }
+
     select {
       background-color: white;
       color: black;
@@ -63,13 +81,13 @@
   <header></header>
 
   <!-- Hero -->
-<section class="inventory-hero">
+  <section class="inventory-hero pt-32">
     <h1><i class="fas fa-box-open mr-2"></i>Ship or Sell Back Your Items</h1>
     <p>Your prized pulls, safely stored and ready to ship or sell. Welcome to your vault.</p>
   </section>
 
   <!-- Inventory -->
-<main class="pt-32 p-6">
+  <main class="p-6">
     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
       <div class="flex items-center gap-3 text-sm">
         <label><input type="checkbox" id="select-all-checkbox" class="mr-1"> Select All</label>
@@ -127,7 +145,7 @@
     firebase.initializeApp(firebaseConfig);
   </script>
 
-  <!-- Page Scripts -->
+  <!-- Scripts -->
   <script src="scripts/header.js"></script>
   <script src="scripts/navbar.js"></script>
   <script src="scripts/footer.js"></script>
@@ -135,13 +153,13 @@
   <script src="scripts/topup.js"></script>
   <script src="scripts/inventory.js"></script>
   <div id="topup-popup-container"></div>
-<script>
-  fetch("/cases/components/topup.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("topup-popup-container").innerHTML = html;
-    });
-</script>
+  <script>
+    fetch("/cases/components/topup.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("topup-popup-container").innerHTML = html;
+      });
+  </script>
 </body>
 </html>
 
