@@ -59,12 +59,10 @@
 </head>
 <body class="min-h-screen pt-24">
   <header></header>
-
   <section class="inventory-hero">
     <h1><i class="fas fa-box-open mr-2"></i>Ship or Sell Back Your Items</h1>
     <p>Your prized pulls, safely stored and ready to ship or sell. Welcome to your vault.</p>
   </section>
-
   <main class="p-6">
     <div class="flex flex-col md:flex-row justify-between items-center bg-gray-800 border border-pink-500 p-4 rounded-lg mb-6">
       <div>
@@ -78,7 +76,6 @@
         <button id="logout-button" class="ml-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full btn">Logout</button>
       </div>
     </div>
-
     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
       <div class="flex items-center gap-3 text-sm">
         <label><input type="checkbox" id="select-all-checkbox" class="mr-1"> Select All</label>
@@ -95,12 +92,9 @@
         <button onclick="shipSelected()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full btn">Ship Selected</button>
       </div>
     </div>
-
     <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
-
     <h2 class="text-3xl font-bold text-pink-400 mt-16 mb-4">📦 My Orders</h2>
     <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
-
     <div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
       <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
         <h2 class="text-xl font-bold mb-4">Enter Shipping Info</h2>
@@ -117,20 +111,12 @@
       </div>
     </div>
   </main>
-
   <footer></footer>
   <script src="scripts/header.js"></script>
   <script src="scripts/footer.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/topup.js"></script>
   <script src="scripts/inventory.js"></script>
-  <script>
-    document.getElementById('dropdown-toggle')?.addEventListener('click', () => {
-      document.getElementById('user-dropdown')?.classList.toggle('hidden');
-    });
-
-    document.getElementById('menu-toggle')?.addEventListener('click', () => {
-      document.getElementById('mobile-dropdown')?.classList.toggle('hidden');
-    });
-  </script>
 </body>
 </html>
 
