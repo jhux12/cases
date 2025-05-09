@@ -4,67 +4,74 @@ let shipmentSelection = [];
 const selectedItems = new Set();
 let currentItems = [];
 
-firebase.auth().onAuthStateChanged(user => {
-  if (!user) return (window.location.href = "auth.html");
+document.addEventListener('DOMContentLoaded', () => {
+  firebase.auth().onAuthStateChanged(user => {
+    if (!user) return (window.location.href = "auth.html");
 
-  const userRef = firebase.database().ref('users/' + user.uid);
+    const db = firebase.database();
+    const userRef = db.ref('users/' + user.uid);
 
-  userRef.once('value').then(snapshot => {
-    const data = snapshot.val();
-    document.getElementById('user-balance').innerText = data.balance || 0;
-    document.getElementById('username-display').innerText = user.displayName || user.email;
-  });
-
-  const inventoryRef = firebase.database().ref('users/' + user.uid + '/inventory');
-  inventoryRef.once('value').then(snap => {
-    if (!snap.exists()) {
-      document.getElementById('inventory-container').innerHTML = "<p>You have no items yet.</p>";
-      return;
-    }
-
-    currentItems = [];
-    snap.forEach(child => {
-      const item = child.val();
-      item.key = child.key;
-      item.id = child.key;
-      if (!item.requested) currentItems.push(item);
+    userRef.once('value').then(snapshot => {
+      const data = snapshot.val();
+      document.getElementById('user-balance').innerText = data.balance || 0;
+      document.getElementById('username-display').innerText = user.displayName || user.email;
     });
 
-    sortItems('rarity');
-    renderItems(currentItems);
-  });
+    const inventoryRef = db.ref('users/' + user.uid + '/inventory');
+    inventoryRef.once('value').then(snap => {
+      if (!snap.exists()) {
+        document.getElementById('inventory-container').innerHTML = "<p>You have no items yet.</p>";
+        return;
+      }
 
-  const ordersRef = firebase.database().ref('shipments').orderByChild('userId').equalTo(user.uid);
-  ordersRef.once('value').then(snap => {
-    const container = document.getElementById('orders-container');
-    container.innerHTML = '';
-    snap.forEach(order => {
-      const data = order.val();
-      container.innerHTML += `
-        <div class="item-card rounded-lg p-4 text-center">
-          <img src="${data.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
-          <h2 class="font-bold text-lg text-pink-300">${data.name}</h2>
-          <p class="text-sm text-gray-400 mb-2">Status: ${data.status}</p>
-          <p class="text-sm text-gray-400">Shipping Info: ${data.shippingInfo?.name}</p>
-        </div>`;
+      currentItems = [];
+      snap.forEach(child => {
+        const item = child.val();
+        item.key = child.key;
+        item.id = child.key;
+        if (!item.requested) currentItems.push(item);
+      });
+
+      sortItems('rarity');
+      renderItems(currentItems);
+    });
+
+    const ordersRef = db.ref('shipments').orderByChild('userId').equalTo(user.uid);
+    ordersRef.once('value').then(snap => {
+      const container = document.getElementById('orders-container');
+      container.innerHTML = '';
+      snap.forEach(order => {
+        const data = order.val();
+        container.innerHTML += `
+          <div class="item-card rounded-lg p-4 text-center">
+            <img src="${data.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
+            <h2 class="font-bold text-lg text-pink-300">${data.name}</h2>
+            <p class="text-sm text-gray-400 mb-2">Status: ${data.status}</p>
+            <p class="text-sm text-gray-400">Shipping Info: ${data.shippingInfo?.name}</p>
+          </div>`;
+      });
+    });
+
+    document.getElementById('logout-button')?.addEventListener('click', () => {
+      firebase.auth().signOut().then(() => location.href = "index.html");
+    });
+
+    document.getElementById('select-all-checkbox')?.addEventListener('change', function () {
+      if (this.checked) {
+        currentItems.forEach(item => {
+          if (!item.shipped && !item.requested) selectedItems.add(item.key);
+        });
+      } else {
+        selectedItems.clear();
+      }
+      updateTotalValue();
+      renderItems(currentItems);
+    });
+
+    document.getElementById('sort-select')?.addEventListener('change', function () {
+      sortItems(this.value);
     });
   });
-});
-
-document.getElementById('select-all-checkbox').addEventListener('change', function () {
-  if (this.checked) {
-    currentItems.forEach(item => {
-      if (!item.shipped && !item.requested) selectedItems.add(item.key);
-    });
-  } else {
-    selectedItems.clear();
-  }
-  updateTotalValue();
-  renderItems(currentItems);
-});
-
-document.getElementById('sort-select').addEventListener('change', function () {
-  sortItems(this.value);
 });
 
 function sortItems(by) {
@@ -222,7 +229,3 @@ function submitShipmentRequest() {
     window.location.reload();
   });
 }
-
-document.getElementById('logout-button').addEventListener('click', () => {
-  firebase.auth().signOut().then(() => location.href = "index.html");
-});
