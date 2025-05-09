@@ -103,6 +103,8 @@
       .then(res => res.text())
       .then(html => {
         document.getElementById("topup-popup-container").innerHTML = html;
+        script.src = "scripts/navbar.js";
+      document.body.appendChild(script);
       });
   </script>
   <script src="https://js.stripe.com/v3/"></script>
