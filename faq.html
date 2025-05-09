@@ -9,137 +9,94 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body {
       font-family: 'Inter', sans-serif;
       background-color: #0f0f12;
       color: white;
     }
-    .faq-card {
-      background-color: #1f1f2b;
+    .faq-box {
+      background: #1f1f2b;
       border-left: 4px solid #ec4899;
       padding: 1.5rem;
       border-radius: 0.75rem;
       margin-bottom: 1.5rem;
     }
-    .faq-question {
-      font-size: 1.125rem;
-      font-weight: 600;
+    .faq-box h2 {
+      font-size: 1.25rem;
+      font-weight: bold;
       color: #f9fafb;
     }
-    .faq-answer {
+    .faq-box p {
       color: #cbd5e1;
       margin-top: 0.5rem;
     }
   </style>
 </head>
 <body class="min-h-screen">
-  <header></header>
 
-  <section class="pt-32 px-6">
-    <div class="max-w-3xl mx-auto">
-      <h1 class="text-4xl font-extrabold text-pink-400 mb-8 text-center">Frequently Asked Questions</h1>
+<header></header>
 
-      <div class="faq-card">
-        <div class="faq-question">💳 How do I purchase coins?</div>
-        <div class="faq-answer">Click the plus (+) icon near your coin balance or visit the rewards page. Choose a package and complete checkout securely via Stripe.</div>
-      </div>
+<main class="pt-32 px-6 max-w-4xl mx-auto">
+  <h1 class="text-4xl font-bold text-pink-400 text-center mb-8">Frequently Asked Questions</h1>
+  <div class="faq-box">
+    <h2>💳 How do I purchase coins?</h2>
+    <p>Click the plus (+) icon near your coin balance. Choose a coin package and complete checkout securely via Stripe.</p>
+  </div>
+  <div class="faq-box">
+    <h2>🎁 What are virtual packs?</h2>
+    <p>Virtual packs contain real collectible cards. When you open one, you can either receive a digital preview or choose to ship the physical item.</p>
+  </div>
+  <div class="faq-box">
+    <h2>🚚 How does shipping work?</h2>
+    <p>Visit your inventory, select the items you want shipped, and fill out the shipping form. We’ll take care of the rest.</p>
+  </div>
+  <div class="faq-box">
+    <h2>♻️ Can I sell back items I don’t want?</h2>
+    <p>Yes. Sell back unwanted items in your inventory for 80% of their coin value.</p>
+  </div>
+  <div class="faq-box">
+    <h2>🛡️ Is Packly.gg legit?</h2>
+    <p>Absolutely. We use secure Stripe payments and offer provably fair pack odds for full transparency.</p>
+  </div>
+</main>
 
-      <div class="faq-card">
-        <div class="faq-question">🎁 What are virtual packs?</div>
-        <div class="faq-answer">Virtual packs contain real collectible cards. When opened, you either receive a digital version or choose to ship the physical card.</div>
-      </div>
+<div id="toast" class="toast" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1f1f1f;color:#fff;padding:12px 24px;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,0.4);z-index:999;">✅ Coins added to your balance.</div>
 
-      <div class="faq-card">
-        <div class="faq-question">🚚 How does shipping work?</div>
-        <div class="faq-answer">Once you win an item, visit your inventory, select items, and click "Ship Selected". Enter your shipping info and we'll handle the rest!</div>
-      </div>
+<footer></footer>
+<div id="topup-popup-container"></div>
 
-      <div class="faq-card">
-        <div class="faq-question">♻️ Can I sell back items I don't want?</div>
-        <div class="faq-answer">Yes! You can sell back items for 80% of their value in coins. Just go to your inventory and click "Sell Selected".</div>
-      </div>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+    authDomain: "cases-e5b4e.firebaseapp.com",
+    databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+    projectId: "cases-e5b4e",
+    storageBucket: "cases-e5b4e.appspot.com",
+    messagingSenderId: "22502548396",
+    appId: "1:22502548396:web:aac335672c21f07524d009"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
 
-      <div class="faq-card">
-        <div class="faq-question">🛡️ Is Packly.gg legit?</div>
-        <div class="faq-answer">Absolutely. All transactions are secured by Stripe, and our pack odds are provably fair and transparent.</div>
-      </div>
-    </div>
-  </section>
+<script src="scripts/header.js"></script>
+<script src="scripts/navbar.js"></script>
+<script src="scripts/footer.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="scripts/topup.js"></script>
 
-  <footer></footer>
-
-  <div id="topup-popup-container"></div>
-
-  <!-- Firebase Config -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
-      authDomain: "cases-e5b4e.firebaseapp.com",
-      databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
-      projectId: "cases-e5b4e",
-      storageBucket: "cases-e5b4e.appspot.com",
-      messagingSenderId: "22502548396",
-      appId: "1:22502548396:web:aac335672c21f07524d009"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
-
-  <!-- Load Header, Footer, Topup and Navbar -->
-  <script>
-    Promise.all([
-      fetch("/cases/components/topup.html").then(res => res.text()),
-      fetch("/cases/components/header.html").then(res => res.text()),
-      fetch("/cases/components/footer.html").then(res => res.text())
-    ]).then(([topupHTML, headerHTML, footerHTML]) => {
-      document.getElementById("topup-popup-container").innerHTML = topupHTML;
-      document.querySelector("header").innerHTML = headerHTML;
-      document.querySelector("footer").innerHTML = footerHTML;
-
-      const navScript = document.createElement("script");
-      navScript.src = "scripts/navbar.js";
-      document.body.appendChild(navScript);
+<script>
+  fetch("/cases/components/topup.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("topup-popup-container").innerHTML = html;
     });
-  </script>
+</script>
 
-  <!-- Stripe -->
-  <script src="https://js.stripe.com/v3/"></script>
-  <script src="scripts/topup.js"></script>
-  <script>
-    const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
+</body>
+</html>
 
-    function redirectToCheckout(event, priceId) {
-      event.preventDefault();
-      const user = firebase.auth().currentUser;
-      if (!user) {
-        alert("Please sign in to purchase coins.");
-        return;
-      }
-
-      firebase.firestore()
-        .collection("customers")
-        .doc(user.uid)
-        .collection("checkout_sessions")
-        .add({
-          mode: "payment",
-          success_url: window.location.href,
-          cancel_url: window.location.href,
-          allow_promotion_codes: true,
-          line_items: [{ price: priceId, quantity: 1 }],
-          metadata: { priceId }
-        })
-        .then((docRef) => {
-          docRef.onSnapshot((snap) => {
-            const { error, sessionId } = snap.data();
-            if (error) {
-              alert(`An error occurred: ${error.message}`);
-            }
-            if (sessionId) {
-              stripe.redirectToCheckout({ sessionId });
-            }
-          });
-        });
     }
   </script>
 </body>
