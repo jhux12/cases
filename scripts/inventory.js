@@ -1,231 +1,156 @@
-// scripts/inventory.js
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory | Packly.gg</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f0f12;
+      color: white;
+    }
+    .inventory-hero {
+      background: linear-gradient(to right, rgba(76,29,149,0.6), rgba(190,24,93,0.6));
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      margin: 120px 1.5rem 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    .inventory-hero h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .inventory-hero p {
+      color: #cbd5e1;
+      margin-top: 0.5rem;
+      font-size: 1.125rem;
+    }
+    .item-card {
+      background-color: #1f1f2b;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
+    .item-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    .btn {
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      transform: scale(1.05);
+    }
+    select {
+      background-color: white;
+      color: black;
+    }
+    .balance-plus {
+      cursor: pointer;
+      padding: 2px 6px;
+      background-color: #ec4899;
+      border-radius: 9999px;
+      font-weight: bold;
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body class="min-h-screen pt-24">
 
-let shipmentSelection = [];
-const selectedItems = new Set();
-let currentItems = [];
+  <header></header>
 
-document.addEventListener('DOMContentLoaded', () => {
-  firebase.auth().onAuthStateChanged(user => {
-    if (!user) return (window.location.href = "auth.html");
+  <section class="inventory-hero">
+    <h1><i class="fas fa-box-open mr-2"></i>Ship or Sell Back Your Items</h1>
+    <p>Your prized pulls, safely stored and ready to ship or sell. Welcome to your vault.</p>
+  </section>
 
-    const db = firebase.database();
-    const userRef = db.ref('users/' + user.uid);
+  <main class="p-6">
+    <div class="flex flex-col md:flex-row justify-between items-center bg-gray-800 border border-pink-500 p-4 rounded-lg mb-6">
+      <div>
+        <div class="text-gray-400 text-sm">Logged in as:</div>
+        <div id="username-display" class="text-white text-lg font-semibold truncate max-w-sm"></div>
+      </div>
+      <div class="flex items-center gap-2 mt-2 md:mt-0">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="24" height="24" />
+        <span id="user-balance" class="text-white text-lg font-bold">--</span>
+        <span class="text-gray-300">coins</span>
+        <span class="balance-plus" id="topup-button">+</span>
+        <button id="logout-button" class="ml-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full btn">Logout</button>
+      </div>
+    </div>
 
-    userRef.once('value').then(snapshot => {
-      const data = snapshot.val();
-      document.getElementById('user-balance').innerText = data.balance || 0;
-      document.getElementById('username-display').innerText = user.displayName || user.email;
-    });
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+      <div class="flex items-center gap-3 text-sm">
+        <label><input type="checkbox" id="select-all-checkbox" class="mr-1"> Select All</label>
+        <label for="sort-select">Sort by:</label>
+        <select id="sort-select" class="text-black rounded px-3 py-1">
+          <option value="rarity">Rarity</option>
+          <option value="value">Value</option>
+          <option value="name">Name</option>
+        </select>
+      </div>
+      <div class="flex gap-3 items-center">
+        <span id="selected-total" class="text-sm text-gray-300">Total: 0 coins</span>
+        <button onclick="sellSelected()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full btn">Sell Selected</button>
+        <button onclick="shipSelected()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full btn">Ship Selected</button>
+      </div>
+    </div>
 
-    const inventoryRef = db.ref('users/' + user.uid + '/inventory');
-    inventoryRef.once('value').then(snap => {
-      if (!snap.exists()) {
-        document.getElementById('inventory-container').innerHTML = "<p>You have no items yet.</p>";
-        return;
-      }
+    <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
 
-      currentItems = [];
-      snap.forEach(child => {
-        const item = child.val();
-        item.key = child.key;
-        item.id = child.key;
-        if (!item.requested) currentItems.push(item);
-      });
+    <h2 class="text-3xl font-bold text-pink-400 mt-16 mb-4">📦 My Orders</h2>
+    <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
 
-      sortItems('rarity');
-      renderItems(currentItems);
-    });
-
-    const ordersRef = db.ref('shipments').orderByChild('userId').equalTo(user.uid);
-    ordersRef.once('value').then(snap => {
-      const container = document.getElementById('orders-container');
-      container.innerHTML = '';
-      snap.forEach(order => {
-        const data = order.val();
-        container.innerHTML += `
-          <div class="item-card rounded-lg p-4 text-center">
-            <img src="${data.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
-            <h2 class="font-bold text-lg text-pink-300">${data.name}</h2>
-            <p class="text-sm text-gray-400 mb-2">Status: ${data.status}</p>
-            <p class="text-sm text-gray-400">Shipping Info: ${data.shippingInfo?.name}</p>
-          </div>`;
-      });
-    });
-
-    document.getElementById('logout-button')?.addEventListener('click', () => {
-      firebase.auth().signOut().then(() => location.href = "index.html");
-    });
-
-    document.getElementById('select-all-checkbox')?.addEventListener('change', function () {
-      if (this.checked) {
-        currentItems.forEach(item => {
-          if (!item.shipped && !item.requested) selectedItems.add(item.key);
-        });
-      } else {
-        selectedItems.clear();
-      }
-      updateTotalValue();
-      renderItems(currentItems);
-    });
-
-    document.getElementById('sort-select')?.addEventListener('change', function () {
-      sortItems(this.value);
-    });
-  });
-});
-
-function sortItems(by) {
-  const order = ['common', 'uncommon', 'rare', 'ultra rare', 'legendary'];
-  const sorted = [...currentItems];
-  if (by === 'value') sorted.sort((a, b) => (b.value || 0) - (a.value || 0));
-  else if (by === 'name') sorted.sort((a, b) => a.name.localeCompare(b.name));
-  else sorted.sort((a, b) => order.indexOf(a.rarity) - order.indexOf(b.rarity));
-  renderItems(sorted);
-}
-
-function updateTotalValue() {
-  let total = 0;
-  selectedItems.forEach(key => {
-    const item = currentItems.find(i => i.key === key);
-    if (item) total += Math.floor((item.value || 0) * 0.8);
-  });
-  document.getElementById('selected-total').innerText = `Total: ${total} coins`;
-}
-
-function toggleItem(key) {
-  if (selectedItems.has(key)) selectedItems.delete(key);
-  else selectedItems.add(key);
-  updateTotalValue();
-}
-
-function renderItems(items) {
-  const container = document.getElementById('inventory-container');
-  container.innerHTML = '';
-
-  items.forEach(item => {
-    const refund = Math.floor((item.value || 0) * 0.8);
-    const checked = selectedItems.has(item.key) ? 'checked' : '';
-    container.innerHTML += `
-      <div class="item-card rounded-lg p-4 text-center">
-        <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-2" ${item.shipped || item.requested ? 'disabled' : ''} />
-        <img src="${item.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
-        <h2 class="font-bold text-lg text-pink-300">${item.name}</h2>
-        <p class="text-sm text-gray-400 mb-2">Rarity: ${item.rarity}</p>
-        <p class="text-sm text-gray-400">Value: ${item.value || 0} coins</p>
-        <div class="flex justify-center gap-2">
-          <button onclick="sellBack('${item.key}', ${item.value || 0})" ${item.shipped || item.requested ? 'disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full flex items-center space-x-1"' : 'class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full flex items-center space-x-1"'}>
-            <span>Sell for ${refund}</span>
-            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
-          </button>
-          <button onclick="shipItem('${item.key}')" ${item.shipped || item.requested ? 'disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full"' : 'class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full"'}>Ship</button>
+    <div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
+      <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
+        <h2 class="text-xl font-bold mb-4">Enter Shipping Info</h2>
+        <input id="ship-name" type="text" placeholder="Full Name" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+        <input id="ship-address" type="text" placeholder="Address" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+        <input id="ship-city" type="text" placeholder="City" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+        <input id="ship-zip" type="text" placeholder="Zip Code" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+        <input id="ship-phone" type="text" placeholder="Phone Number" class="w-full mb-4 px-4 py-2 rounded bg-gray-700" />
+        <p id="shipment-cost" class="text-sm text-pink-300 mb-4"></p>
+        <div class="flex justify-end gap-3">
+          <button onclick="closeShipmentPopup()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded btn">Cancel</button>
+          <button onclick="submitShipmentRequest()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded btn">Confirm</button>
         </div>
-      </div>`;
-  });
-}
+      </div>
+    </div>
+  </main>
 
-function sellBack(key, value) {
-  const user = firebase.auth().currentUser;
-  if (!user) return;
+  <footer></footer>
 
-  const refund = Math.floor(value * 0.8);
-  const userRef = firebase.database().ref('users/' + user.uid);
-  const itemRef = firebase.database().ref(`users/${user.uid}/inventory/${key}`);
+  <!-- Firebase Config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+      authDomain: "cases-e5b4e.firebaseapp.com",
+      databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+      projectId: "cases-e5b4e",
+      storageBucket: "cases-e5b4e.appspot.com",
+      messagingSenderId: "22502548396",
+      appId: "1:22502548396:web:aac335672c21f07524d009"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
 
-  userRef.once('value').then(snap => {
-    const balance = snap.val().balance || 0;
-    userRef.update({ balance: balance + refund }).then(() => {
-      itemRef.remove().then(() => window.location.reload());
-    });
-  });
-}
+  <!-- Component Scripts -->
+  <script src="scripts/header.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/footer.js"></script>
+  <script src="scripts/topup.js"></script>
+  <script src="scripts/inventory.js"></script>
+</body>
+</html>
 
-function sellSelected() {
-  const user = firebase.auth().currentUser;
-  if (!user) return;
-
-  let total = 0;
-  selectedItems.forEach(key => {
-    const item = currentItems.find(i => i.key === key);
-    if (item) total += Math.floor((item.value || 0) * 0.8);
-  });
-
-  const userRef = firebase.database().ref('users/' + user.uid);
-  userRef.once('value').then(snap => {
-    const balance = snap.val().balance || 0;
-    userRef.update({ balance: balance + total });
-
-    selectedItems.forEach(key => {
-      firebase.database().ref(`users/${user.uid}/inventory/${key}`).remove();
-    });
-
-    alert(`Sold selected items for ${total} coins.`);
-    window.location.reload();
-  });
-}
-
-function shipSelected() {
-  shipmentSelection = [];
-  selectedItems.forEach(key => {
-    const item = currentItems.find(i => i.key === key);
-    if (item) shipmentSelection.push(item);
-  });
-
-  if (shipmentSelection.length === 0) return alert("Select items to ship.");
-
-  const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
-  document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelection.length} item(s) will cost ${cost} coins.`;
-  document.getElementById('shipment-popup').classList.remove('hidden');
-}
-
-function shipItem(key) {
-  const item = currentItems.find(i => i.key === key);
-  if (!item || item.shipped || item.requested) return;
-  shipmentSelection = [item];
-  const cost = 500;
-  document.getElementById('shipment-cost').innerText = `Shipping 1 item will cost ${cost} coins.`;
-  document.getElementById('shipment-popup').classList.remove('hidden');
-}
-
-function closeShipmentPopup() {
-  document.getElementById('shipment-popup').classList.add('hidden');
-}
-
-function submitShipmentRequest() {
-  const user = firebase.auth().currentUser;
-  if (!user) return;
-
-  const name = document.getElementById('ship-name').value.trim();
-  const address = document.getElementById('ship-address').value.trim();
-  const city = document.getElementById('ship-city').value.trim();
-  const zip = document.getElementById('ship-zip').value.trim();
-  const phone = document.getElementById('ship-phone').value.trim();
-
-  if (!name || !address || !city || !zip) return alert("Please fill out all fields.");
-
-  const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
-  const userRef = firebase.database().ref('users/' + user.uid);
-
-  userRef.once('value').then(snap => {
-    const balance = snap.val().balance || 0;
-    if (balance < cost) return alert("Insufficient balance.");
-
-    userRef.update({ balance: balance - cost });
-
-    shipmentSelection.forEach(item => {
-      if (!item.id) return;
-      firebase.database().ref('shipments').push({
-        userId: user.uid,
-        itemId: item.id,
-        name: item.name,
-        image: item.image,
-        shippingInfo: { name, address, city, zip, phone },
-        status: 'Requested',
-        timestamp: Date.now()
-      });
-      firebase.database().ref(`users/${user.uid}/inventory/${item.id}`).update({ requested: true });
-    });
-
-    closeShipmentPopup();
-    window.location.reload();
-  });
-}
