@@ -3,23 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Packly.gg | Inventory</title>
+  <title>Inventory | Packly.gg</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
-  <script src="scripts/firebase-config.js"></script>
-  <script src="scripts/header.js"></script>
-  <script src="scripts/navbar.js"></script>
-  <script src="scripts/topup.js"></script>
-  <script src="scripts/inventory.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
-      background-color: #0f0f12;
       font-family: 'Inter', sans-serif;
+      background-color: #0f0f12;
       color: white;
     }
     .inventory-hero {
@@ -61,120 +56,99 @@
       background-color: white;
       color: black;
     }
+    .balance-plus {
+      cursor: pointer;
+      padding: 2px 6px;
+      background-color: #ec4899;
+      border-radius: 9999px;
+      font-weight: bold;
+      margin-left: 6px;
+    }
   </style>
 </head>
 <body class="min-h-screen pt-24">
+  <header></header>
 
-<header></header>
+  <section class="inventory-hero">
+    <h1><i class="fas fa-box-open mr-2"></i>Ship or Sell Back Your Items</h1>
+    <p>Your prized pulls, safely stored and ready to ship or sell. Welcome to your vault.</p>
+  </section>
 
-<section class="inventory-hero">
-  <h1><i class="fas fa-box-open mr-2"></i>Ship or Sell Back Your Items</h1>
-  <p>Your prized pulls, safely stored and ready to ship or sell. Welcome to your vault.</p>
-</section>
-
-<main class="p-6">
-  <div class="flex flex-col md:flex-row justify-between items-center bg-gray-800 border border-pink-500 p-4 rounded-lg mb-6">
-    <div>
-      <div class="text-gray-400 text-sm">Logged in as:</div>
-      <div id="username-display" class="text-white text-lg font-semibold truncate max-w-sm"></div>
-    </div>
-    <div class="flex items-center gap-2 mt-2 md:mt-0">
-      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="24" height="24" />
-      <span id="user-balance" class="text-white text-lg font-bold">--</span>
-      <span class="text-gray-300">coins</span>
-      <button id="logout-button" class="ml-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full btn">Logout</button>
-    </div>
-  </div>
-
-  <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-    <div class="flex items-center gap-3 text-sm">
-      <label><input type="checkbox" id="select-all-checkbox" class="mr-1"> Select All</label>
-      <label for="sort-select">Sort by:</label>
-      <select id="sort-select" class="text-black rounded px-3 py-1">
-        <option value="rarity">Rarity</option>
-        <option value="value">Value</option>
-        <option value="name">Name</option>
-      </select>
-    </div>
-    <div class="flex gap-3 items-center">
-      <span id="selected-total" class="text-sm text-gray-300">Total: 0 coins</span>
-      <button onclick="sellSelected()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full btn">Sell Selected</button>
-      <button onclick="shipSelected()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full btn">Ship Selected</button>
-    </div>
-  </div>
-
-  <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
-
-  <h2 class="text-3xl font-bold text-pink-400 mt-16 mb-4">📦 My Orders</h2>
-  <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
-
-  <div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
-    <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
-      <h2 class="text-xl font-bold mb-4">Enter Shipping Info</h2>
-      <input id="ship-name" type="text" placeholder="Full Name" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-      <input id="ship-address" type="text" placeholder="Address" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-      <input id="ship-city" type="text" placeholder="City" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-      <input id="ship-zip" type="text" placeholder="Zip Code" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-      <input id="ship-phone" type="text" placeholder="Phone Number" class="w-full mb-4 px-4 py-2 rounded bg-gray-700" />
-      <p id="shipment-cost" class="text-sm text-pink-300 mb-4"></p>
-      <div class="flex justify-end gap-3">
-        <button onclick="closeShipmentPopup()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded btn">Cancel</button>
-        <button onclick="submitShipmentRequest()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded btn">Confirm</button>
+  <main class="p-6">
+    <div class="flex flex-col md:flex-row justify-between items-center bg-gray-800 border border-pink-500 p-4 rounded-lg mb-6">
+      <div>
+        <div class="text-gray-400 text-sm">Logged in as:</div>
+        <div id="username-display" class="text-white text-lg font-semibold truncate max-w-sm"></div>
+      </div>
+      <div class="flex items-center gap-2 mt-2 md:mt-0">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="24" height="24" />
+        <span id="user-balance" class="text-white text-lg font-bold">--</span>
+        <span class="text-gray-300">coins</span>
+        <span class="balance-plus" id="topup-button">+</span>
+        <button id="logout-button" class="ml-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full btn">Logout</button>
       </div>
     </div>
-  </div>
-</main>
 
-<footer></footer>
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+      <div class="flex items-center gap-3 text-sm">
+        <label><input type="checkbox" id="select-all-checkbox" class="mr-1"> Select All</label>
+        <label for="sort-select">Sort by:</label>
+        <select id="sort-select" class="text-black rounded px-3 py-1">
+          <option value="rarity">Rarity</option>
+          <option value="value">Value</option>
+          <option value="name">Name</option>
+        </select>
+      </div>
+      <div class="flex gap-3 items-center">
+        <span id="selected-total" class="text-sm text-gray-300">Total: 0 coins</span>
+        <button onclick="sellSelected()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full btn">Sell Selected</button>
+        <button onclick="shipSelected()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full btn">Ship Selected</button>
+      </div>
+    </div>
 
-<script>
-  document.getElementById('dropdown-toggle')?.addEventListener('click', () => {
-    document.getElementById('user-dropdown')?.classList.toggle('hidden');
-  });
-  document.getElementById('menu-toggle')?.addEventListener('click', () => {
-    document.getElementById('mobile-dropdown')?.classList.toggle('hidden');
-  });
-</script>
-<script src="scripts/header.js"></script>
-<script src="scripts/navbar.js"></script>
-  <script src="https://js.stripe.com/v3/"></script>
-<script src="scripts/topup.js"></script>
+    <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
 
-<script src="scripts/header.js"></script>
-<script src="scripts/navbar.js"></script>
-  <script src="https://js.stripe.com/v3/"></script>
-<script src="scripts/topup.js"></script>
+    <h2 class="text-3xl font-bold text-pink-400 mt-16 mb-4">📦 My Orders</h2>
+    <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
 
-<script>
-  const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
-  function redirectToCheckout(event, priceId) {
-    event.preventDefault();
+    <div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
+      <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
+        <h2 class="text-xl font-bold mb-4">Enter Shipping Info</h2>
+        <input id="ship-name" type="text" placeholder="Full Name" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+        <input id="ship-address" type="text" placeholder="Address" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+        <input id="ship-city" type="text" placeholder="City" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+        <input id="ship-zip" type="text" placeholder="Zip Code" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+        <input id="ship-phone" type="text" placeholder="Phone Number" class="w-full mb-4 px-4 py-2 rounded bg-gray-700" />
+        <p id="shipment-cost" class="text-sm text-pink-300 mb-4"></p>
+        <div class="flex justify-end gap-3">
+          <button onclick="closeShipmentPopup()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded btn">Cancel</button>
+          <button onclick="submitShipmentRequest()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded btn">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </main>
 
-    const user = firebase.auth().currentUser;
-    if (!user) {
-      alert("Please sign in to purchase coins.");
-      return;
-    }
+  <footer></footer>
 
-    firebase.firestore()
-      .collection("customers")
-      .doc(user.uid)
-      .collection("checkout_sessions")
-      .add({
-        mode: "payment",
-        success_url: window.location.href,
-        cancel_url: window.location.href,
-        allow_promotion_codes: true,
-        line_items: [{ price: priceId, quantity: 1 }],
-        metadata: { priceId }
-      })
-      .then((docRef) => {
-        docRef.onSnapshot((snap) => {
-          const { error, sessionId } = snap.data();
-          if (error) {
-            alert(`An error occurred: ${error.message}`);
-          }
-          if (sessionId) {
-            stripe.redirectToCheckout({ sessionId });
+  <!-- Firebase Config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+      authDomain: "cases-e5b4e.firebaseapp.com",
+      databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+      projectId: "cases-e5b4e",
+      storageBucket: "cases-e5b4e.appspot.com",
+      messagingSenderId: "22502548396",
+      appId: "1:22502548396:web:aac335672c21f07524d009"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <!-- Component Scripts -->
+  <script src="scripts/header.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/footer.js"></script>
+  <script src="scripts/topup.js"></script>
+  <script src="scripts/inventory.js"></script>
 </body>
 </html>
