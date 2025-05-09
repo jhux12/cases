@@ -347,9 +347,9 @@ const priceId = payment?.metadata?.priceId || payment?.price?.id;
 
             await userRef.update({ balance: newBalance });
 
-            document.getElementById("balance-amount").innerText = newBalance;
-            document.getElementById("balance-amount-mobile").innerText = newBalance;
-            document.getElementById("popup-balance").innerText = `${newBalance} coins`;
+            document.getElementById("balance-amount").innerText = newBalance.toLocaleString();
+            document.getElementById("balance-amount-mobile").innerText = newBalance.toLocaleString();
+            document.getElementById("popup-balance").innerText = `${newBalance.toLocaleString()} coins`;
 
             await change.doc.ref.update({ processed: true });
           } else {
@@ -366,9 +366,9 @@ const priceId = payment?.metadata?.priceId || payment?.price?.id;
       const currentBalance = snapshot.val().balance || 0;
       const newBalance = currentBalance + amount;
       userRef.update({ balance: newBalance }).then(() => {
-        document.getElementById('balance-amount').innerText = newBalance;
-        document.getElementById('popup-balance').innerText = `${newBalance} coins`;
-        document.getElementById('popup-balance').innerText = `${newBalance} coins`;
+        document.getElementById('balance-amount').innerText = newBalance.toLocaleString();
+        document.getElementById('popup-balance').innerText = `${newBalance.toLocaleString()} coins`;
+        document.getElementById('popup-balance').innerText = `${newBalance.toLocaleString()} coins`;
 
         const balanceEl = document.getElementById('balance-amount');
 balanceEl.classList.remove('pulse-balance');
@@ -486,8 +486,8 @@ possiblePrizesDiv.innerHTML = [...currentPrizes]
 
     const newBalance = userBalance - selectedCasePrice;
     userRef.update({ balance: newBalance }).then(() => {
-      document.getElementById('balance-amount').innerText = newBalance;
-      document.getElementById('popup-balance').innerText = `${newBalance} coins`;
+      document.getElementById('balance-amount').innerText = newBalance.toLocaleString();
+      document.getElementById('popup-balance').innerText = `${newBalance.toLocaleString()} coins`;
 
       const balanceEl = document.getElementById('balance-amount');
       balanceEl.classList.remove('pulse-balance');
@@ -812,9 +812,9 @@ firebase.auth().onAuthStateChanged(async user => {
 
                 await userRef.update({ balance: newBalance });
 
-                document.getElementById("balance-amount").innerText = newBalance;
-                document.getElementById("balance-amount-mobile").innerText = newBalance;
-                document.getElementById("popup-balance").innerText = `${newBalance} coins`;
+                document.getElementById("balance-amount").innerText = newBalance.toLocaleString();
+                document.getElementById("balance-amount-mobile").innerText = newBalance.toLocaleString();
+                document.getElementById("popup-balance").innerText = `${newBalance.toLocaleString()} coins`;
 
                 await change.doc.ref.update({ processed: true });
               } else {
