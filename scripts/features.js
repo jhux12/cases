@@ -42,12 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="mt-12">
         <h4 class="text-sm uppercase text-gray-500 tracking-widest mb-4">Accepted Payment Methods</h4>
         <div class="flex justify-center items-center gap-6 flex-wrap">
-          <img src="https://cdn-icons-png.flaticon.com/128/196/196561.png" alt="Visa" class="h-8">
-          <img src="https://cdn-icons-png.flaticon.com/128/349/349221.png" alt="MasterCard" class="h-8">
-          <img src="https://cdn-icons-png.flaticon.com/128/196/196578.png" alt="Amex" class="h-8">
-          <img src="https://cdn-icons-png.flaticon.com/128/196/196565.png" alt="PayPal" class="h-8">
-          <img src="https://cdn-icons-png.flaticon.com/128/742/742751.png" alt="Apple Pay" class="h-8">
-          <img src="https://cdn-icons-png.flaticon.com/128/174/174861.png" alt="Google Pay" class="h-8">
+          <img src="https://cdn-icons-png.flaticon.com/128/349/349221.png" alt="Visa" class="h-8">
+          <img src="https://cdn-icons-png.flaticon.com/128/11378/11378185.png" alt="MasterCard" class="h-8">
+          <img src="https://cdn-icons-png.flaticon.com/128/179/179431.png" alt="Amex" class="h-8">
+          <img src="https://cdn-icons-png.flaticon.com/128/5968/5968279.png" alt="Apple Pay" class="h-8">
+          <img src="https://cdn-icons-png.flaticon.com/128/6124/6124998.png" alt="Google Pay" class="h-8">
         </div>
       </div>
     </div>
