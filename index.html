@@ -418,39 +418,37 @@ const rarityOrder = {
 possiblePrizesDiv.innerHTML = [...currentPrizes]
   .sort((a, b) => (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0))
   .map(prize => {
-  const ringColor = prize.rarity === 'common' ? 'ring-gray-500' :
-                    prize.rarity === 'uncommon' ? 'ring-green-500' :
-                    prize.rarity === 'rare' ? 'ring-blue-500' :
-                    prize.rarity === 'ultra rare' ? 'ring-purple-500' :
-                    prize.rarity === 'legendary' ? 'ring-yellow-400 legendary-glow' : 'ring-white';
+    const ringColor = prize.rarity === 'common' ? 'ring-gray-500' :
+                      prize.rarity === 'uncommon' ? 'ring-green-500' :
+                      prize.rarity === 'rare' ? 'ring-blue-500' :
+                      prize.rarity === 'ultra rare' ? 'ring-purple-500' :
+                      prize.rarity === 'legendary' ? 'ring-yellow-400 legendary-glow' : 'ring-white';
 
-  // Create a label for the rarity (if it exists)
-  const rarityLabel = prize.rarity 
-    ? `<div class="mt-2 text-xs font-semibold text-${ringColor.replace('ring-', '')} uppercase">${prize.rarity}</div>`
-    : '';
+    const rarityLabel = prize.rarity 
+      ? `<div class="text-xs font-semibold text-${ringColor.replace('ring-', '')} uppercase">${prize.rarity}</div>`
+      : '';
 
-  // Create an odds label if prize.odds is defined as a number
-  const oddsLabel = typeof prize.odds === 'number'
-    ? `<div class="text-xs text-gray-300 mt-1">${parseFloat(prize.odds).toFixed(2)}% chance</div>`
-    : '';
+    const oddsLabel = typeof prize.odds === 'number'
+      ? `<div class="text-xs text-gray-300 mt-1">${parseFloat(prize.odds).toFixed(2)}% chance</div>`
+      : '';
 
-  return `
-  <div class="text-center cursor-pointer transition-transform duration-300" onclick="expandPrize('${prize.image}')">
-    <img src="${prize.image}" class="h-28 mx-auto object-contain rounded ring-2 ${ringColor} transition-transform duration-300">
-    
-    ${typeof prize.value === 'number' ? `
-      <div class="text-xs text-yellow-300 flex justify-center items-center gap-1 mt-1">
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" alt="coin">
-        ${prize.value.toLocaleString()} coins
+    const valueLabel = typeof prize.value === 'number'
+      ? `<div class="text-xs leading-tight text-yellow-300 flex justify-center items-center gap-1 mt-1">
+           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" alt="coin">
+           ${prize.value.toLocaleString()} coins
+         </div>`
+      : '';
+
+    return `
+      <div class="text-center cursor-pointer transition-transform duration-300" onclick="expandPrize('${prize.image}')">
+        <img src="${prize.image}" class="h-28 mx-auto object-contain rounded ring-2 ${ringColor} transition-transform duration-300">
+        ${valueLabel}
+        <div class="mt-2 text-sm font-semibold text-white">${prize.name}</div>
+        ${rarityLabel}
+        ${oddsLabel}
       </div>
-    ` : ''}
-
-<div class="text-xs leading-tight text-yellow-300 flex justify-center items-center gap-1 mt-1">
-    ${rarityLabel}
-    ${oddsLabel}
-  </div>
-`;
-}).join('');
+    `;
+  }).join('');
       resultDiv.classList.add('hidden');
       popup.classList.remove('hidden');
     });
