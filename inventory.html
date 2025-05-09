@@ -8,40 +8,21 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  
+  <script src="scripts/header.js"></script>
+  <script src="scripts/footer.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
-      background: radial-gradient(circle at top, #2b0a49, #0f0c29);
+      background-color: #0f0f12;
       font-family: 'Inter', sans-serif;
       color: white;
-    }
-    .item-card {
-      background: linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 1rem;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .item-card:hover {
-      transform: scale(1.02);
-      box-shadow: 0 0 15px rgba(236,72,153,0.4);
-    }
-    .btn {
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-    .btn:hover {
-      transform: scale(1.05);
-    }
-    select {
-      background-color: white;
-      color: black;
     }
     .inventory-hero {
       background: linear-gradient(to right, rgba(76,29,149,0.6), rgba(190,24,93,0.6));
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 1.5rem;
       padding: 2rem;
-      margin-bottom: 2rem;
+      margin: 96px 1.5rem 2rem; /* 96px = 24 * 4 = space below nav */
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       text-align: center;
     }
@@ -55,15 +36,40 @@
       margin-top: 0.5rem;
       font-size: 1.125rem;
     }
+    .item-card {
+      background-color: #1f1f2b;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
+    .item-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    .btn {
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      transform: scale(1.05);
+    }
+    select {
+      background-color: white;
+      color: black;
+    }
   </style>
 </head>
-<body class="p-6">
+<body class="min-h-screen">
+
+  <header></header>
 
   <!-- Hero Section -->
   <section class="inventory-hero">
-    <h1>🎒 Ship or sell back your items.</h1>
+    <h1><i class="fas fa-box-open mr-2"></i>Ship or Sell Back Your Items</h1>
     <p>Your prized pulls, safely stored and ready to ship or sell. Welcome to your vault.</p>
   </section>
+
+  <!-- Inventory content will load here dynamically -->
+  <main class="p-6">
   <!-- User Info -->
   <div class="flex flex-col md:flex-row justify-between items-center bg-gray-800 border border-pink-500 p-4 rounded-lg mb-6">
     <div>
