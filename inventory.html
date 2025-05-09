@@ -136,7 +136,7 @@
   <script src="scripts/inventory.js"></script>
   <div id="topup-popup-container"></div>
 <script>
-  fetch("/components/topup.html")
+  fetch("/cases/components/topup.html")
     .then(res => res.text())
     .then(html => {
       document.getElementById("topup-popup-container").innerHTML = html;
