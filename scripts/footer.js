@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <!-- Bottom Tagline -->
         <div class="text-center mt-6 text-sm text-gray-500">
-          Made with ❤️
+          Packly.gg – Where virtual packs ignite real hype ❤️
         </div>
       </div>
     `;
