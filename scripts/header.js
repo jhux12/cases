@@ -26,11 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
             <i class="fas fa-chevron-down text-xs"></i>
           </button>
           <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg hidden z-50">
-            <a href="index.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700">🎲 Open Packs</a>
-            <a href="inventory.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700">📦 Inventory</a>
-            <a href="how-it-works.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700">❓ How It Works</a>
-            <a id="signin-desktop" href="auth.html" class="block px-4 py-2 text-sm text-green-400 hover:bg-gray-700">🔐 Sign In</a>
-            <a id="logout-desktop" href="#" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700">🚪 Logout</a>
+            <a href="index.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-cube mr-2"></i> Open Packs</a>
+            <a href="inventory.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-box-open mr-2"></i> Inventory</a>
+            <a href="how-it-works.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-question-circle mr-2"></i> How It Works</a>
+            <a id="signin-desktop" href="auth.html" class="block px-4 py-2 text-sm text-green-400 hover:bg-gray-700"><i class="fas fa-sign-in-alt mr-2"></i> Sign In</a>
+            <a id="logout-desktop" href="#" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
           </div>
         </div>
       </div>
@@ -45,11 +45,11 @@ document.addEventListener("DOMContentLoaded", () => {
         <span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 mr-1"> <span id="balance-amount-mobile">0</span> coins</span>
         <button id="topup-button-mobile" class="text-green-400 text-lg font-bold hover:text-green-500">+</button>
       </div>
-      <a href="index.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm">🎲 Open Packs</a>
-      <a id="inventory-link" href="inventory.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm hidden">📦 Inventory</a>
-      <a href="how-it-works.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm">❓ How It Works</a>
+      <a href="index.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm"><i class="fas fa-cube mr-2"></i> Open Packs</a>
+      <a id="inventory-link" href="inventory.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm hidden"><i class="fas fa-box-open mr-2"></i> Inventory</a>
+      <a href="how-it-works.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm"><i class="fas fa-question-circle mr-2"></i> How It Works</a>
       <a href="rewards.html" class="block px-4 py-2 hover:bg-gray-700 text-yellow-400 text-sm"><i class="fas fa-gift mr-2"></i> Rewards</a>
-      <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 hover:bg-gray-700 text-red-400 text-sm">🔐 Sign In</a>
+      <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 hover:bg-gray-700 text-red-400 text-sm"><i class="fas fa-sign-in-alt mr-2"></i> Sign In</a>
     </div>
   `;
 
@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (mobileAuth) {
-      mobileAuth.innerText = "🚪 Logout";
+      mobileAuth.innerHTML = '<i class="fas fa-sign-out-alt mr-2"></i> Logout';
       mobileAuth.href = "#";
       mobileAuth.onclick = (e) => {
         e.preventDefault();
@@ -95,4 +95,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-
