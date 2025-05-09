@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>How It Works | Packly.gg</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -36,8 +36,10 @@
   </style>
 </head>
 <body>
+  <!-- Dynamic Header -->
   <header></header>
 
+  <!-- How It Works Section -->
   <section class="section text-center">
     <h1 class="text-4xl font-extrabold mb-4 text-white">How It Works</h1>
     <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-12">Packly.gg is the ultimate case-opening experience. Here’s how to get started and strike gold.</p>
@@ -76,11 +78,27 @@
     </div>
   </section>
 
+  <!-- Dynamic Footer -->
   <footer></footer>
 
-  <script src="/scripts/header.js"></script>
-  <script src="/scripts/navbar.js"></script>
-  <script src="/scripts/footer.js"></script>
+  <!-- Firebase Config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+      authDomain: "cases-e5b4e.firebaseapp.com",
+      databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+      projectId: "cases-e5b4e",
+      storageBucket: "cases-e5b4e.appspot.com",
+      messagingSenderId: "22502548396",
+      appId: "1:22502548396:web:aac335672c21f07524d009"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <!-- Inject Dynamic Components -->
+  <script src="scripts/header.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/footer.js"></script>
 </body>
 </html>
 
