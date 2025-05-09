@@ -15,8 +15,6 @@
       font-family: 'Inter', sans-serif;
       background-color: #0f0f12;
       color: white;
-      margin: 0;
-      padding: 0;
     }
     header {
       position: fixed;
@@ -59,7 +57,7 @@
     </div>
 
     <div class="faq-card">
-      <div class="faq-question">🎁 What are virtual packs?</div>
+      <div class="faq-question">🏱 What are virtual packs?</div>
       <div class="faq-answer">Virtual packs contain real collectible cards. When opened, you either receive a digital version or choose to ship the physical card.</div>
     </div>
 
@@ -97,6 +95,14 @@
 
   <!-- Scripts -->
   <script src="scripts/header.js"></script>
+  <div id="topup-popup-container"></div>
+  <script>
+    fetch("/cases/components/topup.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("topup-popup-container").innerHTML = html;
+      });
+  </script>
   <script src="scripts/navbar.js"></script>
   <script src="scripts/footer.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
@@ -137,14 +143,6 @@
         });
     }
   </script>
-
-  <div id="topup-popup-container"></div>
-  <script>
-    fetch("/cases/components/topup.html")
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById("topup-popup-container").innerHTML = html;
-      });
-  </script>
 </body>
 </html>
+
