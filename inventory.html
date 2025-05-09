@@ -6,10 +6,12 @@
   <title>Packly.gg | Inventory</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
   <script src="scripts/header.js"></script>
   <script src="scripts/footer.js"></script>
+  <script src="scripts/inventory.js" defer></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
@@ -22,7 +24,7 @@
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 1.5rem;
       padding: 2rem;
-      margin: 120px 1.5rem 2rem; /* 96px = 24 * 4 = space below nav */
+      margin: 120px 1.5rem 2rem;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       text-align: center;
     }
@@ -70,370 +72,74 @@
 
   <!-- Inventory content will load here dynamically -->
   <main class="p-6">
- <!-- User Info -->
-  <div class="flex flex-col md:flex-row justify-between items-center bg-gray-800 border border-pink-500 p-4 rounded-lg mb-6">
-    <div>
-      <div class="text-gray-400 text-sm">Logged in as:</div>
-      <div id="username-display" class="text-white text-lg font-semibold truncate max-w-sm"></div>
-    </div>
-    <div class="flex items-center gap-2 mt-2 md:mt-0">
-      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="24" height="24" />
-      <span id="user-balance" class="text-white text-lg font-bold">--</span>
-      <span class="text-gray-300">coins</span>
-      <button id="logout-button" class="ml-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full btn">Logout</button>
-    </div>
-  </div>
-
-  <!-- Filters & Actions -->
-  <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-    <div class="flex items-center gap-3 text-sm">
-      <label><input type="checkbox" id="select-all-checkbox" class="mr-1"> Select All</label>
-      <label for="sort-select">Sort by:</label>
-      <select id="sort-select" class="text-black rounded px-3 py-1">
-        <option value="rarity">Rarity</option>
-        <option value="value">Value</option>
-        <option value="name">Name</option>
-      </select>
-    </div>
-    <div class="flex gap-3 items-center">
-      <span id="selected-total" class="text-sm text-gray-300">Total: 0 coins</span>
-      <button onclick="sellSelected()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full btn">Sell Selected</button>
-      <button onclick="shipSelected()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full btn">Ship Selected</button>
-    </div>
-  </div>
-
-  <!-- Inventory Grid -->
-  <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
-
-  <!-- Orders -->
-  <h2 class="text-3xl font-bold text-pink-400 mt-16 mb-4">📦 My Orders</h2>
-  <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
-
-  <!-- Popup -->
-  <div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
-    <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
-      <h2 class="text-xl font-bold mb-4">Enter Shipping Info</h2>
-      <input id="ship-name" type="text" placeholder="Full Name" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-      <input id="ship-address" type="text" placeholder="Address" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-      <input id="ship-city" type="text" placeholder="City" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-      <input id="ship-zip" type="text" placeholder="Zip Code" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-      <input id="ship-phone" type="text" placeholder="Phone Number" class="w-full mb-4 px-4 py-2 rounded bg-gray-700" />
-      <p id="shipment-cost" class="text-sm text-pink-300 mb-4"></p>
-      <div class="flex justify-end gap-3">
-        <button onclick="closeShipmentPopup()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded btn">Cancel</button>
-        <button onclick="submitShipmentRequest()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded btn">Confirm</button>
+    <!-- User Info -->
+    <div class="flex flex-col md:flex-row justify-between items-center bg-gray-800 border border-pink-500 p-4 rounded-lg mb-6">
+      <div>
+        <div class="text-gray-400 text-sm">Logged in as:</div>
+        <div id="username-display" class="text-white text-lg font-semibold truncate max-w-sm">...</div>
+      </div>
+      <div class="flex items-center gap-2 mt-2 md:mt-0">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="24" height="24" />
+        <span id="user-balance" class="text-white text-lg font-bold">--</span>
+        <span class="text-gray-300">coins</span>
+        <button id="logout-button" class="ml-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full btn">Logout</button>
       </div>
     </div>
-  </div>
-  
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
-      authDomain: "cases-e5b4e.firebaseapp.com",
-      databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
-      projectId: "cases-e5b4e",
-      storageBucket: "cases-e5b4e.appspot.com",
-      messagingSenderId: "22502548396",
-      appId: "1:22502548396:web:aac335672c21f07524d009"
-    };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    let shipmentSelection = [];
-    const selectedItems = new Set();
-    let currentItems = [];
+    <!-- Filters & Actions -->
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+      <div class="flex items-center gap-3 text-sm">
+        <label><input type="checkbox" id="select-all-checkbox" class="mr-1"> Select All</label>
+        <label for="sort-select">Sort by:</label>
+        <select id="sort-select" class="text-black rounded px-3 py-1">
+          <option value="rarity">Rarity</option>
+          <option value="value">Value</option>
+          <option value="name">Name</option>
+        </select>
+      </div>
+      <div class="flex gap-3 items-center">
+        <span id="selected-total" class="text-sm text-gray-300">Total: 0 coins</span>
+        <button onclick="sellSelected()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full btn">Sell Selected</button>
+        <button onclick="shipSelected()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full btn">Ship Selected</button>
+      </div>
+    </div>
 
-    document.getElementById('select-all-checkbox').addEventListener('change', function () {
-      if (this.checked) {
-        currentItems.forEach(item => {
-          if (!item.shipped && !item.requested) {
-            selectedItems.add(item.key);
-          }
-        });
-      } else {
-        selectedItems.clear();
-      }
-      updateTotalValue();
-      renderItems(currentItems);
-    });
+    <!-- Inventory Grid -->
+    <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
 
-    // Sorting items based on user selection
-    document.getElementById('sort-select').addEventListener('change', function () {
-      const sortBy = this.value;
-      sortItems(sortBy); // Sort items based on the selected dropdown option
-    });
+    <!-- Orders -->
+    <h2 class="text-3xl font-bold text-pink-400 mt-16 mb-4">📦 My Orders</h2>
+    <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
 
-    function sortItems(by) {
-      let sorted = [...currentItems];
-      if (by === 'value') {
-        sorted.sort((a, b) => (b.value || 0) - (a.value || 0));
-      } else if (by === 'name') {
-        sorted.sort((a, b) => a.name.localeCompare(b.name));
-      } else if (by === 'rarity') {
-        const rarityOrder = ['common', 'uncommon', 'rare', 'ultra rare', 'legendary'];
-        sorted.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
-      }
-      renderItems(sorted);
-    }
-
-    function sellSelected() {
-      let totalRefund = 0;
-      selectedItems.forEach(key => {
-        const item = currentItems.find(i => i.key === key);
-        if (item) {
-          totalRefund += Math.floor((item.value || 0) * 0.8); // 80% of the item's value
-        }
-      });
-
-      if (totalRefund > 0) {
-        const user = firebase.auth().currentUser;
-        if (!user) return;
-
-        const userRef = db.ref('users/' + user.uid);
-        userRef.once('value').then(snapshot => {
-          const balance = snapshot.val().balance || 0;
-          userRef.update({ balance: balance + totalRefund }); // Add refund to the user's balance
-
-          selectedItems.forEach(key => {
-            const item = currentItems.find(i => i.key === key);
-            if (item) {
-              db.ref('users/' + user.uid + '/inventory/' + key).remove(); // Remove the item from the inventory
-            }
-          });
-
-          alert(`Sold selected items for ${totalRefund} coins.`);
-          window.location.reload(true); // Reload to reflect updated inventory
-        });
-      }
-    }
-
-    function shipSelected() {
-      shipmentSelection = [];
-      selectedItems.forEach(key => {
-        const item = currentItems.find(i => i.key === key);
-        if (item) {
-          shipmentSelection.push({ id: item.key, name: item.name, image: item.image, value: item.value || 0 });
-        }
-      });
-
-      if (shipmentSelection.length === 0) {
-        alert("Select items to ship.");
-        return;
-      }
-
-      const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
-      document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelection.length} item(s) will cost ${cost} coins.`;
-      document.getElementById('shipment-popup').classList.remove('hidden');
-    }
-
-    function submitShipmentRequest() {
-      const user = firebase.auth().currentUser;
-      if (!user) return;
-
-      const name = document.getElementById('ship-name').value.trim();
-      const address = document.getElementById('ship-address').value.trim();
-      const city = document.getElementById('ship-city').value.trim();
-      const zip = document.getElementById('ship-zip').value.trim();
-      const phone = document.getElementById('ship-phone').value.trim();
-
-      if (!name || !address || !city || !zip) {
-        alert("Please fill out all fields.");
-        return;
-      }
-
-      const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
-      const userRef = db.ref('users/' + user.uid);
-
-      userRef.once('value').then(snapshot => {
-        const balance = snapshot.val().balance || 0;
-        if (balance < cost) {
-          alert(`Insufficient balance. You need ${cost} coins.`);
-          return;
-        }
-
-        userRef.update({ balance: balance - cost });
-
-        shipmentSelection.forEach(item => {
-          if (item.id === undefined) {
-            console.error("Item ID is missing:", item);
-            return; // Skip pushing the item if the ID is missing
-          }
-
-          db.ref('shipments').push({
-            userId: user.uid,
-            itemId: item.id,  // Make sure item.id is not undefined
-            name: item.name,
-            image: item.image,
-            shippingInfo: { name, address, city, zip, phone },
-            status: 'Requested',
-            timestamp: Date.now()
-          });
-
-          db.ref(`users/${user.uid}/inventory/${item.id}`).update({ requested: true });
-        });
-
-        closeShipmentPopup();
-        window.location.reload(true);
-      });
-    }
-
-    function closeShipmentPopup() {
-      document.getElementById('shipment-popup').classList.add('hidden');
-    }
-
-    function updateTotalValue() {
-      let total = 0;
-      selectedItems.forEach(key => {
-        const item = currentItems.find(i => i.key === key);
-        if (item) total += Math.floor((item.value || 0) * 0.8); // Calculate 80% value for sell price
-      });
-      document.getElementById('selected-total').innerText = `Total: ${total} coins`;
-    }
-
-    function renderItems(sortedItems) {
-      const container = document.getElementById('inventory-container');
-      container.innerHTML = ''; // Clear the current items
-
-      sortedItems.forEach(item => {
-        const refund = Math.floor((item.value || 0) * 0.8); // Calculate 80% value for sell price
-        const checked = selectedItems.has(item.key) ? 'checked' : '';
-
-        item.id = item.key;  // Ensure that item.id is properly set before any other operation
-
-        container.innerHTML += `
-          <div class="item-card rounded-lg p-4 text-center">
-            <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-2" ${item.shipped || item.requested ? 'disabled' : ''} />
-            <img src="${item.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
-            <h2 class="font-bold text-lg text-pink-300">${item.name}</h2>
-            <p class="text-sm text-gray-400 mb-2">Rarity: ${item.rarity}</p>
-            <p class="text-sm text-gray-400">Value: ${item.value || 0} coins</p>
-            
-            <div class="flex justify-center gap-2">
-              ${item.shipped || item.requested ? `
-                <button disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full flex items-center space-x-1">
-                  <span>Sell for ${refund}</span>
-                  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
-                </button>
-              ` : `
-                <button onclick="sellBack('${item.key}', ${item.value || 0})" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full flex items-center space-x-1">
-                  <span>Sell for ${refund}</span>
-                  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
-                </button>
-              `}
-              <button onclick="shipItem('${item.key}')" class="px-4 py-2 rounded-full ${item.shipped || item.requested ? 'bg-gray-600 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}" ${item.shipped || item.requested ? 'disabled' : ''}>
-                Ship
-              </button>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    function toggleItem(key) {
-      if (selectedItems.has(key)) {
-        selectedItems.delete(key);
-      } else {
-        selectedItems.add(key);
-      }
-      updateTotalValue();
-    }
-
-    function shipItem(itemKey) {
-      const item = currentItems.find(i => i.key === itemKey);
-      if (item && !item.shipped && !item.requested) {
-        item.id = item.key; // Ensure item.id is properly set before shipping
-        shipmentSelection = [item]; // Set the current item for shipment
-        const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
-document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelection.length} item(s) will cost ${cost} coins.`;
-
-        document.getElementById('shipment-popup').classList.remove('hidden');
-      }
-    }
-    function sellBack(itemKey, itemValue) {
-  const user = firebase.auth().currentUser;
-  if (!user) return;
-
-  const refund = Math.floor(itemValue * 0.8);
-  const userRef = db.ref('users/' + user.uid);
-  const itemRef = db.ref('users/' + user.uid + '/inventory/' + itemKey);
-
-  userRef.once('value').then(snapshot => {
-    const balance = snapshot.val().balance || 0;
-    userRef.update({ balance: balance + refund }).then(() => {
-      itemRef.remove().then(() => {
-        window.location.reload(true); // Reload to reflect changes
-      });
-    });
-  });
-}
-
-   document.addEventListener("DOMContentLoaded", () => {
-  firebase.auth().onAuthStateChanged(user => {
-    if (!user) return (window.location.href = "auth.html");
-
-    const userRef = db.ref('users/' + user.uid);
-    userRef.once('value').then(snapshot => {
-      const data = snapshot.val();
-      document.getElementById('user-balance').innerText = data.balance || 0;
-      document.getElementById('username-display').innerText = user.displayName || user.email;
-    });
-
-    // Load inventory and orders (keep this part below your existing auth check)
-    const inventoryRef = db.ref('users/' + user.uid + '/inventory');
-    inventoryRef.once('value').then(inventorySnap => {
-      if (!inventorySnap.exists()) {
-        document.getElementById('inventory-container').innerHTML = "<p>You have no items yet.</p>";
-        return;
-      }
-
-      currentItems = [];
-      inventorySnap.forEach(child => {
-        const item = child.val();
-        item.key = child.key;
-        item.id = item.key;
-        if (!item.requested) currentItems.push(item);
-      });
-
-      sortItems('rarity');
-      renderItems(currentItems);
-    });
-
-    const ordersRef = db.ref('shipments').orderByChild('userId').equalTo(user.uid);
-    ordersRef.once('value').then(ordersSnap => {
-      const ordersContainer = document.getElementById('orders-container');
-      ordersContainer.innerHTML = '';
-      ordersSnap.forEach(order => {
-        const orderData = order.val();
-        ordersContainer.innerHTML += `
-          <div class="item-card rounded-lg p-4 text-center">
-            <img src="${orderData.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
-            <h2 class="font-bold text-lg text-pink-300">${orderData.name}</h2>
-            <p class="text-sm text-gray-400 mb-2">Status: ${orderData.status}</p>
-            <p class="text-sm text-gray-400">Shipping Info: ${orderData.shippingInfo?.name}</p>
-          </div>
-        `;
-      });
-    });
-  });
-});
-
-
-    document.getElementById('logout-button').onclick = () => {
-      firebase.auth().signOut().then(() => location.href = "index.html");
-    };
-  </script>
+    <!-- Popup -->
+    <div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
+      <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
+        <h2 class="text-xl font-bold mb-4">Enter Shipping Info</h2>
+        <input id="ship-name" type="text" placeholder="Full Name" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+        <input id="ship-address" type="text" placeholder="Address" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+        <input id="ship-city" type="text" placeholder="City" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+        <input id="ship-zip" type="text" placeholder="Zip Code" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+        <input id="ship-phone" type="text" placeholder="Phone Number" class="w-full mb-4 px-4 py-2 rounded bg-gray-700" />
+        <p id="shipment-cost" class="text-sm text-pink-300 mb-4"></p>
+        <div class="flex justify-end gap-3">
+          <button onclick="closeShipmentPopup()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded btn">Cancel</button>
+          <button onclick="submitShipmentRequest()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded btn">Confirm</button>
+        </div>
+      </div>
+    </div>
   </main>
-  <footer></footer>
-  <script>
-  // Toggle dropdown
-  document.getElementById('dropdown-toggle')?.addEventListener('click', () => {
-    document.getElementById('user-dropdown')?.classList.toggle('hidden');
-  });
 
-  // Toggle mobile menu
-  document.getElementById('menu-toggle')?.addEventListener('click', () => {
-    document.getElementById('mobile-dropdown')?.classList.toggle('hidden');
-  });
-</script>
+  <footer></footer>
+
+  <script>
+    // Dropdowns for navbar
+    document.getElementById('dropdown-toggle')?.addEventListener('click', () => {
+      document.getElementById('user-dropdown')?.classList.toggle('hidden');
+    });
+    document.getElementById('menu-toggle')?.addEventListener('click', () => {
+      document.getElementById('mobile-dropdown')?.classList.toggle('hidden');
+    });
+  </script>
 </body>
 </html>
+
