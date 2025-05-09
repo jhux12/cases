@@ -262,14 +262,6 @@ function adminReply(event, caseId) {
   });
 }
 
-function replySupport(id, reply) {
-  firebase.database().ref('supportCases/' + id).update({
-    adminReply: reply,
-    status: 'Replied'
-  }).then(() => {
-    showToast('✅ Reply sent');
-  });
-}
 
     function editCase(id) {
       db.ref('cases/' + id).once('value').then(snapshot => {
