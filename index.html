@@ -407,7 +407,17 @@ balanceEl.classList.add('pulse-balance');
   currentPrizes = Object.values(data.prizes || {});
 console.log(currentPrizes);
 
-possiblePrizesDiv.innerHTML = [...currentPrizes].sort((a, b) => (a.odds || 0) - (b.odds || 0)).map(prize => {
+const rarityOrder = {
+  "common": 1,
+  "uncommon": 2,
+  "rare": 3,
+  "ultra rare": 4,
+  "legendary": 5
+};
+
+possiblePrizesDiv.innerHTML = [...currentPrizes]
+  .sort((a, b) => (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0))
+  .map(prize => {
   const ringColor = prize.rarity === 'common' ? 'ring-gray-500' :
                     prize.rarity === 'uncommon' ? 'ring-green-500' :
                     prize.rarity === 'rare' ? 'ring-blue-500' :
