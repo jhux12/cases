@@ -391,7 +391,7 @@ balanceEl.classList.add('pulse-balance');
   }
 
   selectedCasePrice = parseFloat(data.price) || 0;
-  document.getElementById('popup-price').innerText = data.price || '0';
+  document.getElementById('popup-price').innerText = (parseFloat(data.price) || 0).toLocaleString();
   document.getElementById('case-card-back').src = data.image;
 
   // Show user balance in popup
