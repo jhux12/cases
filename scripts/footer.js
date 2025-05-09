@@ -1,5 +1,3 @@
-// scripts/footer.js
-
 document.addEventListener('DOMContentLoaded', () => {
   const footer = document.querySelector('footer');
   if (footer) {
@@ -24,9 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
               </svg>
               Instagram
             </a>
-            <a Made with /a> ❤️
           </div>
 
+        </div>
+
+        <!-- Bottom Tagline -->
+        <div class="text-center mt-6 text-sm text-gray-500">
+          Made with ❤️
         </div>
       </div>
     `;
