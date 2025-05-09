@@ -60,10 +60,8 @@
       </form>
 
       <div class="mt-12">
-        <h2 class="text-2xl font-bold mb-4 text-white">Your Open Support Cases</h2>
-        <div id="user-cases" class="space-y-4">
-          <!-- Filled dynamically -->
-        </div>
+        <h2 class="text-2xl font-bold mb-4 text-white">Your Support Conversations</h2>
+        <div id="user-cases" class="space-y-6"></div>
       </div>
     </div>
   </div>
@@ -93,10 +91,14 @@
       uid: user.uid,
       email: document.getElementById('email').value,
       subject: document.getElementById('subject').value,
-      message: document.getElementById('message').value,
-      status: 'Received',
-      adminReply: '',
-      timestamp: Date.now()
+      status: 'Open',
+      messages: [
+        {
+          sender: 'user',
+          text: document.getElementById('message').value,
+          timestamp: Date.now()
+        }
+      ]
     });
     alert('✅ Message sent successfully!');
     document.getElementById('contact-form').reset();
@@ -113,12 +115,16 @@
       }
       snapshot.forEach(child => {
         const data = child.val();
+        const thread = data.messages.map(msg => {
+          const color = msg.sender === 'admin' ? 'text-yellow-300' : 'text-white';
+          return `<p class="text-sm ${color}"><strong>${msg.sender}:</strong> ${msg.text}</p>`;
+        }).join('');
+
         container.innerHTML += `
           <div class="p-4 bg-gray-800 border border-gray-700 rounded-lg">
             <h3 class="font-semibold text-yellow-300">${data.subject}</h3>
-            <p class="text-sm text-gray-400 mb-2">${data.message}</p>
-            <p class="text-sm text-green-400 font-semibold">Status: ${data.status}</p>
-            ${data.adminReply ? `<div class="mt-2 p-2 bg-gray-700 rounded text-sm text-white"><strong>Admin Reply:</strong> ${data.adminReply}</div>` : ''}
+            ${thread}
+            <p class="text-sm text-green-400 font-semibold mt-2">Status: ${data.status}</p>
           </div>`;
       });
     });
@@ -135,13 +141,11 @@
 
   function redirectToCheckout(event, priceId) {
     event.preventDefault();
-
     const user = firebase.auth().currentUser;
     if (!user) {
       alert("Please sign in to purchase coins.");
       return;
     }
-
     firebase.firestore()
       .collection("customers")
       .doc(user.uid)
@@ -169,3 +173,4 @@
 </script>
 </body>
 </html>
+
