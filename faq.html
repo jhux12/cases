@@ -104,8 +104,10 @@
       .then(html => {
         const script = document.getElementById("topup-popup-container").innerHTML = html;
         script.src = "scripts/navbar.js";
-      document.body.appendChild(script);
+document.addEventListener("DOMContentLoaded", () => {
+  document.body.appendChild(navScript);
       });
+    });
   </script>
   <script src="https://js.stripe.com/v3/"></script>
   <script>
