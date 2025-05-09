@@ -86,19 +86,13 @@
     const user = firebase.auth().currentUser;
     if (!user) return alert('Please sign in to send a message.');
 
-    const formRef = firebase.database().ref('supportCases').push();
+    const formRef = db.ref('supportCases').push();
     await formRef.set({
       uid: user.uid,
       email: document.getElementById('email').value,
       subject: document.getElementById('subject').value,
       status: 'Open',
-      messages: [
-        {
-          sender: 'user',
-          text: document.getElementById('message').value,
-          timestamp: Date.now()
-        }
-      ]
+      messages: [{ sender: 'user', text: document.getElementById('message').value, timestamp: Date.now() }]
     });
     alert('✅ Message sent successfully!');
     document.getElementById('contact-form').reset();
@@ -106,7 +100,7 @@
 
   auth.onAuthStateChanged(user => {
     if (!user) return;
-    const supportCasesRef = firebase.database().ref('supportCases');
+    const supportCasesRef = db.ref('supportCases');
     supportCasesRef.orderByChild('uid').equalTo(user.uid).on('value', snapshot => {
       const container = document.getElementById('user-cases');
       container.innerHTML = '';
@@ -116,39 +110,40 @@
       }
       snapshot.forEach(child => {
         const data = child.val();
-        const caseId = child.key;
-        const thread = data.messages.map(msg => {
+        const messagesHtml = data.messages.map(msg => {
           const color = msg.sender === 'admin' ? 'text-yellow-300' : 'text-white';
           return `<p class="text-sm ${color}"><strong>${msg.sender}:</strong> ${msg.text}</p>`;
         }).join('');
 
         container.innerHTML += `
           <div class="p-4 bg-gray-800 border border-gray-700 rounded-lg">
-            <h3 class="font-semibold text-yellow-300">${data.subject}</h3>
-            ${thread}
+            <h3 class="font-semibold text-yellow-300 mb-2">${data.subject}</h3>
+            ${messagesHtml}
             <p class="text-sm text-green-400 font-semibold mt-2">Status: ${data.status}</p>
-            <form onsubmit="replyToCase(event, '${caseId}')" class="mt-3">
-              <textarea class="w-full bg-gray-700 text-white border border-gray-600 p-2 rounded" rows="2" placeholder="Type a reply..."></textarea>
-              <button type="submit" class="mt-2 px-4 py-1 bg-yellow-500 text-black font-bold rounded hover:bg-yellow-400">Send</button>
+            <form onsubmit="sendReply(event, '${child.key}')" class="mt-4 space-y-2">
+              <textarea placeholder="Reply..." rows="2" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 reply-message"></textarea>
+              <button type="submit" class="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600">Send Reply</button>
             </form>
           </div>`;
       });
     });
   });
 
-  function replyToCase(e, caseId) {
-    e.preventDefault();
-    const user = firebase.auth().currentUser;
-    if (!user) return alert('Please sign in to reply.');
-    const textarea = e.target.querySelector('textarea');
+  function sendReply(event, caseId) {
+    event.preventDefault();
+    const form = event.target;
+    const textarea = form.querySelector('.reply-message');
     const replyText = textarea.value.trim();
     if (!replyText) return;
+    const user = firebase.auth().currentUser;
+    if (!user) return alert('Please sign in.');
 
-    const caseRef = firebase.database().ref('supportCases/' + caseId + '/messages');
+    const caseRef = db.ref('supportCases/' + caseId + '/messages');
     caseRef.once('value').then(snapshot => {
       const messages = snapshot.val() || [];
       messages.push({ sender: 'user', text: replyText, timestamp: Date.now() });
-      caseRef.set(messages).then(() => textarea.value = '');
+      db.ref('supportCases/' + caseId + '/messages').set(messages);
+      textarea.value = '';
     });
   }
 </script>
