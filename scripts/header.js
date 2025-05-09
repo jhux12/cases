@@ -2,78 +2,67 @@ document.addEventListener("DOMContentLoaded", () => {
   const header = document.querySelector("header");
   if (!header) return;
 
-  fetch("/components/nav.html")
-    .then((res) => res.text())
-    .then((html) => {
-      header.innerHTML = html;
+  header.innerHTML = `...`; // your full HTML from above
 
-      // Toggle user dropdown
-      document.addEventListener("click", (e) => {
-        const toggle = document.getElementById("dropdown-toggle");
-        const dropdown = document.getElementById("user-dropdown");
-
-        if (toggle?.contains(e.target)) {
-          dropdown?.classList.toggle("hidden");
-        } else {
-          dropdown?.classList.add("hidden");
-        }
+  // Add menu toggle logic for mobile
+  setTimeout(() => {
+    const toggleBtn = document.getElementById("menu-toggle");
+    const dropdown = document.getElementById("mobile-dropdown");
+    if (toggleBtn && dropdown) {
+      toggleBtn.addEventListener("click", () => {
+        dropdown.classList.toggle("hidden");
       });
+    }
+  }, 100);
 
-      // Toggle mobile menu
-      document.getElementById("menu-toggle")?.addEventListener("click", () => {
-        document.getElementById("mobile-dropdown")?.classList.toggle("hidden");
-      });
+  // Wait for Firebase to be ready
+  firebase.auth().onAuthStateChanged(async (user) => {
+    if (!user) return;
 
-      firebase.auth().onAuthStateChanged(async (user) => {
-        if (!user) return;
+    const db = firebase.database();
+    const userRef = db.ref("users/" + user.uid);
+    const snapshot = await userRef.once("value");
+    const data = snapshot.val() || {};
+    const balance = data.balance || 0;
+    const username = data.username || user.displayName || user.email || "User";
 
-        const db = firebase.database();
-        const userRef = db.ref("users/" + user.uid);
-        const snapshot = await userRef.once("value");
-        const data = snapshot.val() || {};
-        const balance = data.balance || 0;
-        const username = data.username || user.displayName || user.email || "User";
+    // Safe DOM updates with null checks
+    const desktopBal = document.getElementById("balance-amount");
+    if (desktopBal) desktopBal.innerText = balance;
 
-        // Wait for elements to load
-        const waitForEl = (id, cb) => {
-          const interval = setInterval(() => {
-            const el = document.getElementById(id);
-            if (el) {
-              clearInterval(interval);
-              cb(el);
-            }
-          }, 100);
-        };
+    const mobileBal = document.getElementById("balance-amount-mobile");
+    if (mobileBal) mobileBal.innerText = balance;
 
-        waitForEl("balance-amount", () => {
-          document.getElementById("balance-amount").innerText = balance;
-          document.getElementById("balance-amount-mobile").innerText = balance;
-          document.getElementById("user-balance").classList.remove("hidden");
-          document.getElementById("username-display").innerText = username;
+    const desktopWrap = document.getElementById("user-balance");
+    if (desktopWrap) desktopWrap.classList.remove("hidden");
 
-          document.getElementById("signin-desktop")?.classList.add("hidden");
-          document.getElementById("logout-desktop")?.classList.remove("hidden");
+    const userNameEl = document.getElementById("username-display");
+    if (userNameEl) userNameEl.innerText = username;
 
-          document.getElementById("logout-desktop").onclick = (e) => {
-            e.preventDefault();
-            firebase.auth().signOut().then(() => location.reload());
-          };
+    const signinEl = document.getElementById("signin-desktop");
+    if (signinEl) signinEl.classList.add("hidden");
 
-          // Mobile auth button
-          const mobileAuth = document.getElementById("mobile-auth-button");
-          if (mobileAuth) {
-            mobileAuth.innerText = "Logout";
-            mobileAuth.href = "#";
-            mobileAuth.onclick = (e) => {
-              e.preventDefault();
-              firebase.auth().signOut().then(() => location.reload());
-            };
-          }
+    const logoutEl = document.getElementById("logout-desktop");
+    if (logoutEl) {
+      logoutEl.classList.remove("hidden");
+      logoutEl.onclick = (e) => {
+        e.preventDefault();
+        firebase.auth().signOut().then(() => location.reload());
+      };
+    }
 
-          // Show inventory link in mobile
-          document.getElementById("inventory-link")?.classList.remove("hidden");
-        });
-      });
-    });
+    const mobileAuth = document.getElementById("mobile-auth-button");
+    if (mobileAuth) {
+      mobileAuth.innerText = "Logout";
+      mobileAuth.href = "#";
+      mobileAuth.onclick = (e) => {
+        e.preventDefault();
+        firebase.auth().signOut().then(() => location.reload());
+      };
+    }
+
+    const inventoryLink = document.getElementById("inventory-link");
+    if (inventoryLink) inventoryLink.classList.remove("hidden");
+  });
 });
 
