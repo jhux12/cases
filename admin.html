@@ -46,6 +46,7 @@
     <div class="space-x-4">
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('cases')">Cases</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('shipments')">Shipments</a>
+      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('support')">Support Forms</a>
     </div>
   </nav>
 
@@ -97,6 +98,11 @@
       <h1 class="text-3xl font-bold mb-6">Manage Shipments</h1>
       <div id="shipment-list" class="space-y-4"></div>
     </section>
+    <!-- Support Forms Section -->
+<section id="support-section" class="hidden">
+  <h1 class="text-3xl font-bold mb-6">User Support Messages</h1>
+  <div id="support-list" class="space-y-4"></div>
+</section>
   </main>
 
   <script>
@@ -206,6 +212,35 @@
     });
   });
 }
+function loadSupportForms() {
+  const container = document.getElementById('support-list');
+  firebase.database().ref('supportCases').on('value', snapshot => {
+    container.innerHTML = '';
+    snapshot.forEach(child => {
+      const data = child.val();
+      const div = document.createElement('div');
+      div.className = 'p-4 bg-gray-800 rounded';
+      div.innerHTML = `
+        <p><strong>Email:</strong> ${data.email}</p>
+        <p><strong>Subject:</strong> ${data.subject}</p>
+        <p><strong>Message:</strong> ${data.message}</p>
+        <p><strong>Status:</strong> ${data.status}</p>
+        <textarea class="reply-text w-full mt-2 p-2 rounded bg-gray-700" placeholder="Admin reply...">${data.adminReply || ''}</textarea>
+        <button class="mt-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded" onclick="replySupport('${child.key}', this.previousElementSibling.value)">Send Reply</button>
+      `;
+      container.appendChild(div);
+    });
+  });
+}
+
+function replySupport(id, reply) {
+  firebase.database().ref('supportCases/' + id).update({
+    adminReply: reply,
+    status: 'Replied'
+  }).then(() => {
+    showToast('✅ Reply sent');
+  });
+}
 
     function editCase(id) {
       db.ref('cases/' + id).once('value').then(snapshot => {
@@ -287,6 +322,7 @@
     window.onload = () => {
       loadCases();
       loadShipments();
+      loadSupportForms();
     }
   </script>
 </body>
