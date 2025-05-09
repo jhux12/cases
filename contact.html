@@ -107,14 +107,16 @@
   auth.onAuthStateChanged(user => {
     if (!user) return;
     const supportCasesRef = firebase.database().ref('supportCases');
-    supportCasesRef.orderByChild('uid').equalTo(user.uid).once('value').then(snapshot => {
+    supportCasesRef.orderByChild('uid').equalTo(user.uid).on('value', snapshot => {
       const container = document.getElementById('user-cases');
+      container.innerHTML = '';
       if (!snapshot.exists()) {
         container.innerHTML = '<p class="text-gray-400">You have not submitted any support cases yet.</p>';
         return;
       }
       snapshot.forEach(child => {
         const data = child.val();
+        const caseId = child.key;
         const thread = data.messages.map(msg => {
           const color = msg.sender === 'admin' ? 'text-yellow-300' : 'text-white';
           return `<p class="text-sm ${color}"><strong>${msg.sender}:</strong> ${msg.text}</p>`;
@@ -125,10 +127,30 @@
             <h3 class="font-semibold text-yellow-300">${data.subject}</h3>
             ${thread}
             <p class="text-sm text-green-400 font-semibold mt-2">Status: ${data.status}</p>
+            <form onsubmit="replyToCase(event, '${caseId}')" class="mt-3">
+              <textarea class="w-full bg-gray-700 text-white border border-gray-600 p-2 rounded" rows="2" placeholder="Type a reply..."></textarea>
+              <button type="submit" class="mt-2 px-4 py-1 bg-yellow-500 text-black font-bold rounded hover:bg-yellow-400">Send</button>
+            </form>
           </div>`;
       });
     });
   });
+
+  function replyToCase(e, caseId) {
+    e.preventDefault();
+    const user = firebase.auth().currentUser;
+    if (!user) return alert('Please sign in to reply.');
+    const textarea = e.target.querySelector('textarea');
+    const replyText = textarea.value.trim();
+    if (!replyText) return;
+
+    const caseRef = firebase.database().ref('supportCases/' + caseId + '/messages');
+    caseRef.once('value').then(snapshot => {
+      const messages = snapshot.val() || [];
+      messages.push({ sender: 'user', text: replyText, timestamp: Date.now() });
+      caseRef.set(messages).then(() => textarea.value = '');
+    });
+  }
 </script>
 
 <script src="scripts/header.js"></script>
@@ -173,4 +195,3 @@
 </script>
 </body>
 </html>
-
