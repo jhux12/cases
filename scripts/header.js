@@ -69,6 +69,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const signinDesktop = document.getElementById("signin-desktop");
     const logoutDesktop = document.getElementById("logout-desktop");
     const mobileAuth = document.getElementById("mobile-auth-button");
+    const inventoryLink = document.getElementById("inventory-link");
+
 
     if (balanceDesktop) balanceDesktop.innerText = balance;
     if (balanceMobile) balanceMobile.innerText = balance;
@@ -76,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (usernameDisplay) usernameDisplay.innerText = data.username || user.displayName || user.email || "User";
     if (signinDesktop) signinDesktop.classList.add("hidden");
     if (logoutDesktop) logoutDesktop.classList.remove("hidden");
+    if (inventoryLink) inventoryLink.classList.remove("hidden");
 
     if (logoutDesktop) {
       logoutDesktop.onclick = (e) => {
