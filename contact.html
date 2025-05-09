@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us | Packly.gg</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white">
+
+  <!-- Header (Loaded from component) -->
+  <div id="header-placeholder"></div>
+
+  <!-- Page Content -->
+  <section class="max-w-4xl mx-auto px-4 py-12">
+    <h1 class="text-3xl font-bold mb-6 text-yellow-400">Contact Us</h1>
+    <p class="mb-8 text-gray-300">If you have any issues with your orders, questions about your packs, or just want to reach out, use the form below and we’ll get back to you as soon as possible.</p>
+
+    <!-- Contact Form -->
+    <form id="contact-form" class="space-y-4 bg-gray-800 p-6 rounded-lg shadow-lg">
+      <div>
+        <label for="email" class="block text-sm font-semibold mb-1">Email</label>
+        <input type="email" id="email" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required />
+      </div>
+      <div>
+        <label for="subject" class="block text-sm font-semibold mb-1">Subject</label>
+        <input type="text" id="subject" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required />
+      </div>
+      <div>
+        <label for="message" class="block text-sm font-semibold mb-1">Message</label>
+        <textarea id="message" rows="4" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required></textarea>
+      </div>
+      <button type="submit" class="bg-yellow-400 text-black font-bold px-6 py-2 rounded hover:bg-yellow-300 transition">Submit</button>
+    </form>
+
+    <!-- Case Status Viewer -->
+    <div class="mt-12">
+      <h2 class="text-2xl font-bold mb-4 text-white">Your Open Cases</h2>
+      <div id="user-cases" class="space-y-4">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer (Loaded from component) -->
+  <footer id="footer-placeholder" class="mt-16"></footer>
+
+  <!-- Scripts -->
+  <script src="scripts/header.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/footer.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script>
+    // Contact Form Submission
+    document.getElementById('contact-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const user = firebase.auth().currentUser;
+      if (!user) return alert('Please sign in to send a message.');
+
+      const formRef = firebase.database().ref('contactMessages').push();
+      await formRef.set({
+        uid: user.uid,
+        email: document.getElementById('email').value,
+        subject: document.getElementById('subject').value,
+        message: document.getElementById('message').value,
+        status: 'Received',
+        timestamp: Date.now()
+      });
+      alert('✅ Message sent successfully!');
+      document.getElementById('contact-form').reset();
+    });
+
+    // Load user's case statuses
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) return;
+      const userCasesRef = firebase.database().ref(`users/${user.uid}/inventory`);
+      userCasesRef.once('value').then(snapshot => {
+        const container = document.getElementById('user-cases');
+        if (!snapshot.exists()) {
+          container.innerHTML = '<p class="text-gray-400">No cases found in your inventory.</p>';
+          return;
+        }
+        snapshot.forEach(child => {
+          const data = child.val();
+          container.innerHTML += `
+            <div class="p-4 bg-gray-800 border border-gray-700 rounded-lg">
+              <div class="flex items-center gap-4">
+                <img src="${data.image}" class="w-16 h-16 object-contain rounded" />
+                <div>
+                  <h3 class="font-semibold text-white">${data.name}</h3>
+                  <p class="text-sm text-gray-400">Rarity: ${data.rarity || 'Unknown'}</p>
+                  <p class="text-sm text-gray-400">Value: ${data.value?.toLocaleString() || 0} coins</p>
+                </div>
+              </div>
+            </div>`;
+        });
+      });
+    });
+  </script>
+</body>
+</html>
