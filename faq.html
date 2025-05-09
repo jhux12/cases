@@ -94,27 +94,23 @@
   </script>
 
   <!-- Scripts -->
+  <script src="scripts/header.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/footer.js"></script>
   <div id="topup-popup-container"></div>
+  <script>
+    <script>
+  fetch("/cases/components/topup.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("topup-popup-container").innerHTML = html;
 
-<script>
-  Promise.all([
-    fetch("/cases/components/topup.html").then(res => res.text()),
-    fetch("components/header.html").then(res => res.text()),
-    fetch("components/footer.html").then(res => res.text())
-  ])
-  .then(([topupHTML, headerHTML, footerHTML]) => {
-    document.getElementById("topup-popup-container").innerHTML = topupHTML;
-    document.querySelector("header").innerHTML = headerHTML;
-    document.querySelector("footer").innerHTML = footerHTML;
-
-    const navScript = document.createElement("script");
-    navScript.src = "scripts/navbar.js";
-    document.body.appendChild(navScript);
-  });
+      const navScript = document.createElement("script");
+      navScript.src = "scripts/navbar.js";
+      document.body.appendChild(navScript);
+    });
 </script>
-
-<script src="https://js.stripe.com/v3/"></script>
-
+  <script src="https://js.stripe.com/v3/"></script>
   <script>
     const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
 
@@ -154,3 +150,4 @@
   </script>
 </body>
 </html>
+
