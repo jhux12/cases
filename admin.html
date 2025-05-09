@@ -212,24 +212,53 @@
     });
   });
 }
-function loadSupportForms() {
+  function loadSupportForms() {
   const container = document.getElementById('support-list');
   firebase.database().ref('supportCases').on('value', snapshot => {
     container.innerHTML = '';
     snapshot.forEach(child => {
       const data = child.val();
+      const messagesHtml = Object.values(data.messages || {}).map(msg => {
+        const color = msg.sender === 'admin' ? 'text-yellow-300' : 'text-white';
+        return `<p class="text-sm ${color}"><strong>${msg.sender}:</strong> ${msg.text}</p>`;
+      }).join('');
+
       const div = document.createElement('div');
       div.className = 'p-4 bg-gray-800 rounded';
       div.innerHTML = `
         <p><strong>Email:</strong> ${data.email}</p>
         <p><strong>Subject:</strong> ${data.subject}</p>
-        <p><strong>Message:</strong> ${data.message}</p>
+        ${messagesHtml}
         <p><strong>Status:</strong> ${data.status}</p>
-        <textarea class="reply-text w-full mt-2 p-2 rounded bg-gray-700" placeholder="Admin reply...">${data.adminReply || ''}</textarea>
-        <button class="mt-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded" onclick="replySupport('${child.key}', this.previousElementSibling.value)">Send Reply</button>
+        <form onsubmit="adminReply(event, '${child.key}')" class="mt-2 space-y-2">
+          <textarea class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 admin-reply" placeholder="Admin reply..."></textarea>
+          <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded">Send Reply</button>
+        </form>
       `;
       container.appendChild(div);
     });
+  });
+}
+
+function adminReply(event, caseId) {
+  event.preventDefault();
+  const form = event.target;
+  const textarea = form.querySelector('.admin-reply');
+  const reply = textarea.value.trim();
+  if (!reply) return;
+
+  const newReplyKey = firebase.database().ref().push().key;
+  const updates = {};
+  updates[`supportCases/${caseId}/messages/${newReplyKey}`] = {
+    sender: 'admin',
+    text: reply,
+    timestamp: Date.now()
+  };
+  updates[`supportCases/${caseId}/status`] = 'Replied';
+
+  firebase.database().ref().update(updates).then(() => {
+    textarea.value = '';
+    showToast('✅ Reply sent');
   });
 }
 
