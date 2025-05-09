@@ -40,5 +40,22 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // Top-up popup trigger
+  const topupPopup = document.getElementById("topup-popup");
+  const topupDesktop = document.getElementById("topup-button");
+  const topupMobile = document.getElementById("topup-button-mobile");
+
+  const openTopup = () => {
+    if (topupPopup) {
+      topupPopup.classList.remove("hidden");
+    } else {
+      console.warn("Top-up popup not found.");
+    }
+  };
+
+  if (topupDesktop) topupDesktop.addEventListener("click", openTopup);
+  if (topupMobile) topupMobile.addEventListener("click", openTopup);
 });
+
 
