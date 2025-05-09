@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms & Conditions | Packly.gg</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f0f12;
+      color: white;
+    }
+    .terms-box {
+      background: linear-gradient(145deg, #1c1f26, #0e0f13);
+      border: 1px solid rgba(255, 215, 0, 0.15);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+    }
+    .terms-text p {
+      margin-bottom: 1rem;
+      color: #cbd5e1;
+    }
+    .terms-text h2 {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f9fafb;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<header></header>
+
+<!-- Terms and Conditions Section -->
+<section class="pt-32 px-6">
+  <div class="max-w-3xl mx-auto text-center">
+    <h1 class="text-3xl font-bold mb-6">Terms and Conditions</h1>
+    <div class="terms-box p-6 rounded-xl text-left terms-text">
+      <p>By accessing or using Packly.gg, you agree to the following terms and conditions. Please read them carefully.</p>
+
+      <h2>1. Eligibility</h2>
+      <p>You must be at least 18 years old or of legal age in your jurisdiction to use this service.</p>
+
+      <h2>2. Virtual Items</h2>
+      <p>All virtual items are for entertainment purposes. Physical delivery is only guaranteed for items explicitly marked as shippable.</p>
+
+      <h2>3. Account Responsibility</h2>
+      <p>You are responsible for maintaining the security of your account and all activity that occurs under your login credentials.</p>
+
+      <h2>4. Payments</h2>
+      <p>All payments are processed securely via Stripe. By completing a purchase, you agree to Stripe's terms and authorize us to charge your card.</p>
+
+      <h2>5. Refunds</h2>
+      <p>All sales are final. Coins and items cannot be refunded or exchanged unless legally required.</p>
+
+      <h2>6. Fair Play</h2>
+      <p>Any attempt to cheat, exploit, or manipulate the platform may result in account suspension or termination.</p>
+
+      <h2>7. Changes</h2>
+      <p>We may update these terms at any time. Continued use of the site after updates constitutes acceptance of the revised terms.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+    authDomain: "cases-e5b4e.firebaseapp.com",
+    databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+    projectId: "cases-e5b4e",
+    storageBucket: "cases-e5b4e.appspot.com",
+    messagingSenderId: "22502548396",
+    appId: "1:22502548396:web:aac335672c21f07524d009"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  auth.onAuthStateChanged(async user => {
+    if (!user) return window.location.href = 'auth.html';
+
+    const userRef = db.ref('users/' + user.uid);
+    const snapshot = await userRef.once('value');
+    const data = snapshot.val() || {};
+    const balance = data.balance || 0;
+
+    document.getElementById('balance-amount').innerText = balance;
+    document.getElementById('user-balance').classList.remove('hidden');
+    document.getElementById('username-display').innerText = data.username || user.displayName || user.email || 'User';
+    document.getElementById('signin-desktop').classList.add('hidden');
+    document.getElementById('logout-desktop').classList.remove('hidden');
+    document.getElementById('logout-desktop').onclick = (e) => {
+      e.preventDefault();
+      auth.signOut().then(() => location.reload());
+    };
+  });
+</script>
+
+<script src="scripts/header.js"></script>
+<script src="scripts/navbar.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="scripts/topup.js"></script>
+
+<script>
+  const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
+
+  function redirectToCheckout(event, priceId) {
+    event.preventDefault();
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      alert("Please sign in to purchase coins.");
+      return;
+    }
+
+    firebase.firestore()
+      .collection("customers")
+      .doc(user.uid)
+      .collection("checkout_sessions")
+      .add({
+        mode: "payment",
+        success_url: window.location.href,
+        cancel_url: window.location.href,
+        allow_promotion_codes: true,
+        line_items: [{ price: priceId, quantity: 1 }],
+        metadata: { priceId }
+      })
+      .then((docRef) => {
+        docRef.onSnapshot((snap) => {
+          const { error, sessionId } = snap.data();
+          if (error) {
+            alert(`An error occurred: ${error.message}`);
+          }
+          if (sessionId) {
+            stripe.redirectToCheckout({ sessionId });
+          }
+        });
+      });
+  }
+</script>
+</body>
+</html>
