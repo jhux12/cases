@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     userRef.once('value').then(snapshot => {
       const data = snapshot.val();
-      document.getElementById('user-balance').innerText = data.balance || 0;
+const balanceEl = document.getElementById('balance-amount');
+if (balanceEl) balanceEl.innerText = data.balance || 0;
       document.getElementById('username-display').innerText = user.displayName || user.email;
     });
 
