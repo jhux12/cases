@@ -2,7 +2,7 @@
 
 // Load and inject the top-up popup component
 async function loadTopupPopup() {
-  const res = await fetch("/components/topup.html");
+  const res = await fetch("components/topup.html");
   const html = await res.text();
   document.body.insertAdjacentHTML("beforeend", html);
 
