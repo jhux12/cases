@@ -6,12 +6,9 @@
   <title>Packly.gg | Inventory</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="scripts/firebase-config.js"></script>
-  <script src="scripts/header.js"></script>
-  <script src="scripts/footer.js"></script>
-  <script src="scripts/inventory.js" defer></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
@@ -60,23 +57,19 @@
     }
   </style>
 </head>
-<body class="min-h-screen">
-
+<body class="min-h-screen pt-24">
   <header></header>
 
-  <!-- Hero Section -->
   <section class="inventory-hero">
     <h1><i class="fas fa-box-open mr-2"></i>Ship or Sell Back Your Items</h1>
     <p>Your prized pulls, safely stored and ready to ship or sell. Welcome to your vault.</p>
   </section>
 
-  <!-- Inventory content will load here dynamically -->
   <main class="p-6">
-    <!-- User Info -->
     <div class="flex flex-col md:flex-row justify-between items-center bg-gray-800 border border-pink-500 p-4 rounded-lg mb-6">
       <div>
         <div class="text-gray-400 text-sm">Logged in as:</div>
-        <div id="username-display" class="text-white text-lg font-semibold truncate max-w-sm">...</div>
+        <div id="username-display" class="text-white text-lg font-semibold truncate max-w-sm"></div>
       </div>
       <div class="flex items-center gap-2 mt-2 md:mt-0">
         <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="24" height="24" />
@@ -86,7 +79,6 @@
       </div>
     </div>
 
-    <!-- Filters & Actions -->
     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
       <div class="flex items-center gap-3 text-sm">
         <label><input type="checkbox" id="select-all-checkbox" class="mr-1"> Select All</label>
@@ -104,14 +96,11 @@
       </div>
     </div>
 
-    <!-- Inventory Grid -->
     <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
 
-    <!-- Orders -->
     <h2 class="text-3xl font-bold text-pink-400 mt-16 mb-4">📦 My Orders</h2>
     <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
 
-    <!-- Popup -->
     <div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
       <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
         <h2 class="text-xl font-bold mb-4">Enter Shipping Info</h2>
@@ -130,12 +119,14 @@
   </main>
 
   <footer></footer>
-
+  <script src="scripts/header.js"></script>
+  <script src="scripts/footer.js"></script>
+  <script src="scripts/inventory.js"></script>
   <script>
-    // Dropdowns for navbar
     document.getElementById('dropdown-toggle')?.addEventListener('click', () => {
       document.getElementById('user-dropdown')?.classList.toggle('hidden');
     });
+
     document.getElementById('menu-toggle')?.addEventListener('click', () => {
       document.getElementById('mobile-dropdown')?.classList.toggle('hidden');
     });
