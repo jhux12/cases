@@ -36,7 +36,7 @@
 
     <!-- Case Status Viewer -->
     <div class="mt-12">
-      <h2 class="text-2xl font-bold mb-4 text-white">Your Open Cases</h2>
+      <h2 class="text-2xl font-bold mb-4 text-white">Your Open Support Cases</h2>
       <div id="user-cases" class="space-y-4">
         <!-- Filled dynamically -->
       </div>
@@ -61,41 +61,38 @@
       const user = firebase.auth().currentUser;
       if (!user) return alert('Please sign in to send a message.');
 
-      const formRef = firebase.database().ref('contactMessages').push();
+      const formRef = firebase.database().ref('supportCases').push();
       await formRef.set({
         uid: user.uid,
         email: document.getElementById('email').value,
         subject: document.getElementById('subject').value,
         message: document.getElementById('message').value,
         status: 'Received',
+        adminReply: '',
         timestamp: Date.now()
       });
       alert('✅ Message sent successfully!');
       document.getElementById('contact-form').reset();
     });
 
-    // Load user's case statuses
+    // Load user's case statuses with admin replies
     firebase.auth().onAuthStateChanged(user => {
       if (!user) return;
-      const userCasesRef = firebase.database().ref(`users/${user.uid}/inventory`);
-      userCasesRef.once('value').then(snapshot => {
+      const supportCasesRef = firebase.database().ref('supportCases');
+      supportCasesRef.orderByChild('uid').equalTo(user.uid).once('value').then(snapshot => {
         const container = document.getElementById('user-cases');
         if (!snapshot.exists()) {
-          container.innerHTML = '<p class="text-gray-400">No cases found in your inventory.</p>';
+          container.innerHTML = '<p class="text-gray-400">You have not submitted any support cases yet.</p>';
           return;
         }
         snapshot.forEach(child => {
           const data = child.val();
           container.innerHTML += `
             <div class="p-4 bg-gray-800 border border-gray-700 rounded-lg">
-              <div class="flex items-center gap-4">
-                <img src="${data.image}" class="w-16 h-16 object-contain rounded" />
-                <div>
-                  <h3 class="font-semibold text-white">${data.name}</h3>
-                  <p class="text-sm text-gray-400">Rarity: ${data.rarity || 'Unknown'}</p>
-                  <p class="text-sm text-gray-400">Value: ${data.value?.toLocaleString() || 0} coins</p>
-                </div>
-              </div>
+              <h3 class="font-semibold text-yellow-300">${data.subject}</h3>
+              <p class="text-sm text-gray-400 mb-2">${data.message}</p>
+              <p class="text-sm text-green-400 font-semibold">Status: ${data.status}</p>
+              ${data.adminReply ? `<div class="mt-2 p-2 bg-gray-700 rounded text-sm text-white"><strong>Admin Reply:</strong> ${data.adminReply}</div>` : ''}
             </div>`;
         });
       });
