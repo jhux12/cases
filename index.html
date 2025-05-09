@@ -167,55 +167,57 @@
 
 <!-- Case Popup -->
 <div id="case-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center px-4 z-50">
-<div class="relative premium-popup max-h-[90vh] overflow-y-auto p-8 rounded-xl w-full max-w-2xl text-center backdrop-blur-md">
-<button id="close-popup" class="absolute top-4 right-4 text-white text-2xl hover:text-pink-300 transition"><i class="fas fa-times"></i></button>
-    
-<div class="flex justify-center mb-8"> <!-- Increased margin-bottom -->
-  <div id="case-image" class="flip-card w-40 h-64 sm:w-48 sm:h-72">
-    <div class="flip-card-inner w-full h-full">
-      <!-- Back of the card -->
-      <img id="case-card-back" class="flip-card-back w-full h-full rounded-xl object-contain ring-2 ring-white/20" src="" alt="Card Back" />
-      <!-- Front of the card -->
-      <img id="case-card-front" class="flip-card-front w-full h-full rounded-xl object-contain ring-2 ring-white/20" src="" alt="Prize" />
-    </div>
-  </div>
-</div>
-     <!-- Provably Fair Badge -->
-  <div class="relative flex justify-center">
-    <div id="provably-fair-badge" class="flex items-center text-sm text-green-400 font-semibold cursor-pointer">
-      <i class="fas fa-shield-alt mr-2 text-green-400"></i> Provably Fair
-    </div>
-    <div id="fair-tooltip" class="absolute top-full mt-2 bg-gray-800 text-white text-xs rounded-lg px-4 py-2 shadow-lg hidden z-50 w-64 text-center left-1/2 transform -translate-x-1/2">
-      Each result is generated using a hashed server seed + your client seed and nonce. You can verify fairness anytime.
-    </div>
-  </div>
+  <div class="relative premium-popup max-h-[90vh] overflow-y-auto p-8 rounded-xl w-full max-w-2xl text-center backdrop-blur-md">
+    <button id="close-popup" class="absolute top-4 right-4 text-white text-2xl hover:text-pink-300 transition">
+      <i class="fas fa-times"></i>
+    </button>
 
+    <div class="flex justify-center mb-8">
+      <div id="case-image" class="flip-card w-40 h-64 sm:w-48 sm:h-72">
+        <div class="flip-card-inner w-full h-full">
+          <img id="case-card-back" class="flip-card-back w-full h-full rounded-xl object-contain ring-2 ring-white/20" src="" alt="Card Back" />
+          <img id="case-card-front" class="flip-card-front w-full h-full rounded-xl object-contain ring-2 ring-white/20" src="" alt="Prize" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Provably Fair Badge -->
+    <div class="relative flex justify-center mb-4">
+      <div id="provably-fair-badge" class="flex items-center text-sm text-green-400 font-semibold cursor-pointer">
+        <i class="fas fa-shield-alt mr-2 text-green-400"></i> Provably Fair
+      </div>
+      <div id="fair-tooltip" class="absolute top-full mt-2 bg-gray-800 text-white text-xs rounded-lg px-4 py-2 shadow-lg hidden z-50 w-64 text-center left-1/2 transform -translate-x-1/2">
+        Each result is generated using a hashed server seed + your client seed and nonce. You can verify fairness anytime.
+      </div>
+    </div>
+
+    <!-- Open Button + Balance -->
     <div class="flex flex-col items-center mb-6 space-y-1 pt-4">
-
-  <!-- Open Button + Balance -->
-  <button id="open-case-button" class="px-8 py-3 premium-button premium-glow font-semibold text-lg flex items-center justify-center gap-2">
-    Open for <span id="popup-price">...</span>
-    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-5 h-5 inline-block">
-  </button>
-  <span id="popup-balance" class="text-sm text-gray-300">Your Balance: ...</span>
-</div>
+      <button id="open-case-button" class="px-8 py-3 premium-button premium-glow font-semibold text-lg flex items-center justify-center gap-2">
+        Open for <span id="popup-price">...</span>
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-5 h-5 inline-block">
+      </button>
+      <span id="popup-balance" class="text-sm text-gray-300">Your Balance: ...</span>
+    </div>
 
     <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
     <div id="possible-prizes" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
     <div id="result" class="mt-6 text-2xl font-bold hidden"></div>
-  <div class="text-xs text-gray-400 italic">Copy these into a fair checker to verify your roll.</div>
+
+    <div class="text-xs text-gray-400 italic">Copy these into a fair checker to verify your roll.</div>
+
     <div id="verify-fairness" class="mt-4 hidden text-left text-sm bg-black/40 p-4 rounded-lg border border-white/10 space-y-2">
-  <div><strong>Server Seed:</strong> <span id="pf-server-seed" class="break-all text-gray-300"></span></div>
-  <div><strong>Client Seed:</strong> <span id="pf-client-seed" class="break-all text-gray-300"></span></div>
-  <div><strong>Nonce:</strong> <span id="pf-nonce" class="text-gray-300"></span></div>
-  <div><strong>Server Seed Hash:</strong> <span id="pf-server-hash" class="break-all text-gray-300"></span></div>
+      <div><strong>Server Seed:</strong> <span id="pf-server-seed" class="break-all text-gray-300"></span></div>
+      <div><strong>Client Seed:</strong> <span id="pf-client-seed" class="break-all text-gray-300"></span></div>
+      <div><strong>Nonce:</strong> <span id="pf-nonce" class="text-gray-300"></span></div>
+      <div><strong>Server Seed Hash:</strong> <span id="pf-server-hash" class="break-all text-gray-300"></span></div>
       <div>
-  <label for="client-seed-input" class="text-sm font-semibold text-white">Client Seed:</label>
-  <input type="text" id="client-seed-input" placeholder="Enter your own seed" class="mt-1 block w-full bg-black/20 border border-white/20 rounded px-3 py-1 text-white placeholder-gray-400 text-sm">
-  <button id="set-client-seed" class="mt-2 text-xs text-yellow-400 hover:underline">Save Client Seed</button>
-</div>
-  <div class="text-xs text-gray-400 italic">Copy these into a fair checker to verify your roll.</div>
-</div>
+        <label for="client-seed-input" class="text-sm font-semibold text-white">Client Seed:</label>
+        <input type="text" id="client-seed-input" placeholder="Enter your own seed" class="mt-1 block w-full bg-black/20 border border-white/20 rounded px-3 py-1 text-white placeholder-gray-400 text-sm">
+        <button id="set-client-seed" class="mt-2 text-xs text-yellow-400 hover:underline">Save Client Seed</button>
+      </div>
+      <div class="text-xs text-gray-400 italic">Copy these into a fair checker to verify your roll.</div>
+    </div>
   </div>
 </div>
 
