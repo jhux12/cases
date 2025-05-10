@@ -284,12 +284,9 @@
 
   const authButton = document.getElementById('auth-button');
   const userBalanceDiv = document.getElementById('user-balance');
-  const topupPopup = document.getElementById('topup-popup');
-  const closeTopup = document.getElementById('close-topup');
   const casesContainer = document.getElementById('cases-container');
   const recentWinsCarousel = document.getElementById('recent-wins-carousel');
   const recentWinsMarquee = document.getElementById('recent-wins-marquee');
-  const popup = document.getElementById('case-popup');
   const openCaseButton = document.getElementById('open-case-button');
   const caseImage = document.getElementById('case-main-image');
   const caseImageWrapper = document.getElementById('case-image');
@@ -423,7 +420,6 @@ possiblePrizesDiv.innerHTML = [...currentPrizes]
     const userData = userSnap.val() || {};
     const userBalance = parseFloat(userData.balance || 0);
     if (userBalance < selectedCasePrice) {
-      topupPopup.classList.remove('hidden');
       return;
     }
 
