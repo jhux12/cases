@@ -989,7 +989,6 @@ function filterAndDisplayCases(userBalance) {
 </script>
 
 <!-- Core Functional Scripts -->
-<script type="module" src="scripts/auth.js"></script>
 <script src="scripts/navbar.js"></script>
 <script src="scripts/hero.js"></script>
 <!-- etc -->
@@ -1061,6 +1060,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Load cases immediately
+    loadCases();
+
+    // Auto-refresh filters when input changes
+    ['search-box', 'min-coins', 'max-coins', 'sort-select', 'enough-coins'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', () => loadCases());
+    });
+  });
 </script>
 </body>
 </html>
