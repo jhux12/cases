@@ -173,11 +173,19 @@
 </section>
 
 <!-- Recent Wins -->
-<section class="py-8 bg-gray-800">
-  <h2 class="text-2xl font-bold text-center mb-4 text-white flex items-center justify-center gap-3">
-  <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full animate-pulse font-bold tracking-widest">LIVE</span>
-  <span>Live Wins</span>
-</h2>
+<section class="py-8 bg-gradient-to-b from-[#1f1f2b] to-[#12121b] relative overflow-hidden">
+  <h2 class="text-3xl font-bold text-center mb-6 text-white flex items-center justify-center gap-4 relative z-10">
+    <span class="bg-red-600 text-white text-xs px-3 py-1 rounded-full animate-pulse shadow-md tracking-wide">LIVE</span>
+    <span class="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] tracking-wide">Recent Wins</span>
+  </h2>
+
+  <!-- Optional glowing line underneath -->
+  <div class="w-40 h-1 mx-auto bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 rounded-full blur-sm opacity-70"></div>
+
+  <!-- Optional floating background sparkles (can disable if too distracting) -->
+  <div class="absolute inset-0 pointer-events-none opacity-10 z-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] bg-repeat"></div>
+</section>
+
 
   <!-- Card-style display -->
 <div id="recent-wins-carousel" class="flex overflow-x-auto gap-4 px-4 py-2 scrollbar-hide w-full scroll-smooth">
