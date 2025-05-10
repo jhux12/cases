@@ -151,7 +151,14 @@
           <option value="legendary" ${prize.rarity === 'legendary' ? 'selected' : ''}>Legendary</option>
         </select>
         <input type="number" placeholder="Prize Value ($)" value="${prize.value || ''}" class="prize-value w-full p-2 rounded mb-2">
-        <input type="number" placeholder="Prize Odds (%)" value="${prize.odds || ''}" class="prize-odds w-full p-2 rounded">
+<input
+  type="number"
+  step="any"
+  min="0"
+  placeholder="Prize Odds (%)"
+  value="${prize.odds || ''}"
+  class="prize-odds w-full p-2 rounded"
+/>
       `;
       prizesSection.appendChild(div);
     }
