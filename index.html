@@ -754,7 +754,23 @@ window.onload = () => {
       }
     });
   }
+  const filterToggle = document.getElementById("filter-toggle");
+  const filterPanel = document.getElementById("filter-panel");
 
+  if (filterToggle && filterPanel) {
+    // Set initial visibility and button label
+   filterPanel.style.display = "none"; // Hide by default
+   filterToggle.textContent = "Show Filters";
+
+
+    filterToggle.addEventListener("click", () => {
+      const currentlyVisible = filterPanel.style.display !== "none";
+      filterPanel.style.display = currentlyVisible ? "none" : "flex";
+      filterToggle.textContent = currentlyVisible ? "Show Filters" : "Hide Filters";
+    });
+  }
+
+  
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
       const userRef = db.ref('users/' + user.uid);
