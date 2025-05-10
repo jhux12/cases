@@ -13,6 +13,7 @@ function displayLiveWins(prizes) {
   loopPrizes.forEach(prize => {
     const card = document.createElement("div");
 
+    // Glow effect based on rarity
     let glowClass = "";
     const rarity = prize.rarity?.toLowerCase();
 
@@ -38,7 +39,6 @@ function displayLiveWins(prizes) {
       text-center flex-shrink-0 mx-2 transform transition duration-200 hover:scale-105
     `;
 
-    // Render pack swap image (if packImage exists)
     if (prize.packImage) {
       card.innerHTML = `
         <div class="relative w-full max-w-[120px] h-[120px] mx-auto group">
@@ -59,7 +59,7 @@ function displayLiveWins(prizes) {
     carousel.appendChild(card);
   });
 
-  startInfiniteCarouselScroll("recent-wins-carousel", 0.3);
+  startInfiniteCarouselScroll("recent-wins-carousel", 0.2);
 }
 
 function fetchHighTierPrizes() {
@@ -91,25 +91,22 @@ function fetchHighTierPrizes() {
   });
 }
 
-function startInfiniteCarouselScroll(containerId, speed = 0.3) {
+function startInfiniteCarouselScroll(containerId, speed = 0.2) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  let scrollAmount = 0;
   let isPaused = false;
 
   function scrollStep() {
     if (!isPaused) {
-      scrollAmount += speed;
-      if (scrollAmount >= container.scrollWidth / 2) {
-        scrollAmount = 0;
+      container.scrollLeft += speed;
+      if (container.scrollLeft >= container.scrollWidth / 2) {
+        container.scrollLeft = 0;
       }
-      container.scrollLeft = scrollAmount;
     }
     requestAnimationFrame(scrollStep);
   }
 
-  // Pause scrolling on hover
   container.addEventListener("mouseenter", () => {
     isPaused = true;
   });
@@ -122,3 +119,4 @@ function startInfiniteCarouselScroll(containerId, speed = 0.3) {
 }
 
 document.addEventListener("DOMContentLoaded", fetchHighTierPrizes);
+
