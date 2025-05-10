@@ -1,3 +1,5 @@
+import { setupFilters } from './filters.js';
+
 let allCases = [];
 
 function renderCases(caseList) {
