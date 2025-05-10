@@ -371,16 +371,13 @@ body {
   scroll-behavior: smooth;
   scrollbar-width: none;
 }
+#recent-wins-carousel {
+  display: flex;
+  overflow-x: hidden;
+  white-space: nowrap;
+  scroll-behavior: auto;
+}
 #recent-wins-carousel::-webkit-scrollbar {
   display: none;
-}
-
-/* Optional: smoother transition for new cards */
-@keyframes slide-left {
-  0% { transform: translateX(0); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
-}
-.animate-slide-left {
-  animation: slide-left 0.8s ease-out;
 }
 
