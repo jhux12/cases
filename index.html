@@ -170,16 +170,13 @@
 <div class="relative premium-popup max-h-[90vh] overflow-y-auto p-8 rounded-xl w-full max-w-2xl text-center backdrop-blur-md">
 <button id="close-popup" class="absolute top-4 right-4 text-white text-2xl hover:text-pink-300 transition"><i class="fas fa-times"></i></button>
     
-<div class="flex justify-center mb-8"> <!-- Increased margin-bottom -->
-  <div id="case-image" class="flip-card w-40 h-64 sm:w-48 sm:h-72">
-    <div class="flip-card-inner w-full h-full">
-      <!-- Back of the card -->
-      <img id="case-card-back" class="flip-card-back w-full h-full rounded-xl object-contain ring-2 ring-white/20" src="" alt="Card Back" />
-      <!-- Front of the card -->
-      <img id="case-card-front" class="flip-card-front w-full h-full rounded-xl object-contain ring-2 ring-white/20" src="" alt="Prize" />
-    </div>
+<div class="flex justify-center mb-8">
+  <div class="spinner-container relative w-full max-w-3xl overflow-hidden border border-white/10 rounded-lg shadow-lg">
+    <div id="spinner-track" class="spinner-track flex transition-transform ease-out duration-[4000ms]"></div>
+    <div class="absolute left-1/2 top-0 transform -translate-x-1/2 h-full w-[2px] bg-yellow-400 z-10"></div>
   </div>
 </div>
+
      <!-- Provably Fair Badge -->
   <div class="relative flex justify-center">
     <div id="provably-fair-badge" class="flex items-center text-sm text-green-400 font-semibold cursor-pointer">
