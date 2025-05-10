@@ -8,11 +8,19 @@ window.addEventListener('DOMContentLoaded', () => {
     if (user) {
       const userRef = firebase.database().ref('users/' + user.uid);
       const snapshot = await userRef.once('value');
-
-      console.log("Auth user:", user.uid);
-      console.log("User data from Firebase:", snapshot.val());
-
       const userData = snapshot.val() || {};
+
+      // ✅ Setup Provably Fair if missing
+      if (!userData.provablyFair) {
+        const serverSeed = generateRandomString(64);
+        const serverSeedHash = await sha256(serverSeed);
+        await userRef.child('provablyFair').set({
+          serverSeed,
+          serverSeedHash,
+          clientSeed: 'default',
+          nonce: 0
+        });
+      }
 
       // Show balances
       document.getElementById('balance-amount').innerText = userData.balance || 0;
@@ -28,7 +36,7 @@ window.addEventListener('DOMContentLoaded', () => {
       // Show inventory link in mobile menu
       if (inventoryLink) inventoryLink.classList.remove('hidden');
 
-      // Show desktop logout, hide sign in
+      // Desktop logout
       if (logoutDesktop) {
         logoutDesktop.style.display = "block";
         logoutDesktop.onclick = (e) => {
@@ -36,9 +44,10 @@ window.addEventListener('DOMContentLoaded', () => {
           firebase.auth().signOut().then(() => location.reload());
         };
       }
+
       if (signinDesktop) signinDesktop.style.display = "none";
 
-      // Setup mobile auth button to logout
+      // Mobile auth button → logout
       if (mobileAuthButton) {
         mobileAuthButton.innerText = "Logout";
         mobileAuthButton.href = "#";
@@ -49,7 +58,7 @@ window.addEventListener('DOMContentLoaded', () => {
       }
 
     } else {
-      // User signed out
+      // Signed out state
       document.getElementById('user-balance').classList.add('hidden');
       document.getElementById('balance-amount').innerText = '0';
       document.getElementById('username-display').innerText = "User";
@@ -67,3 +76,21 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// 🔐 Utility: generate server seed
+function generateRandomString(length) {
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += charset.charAt(Math.floor(Math.random() * charset.length));
+  }
+  return result;
+}
+
+// 🔐 Utility: sha256 hash
+async function sha256(message) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
