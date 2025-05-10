@@ -134,7 +134,15 @@
   <p class="text-sm text-white/80">Rip, collect, and uncover what’s inside 🔥</p>
 </div>
 
-    <div class="flex flex-wrap gap-4 mb-6 items-center">
+    <!-- Filter Toggle for Mobile -->
+<div class="sm:hidden mb-4">
+  <button id="filter-toggle" class="text-sm bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-600 w-full">
+    Show Filters
+  </button>
+</div>
+
+<!-- Filter Panel -->
+<div id="filter-panel" class="flex flex-wrap gap-4 mb-6 items-center sm:flex">
   <!-- Search -->
   <input id="search-box" type="text" placeholder="Search boxes" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-48" />
 
@@ -144,26 +152,26 @@
   <!-- Max Price -->
   <input id="max-price" type="number" placeholder="Max" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
 
-  <!-- Checkbox -->
+  <!-- Affordable Only Toggle -->
   <div class="flex items-center gap-3 px-3 py-2 rounded bg-gray-800 border border-gray-700 hover:border-yellow-400 transition-all">
-  <label for="affordable-only" class="flex items-center cursor-pointer select-none">
-    <div class="relative">
-      <input type="checkbox" id="affordable-only" class="sr-only peer">
-      <div class="w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-yellow-400 transition-all duration-300"></div>
-      <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
-    </div>
-    <span class="ml-3 text-sm text-white">Enough coins to buy</span>
-  </label>
-</div>
+    <label for="affordable-only" class="flex items-center cursor-pointer select-none">
+      <div class="relative">
+        <input type="checkbox" id="affordable-only" class="sr-only peer">
+        <div class="w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-yellow-400 transition-all duration-300"></div>
+        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
+      </div>
+      <span class="ml-3 text-sm text-white">Enough coins to buy</span>
+    </label>
+  </div>
 
-  <!-- Sorting -->
+  <!-- Sort Dropdown -->
   <select id="sort-select" class="px-3 py-2 rounded bg-gray-800 text-white">
     <option value="default">Sorting</option>
     <option value="asc">Ascending</option>
     <option value="desc">Descending</option>
   </select>
 
-  <!-- Clear Filters -->
+  <!-- Clear Filters Button -->
   <button id="clear-filters" class="text-sm text-gray-400 hover:text-white ml-auto">Clear Filters</button>
 </div>
 
