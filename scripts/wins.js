@@ -2,65 +2,68 @@
 
 function displayLiveWins(prizes) {
   const carousel = document.getElementById("recent-wins-carousel");
-  const marquee = document.getElementById("recent-wins-marquee");
+  if (!carousel) return;
 
-  // Clear existing
   carousel.innerHTML = '';
-  marquee.innerHTML = '';
 
-  // Randomly shuffle the list
-  const shuffled = prizes.sort(() => 0.5 - Math.random());
+  // Shuffle and clone prizes to simulate looping
+  const shuffled = [...prizes].sort(() => Math.random() - 0.5);
+  const selected = shuffled.slice(0, 10); // Limit number
 
-  // Pick the first 6
-  const selected = shuffled.slice(0, 6);
+  // Add 2x copies for smooth looping illusion
+  const loopPrizes = [...selected, ...selected];
 
-  selected.forEach(prize => {
-    // Add to carousel
-    const winCard = `
-      <div class="min-w-[150px] bg-gray-900 p-2 rounded-lg shadow text-center">
-        <img src="${prize.image}" class="w-20 h-20 object-contain mx-auto rounded mb-1" />
-        <div class="text-sm text-white font-semibold">${prize.name}</div>
-      </div>
+  loopPrizes.forEach(prize => {
+    const card = document.createElement("div");
+    card.className = "min-w-[150px] bg-gray-900 p-2 rounded-lg shadow text-center flex-shrink-0 mx-1";
+    card.innerHTML = `
+      <img src="${prize.image}" class="w-20 h-20 object-contain mx-auto rounded mb-1" />
+      <div class="text-sm text-white font-semibold">${prize.name}</div>
     `;
-    carousel.insertAdjacentHTML("beforeend", winCard);
-
-    // Add to marquee
-    const marqueeItem = `
-      <div class="flex items-center space-x-2 text-white">
-        <img src="${prize.image}" class="w-6 h-6 object-contain rounded" />
-        <span>${prize.name}</span>
-      </div>
-    `;
-    marquee.insertAdjacentHTML("beforeend", marqueeItem);
+    carousel.appendChild(card);
   });
 
-  // Start scroll
-  startAutoScrollCarousel("recent-wins-carousel", 0.5);
+  startInfiniteCarouselScroll("recent-wins-carousel", 0.3);
 }
 
 function fetchHighTierPrizes() {
   const dbRef = firebase.database().ref("cases");
-
   dbRef.once("value").then(snapshot => {
-    const casesData = snapshot.val();
-    if (!casesData) return;
+    const cases = snapshot.val();
+    if (!cases) return;
 
-    const allPrizes = [];
+    const highTier = [];
 
-    Object.values(casesData).forEach(caseData => {
+    Object.values(cases).forEach(caseData => {
       const prizes = Object.values(caseData.prizes || {});
       prizes.forEach(prize => {
         const rarity = prize.rarity?.toLowerCase();
         if (rarity === "ultra rare" || rarity === "legendary") {
-          allPrizes.push(prize);
+          highTier.push(prize);
         }
       });
     });
 
-    displayLiveWins(allPrizes);
+    displayLiveWins(highTier);
   });
 }
 
-// Call on DOM load
-document.addEventListener("DOMContentLoaded", fetchHighTierPrizes);
+function startInfiniteCarouselScroll(containerId, speed = 0.3) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
 
+  let scrollAmount = 0;
+
+  function scrollStep() {
+    scrollAmount += speed;
+    if (scrollAmount >= container.scrollWidth / 2) {
+      scrollAmount = 0;
+    }
+    container.scrollLeft = scrollAmount;
+    requestAnimationFrame(scrollStep);
+  }
+
+  requestAnimationFrame(scrollStep);
+}
+
+document.addEventListener("DOMContentLoaded", fetchHighTierPrizes);
