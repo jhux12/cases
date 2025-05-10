@@ -134,28 +134,15 @@
   <p class="text-sm text-white/80">Rip, collect, and uncover what’s inside 🔥</p>
 </div>
 
-    <!-- Filter Bar -->
-<div class="flex flex-wrap items-center gap-4 mb-6 bg-gray-900 p-4 rounded-xl shadow-lg">
-  <input type="text" id="search-box" placeholder="Search boxes" class="px-4 py-2 rounded bg-gray-800 text-white w-full sm:w-64">
-  <input type="number" id="min-coins" placeholder="Min" class="px-4 py-2 rounded bg-gray-800 text-white w-20">
-  <input type="number" id="max-coins" placeholder="Max" class="px-4 py-2 rounded bg-gray-800 text-white w-20">
-  <select id="sort-select" class="px-4 py-2 rounded bg-gray-800 text-white">
-    <option value="default">Sorting</option>
-    <option value="asc">Price: Low to High</option>
-    <option value="desc">Price: High to Low</option>
-  </select>
-  <label class="flex items-center gap-2 text-white text-sm">
-    <input type="checkbox" id="enough-coins" class="form-checkbox accent-yellow-500">
-    Enough coins to buy
-  </label>
-</div>
-
-<!-- Cases Grid -->
-<div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-
+    <!-- Cases Grid -->
+    <div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
   </div>
 </section>
 
+
+    <div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+  </div>
+</section>
 
 <!-- Recent Wins -->
 <section class="py-8 bg-gray-800">
@@ -921,77 +908,6 @@ firebase.auth().onAuthStateChanged(async user => {
     }
   });
 </script>
-  <!-- Case Filter and Loader Logic -->
-<script>
-function loadCases() {
-  const user = firebase.auth().currentUser;
-  let userBalance = 0;
-
-  if (user) {
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
-      userBalance = snapshot.val()?.balance || 0;
-      filterAndDisplayCases(userBalance);
-    });
-  } else {
-    filterAndDisplayCases(0);
-  }
-}
-
-function filterAndDisplayCases(userBalance) {
-  const searchTerm = document.getElementById('search-box')?.value?.toLowerCase() || '';
-  const minCoins = parseFloat(document.getElementById('min-coins')?.value) || 0;
-  const maxCoins = parseFloat(document.getElementById('max-coins')?.value) || Infinity;
-  const sortType = document.getElementById('sort-select')?.value;
-  const showAffordable = document.getElementById('enough-coins')?.checked;
-
-  db.ref('cases').once('value').then(snapshot => {
-    let cases = [];
-    snapshot.forEach(child => {
-      const data = child.val();
-      data.id = child.key;
-      cases.push(data);
-    });
-
-    // Filter
-    cases = cases.filter(c => {
-      const matchesSearch = c.name?.toLowerCase().includes(searchTerm);
-      const inPriceRange = c.price >= minCoins && c.price <= maxCoins;
-      const isAffordable = !showAffordable || c.price <= userBalance;
-      return matchesSearch && inPriceRange && isAffordable;
-    });
-
-    // Sort
-    if (sortType === 'asc') cases.sort((a, b) => a.price - b.price);
-    if (sortType === 'desc') cases.sort((a, b) => b.price - a.price);
-
-    // Display
-    const container = document.getElementById('cases-container');
-    container.innerHTML = '';
-    cases.forEach(c => {
-      const div = document.createElement('div');
-      div.className = 'p-4 bg-gray-800 rounded shadow hover:scale-105 transition cursor-pointer';
-      div.innerHTML = `
-        <img src="${c.image}" alt="${c.name}" class="w-full h-40 object-contain rounded mb-4">
-        <h3 class="text-lg text-white font-semibold">${c.name}</h3>
-        <p class="text-yellow-400 text-sm">${c.price.toLocaleString()} coins</p>
-        <button data-id="${c.id}" class="mt-2 px-4 py-1 bg-yellow-500 text-black rounded font-semibold hover:bg-yellow-400 w-full" onclick="openCasePopup(event)">Open</button>
-      `;
-      container.appendChild(div);
-    });
-  });
-}
-
-// Auto-refresh on input
-['search-box', 'min-coins', 'max-coins', 'sort-select', 'enough-coins'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('input', () => loadCases());
-});
-</script>
-
-<!-- Core Functional Scripts -->
-<script src="scripts/navbar.js"></script>
-<script src="scripts/hero.js"></script>
-<!-- etc -->
 <!-- Core Functional Scripts -->
 <script type="module" src="scripts/auth.js"></script>
 <script src="scripts/navbar.js"></script>
@@ -1061,26 +977,5 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
-  
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const userDropdownToggle = document.getElementById("dropdown-toggle");
-    const userDropdown = document.getElementById("user-dropdown");
-
-    if (userDropdownToggle && userDropdown) {
-      userDropdownToggle.addEventListener("click", (e) => {
-        e.stopPropagation();
-        userDropdown.classList.toggle("hidden");
-      });
-
-      document.addEventListener("click", (e) => {
-        if (!userDropdown.contains(e.target) && !userDropdownToggle.contains(e.target)) {
-          userDropdown.classList.add("hidden");
-        }
-      });
-    }
-  });
-</script>
-
 </body>
 </html>
