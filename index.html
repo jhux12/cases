@@ -758,16 +758,17 @@ const filterToggle = document.getElementById("filter-toggle");
 const filterPanel = document.getElementById("filter-panel");
 
 if (filterToggle && filterPanel) {
-  // Ensure it's hidden on load (mobile only)
-  filterPanel.classList.add("hidden");
-  filterToggle.textContent = "Show Filters";
+  // Ensure button starts in correct state based on classes
+  const isHidden = filterPanel.classList.contains("hidden");
+  filterToggle.textContent = isHidden ? "Show Filters" : "Hide Filters";
 
   filterToggle.addEventListener("click", () => {
-    const isHidden = filterPanel.classList.contains("hidden");
     filterPanel.classList.toggle("hidden");
-    filterToggle.textContent = isHidden ? "Hide Filters" : "Show Filters";
+    const nowHidden = filterPanel.classList.contains("hidden");
+    filterToggle.textContent = nowHidden ? "Show Filters" : "Hide Filters";
   });
 }
+
 
 
   
