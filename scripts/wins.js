@@ -40,6 +40,7 @@ function displayLiveWins(prizes) {
       text-center flex-shrink-0 mx-2 transform transition duration-200 hover:scale-105
     `;
 
+    // Render with hover image if packImage exists
     if (prize.packImage) {
       card.innerHTML = `
         <div class="relative w-full max-w-[120px] h-[120px] mx-auto group">
@@ -71,9 +72,11 @@ function fetchHighTierPrizes() {
 
     const highTier = [];
 
-    Object.values(cases).forEach(caseData => {
-      Object.entries(caseData).forEach(([caseName, caseDetails]) => {
+    // Go through each category (e.g., pokemon, sports)
+    Object.entries(cases).forEach(([categoryName, categoryCases]) => {
+      Object.entries(categoryCases).forEach(([caseKey, caseDetails]) => {
         const packImage = caseDetails.image;
+        const caseName = caseDetails.name || caseKey || "Mystery Pack";
         const prizes = Object.values(caseDetails.prizes || {});
 
         prizes.forEach(prize => {
@@ -82,13 +85,14 @@ function fetchHighTierPrizes() {
             highTier.push({
               ...prize,
               packImage: packImage || "",
-              caseName: caseDetails.name || caseName || "Mystery Pack",
+              caseName: caseName,
             });
           }
         });
       });
     });
 
+    console.log("Loaded high-tier prizes:", highTier);
     displayLiveWins(highTier);
   });
 }
