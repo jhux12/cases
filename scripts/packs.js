@@ -45,53 +45,17 @@ function loadCases() {
       });
     }
 
-    filterAndRenderCases();
-  });
-}
+    renderCases(allCases); // optional default render
 
-function filterAndRenderCases() {
-  const search = document.getElementById("search-box").value.toLowerCase();
-  const minPrice = parseFloat(document.getElementById("min-price").value) || 0;
-  const maxPrice = parseFloat(document.getElementById("max-price").value) || Infinity;
-  const affordableOnly = document.getElementById("affordable-only").checked;
+    const getUserBalance = () => {
+      return parseFloat(document.getElementById("balance-amount")?.innerText.replace(/,/g, "")) || 0;
+    };
 
-  const balance = parseFloat(document.getElementById("balance-amount")?.innerText.replace(/,/g, "")) || 0;
-  const sort = document.getElementById("sort-select").value;
-
-  let filtered = allCases.filter(c => {
-    const nameMatch = c.name.toLowerCase().includes(search);
-    const priceMatch = c.price >= minPrice && c.price <= maxPrice;
-    const affordabilityMatch = !affordableOnly || c.price <= balance;
-    return nameMatch && priceMatch && affordabilityMatch;
-  });
-
-  if (sort === "asc") {
-    filtered.sort((a, b) => a.price - b.price);
-  } else if (sort === "desc") {
-    filtered.sort((a, b) => b.price - a.price);
-  }
-
-  renderCases(filtered);
-}
-
-function setupFilters() {
-  document.getElementById("search-box").addEventListener("input", filterAndRenderCases);
-  document.getElementById("min-price").addEventListener("input", filterAndRenderCases);
-  document.getElementById("max-price").addEventListener("input", filterAndRenderCases);
-  document.getElementById("affordable-only").addEventListener("change", filterAndRenderCases);
-  document.getElementById("sort-select").addEventListener("change", filterAndRenderCases);
-
-  document.getElementById("clear-filters").addEventListener("click", () => {
-    document.getElementById("search-box").value = "";
-    document.getElementById("min-price").value = "";
-    document.getElementById("max-price").value = "";
-    document.getElementById("affordable-only").checked = false;
-    document.getElementById("sort-select").value = "default";
-    filterAndRenderCases();
+    setupFilters(allCases, renderCases, getUserBalance);
   });
 }
 
 window.addEventListener("DOMContentLoaded", () => {
   loadCases();
-  setupFilters();
 });
+
