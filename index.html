@@ -134,38 +134,46 @@
   <p class="text-sm text-white/80">Rip, collect, and uncover what’s inside 🔥</p>
 </div>
 
-    <div class="flex flex-wrap gap-4 mb-6 items-center">
+    <!-- Filter Bar -->
+<div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between px-4 py-4 bg-[#1a1a2e] rounded-xl shadow-md w-full">
+
   <!-- Search -->
-  <input id="search-box" type="text" placeholder="Search boxes" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-48" />
+  <input type="text" placeholder="Search boxes"
+    class="w-full sm:w-48 px-3 py-2 rounded-md bg-[#2c2c40] text-white placeholder-gray-400 border border-[#3d3d58] focus:outline-none focus:ring-2 focus:ring-purple-500" />
 
-  <!-- Min Price -->
-  <input id="min-price" type="number" placeholder="Min" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
+  <!-- Min & Max Price -->
+  <div class="flex gap-2">
+    <input type="number" placeholder="Min"
+      class="w-20 px-3 py-2 rounded-md bg-[#2c2c40] text-white placeholder-gray-400 border border-[#3d3d58] focus:outline-none focus:ring-2 focus:ring-purple-500" />
+    <input type="number" placeholder="Max"
+      class="w-20 px-3 py-2 rounded-md bg-[#2c2c40] text-white placeholder-gray-400 border border-[#3d3d58] focus:outline-none focus:ring-2 focus:ring-purple-500" />
+  </div>
 
-  <!-- Max Price -->
-  <input id="max-price" type="number" placeholder="Max" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
+  <!-- Toggle Switch -->
+  <div class="flex items-center gap-3 px-3 py-2 rounded-md border border-[#3d3d58] bg-[#2c2c40]">
+    <label class="relative inline-flex items-center cursor-pointer">
+      <input type="checkbox" id="affordable-checkbox" class="sr-only peer">
+      <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:bg-purple-500 transition duration-300 ease-in-out"></div>
+      <div
+        class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 ease-in-out peer-checked:translate-x-5">
+      </div>
+    </label>
+    <label for="affordable-checkbox" class="text-sm text-white">Enough coins to buy</label>
+  </div>
 
-  <!-- Checkbox -->
-  <div class="flex items-center gap-3 px-3 py-2 rounded bg-gray-800 border border-gray-700 hover:border-yellow-400 transition-all">
-  <label for="affordable-only" class="flex items-center cursor-pointer select-none">
-    <div class="relative">
-      <input type="checkbox" id="affordable-only" class="sr-only peer">
-      <div class="w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-yellow-400 transition-all duration-300"></div>
-      <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
-    </div>
-    <span class="ml-3 text-sm text-white">Enough coins to buy</span>
-  </label>
+  <!-- Sort + Clear -->
+  <div class="flex justify-between items-center w-full sm:w-auto gap-4">
+    <select
+      class="w-full sm:w-36 px-3 py-2 rounded-md bg-[#2c2c40] text-white border border-[#3d3d58] focus:outline-none focus:ring-2 focus:ring-purple-500">
+      <option value="">Sorting</option>
+      <option value="price_low">Price: Low to High</option>
+      <option value="price_high">Price: High to Low</option>
+      <option value="rarity">Rarity</option>
+    </select>
+    <button class="text-sm text-gray-400 hover:text-white hover:underline">Clear Filters</button>
+  </div>
 </div>
 
-  <!-- Sorting -->
-  <select id="sort-select" class="px-3 py-2 rounded bg-gray-800 text-white">
-    <option value="default">Sorting</option>
-    <option value="asc">Ascending</option>
-    <option value="desc">Descending</option>
-  </select>
-
-  <!-- Clear Filters -->
-  <button id="clear-filters" class="text-sm text-gray-400 hover:text-white ml-auto">Clear Filters</button>
-</div>
 
     <!-- Cases Grid -->
     <div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
