@@ -134,6 +134,41 @@
   <p class="text-sm text-white/80">Rip, collect, and uncover what’s inside 🔥</p>
 </div>
 
+    <div class="flex flex-wrap gap-4 mb-6 items-center">
+  <!-- Search -->
+  <input id="search-box" type="text" placeholder="Search boxes" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-48" />
+
+  <!-- Min Price -->
+  <input id="min-price" type="number" placeholder="Min" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
+
+  <!-- Max Price -->
+  <input id="max-price" type="number" placeholder="Max" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
+
+  <!-- Type Selector -->
+  <select id="type-select" class="px-3 py-2 rounded bg-gray-800 text-white">
+    <option value="">Any</option>
+    <option value="pokemon">Pokémon</option>
+    <option value="sports">Sports</option>
+    <option value="anime">Anime</option>
+  </select>
+
+  <!-- Checkbox -->
+  <label class="flex items-center space-x-2 text-white text-sm">
+    <input type="checkbox" id="affordable-only" class="form-checkbox rounded text-yellow-400" />
+    <span>Enough coins to buy</span>
+  </label>
+
+  <!-- Sorting -->
+  <select id="sort-select" class="px-3 py-2 rounded bg-gray-800 text-white">
+    <option value="default">Sorting</option>
+    <option value="asc">Ascending</option>
+    <option value="desc">Descending</option>
+  </select>
+
+  <!-- Clear Filters -->
+  <button id="clear-filters" class="text-sm text-gray-400 hover:text-white ml-auto">Clear Filters</button>
+</div>
+
     <!-- Cases Grid -->
     <div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
   </div>
