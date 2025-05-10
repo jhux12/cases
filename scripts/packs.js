@@ -45,7 +45,7 @@ function loadCases() {
       });
     }
 
-    renderCases(allCases); // optional default render
+    renderCases(allCases); // default render
 
     const getUserBalance = () => {
       return parseFloat(document.getElementById("balance-amount")?.innerText.replace(/,/g, "")) || 0;
@@ -57,5 +57,20 @@ function loadCases() {
 
 window.addEventListener("DOMContentLoaded", () => {
   loadCases();
+
+  // Toggle filter panel for mobile
+  const filterToggle = document.getElementById("filter-toggle");
+  const filterPanel = document.getElementById("filter-panel");
+
+  if (filterToggle && filterPanel) {
+    let isVisible = false;
+    filterPanel.style.display = "none";
+
+    filterToggle.addEventListener("click", () => {
+      isVisible = !isVisible;
+      filterPanel.style.display = isVisible ? "flex" : "none";
+      filterToggle.textContent = isVisible ? "Hide Filters" : "Show Filters";
+    });
+  }
 });
 
