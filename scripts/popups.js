@@ -22,21 +22,25 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 // Expand image overlay
-function expandPrize(imageUrl) {
+window.expandPrize = function (imageUrl) {
   const overlay = document.getElementById('prize-overlay');
   const overlayImg = document.getElementById('overlay-image');
-  overlayImg.src = imageUrl;
-  overlay.classList.remove('hidden');
-}
+  if (overlay && overlayImg) {
+    overlayImg.src = imageUrl;
+    overlay.classList.remove('hidden');
+  }
+};
 
 // Toast when item is added to inventory
-function showInventoryToast(itemName) {
+window.showInventoryToast = function (itemName) {
   const toast = document.getElementById('inventory-toast');
   const nameSpan = document.getElementById('toast-item-name');
-  nameSpan.textContent = itemName;
-  toast.classList.remove('hidden');
+  if (toast && nameSpan) {
+    nameSpan.textContent = itemName;
+    toast.classList.remove('hidden');
 
-  setTimeout(() => {
-    toast.classList.add('hidden');
-  }, 3000);
-}
+    setTimeout(() => {
+      toast.classList.add('hidden');
+    }, 3000);
+  }
+};
