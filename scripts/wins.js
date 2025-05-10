@@ -6,15 +6,13 @@ function displayLiveWins(prizes) {
 
   // Shuffle and clone prizes to simulate looping
   const shuffled = [...prizes].sort(() => Math.random() - 0.5);
-  const selected = shuffled.slice(0, 10); // Limit number
+  const selected = shuffled.slice(0, 10);
 
-  // Add 2x copies for smooth looping illusion
   const loopPrizes = [...selected, ...selected];
 
   loopPrizes.forEach(prize => {
     const card = document.createElement("div");
 
-    // Determine glow style based on rarity
     let glowClass = "";
     const rarity = prize.rarity?.toLowerCase();
 
@@ -40,7 +38,7 @@ function displayLiveWins(prizes) {
       text-center flex-shrink-0 mx-2 transform transition duration-200 hover:scale-105
     `;
 
-    // Render with hover image if packImage exists
+    // Render pack swap image (if packImage exists)
     if (prize.packImage) {
       card.innerHTML = `
         <div class="relative w-full max-w-[120px] h-[120px] mx-auto group">
@@ -72,27 +70,23 @@ function fetchHighTierPrizes() {
 
     const highTier = [];
 
-    // Go through each category (e.g., pokemon, sports)
-    Object.entries(cases).forEach(([categoryName, categoryCases]) => {
-      Object.entries(categoryCases).forEach(([caseKey, caseDetails]) => {
-        const packImage = caseDetails.image;
-        const caseName = caseDetails.name || caseKey || "Mystery Pack";
-        const prizes = Object.values(caseDetails.prizes || {});
+    Object.entries(cases).forEach(([caseKey, caseDetails]) => {
+      const packImage = caseDetails.image;
+      const caseName = caseDetails.name || "Mystery Pack";
+      const prizes = caseDetails.prizes || [];
 
-        prizes.forEach(prize => {
-          const rarity = prize.rarity?.toLowerCase();
-          if (rarity === "ultra rare" || rarity === "legendary") {
-            highTier.push({
-              ...prize,
-              packImage: packImage || "",
-              caseName: caseName,
-            });
-          }
-        });
+      prizes.forEach(prize => {
+        const rarity = prize.rarity?.toLowerCase();
+        if (rarity === "ultra rare" || rarity === "legendary") {
+          highTier.push({
+            ...prize,
+            packImage: packImage || "",
+            caseName: caseName,
+          });
+        }
       });
     });
 
-    console.log("Loaded high-tier prizes:", highTier);
     displayLiveWins(highTier);
   });
 }
@@ -116,4 +110,3 @@ function startInfiniteCarouselScroll(containerId, speed = 0.3) {
 }
 
 document.addEventListener("DOMContentLoaded", fetchHighTierPrizes);
-
