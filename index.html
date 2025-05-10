@@ -974,5 +974,45 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
+  <script>
+  const spinnerTrack = document.getElementById('spinner-track');
+  const openButton = document.getElementById('open-case-button');
+  const prizes = [
+    { name: "AK-47 | Redline", image: "https://via.placeholder.com/100?text=AK" },
+    { name: "AWP | Asiimov", image: "https://via.placeholder.com/100?text=AWP" },
+    { name: "Karambit | Fade", image: "https://via.placeholder.com/100?text=Karambit" },
+    { name: "M4A1-S | Hyper Beast", image: "https://via.placeholder.com/100?text=M4" },
+    { name: "Glock-18 | Dragon Tattoo", image: "https://via.placeholder.com/100?text=Glock" },
+    { name: "Desert Eagle | Blaze", image: "https://via.placeholder.com/100?text=Deagle" },
+    { name: "P90 | Trigon", image: "https://via.placeholder.com/100?text=P90" },
+    { name: "USP-S | Kill Confirmed", image: "https://via.placeholder.com/100?text=USP" }
+  ];
+
+  function renderSpinnerItems() {
+    const repeated = Array(5).fill(prizes).flat();
+    spinnerTrack.innerHTML = repeated.map(prize =>
+      `<div class="spinner-item"><img src="${prize.image}" alt="${prize.name}" /></div>`
+    ).join('');
+  }
+
+  function spinToRandomPrize() {
+    const itemWidth = 108; // 100px + 8px gap
+    const totalItems = prizes.length * 5;
+    const stopIndex = prizes.length * 2 + Math.floor(Math.random() * prizes.length);
+    const offset = stopIndex * itemWidth - window.innerWidth / 2 + itemWidth / 2;
+
+    spinnerTrack.style.transition = 'none';
+    spinnerTrack.style.transform = 'translateX(0)';
+    requestAnimationFrame(() => {
+      spinnerTrack.style.transition = 'transform 4s cubic-bezier(0.1, 0.7, 0.1, 1)';
+      spinnerTrack.style.transform = `translateX(-${offset}px)`;
+    });
+  }
+
+  openButton.addEventListener('click', () => {
+    renderSpinnerItems();
+    spinToRandomPrize();
+  });
+</script>
 </body>
 </html>
