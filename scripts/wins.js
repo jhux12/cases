@@ -41,9 +41,13 @@ function displayLiveWins(prizes) {
     `;
 
     card.innerHTML = `
-      <img src="${prize.image}" class="w-full max-w-[120px] h-auto object-contain mx-auto rounded-md shadow-md mb-2" />
-      <div class="text-sm text-white text-center leading-tight">${prize.name}</div>
-    `;
+  <div class="relative w-full max-w-[120px] h-[120px] mx-auto group">
+    <img src="${prize.image}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md transition-opacity duration-300 group-hover:opacity-0" />
+    <img src="${prize.packImage}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+  </div>
+  <div class="text-sm text-white text-center leading-tight mt-2">${prize.name}</div>
+`;
+
 
     carousel.appendChild(card);
   });
