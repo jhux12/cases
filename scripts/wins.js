@@ -40,14 +40,22 @@ function displayLiveWins(prizes) {
       text-center flex-shrink-0 mx-2 transform transition duration-200 hover:scale-105
     `;
 
-    card.innerHTML = `
-  <div class="relative w-full max-w-[120px] h-[120px] mx-auto group">
-    <img src="${prize.image}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md transition-opacity duration-300 group-hover:opacity-0" />
-    <img src="${prize.packImage}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-  </div>
-  <div class="text-sm text-white text-center leading-tight mt-2">${prize.name}</div>
-`;
-
+    if (prize.packImage) {
+      card.innerHTML = `
+        <div class="relative w-full max-w-[120px] h-[120px] mx-auto group">
+          <img src="${prize.image}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md transition-opacity duration-300 group-hover:opacity-0" />
+          <img src="${prize.packImage}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        </div>
+        <div class="text-sm text-white text-center leading-tight mt-2">${prize.name}</div>
+        <div class="text-xs text-gray-400 text-center italic">From: ${prize.caseName || 'Mystery Pack'}</div>
+      `;
+    } else {
+      card.innerHTML = `
+        <img src="${prize.image}" class="w-full max-w-[120px] h-[120px] object-contain mx-auto rounded-md shadow-md mb-2" />
+        <div class="text-sm text-white text-center leading-tight">${prize.name}</div>
+        <div class="text-xs text-gray-400 text-center italic">From: ${prize.caseName || 'Mystery Pack'}</div>
+      `;
+    }
 
     carousel.appendChild(card);
   });
@@ -64,12 +72,20 @@ function fetchHighTierPrizes() {
     const highTier = [];
 
     Object.values(cases).forEach(caseData => {
-      const prizes = Object.values(caseData.prizes || {});
-      prizes.forEach(prize => {
-        const rarity = prize.rarity?.toLowerCase();
-        if (rarity === "ultra rare" || rarity === "legendary") {
-          highTier.push(prize);
-        }
+      Object.entries(caseData).forEach(([caseName, caseDetails]) => {
+        const packImage = caseDetails.image;
+        const prizes = Object.values(caseDetails.prizes || {});
+
+        prizes.forEach(prize => {
+          const rarity = prize.rarity?.toLowerCase();
+          if (rarity === "ultra rare" || rarity === "legendary") {
+            highTier.push({
+              ...prize,
+              packImage: packImage || "",
+              caseName: caseDetails.name || caseName || "Mystery Pack",
+            });
+          }
+        });
       });
     });
 
@@ -96,3 +112,4 @@ function startInfiniteCarouselScroll(containerId, speed = 0.3) {
 }
 
 document.addEventListener("DOMContentLoaded", fetchHighTierPrizes);
+
