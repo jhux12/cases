@@ -96,15 +96,27 @@ function startInfiniteCarouselScroll(containerId, speed = 0.3) {
   if (!container) return;
 
   let scrollAmount = 0;
+  let isPaused = false;
 
   function scrollStep() {
-    scrollAmount += speed;
-    if (scrollAmount >= container.scrollWidth / 2) {
-      scrollAmount = 0;
+    if (!isPaused) {
+      scrollAmount += speed;
+      if (scrollAmount >= container.scrollWidth / 2) {
+        scrollAmount = 0;
+      }
+      container.scrollLeft = scrollAmount;
     }
-    container.scrollLeft = scrollAmount;
     requestAnimationFrame(scrollStep);
   }
+
+  // Pause scrolling on hover
+  container.addEventListener("mouseenter", () => {
+    isPaused = true;
+  });
+
+  container.addEventListener("mouseleave", () => {
+    isPaused = false;
+  });
 
   requestAnimationFrame(scrollStep);
 }
