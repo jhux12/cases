@@ -419,8 +419,10 @@ possiblePrizesDiv.innerHTML = [...currentPrizes]
     const userData = userSnap.val() || {};
     const userBalance = parseFloat(userData.balance || 0);
     if (userBalance < selectedCasePrice) {
-      return;
-    }
+  document.getElementById('topup-popup').classList.remove('hidden');
+  return;
+}
+
 
     const newBalance = userBalance - selectedCasePrice;
     userRef.update({ balance: newBalance }).then(() => {
