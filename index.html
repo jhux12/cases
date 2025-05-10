@@ -142,7 +142,7 @@
 </div>
 
 <!-- Filter Panel -->
-<div id="filter-panel" class="flex flex-wrap gap-4 mb-6 items-center sm:flex" style="display: none;">
+<div id="filter-panel" class="hidden flex flex-wrap gap-4 mb-6 items-center sm:flex">
   <!-- Search -->
   <input id="search-box" type="text" placeholder="Search boxes" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-48" />
 
@@ -754,21 +754,21 @@ window.onload = () => {
       }
     });
   }
-  const filterToggle = document.getElementById("filter-toggle");
-  const filterPanel = document.getElementById("filter-panel");
+const filterToggle = document.getElementById("filter-toggle");
+const filterPanel = document.getElementById("filter-panel");
 
-  if (filterToggle && filterPanel) {
-    // Set initial visibility and button label
-   filterPanel.style.display = "none"; // Hide by default
-   filterToggle.textContent = "Show Filters";
+if (filterToggle && filterPanel) {
+  // Ensure it's hidden on load (mobile only)
+  filterPanel.classList.add("hidden");
+  filterToggle.textContent = "Show Filters";
 
+  filterToggle.addEventListener("click", () => {
+    const isHidden = filterPanel.classList.contains("hidden");
+    filterPanel.classList.toggle("hidden");
+    filterToggle.textContent = isHidden ? "Hide Filters" : "Show Filters";
+  });
+}
 
-    filterToggle.addEventListener("click", () => {
-      const currentlyVisible = filterPanel.style.display !== "none";
-      filterPanel.style.display = currentlyVisible ? "none" : "flex";
-      filterToggle.textContent = currentlyVisible ? "Show Filters" : "Hide Filters";
-    });
-  }
 
   
   firebase.auth().onAuthStateChanged((user) => {
