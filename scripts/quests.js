@@ -44,7 +44,7 @@ export async function renderDailyQuests(containerId = "quest-container") {
 
   const now = Date.now();
   const resetTime = 24 * 60 * 60 * 1000;
-  const timeUntilReset = lastQuestReset ? (resetTime - (now - lastQuestReset)) : 0;
+ const timeUntilReset = (now - lastQuestReset < resetTime) ? (resetTime - (now - lastQuestReset)) : 0;
 
   container.innerHTML = `
     <div class="bg-gradient-to-br from-[#1f1f2b] to-[#12121b] rounded-2xl p-6 sm:p-8 shadow-xl text-white w-full max-w-3xl mx-auto">
