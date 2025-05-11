@@ -14,6 +14,7 @@ export async function renderDailyQuests(containerId = "quest-container") {
   const quests = userData.quests || {};
   const inventory = userData.inventory || {};
   const spentCoins = userData.spent || 0;
+  const lastQuestReset = userData.lastQuestReset || 0;
 
   const hasRareCard = Object.values(inventory).some(item => (item.rarity || '').toLowerCase() === 'rare');
 
@@ -41,12 +42,36 @@ export async function renderDailyQuests(containerId = "quest-container") {
     }
   ];
 
+  const now = Date.now();
+  const resetTime = 24 * 60 * 60 * 1000;
+  const timeUntilReset = lastQuestReset ? (resetTime - (now - lastQuestReset)) : 0;
+
   container.innerHTML = `
     <div class="bg-gradient-to-br from-[#1f1f2b] to-[#12121b] rounded-2xl p-6 sm:p-8 shadow-xl text-white w-full max-w-3xl mx-auto">
-      <h2 class="text-3xl font-bold text-center mb-6 text-yellow-300 tracking-tight">🎯 Daily Quests</h2>
+      <h2 class="text-3xl font-bold text-center mb-2 text-yellow-300 tracking-tight">🎯 Daily Quests</h2>
+      <p id="quest-reset-timer" class="text-sm text-gray-400 text-center mb-4"></p>
       <ul id="quest-list" class="space-y-4"></ul>
     </div>
   `;
+
+  const timerEl = document.getElementById("quest-reset-timer");
+  if (timeUntilReset > 0) {
+    const interval = setInterval(async () => {
+      const remaining = resetTime - (Date.now() - lastQuestReset);
+      if (remaining <= 0) {
+        clearInterval(interval);
+        timerEl.innerText = "Quests reset!";
+        await userRef.child("quests").remove();
+        await userRef.update({ lastQuestReset: Date.now() });
+        renderDailyQuests(containerId);
+      } else {
+        const h = Math.floor(remaining / (1000 * 60 * 60));
+        const m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((remaining % (1000 * 60)) / 1000);
+        timerEl.innerText = `Resets in: ${h}h ${m}m ${s}s`;
+      }
+    }, 1000);
+  }
 
   const list = document.getElementById("quest-list");
 
@@ -56,7 +81,7 @@ export async function renderDailyQuests(containerId = "quest-container") {
     const isClaimed = status.claimed || false;
 
     const item = document.createElement("li");
-    item.className = "flex items-center justify-between bg-gray-900 border border-yellow-500 rounded-xl px-6 py-4 shadow-lg hover:scale-[1.01] transition-transform";
+    item.className = `flex items-center justify-between bg-gray-900 border border-yellow-500 rounded-xl px-6 py-4 shadow-lg hover:scale-[1.01] transition-transform ${isCompleted ? 'opacity-100' : 'opacity-60'}`;
 
     item.innerHTML = `
       <div class="flex items-center gap-3">
@@ -94,3 +119,4 @@ export async function renderDailyQuests(containerId = "quest-container") {
     list.appendChild(item);
   }
 }
+
