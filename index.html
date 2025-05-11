@@ -584,6 +584,15 @@ document.getElementById('verify-fairness').classList.remove('hidden');
             timestamp: Date.now()
           }).then(() => {
             showInventoryToast(winningPrize.name);
+            // ✅ Mark quest "Open 1 Pack" as completed
+const questRef = db.ref(`users/${user.uid}/quests/open-pack`);
+questRef.once("value").then(snap => {
+  const quest = snap.val() || {};
+  if (!quest.completed) {
+    questRef.update({ completed: true });
+  }
+});
+
           });
 
           const recentWinsRef = db.ref('recentWins');
