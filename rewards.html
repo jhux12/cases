@@ -200,6 +200,14 @@ if (timeSinceLastClaim > delay * 2) {
 <script src="scripts/navbar.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
 <script src="scripts/topup.js"></script>
+<script type="module">
+  import { renderDailyQuests } from './scripts/quests.js';
+
+  document.addEventListener("DOMContentLoaded", () => {
+    renderDailyQuests();
+  });
+</script>
+
 
 <script>
   const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
