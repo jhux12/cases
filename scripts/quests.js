@@ -14,7 +14,7 @@ export async function renderDailyQuests(containerId = "quest-container") {
   const quests = userData.quests || {};
   const inventory = userData.inventory || {};
   const spentCoins = userData.spent || 0;
-  const lastQuestReset = userData.lastQuestReset || 0;
+  const lastQuestReset = userData.lastQuestReset || (Date.now() - 24 * 60 * 60 * 1000);
 
   const hasRareCard = Object.values(inventory).some(item => (item.rarity || '').toLowerCase() === 'rare');
 
