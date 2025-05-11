@@ -118,6 +118,7 @@
     const userRef = db.ref('users/' + user.uid);
     const snapshot = await userRef.once('value');
     const data = snapshot.val() || {};
+    import("./scripts/quests.js").then(module => module.renderDailyQuests());
 
     const balance = data.balance || 0;
     document.getElementById('balance-amount').innerText = balance;
@@ -200,13 +201,6 @@ if (timeSinceLastClaim > delay * 2) {
 <script src="scripts/navbar.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
 <script src="scripts/topup.js"></script>
-<script type="module">
-  import { renderDailyQuests } from './scripts/quests.js';
-
-  document.addEventListener("DOMContentLoaded", () => {
-    renderDailyQuests();
-  });
-</script>
 
 
 <script>
