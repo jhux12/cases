@@ -12,11 +12,33 @@ export async function renderDailyQuests(containerId = "quest-container") {
   const userData = snapshot.val() || {};
   const balance = userData.balance || 0;
   const quests = userData.quests || {};
+  const inventory = userData.inventory || {};
+  const spentCoins = userData.spent || 0;
+
+  const hasRareCard = Object.values(inventory).some(item => (item.rarity || '').toLowerCase() === 'rare');
 
   const questList = [
-    { id: "open-pack", label: "Open 1 Pack", reward: 10, icon: "fas fa-box-open" },
-    { id: "spend-coins", label: "Spend 500 Coins", reward: 15, icon: "fas fa-coins" },
-    { id: "win-rare", label: "Win a Rare Card", reward: 20, icon: "fas fa-star" }
+    {
+      id: "open-pack",
+      label: "Open 1 Pack",
+      reward: 10,
+      icon: "fas fa-box-open",
+      isCompleted: () => quests["open-pack"]?.completed || false
+    },
+    {
+      id: "spend-coins",
+      label: "Spend 500 Coins",
+      reward: 15,
+      icon: "fas fa-coins",
+      isCompleted: () => spentCoins >= 500
+    },
+    {
+      id: "win-rare",
+      label: "Win a Rare Card",
+      reward: 20,
+      icon: "fas fa-star",
+      isCompleted: () => hasRareCard
+    }
   ];
 
   container.innerHTML = `
@@ -28,9 +50,9 @@ export async function renderDailyQuests(containerId = "quest-container") {
 
   const list = document.getElementById("quest-list");
 
-  questList.forEach(quest => {
+  for (const quest of questList) {
     const status = quests[quest.id] || {};
-    const isCompleted = status.completed || false;
+    const isCompleted = quest.isCompleted();
     const isClaimed = status.claimed || false;
 
     const item = document.createElement("li");
@@ -40,6 +62,7 @@ export async function renderDailyQuests(containerId = "quest-container") {
       <div class="flex items-center gap-3">
         <i class="${quest.icon} text-yellow-400 text-lg"></i>
         <span class="text-white font-medium">${quest.label}</span>
+        <span class="ml-3 text-yellow-300 text-sm">+${quest.reward} coins</span>
       </div>
       <button class="quest-claim-btn bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-1.5 px-5 rounded-full text-sm transition" ${(!isCompleted || isClaimed) ? "disabled" : ""}>
         ${isClaimed ? "Claimed" : isCompleted ? "Claim" : "Incomplete"}
@@ -69,5 +92,5 @@ export async function renderDailyQuests(containerId = "quest-container") {
     };
 
     list.appendChild(item);
-  });
+  }
 }
