@@ -872,6 +872,10 @@ if (filterToggle && filterPanel) {
 <script src="scripts/hero.js"></script>
 <script src="scripts/features.js"></script>
 <script type="module" src="scripts/packs.js"></script>
+  <script type="module">
+  import { renderDailyQuests } from './scripts/quests.js';
+  window.renderDailyQuests = renderDailyQuests; // Make it globally accessible
+</script>
 <script src="scripts/wins.js"></script>
 <script src="scripts/popups.js"></script>
 <script src="scripts/footer.js"></script>
