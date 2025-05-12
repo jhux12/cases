@@ -119,9 +119,16 @@ export async function renderDailyQuests(containerId = "quest-container") {
           balance: newBalance
         });
 
-        document.getElementById('balance-amount').innerText = newBalance.toLocaleString();
-        document.getElementById('balance-amount-mobile').innerText = newBalance.toLocaleString();
-        document.getElementById('popup-balance').innerText = `${newBalance.toLocaleString()} coins`;
+        const balanceFormatted = newBalance.toLocaleString();
+
+const el1 = document.getElementById('balance-amount');
+if (el1) el1.innerText = balanceFormatted;
+
+const el2 = document.getElementById('balance-amount-mobile');
+if (el2) el2.innerText = balanceFormatted;
+
+const el3 = document.getElementById('popup-balance');
+if (el3) el3.innerText = `${balanceFormatted} coins`;
 
         claimButton.disabled = true;
         claimButton.innerText = "Claimed";
