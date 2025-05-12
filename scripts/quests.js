@@ -106,12 +106,8 @@ export async function renderDailyQuests(containerId = "quest-container") {
 
     claimButton.onclick = async () => {
       if (isCompleted && !isClaimed) {
-        await firebase.database().ref(`users/${user.uid}/quests/${quest.id}`).update({
-          claimed: true
-        });
-        await firebase.database().ref(`users/${user.uid}`).update({
-          balance: balance + quest.reward
-        });
+        await userRef.child(`quests/${quest.id}`).update({ claimed: true });
+await userRef.update({ balance: balance + quest.reward });
 
         claimButton.disabled = true;
         claimButton.innerText = "Claimed";
