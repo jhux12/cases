@@ -12,7 +12,69 @@ document.addEventListener("DOMContentLoaded", () => {
     observer.observe(document.body, { childList: true, subtree: true });
   };
 
-  // Wait for header to render before binding
+  // Firebase user info injection AFTER header is rendered
+  waitForElement("#username-display", () => {
+    firebase.auth().onAuthStateChanged((user) => {
+      const usernameEl = document.getElementById("username-display");
+      const balanceEl = document.getElementById("balance-amount");
+      const balanceMobile = document.getElementById("balance-amount-mobile");
+      const popupBalance = document.getElementById("popup-balance");
+      const mobileAuthBtn = document.getElementById("mobile-auth-button");
+      const logoutBtn = document.getElementById("logout-desktop");
+      const signinBtn = document.getElementById("signin-desktop");
+
+      if (!usernameEl || !balanceEl) return;
+
+      if (user) {
+        const userRef = firebase.database().ref("users/" + user.uid);
+        userRef.once("value").then((snap) => {
+          const data = snap.val() || {};
+          const balance = data.balance || 0;
+          const username = data.username || user.email;
+
+          usernameEl.innerText = username;
+          balanceEl.innerText = balance;
+          if (balanceMobile) balanceMobile.innerText = balance;
+          if (popupBalance) popupBalance.innerText = `${balance} coins`;
+
+          if (logoutBtn) {
+            logoutBtn.style.display = "block";
+            logoutBtn.onclick = (e) => {
+              e.preventDefault();
+              firebase.auth().signOut().then(() => location.reload());
+            };
+          }
+
+          if (signinBtn) signinBtn.style.display = "none";
+
+          if (mobileAuthBtn) {
+            mobileAuthBtn.innerText = "Logout";
+            mobileAuthBtn.href = "#";
+            mobileAuthBtn.onclick = (e) => {
+              e.preventDefault();
+              firebase.auth().signOut().then(() => location.reload());
+            };
+          }
+        });
+      } else {
+        usernameEl.innerText = "User";
+        balanceEl.innerText = "0";
+        if (balanceMobile) balanceMobile.innerText = "0";
+        if (popupBalance) popupBalance.innerText = "0 coins";
+
+        if (logoutBtn) logoutBtn.style.display = "none";
+        if (signinBtn) signinBtn.style.display = "block";
+
+        if (mobileAuthBtn) {
+          mobileAuthBtn.innerText = "Sign In";
+          mobileAuthBtn.href = "auth.html";
+          mobileAuthBtn.onclick = null;
+        }
+      }
+    });
+  });
+
+  // Top-up popup toggle
   waitForElement("#topup-button", () => {
     const topupPopup = document.getElementById("topup-popup");
     const topupDesktop = document.getElementById("topup-button");
@@ -72,4 +134,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
-
