@@ -620,13 +620,10 @@ const targetRarities = ["rare", "ultra rare", "legendary"];
 if (targetRarities.includes((winningPrize.rarity || "").toLowerCase())) {
   const rareQuestRef = db.ref(`users/${user.uid}/quests/win-rare`);
   rareQuestRef.transaction(current => {
-    if (!current) {
-      return { completed: true, claimed: false };
-    }
-
     return {
-      ...current,
-      completed: true
+      progress: 1,
+      completed: true,
+      claimed: current?.claimed || false
     };
   });
 }
