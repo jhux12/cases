@@ -5,6 +5,12 @@ window.addEventListener('DOMContentLoaded', () => {
   const inventoryLink = document.getElementById('inventory-link');
 
   firebase.auth().onAuthStateChanged(async (user) => {
+    const balanceAmount = document.getElementById('balance-amount');
+    const balanceMobile = document.getElementById('balance-amount-mobile');
+    const popupBalance = document.getElementById('popup-balance');
+    const userBalanceWrapper = document.getElementById('user-balance');
+    const usernameDisplay = document.getElementById('username-display');
+
     if (user) {
       const userRef = firebase.database().ref('users/' + user.uid);
       const snapshot = await userRef.once('value');
@@ -23,14 +29,14 @@ window.addEventListener('DOMContentLoaded', () => {
       }
 
       // Show balances
-      document.getElementById('balance-amount').innerText = userData.balance || 0;
-      document.getElementById('balance-amount-mobile').innerText = userData.balance || 0;
-      document.getElementById('popup-balance').innerText = `${userData.balance || 0} coins`;
-      document.getElementById('user-balance').classList.remove('hidden');
+      if (balanceAmount) balanceAmount.innerText = userData.balance || 0;
+      if (balanceMobile) balanceMobile.innerText = userData.balance || 0;
+      if (popupBalance) popupBalance.innerText = `${userData.balance || 0} coins`;
+      if (userBalanceWrapper) userBalanceWrapper.classList.remove('hidden');
 
       // Set username if it exists
-      if (userData.username) {
-        document.getElementById('username-display').innerText = userData.username;
+      if (usernameDisplay && userData.username) {
+        usernameDisplay.innerText = userData.username;
       }
 
       // Show inventory link in mobile menu
@@ -59,12 +65,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
     } else {
       // Signed out state
-      document.getElementById('user-balance').classList.add('hidden');
-      document.getElementById('balance-amount').innerText = '0';
-      document.getElementById('username-display').innerText = "User";
+      if (userBalanceWrapper) userBalanceWrapper.classList.add('hidden');
+      if (balanceAmount) balanceAmount.innerText = '0';
+      if (usernameDisplay) usernameDisplay.innerText = "User";
 
       if (inventoryLink) inventoryLink.classList.add('hidden');
-
       if (logoutDesktop) logoutDesktop.style.display = "none";
       if (signinDesktop) signinDesktop.style.display = "block";
 
