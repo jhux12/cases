@@ -105,9 +105,10 @@ quest.progress = actualProgress; // Update for bar/percent display
           <span class="text-white font-medium">${quest.label}</span>
           <span class="ml-3 text-yellow-300 text-sm">+${quest.reward} coins</span>
         </div>
-        <button class="quest-claim-btn bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-1.5 px-5 rounded-full text-sm transition" ${(!isCompleted || isClaimed) ? "disabled" : ""}>
-          ${isClaimed ? "Claimed" : isCompleted ? "Claim" : "Incomplete"}
-        </button>
+        <button class="quest-claim-btn bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-1.5 px-5 rounded-full text-sm transition"
+  ${(!status.completed || isClaimed) ? "disabled" : ""}>
+  ${isClaimed ? "Claimed" : status.completed ? "Claim" : "Incomplete"}
+</button>
       </div>
       <div class="w-full bg-gray-800 rounded-full h-2.5">
         <div class="bg-yellow-400 h-2.5 rounded-full" style="width: ${percent}%;"></div>
