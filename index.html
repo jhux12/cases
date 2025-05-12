@@ -761,13 +761,14 @@ if (filterToggle && filterPanel) {
         const balance = userData.balance || 0;
 
         document.getElementById('balance-amount').innerText = balance;
-        document.getElementById('balance-amount-mobile').innerText = balance;
-        document.getElementById('popup-balance').innerText = `${balance} coins`;
-        document.getElementById('user-balance').classList.remove('hidden');
+document.getElementById('balance-amount-mobile').innerText = balance;
+document.getElementById('popup-balance').innerText = `${balance} coins`;
+document.getElementById('user-balance').classList.remove('hidden');
 
-        if (userData.username) {
-          document.getElementById('username-display').innerText = userData.username;
-        }
+if (userData.username) {
+  document.getElementById('username-display').innerText = userData.username;
+}
+
 
         if (logoutDesktop) {
           logoutDesktop.onclick = (e) => {
