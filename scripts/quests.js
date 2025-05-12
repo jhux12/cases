@@ -21,7 +21,7 @@ export async function renderDailyQuests(containerId = "quest-container") {
   const questList = [
     {
       id: "open-pack",
-      label: "Open 10 Pack",
+      label: "Open 10 Packs",
       reward: 50,
       icon: "fas fa-box-open",
       progress: quests["open-pack"]?.progress || 0,
