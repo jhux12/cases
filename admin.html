@@ -19,6 +19,29 @@
       appId: "1:22502548396:web:aac335672c21f07524d009"
     };
     firebase.initializeApp(firebaseConfig);
+    const allowedAdmins = [
+  "jhuxf12@outlook.com", // 
+];
+
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) {
+    alert("Please log in.");
+    window.location.href = "/login.html"; // redirect to login page
+    return;
+  }
+
+  if (!allowedAdmins.includes(user.email)) {
+    alert("Access denied. Admins only.");
+    window.location.href = "/";
+    return;
+  }
+
+  // ✅ If user is an admin, show the panel and load data
+  document.getElementById('admin-panel').style.display = 'block';
+  loadCases();
+  loadShipments();
+  loadSupportForms();
+});
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -51,7 +74,7 @@
     </div>
   </nav>
 
-  <main class="p-6">
+  <main id="admin-panel" class="p-6" style="display: none;">
     <!-- Cases Section -->
     <section id="cases-section">
       <h1 class="text-3xl font-bold mb-6">Manage Cases</h1>
@@ -374,10 +397,6 @@ function adminReply(event, caseId) {
 
     caseForm.addEventListener('submit', saveCase);
     cancelEditBtn.addEventListener('click', cancelEdit);
-    window.onload = () => {
-      loadCases();
-      loadShipments();
-      loadSupportForms();
     }
     function searchUsers() {
   const query = document.getElementById('user-search').value.trim().toLowerCase();
