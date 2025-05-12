@@ -151,7 +151,6 @@ claimButton.onclick = async () => {
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
 };
-    };
 
     list.appendChild(item);
   }
