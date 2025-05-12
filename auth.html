@@ -18,8 +18,8 @@
 
   <div class="bg-gray-900 p-8 rounded shadow-md w-full max-w-md">
     <h2 id="form-title" class="mb-6 text-center">
-      <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(12).png?alt=media&token=40696ba9-f512-4316-8dec-bab9a4f037c8" alt="Logo" style="height: 60px; display: inline-block;">
-    </h2>
+  <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(12).png?alt=media&token=40696ba9-f512-4316-8dec-bab9a4f037c8" alt="Logo" style="height: 60px; display: inline-block;">
+</h2>
 
     <!-- Login Form -->
     <form id="login-form" class="space-y-4">
@@ -32,8 +32,8 @@
         <input type="password" id="login-password" class="w-full p-2 rounded bg-gray-700" required />
       </div>
       <div class="text-right text-sm">
-        <button type="button" onclick="forgotPassword()" class="text-purple-300 hover:underline">Forgot Password?</button>
-      </div>
+  <button type="button" onclick="forgotPassword()" class="text-purple-300 hover:underline">Forgot Password?</button>
+</div>
       <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">Login</button>
     </form>
 
@@ -67,129 +67,99 @@
     </p>
   </div>
 
-  <!-- Phone Verification Section -->
-  <div id="phone-verification" class="bg-gray-900 p-4 rounded mt-4 hidden">
-    <h3 class="text-lg font-semibold mb-2">Verify Phone Number</h3>
-    <div id="recaptcha-container"></div>
-    <input type="text" id="verification-code" placeholder="Enter SMS code" class="w-full p-2 mb-2 rounded bg-gray-700 text-white">
-    <button onclick="verifyCode()" class="w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Verify & Complete Registration</button>
-  </div>
+<script>
+// Firebase Setup
+const firebaseConfig = {
+  apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+  authDomain: "cases-e5b4e.firebaseapp.com",
+  databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+  projectId: "cases-e5b4e",
+  storageBucket: "cases-e5b4e.appspot.com",
+  messagingSenderId: "22502548396",
+  appId: "1:22502548396:web:aac335672c21f07524d009"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
-      authDomain: "cases-e5b4e.firebaseapp.com",
-      databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
-      projectId: "cases-e5b4e",
-      storageBucket: "cases-e5b4e.appspot.com",
-      messagingSenderId: "22502548396",
-      appId: "1:22502548396:web:aac335672c21f07524d009"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+const loginForm = document.getElementById('login-form');
+const registerForm = document.getElementById('register-form');
+const formTitle = document.getElementById('form-title');
+const switchText = document.getElementById('switch-text');
 
-    const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
-    const formTitle = document.getElementById('form-title');
-    const switchText = document.getElementById('switch-text');
+function toggleForms() {
+  loginForm.classList.toggle('hidden');
+  registerForm.classList.toggle('hidden');
 
-    function toggleForms() {
-      loginForm.classList.toggle('hidden');
-      registerForm.classList.toggle('hidden');
+  if (loginForm.classList.contains('hidden')) {
+    formTitle.innerHTML = '<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(12).png?alt=media&token=40696ba9-f512-4316-8dec-bab9a4f037c8" alt="Logo" style="height: 60px;">';
+    switchText.innerHTML = 'Already have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Login</button>';
+  } else {
+    formTitle.innerHTML = '<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(12).png?alt=media&token=40696ba9-f512-4316-8dec-bab9a4f037c8" alt="Logo" style="height: 60px;">';
+    switchText.innerHTML = 'Don\'t have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Register</button>';
+  }
+}
 
-      if (loginForm.classList.contains('hidden')) {
-        switchText.innerHTML = 'Already have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Login</button>';
-      } else {
-        switchText.innerHTML = 'Don\'t have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Register</button>';
-      }
-    }
+// Register
+registerForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const name = document.getElementById('register-name').value;
+  const username = document.getElementById('register-username').value;
+  const email = document.getElementById('register-email').value;
+  const phone = document.getElementById('register-phone').value;
+  const password = document.getElementById('register-password').value;
 
-    registerForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const name = document.getElementById('register-name').value;
-      const username = document.getElementById('register-username').value;
-      const email = document.getElementById('register-email').value;
-      const phone = document.getElementById('register-phone').value;
-      const password = document.getElementById('register-password').value;
-
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          const uid = userCredential.user.uid;
-          window.pendingUserData = { uid, name, username, email, phone };
-
-          window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-            size: 'invisible'
-          });
-
-          return auth.currentUser.linkWithPhoneNumber(phone, window.recaptchaVerifier);
-        })
-        .then(result => {
-          window.confirmationResult = result;
-          registerForm.classList.add('hidden');
-          document.getElementById('phone-verification').classList.remove('hidden');
-          alert('📱 Verification code sent!');
-        })
-        .catch(error => {
-          alert(error.message);
-        });
-    });
-
-    loginForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-password').value;
-
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-          alert('Login successful!');
-          window.location.href = 'index.html';
-        })
-        .catch(error => {
-          alert(error.message);
-        });
-    });
-
-    function forgotPassword() {
-      const email = document.getElementById('login-email').value;
-      if (!email) {
-        alert("Please enter your email address to reset your password.");
-        return;
-      }
-
-      auth.sendPasswordResetEmail(email)
-        .then(() => {
-          alert("✅ Password reset email sent! Please check your inbox.");
-        })
-        .catch(error => {
-          alert("❌ " + error.message);
-        });
-    }
-
-    function verifyCode() {
-      const code = document.getElementById('verification-code').value;
-
-      confirmationResult.confirm(code).then(result => {
-        const { uid, name, username, email, phone } = window.pendingUserData;
-
-        db.ref('users/' + uid).set({
-          name,
-          username,
-          email,
-          phone,
-          balance: 0,
-          phoneVerified: true,
-          role: 'user'
-        });
-
-        alert('✅ Phone verified and registration complete!');
-        window.location.href = 'index.html';
-      }).catch(error => {
-        alert('❌ Incorrect code: ' + error.message);
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      const uid = userCredential.user.uid;
+      db.ref('users/' + uid).set({
+        name: name,
+        username: username,
+        email: email,
+        phone: phone,
+        balance: 0,
+        role: 'user'
       });
-    }
-  </script>
+      alert('Registration successful!');
+      window.location.href = 'index.html';
+    })
+    .catch(error => {
+      alert(error.message);
+    });
+});
+
+// Login
+loginForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => {
+      alert('Login successful!');
+      window.location.href = 'index.html';
+    })
+    .catch(error => {
+      alert(error.message);
+    });
+});
+function forgotPassword() {
+  const email = document.getElementById('login-email').value;
+  if (!email) {
+    alert("Please enter your email address to reset your password.");
+    return;
+  }
+
+  auth.sendPasswordResetEmail(email)
+    .then(() => {
+      alert("✅ Password reset email sent! Please check your inbox.");
+    })
+    .catch(error => {
+      alert("❌ " + error.message);
+    });
+}
+
+</script>
 
 </body>
 </html>
-
