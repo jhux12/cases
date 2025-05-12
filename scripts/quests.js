@@ -82,8 +82,16 @@ export async function renderDailyQuests(containerId = "quest-container") {
     }
 
     const status = quests[quest.id] || {};
-    const isCompleted = quest.progress >= quest.goal;
-    const isClaimed = status.claimed || false;
+const actualProgress = quest.id === "spend-coins"
+  ? spentCoins
+  : quest.id === "win-rare"
+    ? hasRareCard ? 1 : 0
+    : status.progress || 0;
+
+const isCompleted = actualProgress >= quest.goal;
+const isClaimed = status.claimed || false;
+quest.progress = actualProgress; // Update for bar/percent display
+
 
     const item = document.createElement("li");
     item.className = `bg-gray-900 border border-yellow-500 rounded-xl px-6 py-4 shadow-lg hover:scale-[1.01] transition-transform ${isCompleted ? 'opacity-100' : 'opacity-60'}`;
