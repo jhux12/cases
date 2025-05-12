@@ -21,11 +21,11 @@ export async function renderDailyQuests(containerId = "quest-container") {
   const questList = [
     {
       id: "open-pack",
-      label: "Open 1 Pack",
-      reward: 10,
+      label: "Open 10 Pack",
+      reward: 50,
       icon: "fas fa-box-open",
       progress: quests["open-pack"]?.progress || 0,
-      goal: 1
+      goal: 10
     },
     {
       id: "spend-coins",
@@ -38,7 +38,7 @@ export async function renderDailyQuests(containerId = "quest-container") {
     {
       id: "win-rare",
       label: "Win a Rare Card",
-      reward: 20,
+      reward: 5,
       icon: "fas fa-star",
       progress: hasRareCard ? 1 : 0,
       goal: 1
