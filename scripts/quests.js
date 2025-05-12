@@ -35,14 +35,14 @@ export async function renderDailyQuests(containerId = "quest-container") {
       progress: 0, // will update dynamically
       goal: 500
     },
-    {
-      id: "win-rare",
-      label: "Win a Rare Card",
-      reward: 5,
-      icon: "fas fa-star",
-      progress: hasRareCard ? 1 : 0,
-      goal: 1
-    }
+ {
+      id: "open-pack",
+      label: "Open 50 Packs",
+      reward: 500,
+      icon: "fas fa-box-open",
+      progress: quests["open-pack"]?.progress || 0,
+      goal: 10
+    },
   ];
 
   const now = Date.now();
@@ -90,7 +90,8 @@ const actualProgress = quest.id === "spend-coins"
 
 const isCompleted = (status.completed === true) || (actualProgress >= quest.goal);
 const isClaimed = status.claimed || false;
-quest.progress = status.completed ? quest.goal : actualProgress;
+quest.progress = actualProgress; // Update for bar/percent display
+
 
     const item = document.createElement("li");
     item.className = `bg-gray-900 border border-yellow-500 rounded-xl px-6 py-4 shadow-lg hover:scale-[1.01] transition-transform ${isCompleted ? 'opacity-100' : 'opacity-60'}`;
@@ -104,10 +105,9 @@ quest.progress = status.completed ? quest.goal : actualProgress;
           <span class="text-white font-medium">${quest.label}</span>
           <span class="ml-3 text-yellow-300 text-sm">+${quest.reward} coins</span>
         </div>
-        <button class="quest-claim-btn bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-1.5 px-5 rounded-full text-sm transition"
-  ${(!status.completed || isClaimed) ? "disabled" : ""}>
-  ${isClaimed ? "Claimed" : status.completed ? "Claim" : "Incomplete"}
-</button>
+        <button class="quest-claim-btn bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-1.5 px-5 rounded-full text-sm transition" ${(!isCompleted || isClaimed) ? "disabled" : ""}>
+          ${isClaimed ? "Claimed" : isCompleted ? "Claim" : "Incomplete"}
+        </button>
       </div>
       <div class="w-full bg-gray-800 rounded-full h-2.5">
         <div class="bg-yellow-400 h-2.5 rounded-full" style="width: ${percent}%;"></div>
