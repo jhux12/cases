@@ -349,23 +349,25 @@
     if (!user) return alert('You must be logged in.');
     const userRef = db.ref('users/' + user.uid);
   
-    userRef.once('value').then(snapshot => {
-      const currentBalance = snapshot.val().balance || 0;
-      const newBalance = currentBalance + amount;
-      userRef.update({ balance: newBalance }).then(() => {
-        const spentRef = db.ref(`users/${user.uid}/spent`);
-spentRef.transaction(current => (current || 0) + selectedCasePrice);
-        document.getElementById('balance-amount').innerText = newBalance.toLocaleString();
-        document.getElementById('popup-balance').innerText = `${newBalance.toLocaleString()} coins`;
-        document.getElementById('popup-balance').innerText = `${newBalance.toLocaleString()} coins`;
+  userRef.once('value').then(snapshot => {
+  const currentBalance = snapshot.val().balance || 0;
+  const newBalance = currentBalance + amount;
 
-        const balanceEl = document.getElementById('balance-amount');
-balanceEl.classList.remove('pulse-balance');
-void balanceEl.offsetWidth; // restart animation
-balanceEl.classList.add('pulse-balance');
-        topupPopup.classList.add('hidden');
-      });
-    });
+  userRef.update({ balance: newBalance }).then(() => {
+    const spentRef = db.ref(`users/${user.uid}/spent`);
+    spentRef.transaction(current => (current || 0) + selectedCasePrice);
+
+    document.getElementById('balance-amount').innerText = newBalance.toLocaleString();
+    document.getElementById('popup-balance').innerText = `${newBalance.toLocaleString()} coins`;
+
+    const balanceEl = document.getElementById('balance-amount');
+    balanceEl.classList.remove('pulse-balance');
+    void balanceEl.offsetWidth; // restart animation
+    balanceEl.classList.add('pulse-balance');
+
+    topupPopup.classList.add('hidden');
+  });
+});
   }
   function openCasePopup(e) {
     const caseId = e.target.dataset.id;
