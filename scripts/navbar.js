@@ -74,24 +74,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Top-up popup toggle
-  waitForElement("#topup-button", () => {
+ // Top-up popup toggle
+waitForElement("#topup-button", () => {
+  waitForElement("#topup-popup", () => {
     const topupPopup = document.getElementById("topup-popup");
     const topupDesktop = document.getElementById("topup-button");
     const topupMobile = document.getElementById("topup-button-mobile");
 
     const openTopup = () => {
-      if (topupPopup) {
-        topupPopup.classList.remove("hidden");
-      } else {
-        console.warn("Top-up popup not found.");
-      }
+      topupPopup.classList.remove("hidden");
     };
 
     if (topupDesktop) topupDesktop.addEventListener("click", openTopup);
     if (topupMobile) topupMobile.addEventListener("click", openTopup);
   });
-
+});
   // Dropdown toggle
   waitForElement("#dropdown-toggle", () => {
     const dropdownToggle = document.getElementById("dropdown-toggle");
