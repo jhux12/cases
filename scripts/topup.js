@@ -22,8 +22,9 @@ async function loadTopupPopup() {
   // Attach loading feedback to all buy buttons
   document.querySelectorAll("#topup-popup form").forEach(form => {
     form.addEventListener("submit", (e) => {
+      e.preventDefault();
       const button = form.querySelector("button");
-      const priceId = form.getAttribute("onsubmit")?.match(/'(price_[^']+)'/)?.[1];
+      const priceId = form.getAttribute("data-price-id");
       if (priceId && button) {
         redirectToCheckout(e, priceId, button);
       }
@@ -123,3 +124,4 @@ firebase.auth().onAuthStateChanged(async (user) => {
     }
   });
 });
+
