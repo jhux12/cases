@@ -32,7 +32,7 @@ export async function renderDailyQuests(containerId = "quest-container") {
       label: "Spend 500 Coins",
       reward: 15,
       icon: "fas fa-coins",
-      progress: spentCoins,
+      progress: 0, // will update dynamically
       goal: 500
     },
     {
@@ -77,6 +77,10 @@ export async function renderDailyQuests(containerId = "quest-container") {
   const list = document.getElementById("quest-list");
 
   for (const quest of questList) {
+    if (quest.id === "spend-coins") {
+      quest.progress = spentCoins;
+    }
+
     const status = quests[quest.id] || {};
     const isCompleted = quest.progress >= quest.goal;
     const isClaimed = status.claimed || false;
@@ -106,8 +110,18 @@ export async function renderDailyQuests(containerId = "quest-container") {
 
     claimButton.onclick = async () => {
       if (isCompleted && !isClaimed) {
-        await userRef.child(`quests/${quest.id}`).update({ claimed: true });
-await userRef.update({ balance: balance + quest.reward });
+        await firebase.database().ref(`users/${user.uid}/quests/${quest.id}`).update({
+          claimed: true
+        });
+
+        const newBalance = balance + quest.reward;
+        await firebase.database().ref(`users/${user.uid}`).update({
+          balance: newBalance
+        });
+
+        document.getElementById('balance-amount').innerText = newBalance.toLocaleString();
+        document.getElementById('balance-amount-mobile').innerText = newBalance.toLocaleString();
+        document.getElementById('popup-balance').innerText = `${newBalance.toLocaleString()} coins`;
 
         claimButton.disabled = true;
         claimButton.innerText = "Claimed";
@@ -123,3 +137,4 @@ await userRef.update({ balance: balance + quest.reward });
     list.appendChild(item);
   }
 }
+
