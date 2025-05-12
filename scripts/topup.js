@@ -8,26 +8,32 @@ async function loadTopupPopup() {
 
   const popup = document.getElementById("topup-popup");
   const closeBtn = document.getElementById("close-topup");
+  const topupDesktop = document.getElementById("topup-button");
+  const topupMobile = document.getElementById("topup-button-mobile");
 
   if (popup && closeBtn) {
     closeBtn.onclick = () => popup.classList.add("hidden");
   }
 
-  document.getElementById("topup-button")?.addEventListener("click", () => popup.classList.remove("hidden"));
-  document.getElementById("topup-button-mobile")?.addEventListener("click", () => popup.classList.remove("hidden"));
+  const openPopup = () => popup?.classList.remove("hidden");
+  if (topupDesktop) topupDesktop.onclick = openPopup;
+  if (topupMobile) topupMobile.onclick = openPopup;
 
-  // Hook up buy buttons after popup is loaded
+  // Attach loading feedback to all buy buttons
   document.querySelectorAll("#topup-popup form").forEach(form => {
     form.addEventListener("submit", (e) => {
+      const button = form.querySelector("button");
       const priceId = form.getAttribute("onsubmit")?.match(/'(price_[^']+)'/)?.[1];
-      if (priceId) redirectToCheckout(e, priceId, form.querySelector("button"));
+      if (priceId && button) {
+        redirectToCheckout(e, priceId, button);
+      }
     });
   });
 }
 
 loadTopupPopup();
 
-// Stripe redirect with loading feedback
+// Stripe redirect with loading indicator
 function redirectToCheckout(event, priceId, button) {
   event.preventDefault();
 
@@ -70,7 +76,7 @@ function redirectToCheckout(event, priceId, button) {
     });
 }
 
-// Add Firestore payment listener to update coins
+// Update coin balance when payment is successful
 firebase.auth().onAuthStateChanged(async (user) => {
   if (!user) return;
   const dbRTDB = firebase.database();
