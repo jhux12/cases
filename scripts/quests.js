@@ -32,7 +32,7 @@ export async function renderDailyQuests(containerId = "quest-container") {
       label: "Open 50 Packs",
       reward: 500,
       icon: "fas fa-box-open",
-      progress: quests["open-pack"]?.progress || 0,
+      progress: quests["open-pack-50"]?.progress || 0,
       goal: 50
     },
     {
@@ -43,14 +43,6 @@ export async function renderDailyQuests(containerId = "quest-container") {
       progress: 0, // will update dynamically
       goal: 500
     },
-    {
-  id: "sell-card",
-  label: "Sell 1 Card",
-  reward: 10,
-  icon: "fas fa-hand-holding-usd",
-  progress: quests["sell-card"]?.progress || 0,
-  goal: 1
-},
   ];
   
 
