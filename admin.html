@@ -47,6 +47,7 @@
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('cases')">Cases</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('shipments')">Shipments</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('support')">Support Forms</a>
+      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('users')">Users</a>
     </div>
   </nav>
 
@@ -103,6 +104,14 @@
   <h1 class="text-3xl font-bold mb-6">User Support Messages</h1>
   <div id="support-list" class="space-y-4"></div>
 </section>
+    <section id="users-section" class="hidden">
+  <h1 class="text-3xl font-bold mb-6">User Management</h1>
+  <div class="mb-4 flex gap-4">
+    <input type="text" id="user-search" placeholder="Search by email or username" class="w-full p-2 rounded">
+    <button onclick="searchUsers()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Search</button>
+  </div>
+  <div id="user-results" class="space-y-4"></div>
+</section>
   </main>
 
   <script>
@@ -122,10 +131,12 @@
     }
 
     function showSection(id) {
-      document.getElementById('cases-section').classList.add('hidden');
-      document.getElementById('shipments-section').classList.add('hidden');
-      document.getElementById(id + '-section').classList.remove('hidden');
-    }
+  const sections = ['cases', 'shipments', 'support', 'users'];
+  sections.forEach(section => {
+    document.getElementById(section + '-section').classList.add('hidden');
+  });
+  document.getElementById(id + '-section').classList.remove('hidden');
+}
 
     function previewImage(url) {
       if (url) {
@@ -368,6 +379,75 @@ function adminReply(event, caseId) {
       loadShipments();
       loadSupportForms();
     }
+    function searchUsers() {
+  const query = document.getElementById('user-search').value.trim().toLowerCase();
+  if (!query) return;
+
+  const resultsDiv = document.getElementById('user-results');
+  resultsDiv.innerHTML = 'Searching...';
+
+  firebase.database().ref('users').once('value').then(snapshot => {
+    let found = false;
+    resultsDiv.innerHTML = '';
+
+    snapshot.forEach(child => {
+      const user = child.val();
+      const email = (user.email || '').toLowerCase();
+      const username = (user.username || '').toLowerCase();
+
+      if (email.includes(query) || username.includes(query)) {
+        found = true;
+        const div = document.createElement('div');
+        div.className = 'p-4 bg-gray-800 rounded';
+        div.innerHTML = `
+          <p><strong>User ID:</strong> ${child.key}</p>
+          <p><strong>Email:</strong> ${user.email || 'N/A'}</p>
+          <p><strong>Username:</strong> ${user.username || 'N/A'}</p>
+          <p><strong>Balance:</strong> ${user.balance || 0}</p>
+          <p><strong>Unbox History:</strong></p>
+          <ul id="unbox-${child.key}" class="text-sm text-gray-300 list-disc ml-4 mb-2">Loading...</ul>
+          <div class="flex gap-2">
+            <input type="number" placeholder="New Balance" id="balance-${child.key}" class="p-1 rounded w-24">
+            <button onclick="updateUserBalance('${child.key}')" class="px-2 py-1 bg-green-600 hover:bg-green-700 rounded">Update</button>
+          </div>
+        `;
+        resultsDiv.appendChild(div);
+
+        // Load unbox history
+        const unboxList = document.getElementById(`unbox-${child.key}`);
+        firebase.database().ref(`wins/${child.key}`).once('value').then(winSnap => {
+          if (winSnap.exists()) {
+            unboxList.innerHTML = '';
+            winSnap.forEach(win => {
+              const winData = win.val();
+const date = winData.timestamp ? new Date(winData.timestamp).toLocaleString() : '';
+unboxList.innerHTML += `<li>${winData.name} (${winData.rarity || ''}) - $${winData.value || 0} <span class="text-xs text-gray-400 ml-2">${date}</span></li>`;
+            });
+          } else {
+            unboxList.innerHTML = '<li>No history found.</li>';
+          }
+        });
+      }
+    });
+
+    if (!found) resultsDiv.innerHTML = 'No users found.';
+  });
+}
+
+function updateUserBalance(uid) {
+  const input = document.getElementById(`balance-${uid}`);
+  const newBalance = parseFloat(input.value);
+  if (isNaN(newBalance)) {
+    alert("Enter a valid number");
+    return;
+  }
+
+  firebase.database().ref(`users/${uid}/balance`).set(newBalance).then(() => {
+    showToast('✅ Balance updated');
+    input.value = '';
+  });
+}
+
   </script>
 </body>
 </html>
