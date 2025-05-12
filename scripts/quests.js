@@ -64,7 +64,7 @@ export async function renderDailyQuests(containerId = "quest-container") {
       clearInterval(interval);
       timerEl.innerText = "Quests reset!";
       await userRef.child("quests").remove();
-      await userRef.update({ lastQuestReset: Date.now() });
+      await userRef.update({ lastQuestReset: Date.now(), spent: 0 });
       renderDailyQuests(containerId);
     } else {
       const h = Math.floor(remaining / (1000 * 60 * 60));
