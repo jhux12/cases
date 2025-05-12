@@ -27,6 +27,14 @@ export async function renderDailyQuests(containerId = "quest-container") {
       progress: quests["open-pack"]?.progress || 0,
       goal: 10
     },
+     {
+      id: "open-pack",
+      label: "Open 50 Packs",
+      reward: 500,
+      icon: "fas fa-box-open",
+      progress: quests["open-pack"]?.progress || 0,
+      goal: 50
+    },
     {
       id: "spend-coins",
       label: "Spend 500 Coins",
@@ -35,15 +43,16 @@ export async function renderDailyQuests(containerId = "quest-container") {
       progress: 0, // will update dynamically
       goal: 500
     },
- {
-      id: "open-pack",
-      label: "Open 50 Packs",
-      reward: 500,
-      icon: "fas fa-box-open",
-      progress: quests["open-pack"]?.progress || 0,
-      goal: 50
-    },
+    {
+  id: "sell-card",
+  label: "Sell 1 Card",
+  reward: 10,
+  icon: "fas fa-hand-holding-usd",
+  progress: quests["sell-card"]?.progress || 0,
+  goal: 1
+},
   ];
+  
 
   const now = Date.now();
   const resetTime = 24 * 60 * 60 * 1000;
