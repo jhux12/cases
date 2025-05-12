@@ -22,26 +22,6 @@
     const allowedAdmins = [
   "jhuxf12@outlook.com", // 
 ];
-
-firebase.auth().onAuthStateChanged(user => {
-  if (!user) {
-    alert("Please log in.");
-    window.location.href = "/auth.html"; // redirect to login page
-    return;
-  }
-
-  if (!allowedAdmins.includes(user.email)) {
-    alert("Access denied. Admins only.");
-    window.location.href = "/";
-    return;
-  }
-
-  // ✅ If user is an admin, show the panel and load data
-  document.getElementById('admin-panel').style.display = 'block';
-  loadCases();
-  loadShipments();
-  loadSupportForms();
-});
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -397,7 +377,7 @@ function adminReply(event, caseId) {
 
     caseForm.addEventListener('submit', saveCase);
     cancelEditBtn.addEventListener('click', cancelEdit);
-    }
+
     function searchUsers() {
   const query = document.getElementById('user-search').value.trim().toLowerCase();
   if (!query) return;
@@ -467,6 +447,24 @@ function updateUserBalance(uid) {
     input.value = '';
   });
 }
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) {
+    alert("Please log in.");
+    window.location.href = "/auth.html";
+    return;
+  }
+
+  if (!allowedAdmins.includes(user.email)) {
+    alert("Access denied. Admins only.");
+    window.location.href = "/";
+    return;
+  }
+
+  document.getElementById('admin-panel').style.display = 'block';
+  loadCases();
+  loadShipments();
+  loadSupportForms();
+});
 
   </script>
 </body>
