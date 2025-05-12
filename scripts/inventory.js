@@ -136,7 +136,6 @@ function sellBack(key, value) {
     const balance = snap.val().balance || 0;
     userRef.update({ balance: balance + refund }).then(() => {
       itemRef.remove().then(() => {
-  // ✅ Track "sell-card" quest progress
   const sellQuestRef = firebase.database().ref(`users/${user.uid}/quests/sell-card`);
   sellQuestRef.transaction(current => {
     if (!current) {
@@ -151,10 +150,16 @@ function sellBack(key, value) {
       progress: updated,
       completed: current.completed || updated >= 1
     };
+  }, (error, committed, snapshot) => {
+    if (error) {
+      console.error("Quest update failed:", error);
+    } else if (committed) {
+      console.log("Sell quest progress updated:", snapshot.val());
+    }
+    window.location.reload(); // only after transaction completes
   });
-
-  window.location.reload();
 });
+
 
     });
   });
