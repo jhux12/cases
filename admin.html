@@ -394,6 +394,7 @@ function adminReply(event, caseId) {
       const user = child.val();
       const email = (user.email || '').toLowerCase();
       const username = (user.username || '').toLowerCase();
+      console.log('Checking user:', { email, username });
 
       if (email.includes(query) || username.includes(query)) {
         found = true;
