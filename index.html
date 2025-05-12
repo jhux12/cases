@@ -354,7 +354,6 @@
   const newBalance = currentBalance + amount;
 
   userRef.update({ balance: newBalance }).then(() => {
-    const spentRef = db.ref(`users/${user.uid}/spent`);
     spentRef.transaction(current => (current || 0) + selectedCasePrice);
 
     document.getElementById('balance-amount').innerText = newBalance.toLocaleString();
@@ -478,6 +477,15 @@ possiblePrizesDiv.innerHTML = [...currentPrizes]
 
     const newBalance = userBalance - selectedCasePrice;
     userRef.update({ balance: newBalance }).then(() => {
+      // ✅ Update "spent" coins total for quests
+const spentRef = db.ref(`users/${user.uid}/spent`);
+spentRef.transaction(current => {
+  const updated = (current || 0) + selectedCasePrice;
+  console.log("Updated spent:", updated);
+  renderDailyQuests(); // 🔁 Refresh quests right after spending
+  return updated;
+});
+
       document.getElementById('balance-amount').innerText = newBalance.toLocaleString();
       document.getElementById('popup-balance').innerText = `${newBalance.toLocaleString()} coins`;
 
