@@ -27,14 +27,6 @@ export async function renderDailyQuests(containerId = "quest-container") {
       progress: quests["open-pack"]?.progress || 0,
       goal: 10
     },
-     {
-      id: "open-pack-50",
-      label: "Open 50 Packs",
-      reward: 500,
-      icon: "fas fa-box-open",
-      progress: quests["open-pack-50"]?.progress || 0,
-      goal: 50
-    },
     {
       id: "spend-coins",
       label: "Spend 500 Coins",
