@@ -31,6 +31,9 @@
         <label>Password</label>
         <input type="password" id="login-password" class="w-full p-2 rounded bg-gray-700" required />
       </div>
+      <div class="text-right text-sm">
+  <button type="button" onclick="forgotPassword()" class="text-purple-300 hover:underline">Forgot Password?</button>
+</div>
       <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">Login</button>
     </form>
 
@@ -140,6 +143,22 @@ loginForm.addEventListener('submit', e => {
       alert(error.message);
     });
 });
+function forgotPassword() {
+  const email = document.getElementById('login-email').value;
+  if (!email) {
+    alert("Please enter your email address to reset your password.");
+    return;
+  }
+
+  auth.sendPasswordResetEmail(email)
+    .then(() => {
+      alert("✅ Password reset email sent! Please check your inbox.");
+    })
+    .catch(error => {
+      alert("❌ " + error.message);
+    });
+}
+
 </script>
 
 </body>
