@@ -760,14 +760,23 @@ if (filterToggle && filterPanel) {
         const userData = snapshot.val() || {};
         const balance = userData.balance || 0;
 
-        document.getElementById('balance-amount').innerText = balance;
-document.getElementById('balance-amount-mobile').innerText = balance;
-document.getElementById('popup-balance').innerText = `${balance} coins`;
-document.getElementById('user-balance').classList.remove('hidden');
+        const balanceEl = document.getElementById('balance-amount');
+if (balanceEl) balanceEl.innerText = balance;
+
+const balanceMobileEl = document.getElementById('balance-amount-mobile');
+if (balanceMobileEl) balanceMobileEl.innerText = balance;
+
+const popupBalanceEl = document.getElementById('popup-balance');
+if (popupBalanceEl) popupBalanceEl.innerText = `${balance} coins`;
+
+const userBalanceDiv = document.getElementById('user-balance');
+if (userBalanceDiv) userBalanceDiv.classList.remove('hidden');
 
 if (userData.username) {
-  document.getElementById('username-display').innerText = userData.username;
+  const usernameEl = document.getElementById('username-display');
+  if (usernameEl) usernameEl.innerText = userData.username;
 }
+
 
 
         if (logoutDesktop) {
