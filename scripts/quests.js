@@ -88,7 +88,7 @@ const actualProgress = quest.id === "spend-coins"
     ? hasRareCard ? 1 : 0
     : status.progress || 0;
 
-const isCompleted = actualProgress >= quest.goal;
+const isCompleted = (status.completed === true) || (actualProgress >= quest.goal);
 const isClaimed = status.claimed || false;
 quest.progress = actualProgress; // Update for bar/percent display
 
