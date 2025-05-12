@@ -45,13 +45,13 @@ function displayLiveWins(prizes) {
           <img src="${prize.image}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md transition-opacity duration-300 group-hover:opacity-0 pointer-events-none" />
           <img src="${prize.packImage}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
         </div>
-        <div class="text-sm text-white text-center leading-tight mt-2">${prize.name}</div>
+        <div class="text-sm text-white text-center leading-tight mt-2 truncate w-full max-w-[120px] mx-auto" title="${prize.name}">${prize.name}</div>
         <div class="text-xs text-gray-400 text-center italic">From: ${prize.caseName || 'Mystery Pack'}</div>
       `;
     } else {
       card.innerHTML = `
         <img src="${prize.image}" class="w-full max-w-[120px] h-[120px] object-contain mx-auto rounded-md shadow-md mb-2" />
-        <div class="text-sm text-white text-center leading-tight">${prize.name}</div>
+        <div class="text-sm text-white text-center leading-tight truncate w-full max-w-[120px] mx-auto mt-2" title="${prize.name}">${prize.name}</div>
         <div class="text-xs text-gray-400 text-center italic">From: ${prize.caseName || 'Mystery Pack'}</div>
       `;
     }
