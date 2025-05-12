@@ -41,7 +41,7 @@ export async function renderDailyQuests(containerId = "quest-container") {
       reward: 500,
       icon: "fas fa-box-open",
       progress: quests["open-pack"]?.progress || 0,
-      goal: 10
+      goal: 50
     },
   ];
 
