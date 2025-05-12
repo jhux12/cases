@@ -90,8 +90,7 @@ const actualProgress = quest.id === "spend-coins"
 
 const isCompleted = (status.completed === true) || (actualProgress >= quest.goal);
 const isClaimed = status.claimed || false;
-quest.progress = actualProgress; // Update for bar/percent display
-
+quest.progress = status.completed ? quest.goal : actualProgress;
 
     const item = document.createElement("li");
     item.className = `bg-gray-900 border border-yellow-500 rounded-xl px-6 py-4 shadow-lg hover:scale-[1.01] transition-transform ${isCompleted ? 'opacity-100' : 'opacity-60'}`;
