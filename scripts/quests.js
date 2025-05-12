@@ -28,7 +28,7 @@ export async function renderDailyQuests(containerId = "quest-container") {
       goal: 10
     },
      {
-      id: "open-pack",
+      id: "open-pack-50",
       label: "Open 50 Packs",
       reward: 500,
       icon: "fas fa-box-open",
