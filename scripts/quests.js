@@ -82,7 +82,7 @@ export async function renderDailyQuests(containerId = "quest-container") {
     }
 
     const status = quests[quest.id] || {};
-    const isCompleted = quest.progress >= quest.goal;
+    const isCompleted = quest.progress >= quest.goal || status.completed;
     const isClaimed = status.claimed || false;
 
     const item = document.createElement("li");
