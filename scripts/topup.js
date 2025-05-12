@@ -15,9 +15,60 @@ async function loadTopupPopup() {
 
   document.getElementById("topup-button")?.addEventListener("click", () => popup.classList.remove("hidden"));
   document.getElementById("topup-button-mobile")?.addEventListener("click", () => popup.classList.remove("hidden"));
+
+  // Hook up buy buttons after popup is loaded
+  document.querySelectorAll("#topup-popup form").forEach(form => {
+    form.addEventListener("submit", (e) => {
+      const priceId = form.getAttribute("onsubmit")?.match(/'(price_[^']+)'/)?.[1];
+      if (priceId) redirectToCheckout(e, priceId, form.querySelector("button"));
+    });
+  });
 }
 
 loadTopupPopup();
+
+// Stripe redirect with loading feedback
+function redirectToCheckout(event, priceId, button) {
+  event.preventDefault();
+
+  const originalText = button.innerHTML;
+  button.disabled = true;
+  button.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Loading...`;
+
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Please sign in to purchase coins.");
+    button.disabled = false;
+    button.innerHTML = originalText;
+    return;
+  }
+
+  firebase.firestore()
+    .collection("customers")
+    .doc(user.uid)
+    .collection("checkout_sessions")
+    .add({
+      mode: "payment",
+      success_url: window.location.href,
+      cancel_url: window.location.href,
+      allow_promotion_codes: true,
+      line_items: [{ price: priceId, quantity: 1 }],
+      metadata: { priceId }
+    })
+    .then((docRef) => {
+      docRef.onSnapshot((snap) => {
+        const { error, sessionId } = snap.data();
+        if (error) {
+          alert(`An error occurred: ${error.message}`);
+          button.disabled = false;
+          button.innerHTML = originalText;
+        }
+        if (sessionId) {
+          stripe.redirectToCheckout({ sessionId });
+        }
+      });
+    });
+}
 
 // Add Firestore payment listener to update coins
 firebase.auth().onAuthStateChanged(async (user) => {
