@@ -615,6 +615,22 @@ document.getElementById('verify-fairness').classList.remove('hidden');
     };
   });
 });
+  // ✅ Track win-rare quest if the rarity is Rare or higher
+const targetRarities = ["rare", "ultra rare", "legendary"];
+if (targetRarities.includes((winningPrize.rarity || "").toLowerCase())) {
+  const rareQuestRef = db.ref(`users/${user.uid}/quests/win-rare`);
+  rareQuestRef.transaction(current => {
+    if (!current) {
+      return { completed: true, claimed: false };
+    }
+
+    return {
+      ...current,
+      completed: true
+    };
+  });
+}
+
 
           const recentWinsRef = db.ref('recentWins');
           recentWinsRef.push({
