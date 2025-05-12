@@ -596,21 +596,25 @@ document.getElementById('verify-fairness').classList.remove('hidden');
             timestamp: Date.now()
           }).then(() => {
             showInventoryToast(winningPrize.name);
-            // ✅ Mark quest "Open 1 Pack" as completed
-const questRef = db.ref(`users/${user.uid}/quests/open-pack`);
-questRef.transaction(current => {
-  current = current || { progress: 0, completed: false, claimed: false };
-  if (current.completed) return current;
 
-  current.progress += 1;
-  if (current.progress >= 10) {
-    current.completed = true;
-  }
+            
+// ✅ Track open-pack progress
+  const questRef = db.ref(`users/${user.uid}/quests/open-pack`);
+  questRef.transaction(current => {
+    if (!current) {
+      return { progress: 1, completed: false, claimed: false };
+    }
 
-  return current;
+    const progress = typeof current.progress === 'number' ? current.progress : 0;
+    const updatedProgress = progress + 1;
+
+    return {
+      ...current,
+      progress: updatedProgress,
+      completed: current.completed || updatedProgress >= 10,
+    };
+  });
 });
-
-          });
 
           const recentWinsRef = db.ref('recentWins');
           recentWinsRef.push({
