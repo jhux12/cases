@@ -135,7 +135,27 @@ function sellBack(key, value) {
   userRef.once('value').then(snap => {
     const balance = snap.val().balance || 0;
     userRef.update({ balance: balance + refund }).then(() => {
-      itemRef.remove().then(() => window.location.reload());
+      itemRef.remove().then(() => {
+  // ✅ Track "sell-card" quest progress
+  const sellQuestRef = firebase.database().ref(`users/${user.uid}/quests/sell-card`);
+  sellQuestRef.transaction(current => {
+    if (!current) {
+      return { progress: 1, completed: false, claimed: false };
+    }
+
+    const progress = typeof current.progress === 'number' ? current.progress : 0;
+    const updated = progress + 1;
+
+    return {
+      ...current,
+      progress: updated,
+      completed: current.completed || updated >= 1
+    };
+  });
+
+  window.location.reload();
+});
+
     });
   });
 }
