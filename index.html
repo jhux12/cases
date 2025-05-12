@@ -353,6 +353,8 @@
       const currentBalance = snapshot.val().balance || 0;
       const newBalance = currentBalance + amount;
       userRef.update({ balance: newBalance }).then(() => {
+        const spentRef = db.ref(`users/${user.uid}/spent`);
+spentRef.transaction(current => (current || 0) + selectedCasePrice);
         document.getElementById('balance-amount').innerText = newBalance.toLocaleString();
         document.getElementById('popup-balance').innerText = `${newBalance.toLocaleString()} coins`;
         document.getElementById('popup-balance').innerText = `${newBalance.toLocaleString()} coins`;
