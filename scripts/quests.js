@@ -116,37 +116,41 @@ quest.progress = actualProgress; // Update for bar/percent display
 
     const claimButton = item.querySelector(".quest-claim-btn");
 
-    claimButton.onclick = async () => {
-      if (isCompleted && !isClaimed) {
-        await firebase.database().ref(`users/${user.uid}/quests/${quest.id}`).update({
-          claimed: true
-        });
+claimButton.onclick = async () => {
+  const questRef = firebase.database().ref(`users/${user.uid}/quests/${quest.id}`);
+  const questSnap = await questRef.once("value");
+  const liveQuest = questSnap.val() || {};
 
-        const newBalance = balance + quest.reward;
-        await firebase.database().ref(`users/${user.uid}`).update({
-          balance: newBalance
-        });
+  const isActuallyCompleted = liveQuest.completed === true;
+  const alreadyClaimed = liveQuest.claimed === true;
 
-        const balanceFormatted = newBalance.toLocaleString();
+  if (!isActuallyCompleted || alreadyClaimed) {
+    alert("You must complete the quest before claiming.");
+    return;
+  }
 
-const el1 = document.getElementById('balance-amount');
-if (el1) el1.innerText = balanceFormatted;
+  await questRef.update({ claimed: true });
 
-const el2 = document.getElementById('balance-amount-mobile');
-if (el2) el2.innerText = balanceFormatted;
+  const newBalance = balance + quest.reward;
+  await firebase.database().ref(`users/${user.uid}`).update({ balance: newBalance });
 
-const el3 = document.getElementById('popup-balance');
-if (el3) el3.innerText = `${balanceFormatted} coins`;
+  const balanceFormatted = newBalance.toLocaleString();
+  const el1 = document.getElementById("balance-amount");
+  if (el1) el1.innerText = balanceFormatted;
+  const el2 = document.getElementById("balance-amount-mobile");
+  if (el2) el2.innerText = balanceFormatted;
+  const el3 = document.getElementById("popup-balance");
+  if (el3) el3.innerText = `${balanceFormatted} coins`;
 
-        claimButton.disabled = true;
-        claimButton.innerText = "Claimed";
+  claimButton.disabled = true;
+  claimButton.innerText = "Claimed";
 
-        const toast = document.createElement("div");
-        toast.className = "fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-xl z-[9999]";
-        toast.innerText = `+${quest.reward} coins claimed!`;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-      }
+  const toast = document.createElement("div");
+  toast.className = "fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-xl z-[9999]";
+  toast.innerText = `+${quest.reward} coins claimed!`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+};
     };
 
     list.appendChild(item);
