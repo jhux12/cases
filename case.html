@@ -245,10 +245,12 @@ if (openBtnText) {
   const valueFormatted = formatCoins(prize.value || 0);
 
   return `
-    <div class="rounded-xl p-3 text-white cursor-pointer transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10 ${gradientClass}" onclick="expandPrize('${prize.image}')">
+<div class="rounded-xl p-3 h-[300px] flex flex-col justify-between text-white cursor-pointer transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10 ${gradientClass}" ...>
       <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3 shadow-md ring-2 ring-white/10" />
       
-      <div class="font-semibold text-center text-base">${prize.name}</div>
+<div class="font-semibold text-center text-base truncate px-1 max-w-full" title="${prize.name}">
+  ${prize.name}
+</div>
 
       <div class="flex justify-between items-center text-xs mt-2 font-semibold">
         <div class="flex items-center gap-1 text-yellow-300 font-bold">
