@@ -15,7 +15,7 @@
 .glow-common    { box-shadow: 0 0 30px #a1a1aa; }
 .glow-uncommon  { box-shadow: 0 0 30px #4ade80; }
 .glow-rare      { box-shadow: 0 0 30px #60a5fa; }
-.glow-ultra     { box-shadow: 0 0 30px #c084fc; }
+.glow-ultrarare     { box-shadow: 0 0 30px #c084fc; }
 .glow-legendary { box-shadow: 0 0 40px #facc15; }
     </style>
     <style>
@@ -29,11 +29,11 @@
 .card-gradient-rare {
   background: linear-gradient(135deg, #1e40af, #3b82f6);
 }
-.card-gradient-ultra {
-  background: linear-gradient(135deg, #6b21a8, #a855f7);
+.card-gradient-ultrarare {
+  background: linear-gradient(135deg, #9d4edd, #d0bfff);
 }
 .card-gradient-legendary {
-  background: linear-gradient(135deg, #854d0e, #facc15);
+  background: linear-gradient(135deg, #ffcc00, #ffe066);
 }
 </style>
 
@@ -145,18 +145,19 @@
     "uncommon": "ring-green-500 text-green-400",
     "common": "ring-gray-400 text-gray-300"
   };
-
+  let caseData = null;
   get(ref(db, `cases/${caseId}`)).then(snapshot => {
   if (!snapshot.exists()) {
     document.getElementById("case-name").innerText = "Case not found.";
     return;
   }
 
-  const caseData = snapshot.val();
+  caseData = snapshot.val();
 
+  // ✅ These should run right away to show the case info
   document.getElementById("case-image").src = caseData.image;
   document.getElementById("case-name").innerText = caseData.name;
-  document.getElementById("price-amount").textContent = `${parseFloat(caseData.price || 0).toLocaleString()} coins`;
+  document.getElementById("price-amount")?.textContent = `${parseFloat(caseData.price || 0).toLocaleString()} coins`;
 
   const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
     return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
@@ -166,7 +167,6 @@
     const rarity = (prize.rarity || "common").toLowerCase();
     const gradientClass = `card-gradient-${rarity.replace(' ', '')}`;
     const glowClass = `glow-${rarity.replace(' ', '')}`;
-
     return `
       <div class="rounded-xl p-3 text-center text-white hover:scale-105 transition transform cursor-pointer shadow-md ${gradientClass} ${glowClass}" onclick="expandPrize('${prize.image}')">
         <img src="${prize.image}" class="h-36 w-full object-contain mx-auto rounded-md mb-2 ring-2 ring-white/10">
@@ -184,7 +184,43 @@
   }).join("");
 
   document.getElementById("prizes-grid").innerHTML = prizeHTML;
+
 });
+  firebase.auth().onAuthStateChanged(async (user) => {
+  if (!user) return;
+
+  const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
+  const fairData = fairSnap.val();
+
+  if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') return;
+
+  // Show provably fair info
+  const existingPF = document.getElementById("pf-info");
+  if (existingPF) existingPF.remove();
+
+  const pfDiv = document.createElement("div");
+  pfDiv.id = "pf-info";
+  pfDiv.className = "text-xs text-gray-400 mt-4";
+  pfDiv.innerHTML = `
+    <div class="mt-2">
+      🔐 Provably Fair Info:<br>
+      Server Seed: <code>${fairData.serverSeed}</code><br>
+      Client Seed: <code>${fairData.clientSeed}</code><br>
+      Nonce: <code>${fairData.nonce}</code><br>
+      <button id="change-seed" class="mt-1 text-sm text-blue-400 underline">Change Client Seed</button>
+    </div>
+  `;
+  document.getElementById("case-container").appendChild(pfDiv);
+
+  document.getElementById("change-seed").addEventListener("click", async () => {
+    const newSeed = prompt("Enter new client seed:");
+    if (newSeed) {
+      await firebase.database().ref('users/' + user.uid + '/provablyFair/clientSeed').set(newSeed);
+      alert("✅ New client seed saved! Reload to use it.");
+    }
+  });
+});
+
 
 
 
@@ -216,14 +252,6 @@ if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData
   return alert('Missing provably fair data.');
 }
 
-// ✅ Move handler AFTER fairData is guaranteed to exist
-document.getElementById("change-seed")?.addEventListener("click", async () => {
-  const newSeed = prompt("Enter new client seed:");
-  if (newSeed) {
-    await firebase.database().ref('users/' + user.uid + '/provablyFair/clientSeed').set(newSeed);
-    alert("✅ New client seed saved! Reload to use it.");
-  }
-});
 
   // Remove previous provably fair block if it exists
 const existingPF = document.getElementById("pf-info");
