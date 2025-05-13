@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Packly.gg | Case Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="scripts/firebase-config.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -128,7 +132,6 @@
       <!-- User Balance -->
       <p id="user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
 
-
       <!-- Case Price -->
       <p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
         <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />
@@ -179,9 +182,9 @@
   return num.toLocaleString();
 }
 
- importimport { db, auth } from "./scripts/firebase-config.js";
-import { ref, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
 // ✅ Firebase Config
 const firebaseConfig = {
@@ -298,7 +301,7 @@ setTimeout(() => {
   openBtn.classList.remove("opacity-50", "cursor-not-allowed");
 }, 4000);
 
-const user = auth.currentUser;
+  const user = firebase.auth().currentUser;
   if (!user) return alert("Please sign in first!");
 
   const casePrice = parseFloat(caseData.price || 0);
@@ -341,6 +344,15 @@ document.getElementById("close-pf").addEventListener("click", () => {
 });
 
 // Change client seed
+document.getElementById("change-seed").addEventListener("click", async () => {
+  const newSeed = prompt("Enter new client seed:");
+  if (newSeed) {
+    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
+    alert("✅ New client seed saved! Reload to use it.");
+  }
+});
+
+
 document.getElementById("change-seed").addEventListener("click", async () => {
   const newSeed = prompt("Enter new client seed:");
   if (newSeed) {
@@ -517,7 +529,5 @@ openBtn.onclick = openCaseHandler;
 <script src="scripts/navbar.js"></script>
 <script src="scripts/footer.js"></script>
 <script src="scripts/topup.js"></script>
-<script type="module" src="/scripts/main.js"></script>
-
 </body>
 </html>
