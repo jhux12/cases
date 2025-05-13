@@ -103,6 +103,7 @@
   
   <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
   <p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
+    <p id="user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
     <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
     0 coins
   </p>
@@ -113,6 +114,10 @@
     <button id="open-case-button" class="px-6 py-2 bg-yellow-400 text-black rounded-full font-semibold border border-yellow-500 hover:bg-yellow-300 transition-all duration-200 shadow-md hover:scale-105 mb-10">
       Open Case
     </button>
+<div class="mt-2 flex items-center justify-center gap-2 text-xs text-gray-400">
+  <img src="https://cdn-icons-png.flaticon.com/512/1828/1828640.png" class="w-4 h-4" alt="Fair">
+  <span>Provably Fair</span>
+</div>
 
 
     <!-- Possible Rewards Header -->
@@ -199,6 +204,28 @@
     }).join("");
 
     document.getElementById("prizes-grid").innerHTML = prizeHTML;
+    // Show provably fair seed info
+const pfDiv = document.createElement("div");
+pfDiv.className = "text-xs text-gray-400 mt-4";
+pfDiv.innerHTML = `
+  <div class="mt-2">
+    🔐 Provably Fair Info:<br>
+    Server Seed: <code>${fairData.serverSeed}</code><br>
+    Client Seed: <code>${fairData.clientSeed}</code><br>
+    Nonce: <code>${fairData.nonce}</code><br>
+    <button id="change-seed" class="mt-1 text-sm text-blue-400 underline">Change Client Seed</button>
+  </div>
+`;
+document.getElementById("case-container").appendChild(pfDiv);
+
+document.getElementById("change-seed").addEventListener("click", async () => {
+  const newSeed = prompt("Enter new client seed:");
+  if (newSeed) {
+    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
+    alert("✅ New client seed saved! Reload to use it.");
+  }
+});
+
 
     // ✅ Add click logic for open button
   document.getElementById("open-case-button").addEventListener("click", async () => {
@@ -218,6 +245,7 @@ setTimeout(() => {
   const userRef = ref(db, 'users/' + user.uid);
   const userSnap = await get(userRef);
   const balance = parseFloat(userSnap.val()?.balance || 0);
+  document.getElementById("user-balance").innerText = `Balance: ${balance.toLocaleString()} coins`;
   if (balance < casePrice) return alert("Not enough coins!");
 
   const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
@@ -303,10 +331,15 @@ setTimeout(() => {
 
 
   // 🎉 Show result
-  const resultDiv = document.createElement("div");
+  let resultDiv = document.getElementById("result-message");
+if (!resultDiv) {
+  resultDiv = document.createElement("div");
+  resultDiv.id = "result-message";
   resultDiv.className = "mt-4 text-xl font-bold text-white";
-  resultDiv.innerHTML = `🎉 You won <span class="text-yellow-400">${winningPrize.name}</span> (${winningPrize.rarity})!`;
   document.getElementById("case-container").appendChild(resultDiv);
+}
+resultDiv.innerHTML = `🎉 You won <span class="text-yellow-400">${winningPrize.name}</span> (${winningPrize.rarity})!`;
+
 
     });
   });
