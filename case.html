@@ -115,8 +115,14 @@
       Open Case
     </button>
 <div class="mt-2 flex items-center justify-center gap-2 text-xs text-gray-400">
-  <img src="https://cdn-icons-png.flaticon.com/512/1828/1828640.png" class="w-4 h-4" alt="Fair">
-  <span>Provably Fair</span>
+ <div class="relative flex justify-center">
+    <div id="provably-fair-badge" class="flex items-center text-sm text-green-400 font-semibold cursor-pointer">
+      <i class="fas fa-shield-alt mr-2 text-green-400"></i> Provably Fair
+    </div>
+    <div id="fair-tooltip" class="absolute top-full mt-2 bg-gray-800 text-white text-xs rounded-lg px-4 py-2 shadow-lg hidden z-50 w-64 text-center left-1/2 transform -translate-x-1/2">
+      Each result is generated using a hashed server seed + your client seed and nonce. You can verify fairness anytime.
+    </div>
+  </div>
 </div>
 
 
