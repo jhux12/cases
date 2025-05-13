@@ -17,6 +17,7 @@
 .glow-rare      { box-shadow: 0 0 30px #60a5fa; }
 .glow-ultra     { box-shadow: 0 0 30px #c084fc; }
 .glow-legendary { box-shadow: 0 0 40px #facc15; }
+    </style>
     <style>
 /* ... existing glow-* styles ... */
 .card-gradient-common {
@@ -36,71 +37,22 @@
 }
 </style>
 
-    .card-common    { background: linear-gradient(to bottom right, #3f3f46, #27272a); box-shadow: 0 0 8px #a1a1aa; }
-.card-uncommon  { background: linear-gradient(to bottom right, #166534, #14532d); box-shadow: 0 0 12px #4ade80; }
-.card-rare      { background: linear-gradient(to bottom right, #1e3a8a, #1e40af); box-shadow: 0 0 14px #60a5fa; }
-.card-ultra     { background: linear-gradient(to bottom right, #6b21a8, #7e22ce); box-shadow: 0 0 16px #c084fc; }
-.card-legendary { background: linear-gradient(to bottom right, #78350f, #f59e0b); box-shadow: 0 0 18px #facc15; }
-
-.badge {
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  display: inline-block;
-  margin-top: 0.25rem;
+/* ... existing glow-* styles ... */
+.card-gradient-common {
+  background: linear-gradient(135deg, #3f3f46, #52525b);
 }
-.badge-common { background-color: #9ca3af; color: #1f2937; }
-.badge-uncommon { background-color: #4ade80; color: #064e3b; }
-.badge-rare { background-color: #60a5fa; color: #1e3a8a; }
-.badge-ultra { background-color: #c084fc; color: #5b21b6; }
-.badge-legendary { background-color: #facc15; color: #78350f; }
-
-
-  .updates-bar {
-    background: linear-gradient(to right, #facc15, #ec4899, #8b5cf6);
-    color: white;
-    padding: 0.5rem;
-    border-radius: 1rem;
-    font-weight: 500;
-    overflow: hidden;
-    white-space: nowrap;
-    animation: marquee 20s linear infinite;
-    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
-  }
-  @keyframes marquee {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-  }
-  .marquee-text {
-    display: inline-block;
-    padding-left: 100%;
-    animation: marquee 20s linear infinite;
-  }
-    .perspective {
-  perspective: 1000px;
+.card-gradient-uncommon {
+  background: linear-gradient(135deg, #14532d, #22c55e);
 }
-.transform-style-preserve-3d {
-  transform-style: preserve-3d;
+.card-gradient-rare {
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
 }
-.backface-hidden {
-  backface-visibility: hidden;
+.card-gradient-ultra {
+  background: linear-gradient(135deg, #6b21a8, #a855f7);
 }
-.rotate-y-180 {
-  transform: rotateY(180deg);
+.card-gradient-legendary {
+  background: linear-gradient(135deg, #854d0e, #facc15);
 }
-.flipped {
-  transform: rotateY(180deg);
-}
-#flip-card-inner {
-  transition: transform 2s;
-  transform-style: preserve-3d;
-}
-
-#flip-card-inner.flipped {
-  transform: rotateY(180deg);
-}
-
 </style>
 
 </head>
@@ -249,6 +201,7 @@
     </div>
   `;
 });
+
 
 }).join("");
 
