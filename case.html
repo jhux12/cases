@@ -278,7 +278,7 @@ if (openBtnText) {
 
 
     // ✅ Add click logic for open button
-  document.getElementById("open-case-button").addEventListener("click", async () => {
+  const openCaseHandler = async () => {
     const openBtn = document.getElementById("open-case-button");
 openBtn.disabled = true;
 openBtn.classList.add("opacity-50", "cursor-not-allowed");
@@ -388,16 +388,21 @@ const flipInner = document.getElementById("flip-card-inner");
 flipInner.classList.remove("flipped"); // reset
 void flipInner.offsetWidth;            // force reflow
 flipInner.classList.add("flipped");    // flip
-
-// Flip back after 6s
-setTimeout(() => {
+  // Change button to "Claim"
+openBtn.innerHTML = `<span id="open-button-text">Claim</span>`;
+openBtn.onclick = () => {
+  // Flip back the card
   flipInner.classList.remove("flipped");
 
-  // Hide glow and flip card, show static image
+  // Hide glow + flip-card, show static image
   card.classList.remove("glow-common", "glow-uncommon", "glow-rare", "glow-ultra", "glow-legendary");
   document.getElementById("flip-card").classList.add("hidden");
   document.getElementById("case-image").classList.remove("hidden");
-}, 6000);
+
+  // Reset button text and rebind event
+  openBtn.innerHTML = `<span id="open-button-text">Open for ${formatCoins(caseData.price || 0)} coins</span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />`;
+  openBtn.onclick = openCaseHandler;
+};
 
 
   // 🎉 Show result
