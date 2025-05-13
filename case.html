@@ -70,15 +70,28 @@
 <section id="case-content" class="py-10 px-4 max-w-5xl mx-auto">
   <div id="case-container" class="bg-black/20 rounded-2xl border border-white/10 p-6 shadow-lg backdrop-blur-md text-center">
 
-    <!-- Case Thumbnail + Title -->
-    <div class="mb-8">
-      <img id="case-image" src="" alt="Case Image" class="w-40 h-40 mx-auto rounded-lg shadow-lg object-contain ring-2 ring-white/10">
-      <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
-      <p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
-        0 coins
-      </p>
+   <!-- Case Thumbnail + Title -->
+<div class="mb-8 relative flex flex-col items-center justify-center">
+  <!-- Flip Card (initially hidden) -->
+  <div id="flip-card" class="relative w-40 h-64 sm:w-48 sm:h-72 perspective hidden">
+    <div id="flip-card-inner" class="relative w-full h-full transition-transform duration-700 transform-style-preserve-3d">
+      <!-- Front of the card (winning prize) -->
+      <img id="flip-front" src="" class="absolute w-full h-full rounded-xl object-contain backface-hidden z-10" alt="Front" />
+      <!-- Back of the card (case image) -->
+      <img id="flip-back" src="" class="absolute w-full h-full rounded-xl object-contain backface-hidden rotate-y-180" alt="Back" />
     </div>
+  </div>
+
+  <!-- Static Case Image -->
+  <img id="case-image" src="" alt="Case Image" class="w-40 h-40 mx-auto rounded-lg shadow-lg object-contain ring-2 ring-white/10">
+  
+  <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
+  <p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
+    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
+    0 coins
+  </p>
+</div>
+
 
     <!-- Open Button -->
     <button id="open-case-button" class="px-6 py-2 bg-yellow-400 text-black rounded-full font-semibold border border-yellow-500 hover:bg-yellow-300 transition-all duration-200 shadow-md hover:scale-105 mb-10">
@@ -234,6 +247,9 @@
   await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
 
   // ✅ Flip Animation
+  document.getElementById("case-image").classList.add("hidden");
+  document.getElementById("flip-card").classList.remove("hidden");
+
   document.getElementById("flip-back").src = caseData.image;
   document.getElementById("flip-front").src = winningPrize.image;
 
