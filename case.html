@@ -196,6 +196,16 @@ const firebaseConfig = {
   messagingSenderId: "1094023497986",
   appId: "1:1094023497986:web:59e018f1aa5e8c4093d7a5"
 };
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const userRef = ref(db, 'users/' + user.uid);
+    const userSnap = await get(userRef);
+    const balance = parseFloat(userSnap.val()?.balance || 0);
+    document.getElementById("user-balance").innerText = `Balance: ${balance.toLocaleString()} coins`;
+  } else {
+    document.getElementById("user-balance").innerText = `Balance: Sign in required`;
+  }
+});
 
 // ✅ Initialize Firebase
 const app = initializeApp(firebaseConfig);
