@@ -37,24 +37,6 @@
 }
 </style>
 
-/* ... existing glow-* styles ... */
-.card-gradient-common {
-  background: linear-gradient(135deg, #3f3f46, #52525b);
-}
-.card-gradient-uncommon {
-  background: linear-gradient(135deg, #14532d, #22c55e);
-}
-.card-gradient-rare {
-  background: linear-gradient(135deg, #1e40af, #3b82f6);
-}
-.card-gradient-ultra {
-  background: linear-gradient(135deg, #6b21a8, #a855f7);
-}
-.card-gradient-legendary {
-  background: linear-gradient(135deg, #854d0e, #facc15);
-}
-</style>
-
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white">
 
@@ -94,8 +76,10 @@
   
   <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
   <p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
-    <p id="user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
-  </p>
+  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
+  <span id="price-amount">0 coins</span>
+</p>
+<p id="user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
 </div>
 
 
@@ -172,10 +156,8 @@
 
     document.getElementById("case-image").src = caseData.image;
     document.getElementById("case-name").innerText = caseData.name;
-    document.getElementById("case-price").innerHTML = `
-      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 inline-block"> 
-      ${parseFloat(caseData.price || 0).toLocaleString()} coins
-    `;
+   document.getElementById("price-amount").textContent = `${parseFloat(caseData.price || 0).toLocaleString()} coins`;
+
 
     const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
       return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
@@ -230,14 +212,22 @@ setTimeout(() => {
   document.getElementById("user-balance").innerText = `Balance: ${balance.toLocaleString()} coins`;
   if (balance < casePrice) return alert("Not enough coins!");
 
-  const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
-    document.getElementById("change-seed")?.addEventListener("click", async () => {
+ const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
+const fairData = fairSnap.val(); // ✅ YOU WERE MISSING THIS LINE
+
+if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') {
+  return alert('Missing provably fair data.');
+}
+
+// ✅ Move handler AFTER fairData is guaranteed to exist
+document.getElementById("change-seed")?.addEventListener("click", async () => {
   const newSeed = prompt("Enter new client seed:");
   if (newSeed) {
-    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
+    await firebase.database().ref('users/' + user.uid + '/provablyFair/clientSeed').set(newSeed);
     alert("✅ New client seed saved! Reload to use it.");
   }
 });
+
   // Remove previous provably fair block if it exists
 const existingPF = document.getElementById("pf-info");
 if (existingPF) existingPF.remove();
