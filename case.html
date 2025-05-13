@@ -170,52 +170,6 @@
 
 </section>
 
-
-  <!-- Static Case Image -->
-<img id="case-image" ... class="w-40 h-64 sm:w-48 sm:h-72 mx-auto rounded-xl shadow-xl object-contain border border-purple-500/30 bg-black/10">
-  
- <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
-
-<!-- User Balance -->
-<p id="user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
-
-<!-- Case Price -->
-<p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />
-  <span id="case-price-amount">0 coins</span>
-</p>
-
-
-    <!-- Open Button -->
-   <button id="open-case-button" class="relative mb-10 px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold text-sm uppercase tracking-wide shadow-lg hover:scale-105 transition-transform duration-200">
-  <span id="open-button-text">Open for ...</span>
-</button>
-<!-- Divider -->
-<div class="my-8 w-full h-[1px] bg-gradient-to-r from-pink-500 via-yellow-400 to-purple-500 opacity-30"></div>
-<div class="mt-2 flex items-center justify-center gap-2 text-xs text-gray-400">
- <div class="relative flex justify-center">
-    <div id="provably-fair-badge" class="flex items-center text-sm text-green-400 font-semibold cursor-pointer">
-      <i class="fas fa-shield-alt mr-2 text-green-400"></i> Provably Fair
-    </div>
-    <div id="fair-tooltip" class="absolute top-full mt-2 bg-gray-800 text-white text-xs rounded-lg px-4 py-2 shadow-lg hidden z-50 w-64 text-center left-1/2 transform -translate-x-1/2">
-      Each result is generated using a hashed server seed + your client seed and nonce. You can verify fairness anytime.
-    </div>
-  </div>
-</div>
-
-
-    <!-- Possible Rewards Header -->
-<div class="text-center mb-6">
-  <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 shadow-md">
-    <img src="https://cdn-icons-png.flaticon.com/512/1039/1039542.png" alt="Rewards Icon" class="w-5 h-5" />
-    <span class="text-sm font-bold uppercase tracking-wider text-white">Possible Rewards</span>
-  </div>
-  <p class="mt-2 text-sm text-gray-300">Each case contains a mix of prizes with different rarities and values.</p>
-</div>
-    <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 text-sm"></div>
-  </div>
-</section>
-
 <script type="module">
   function formatCoins(num) {
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
