@@ -416,7 +416,8 @@ if (!resultDiv) {
 resultDiv.innerHTML = `🎉 You won <span class="text-yellow-400">${winningPrize.name}</span> (${winningPrize.rarity})!`;
 }; // ✅ closes openCaseHandler
 
-document.getElementById("open-case-button").addEventListener("click", openCaseHandler);
+const openBtn = document.getElementById("open-case-button");
+openBtn.onclick = openCaseHandler;
 
 }); // ✅ closes get(ref(...)).then
 </script>
