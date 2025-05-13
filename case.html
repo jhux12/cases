@@ -75,26 +75,23 @@
   </div>
 </section>
 
-  <script type="module">
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
   import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-  // Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyCyRm6dWH8b_BZ0oImEBPW_T3sF14Tz8dE",
-  authDomain: "cases-e5b4e.firebaseapp.com",
-  databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
-  projectId: "cases-e5b4e",
-  storageBucket: "cases-e5b4e.appspot.com",
-  messagingSenderId: "1094023497986",
-  appId: "1:1094023497986:web:59e018f1aa5e8c4093d7a5"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyCyRm6dWH8b_BZ0oImEBPW_T3sF14Tz8dE",
+    authDomain: "cases-e5b4e.firebaseapp.com",
+    databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+    projectId: "cases-e5b4e",
+    storageBucket: "cases-e5b4e.appspot.com",
+    messagingSenderId: "1094023497986",
+    appId: "1:1094023497986:web:59e018f1aa5e8c4093d7a5"
+  };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // Parse case ID from URL
   const urlParams = new URLSearchParams(window.location.search);
   const caseId = urlParams.get('id');
 
@@ -127,7 +124,6 @@ const firebaseConfig = {
 
     const caseData = snapshot.val();
 
-    // Set case image, name, and price
     document.getElementById("case-image").src = caseData.image;
     document.getElementById("case-name").innerText = caseData.name;
     document.getElementById("case-price").innerHTML = `
@@ -135,7 +131,6 @@ const firebaseConfig = {
       ${parseFloat(caseData.price || 0).toLocaleString()} coins
     `;
 
-    // Show sorted prizes
     const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
       return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
     });
@@ -144,7 +139,7 @@ const firebaseConfig = {
       const rarity = (prize.rarity || "common").toLowerCase();
       const colorClass = rarityColors[rarity] || "ring-white text-white";
       return `
-        <div class="text-center cursor-pointer transition-all duration-300 hover:scale-105">
+        <div class="text-center cursor-pointer transition-all duration-300 hover:scale-105" onclick="expandPrize('${prize.image}')">
           <img src="${prize.image}" class="h-24 mx-auto object-contain rounded ring-2 ${colorClass}">
           <div class="mt-2 font-semibold text-white">${prize.name}</div>
           <div class="text-xs ${colorClass} uppercase mt-1">${prize.rarity}</div>
@@ -158,8 +153,14 @@ const firebaseConfig = {
     }).join("");
 
     document.getElementById("prizes-grid").innerHTML = prizeHTML;
+
+    // ✅ Add click logic for open button
+    document.getElementById("open-case-button").addEventListener("click", () => {
+      alert("🚧 Pack opening on this page isn't available yet.");
+    });
   });
 </script>
+
 
 </style>
 
