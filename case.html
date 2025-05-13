@@ -31,6 +31,22 @@
     padding-left: 100%;
     animation: marquee 20s linear infinite;
   }
+    .perspective {
+  perspective: 1000px;
+}
+.transform-style-preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+.flipped {
+  transform: rotateY(180deg);
+}
+
 </style>
 
 </head>
@@ -68,6 +84,18 @@
     <button id="open-case-button" class="px-6 py-2 bg-yellow-400 text-black rounded-full font-semibold border border-yellow-500 hover:bg-yellow-300 transition-all duration-200 shadow-md hover:scale-105 mb-10">
       Open Case
     </button>
+
+    <!-- Flip Animation Card -->
+<div class="flex justify-center mb-8">
+  <div id="flip-card" class="relative w-40 h-64 sm:w-48 sm:h-72 perspective">
+    <div id="flip-card-inner" class="relative w-full h-full transition-transform duration-700 transform-style-preserve-3d">
+      <!-- Front of the card (winning prize) -->
+      <img id="flip-front" src="" class="absolute w-full h-full rounded-xl object-contain backface-hidden z-10" alt="Front" />
+      <!-- Back of the card (case image) -->
+      <img id="flip-back" src="" class="absolute w-full h-full rounded-xl object-contain backface-hidden rotate-y-180" alt="Back" />
+    </div>
+  </div>
+</div>
 
     <!-- Possible Rewards Header -->
     <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
@@ -155,8 +183,7 @@
     document.getElementById("prizes-grid").innerHTML = prizeHTML;
 
     // ✅ Add click logic for open button
-    document.getElementById("open-case-button").addEventListener("click", () => {
-document.getElementById("open-case-button").addEventListener("click", async () => {
+  document.getElementById("open-case-button").addEventListener("click", async () => {
   const user = firebase.auth().currentUser;
   if (!user) return alert("Please sign in first!");
 
@@ -191,10 +218,10 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     }
   }
 
-  // Deduct balance
+  // 💰 Deduct balance
   await firebase.database().ref('users/' + user.uid + '/balance').set(balance - casePrice);
 
-  // Save prize
+  // 💾 Save prize to inventory
   await firebase.database().ref('users/' + user.uid + '/inventory').push({
     name: winningPrize.name,
     image: winningPrize.image,
@@ -203,12 +230,26 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     timestamp: Date.now()
   });
 
-  // Update nonce
+  // 🔄 Update nonce
   await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
 
-  // Show result
-  alert(`🎉 You won: ${winningPrize.name} (${winningPrize.rarity})`);
-});
+  // ✅ Flip Animation
+  document.getElementById("flip-back").src = caseData.image;
+  document.getElementById("flip-front").src = winningPrize.image;
+
+  const flipInner = document.getElementById("flip-card-inner");
+  flipInner.classList.add("flipped");
+
+  setTimeout(() => {
+    flipInner.classList.remove("flipped");
+  }, 4000);
+
+  // 🎉 Show result
+  const resultDiv = document.createElement("div");
+  resultDiv.className = "mt-4 text-xl font-bold text-white";
+  resultDiv.innerHTML = `🎉 You won <span class="text-yellow-400">${winningPrize.name}</span> (${winningPrize.rarity})!`;
+  document.getElementById("case-container").appendChild(resultDiv);
+
     });
   });
 </script>
@@ -248,15 +289,14 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     }
   }
 </script>
-<script>
+  <script>
   async function sha256(message) {
     const encoder = new TextEncoder();
     const data = encoder.encode(message);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
   }
-</script>
-
+  </script>
 </body>
 </html>
 
