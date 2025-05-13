@@ -147,48 +147,45 @@
   };
 
   get(ref(db, `cases/${caseId}`)).then(snapshot => {
-    if (!snapshot.exists()) {
-      document.getElementById("case-name").innerText = "Case not found.";
-      return;
-    }
+  if (!snapshot.exists()) {
+    document.getElementById("case-name").innerText = "Case not found.";
+    return;
+  }
 
-    const caseData = snapshot.val();
+  const caseData = snapshot.val();
 
-    document.getElementById("case-image").src = caseData.image;
-    document.getElementById("case-name").innerText = caseData.name;
-   document.getElementById("price-amount").textContent = `${parseFloat(caseData.price || 0).toLocaleString()} coins`;
+  document.getElementById("case-image").src = caseData.image;
+  document.getElementById("case-name").innerText = caseData.name;
+  document.getElementById("price-amount").textContent = `${parseFloat(caseData.price || 0).toLocaleString()} coins`;
 
-
-    const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
-      return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
-    });
+  const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
+    return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
+  });
 
   const prizeHTML = prizeList.map(prize => {
-  const rarity = (prize.rarity || "common").toLowerCase();
-  const gradientClass = `card-gradient-${rarity.replace(' ', '')}`;
-  const glowClass = `glow-${rarity.replace(' ', '')}`;
+    const rarity = (prize.rarity || "common").toLowerCase();
+    const gradientClass = `card-gradient-${rarity.replace(' ', '')}`;
+    const glowClass = `glow-${rarity.replace(' ', '')}`;
 
-  return `
-    <div class="rounded-xl p-3 text-center text-white hover:scale-105 transition transform cursor-pointer shadow-md ${gradientClass} ${glowClass}" onclick="expandPrize('${prize.image}')">
-      <img src="${prize.image}" class="h-36 w-full object-contain mx-auto rounded-md mb-2 ring-2 ring-white/10">
-      <div class="text-sm font-semibold truncate">${prize.name}</div>
-      <div class="mt-1 text-xs inline-block px-2 py-0.5 rounded-full font-bold uppercase ${glowClass}">
-        ${prize.rarity}
+    return `
+      <div class="rounded-xl p-3 text-center text-white hover:scale-105 transition transform cursor-pointer shadow-md ${gradientClass} ${glowClass}" onclick="expandPrize('${prize.image}')">
+        <img src="${prize.image}" class="h-36 w-full object-contain mx-auto rounded-md mb-2 ring-2 ring-white/10">
+        <div class="text-sm font-semibold truncate">${prize.name}</div>
+        <div class="mt-1 text-xs inline-block px-2 py-0.5 rounded-full font-bold uppercase ${glowClass}">
+          ${prize.rarity}
+        </div>
+        <div class="mt-1 text-xs text-yellow-300 flex justify-center items-center gap-1">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
+          ${parseFloat(prize.value || 0).toLocaleString()} coins
+        </div>
+        <div class="text-xs text-gray-200 mt-1">${(prize.odds || 0).toFixed(2)}% chance</div>
       </div>
-      <div class="mt-1 text-xs text-yellow-300 flex justify-center items-center gap-1">
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-        ${parseFloat(prize.value || 0).toLocaleString()} coins
-      </div>
-      <div class="text-xs text-gray-200 mt-1">${(prize.odds || 0).toFixed(2)}% chance</div>
-    </div>
-  `;
+    `;
+  }).join("");
+
+  document.getElementById("prizes-grid").innerHTML = prizeHTML;
 });
 
-
-}).join("");
-
-
-    document.getElementById("prizes-grid").innerHTML = prizeHTML;
 
 
     // ✅ Add click logic for open button
