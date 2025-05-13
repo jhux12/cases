@@ -246,7 +246,6 @@ if (openBtnText) {
 
    const prizeHTML = prizeList.map(prize => {
   const rarity = (prize.rarity || "common").toLowerCase().replace(" ", "");
-  const glowClass = `glow-${rarity}`;
   const gradientClass = `card-gradient-${rarity}`;
   const valueFormatted = formatCoins(prize.value || 0);
 
@@ -259,15 +258,16 @@ if (openBtnText) {
       </div>
 
       <div class="flex justify-between items-center mt-2 text-sm font-semibold px-1">
-        <div class="flex items-center gap-1 text-cyan-300 font-bold">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2L15 9H22L17 14L18 21L12 17L6 21L7 14L2 9H9L12 2Z"/></svg>
-          ${valueFormatted}
+        <div class="flex items-center gap-1 text-white font-bold">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
+          ${valueFormatted} coins
         </div>
         <div class="text-xs text-white/70 bg-white/10 px-2 py-[2px] rounded-full">${(prize.odds || 0).toFixed(1)}%</div>
       </div>
     </div>
   `;
 }).join("");
+
 
 
 
