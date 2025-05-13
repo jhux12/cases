@@ -120,13 +120,16 @@
   <!-- Static Case Image -->
   <img id="case-image" src="" alt="Case Image" class="w-40 h-64 sm:w-48 sm:h-72 mx-auto rounded-xl shadow-lg object-contain ring-2 ring-white/10">
   
-  <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
-  <p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
-  <p id="user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
-  0 coins
+ <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
+
+<!-- User Balance -->
+<p id="user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
+
+<!-- Case Price -->
+<p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
+  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />
+  <span id="case-price-amount">0 coins</span>
 </p>
-</div>
 
 
     <!-- Open Button -->
@@ -206,10 +209,6 @@
   };
 
   get(ref(db, `cases/${caseId}`)).then(snapshot => {
-    const openBtnText = document.getElementById("open-button-text");
-if (openBtnText) {
-  openBtnText.textContent = `Open for ${formatCoins(caseData.price || 0)} coins`;
-}
 
     if (!snapshot.exists()) {
       document.getElementById("case-name").innerText = "Case not found.";
@@ -217,13 +216,14 @@ if (openBtnText) {
     }
 
     const caseData = snapshot.val();
-
     document.getElementById("case-image").src = caseData.image;
     document.getElementById("case-name").innerText = caseData.name;
-    document.getElementById("case-price").innerHTML = `
-      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 inline-block"> 
-      ${parseFloat(caseData.price || 0).toLocaleString()} coins
-    `;
+    document.getElementById("case-price-amount").textContent = `${formatCoins(caseData.price || 0)} coins`;
+
+    const openBtnText = document.getElementById("open-button-text");
+if (openBtnText) {
+  openBtnText.textContent = `Open for ${formatCoins(caseData.price || 0)} coins`;
+}
 
     const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
       return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
