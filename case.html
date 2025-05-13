@@ -392,11 +392,6 @@ strip.style.transform = "translateX(0px)";
 void strip.offsetWidth; // Force reflow to apply changes
 
 
-// Animate spin
-const prizeWidth = 140;
-const totalVisible = Math.floor(spinner.offsetWidth / prizeWidth);
-const centerOffset = Math.floor(totalVisible / 2);
-
 // Find index of winning prize in stripItems
 const targetIndex = stripItems.findIndex(p => p.name === winningPrize.name && p.image === winningPrize.image);
 
