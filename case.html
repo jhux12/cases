@@ -100,25 +100,79 @@
   </div>
 </section>
 
-  <!-- Main Content Section -->
+<!-- Main Content Section -->
 <section id="case-content" class="py-10 px-4 max-w-5xl mx-auto">
-  <div id="case-container" class="bg-black/20 rounded-2xl border border-white/10 p-6 shadow-lg backdrop-blur-md text-center">
 
-   <!-- Case Thumbnail + Title -->
-<div class="mb-8 relative flex flex-col items-center justify-center">
-  <!-- Flip Card (initially hidden) -->
-  <div id="flip-card" class="relative w-40 h-64 sm:w-48 sm:h-72 perspective hidden">
- <div id="flip-card-inner" class="relative w-full h-full transition-transform duration-[2000ms] transform-style-preserve-3d">
-      <!-- Back of the card (winning prize) -->
-<img id="flip-back" src="" class="absolute w-full h-full rounded-xl object-contain backface-hidden rotate-y-180" alt="Back" />
-<!-- Front of the card (case image) -->
-<img id="flip-front" src="" class="absolute w-full h-full rounded-xl object-contain backface-hidden z-10" alt="Front" />
+  <!-- Case Opening Section -->
+  <div id="case-container" class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 p-6 shadow-xl backdrop-blur-md text-center">
 
+    <!-- Case Thumbnail + Title -->
+    <div class="mb-8 relative flex flex-col items-center justify-center">
+
+      <!-- Flip Card (initially hidden) -->
+      <div id="flip-card" class="relative w-40 h-64 sm:w-48 sm:h-72 perspective hidden">
+        <div id="flip-card-inner" class="relative w-full h-full transition-transform duration-[2000ms] transform-style-preserve-3d">
+          <!-- Back of the card (winning prize) -->
+          <img id="flip-back" src="" class="absolute w-full h-full rounded-xl object-contain backface-hidden rotate-y-180" alt="Back" />
+          <!-- Front of the card (case image) -->
+          <img id="flip-front" src="" class="absolute w-full h-full rounded-xl object-contain backface-hidden z-10" alt="Front" />
+        </div>
+      </div>
+
+      <!-- Static Case Image -->
+      <img id="case-image" src="" alt="Case Image" class="w-40 h-64 sm:w-48 sm:h-72 mx-auto rounded-xl shadow-xl object-contain border border-purple-500/30 bg-black/10">
+
+      <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
+
+      <!-- User Balance -->
+      <p id="user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
+
+      <!-- Case Price -->
+      <p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />
+        <span id="case-price-amount">0 coins</span>
+      </p>
+    </div>
+
+    <!-- Open Button -->
+    <button id="open-case-button" class="relative mb-6 px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold text-sm uppercase tracking-wide shadow-lg hover:scale-105 transition-transform duration-200">
+      <span id="open-button-text">Open for ...</span>
+    </button>
+
+    <!-- Provably Fair Info -->
+    <div class="mt-2 flex items-center justify-center gap-2 text-xs text-gray-400">
+      <div class="relative flex justify-center">
+        <div id="provably-fair-badge" class="flex items-center text-sm text-green-400 font-semibold cursor-pointer">
+          <i class="fas fa-shield-alt mr-2 text-green-400"></i> Provably Fair
+        </div>
+        <div id="fair-tooltip" class="absolute top-full mt-2 bg-gray-800 text-white text-xs rounded-lg px-4 py-2 shadow-lg hidden z-50 w-64 text-center left-1/2 transform -translate-x-1/2">
+          Each result is generated using a hashed server seed + your client seed and nonce. You can verify fairness anytime.
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Divider Line -->
+  <div class="my-10 w-full h-[1px] bg-gradient-to-r from-pink-500 via-yellow-400 to-purple-500 opacity-25"></div>
+
+  <!-- Rewards Section -->
+  <div class="bg-black/30 backdrop-blur-md rounded-2xl shadow-md border border-white/10 p-6 hover:shadow-purple-500/20 transition-all duration-300">
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 shadow-md">
+        <img src="https://cdn-icons-png.flaticon.com/512/1039/1039542.png" alt="Rewards Icon" class="w-5 h-5" />
+        <span class="text-sm font-bold uppercase tracking-wider text-white">Possible Rewards</span>
+      </div>
+      <p class="mt-2 text-sm text-gray-300">Each case contains a mix of prizes with different rarities and values.</p>
+    </div>
+
+    <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 text-sm"></div>
+  </div>
+
+</section>
+
+
   <!-- Static Case Image -->
-  <img id="case-image" src="" alt="Case Image" class="w-40 h-64 sm:w-48 sm:h-72 mx-auto rounded-xl shadow-lg object-contain ring-2 ring-white/10">
+<img id="case-image" ... class="w-40 h-64 sm:w-48 sm:h-72 mx-auto rounded-xl shadow-xl object-contain border border-purple-500/30 bg-black/10">
   
  <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
 
@@ -136,7 +190,8 @@
    <button id="open-case-button" class="relative mb-10 px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold text-sm uppercase tracking-wide shadow-lg hover:scale-105 transition-transform duration-200">
   <span id="open-button-text">Open for ...</span>
 </button>
-
+<!-- Divider -->
+<div class="my-8 w-full h-[1px] bg-gradient-to-r from-pink-500 via-yellow-400 to-purple-500 opacity-30"></div>
 <div class="mt-2 flex items-center justify-center gap-2 text-xs text-gray-400">
  <div class="relative flex justify-center">
     <div id="provably-fair-badge" class="flex items-center text-sm text-green-400 font-semibold cursor-pointer">
