@@ -122,10 +122,10 @@
   
   <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
   <p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
-    <p id="user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
-    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
-    0 coins
-  </p>
+  <p id="user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
+  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
+  0 coins
+</p>
 </div>
 
 
@@ -152,6 +152,12 @@
 </section>
 
 <script type="module">
+  function formatCoins(num) {
+  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
+  if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
+  return num.toLocaleString();
+}
+
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
   import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
@@ -191,11 +197,7 @@
     "uncommon": "ring-green-500 text-green-400",
     "common": "ring-gray-400 text-gray-300"
   };
-function formatCoins(num) {
-  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
-  if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
-  return num.toLocaleString();
-}
+
   get(ref(db, `cases/${caseId}`)).then(snapshot => {
     if (!snapshot.exists()) {
       document.getElementById("case-name").innerText = "Case not found.";
