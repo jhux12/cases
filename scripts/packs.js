@@ -1,6 +1,7 @@
 import { setupFilters } from './filters.js';
 
 let allCases = [];
+
 function renderCases(caseList) {
   const casesContainer = document.getElementById("cases-container");
   casesContainer.innerHTML = "";
@@ -13,7 +14,7 @@ function renderCases(caseList) {
     const price = parseFloat(c.price) || 0;
 
     const prizes = Object.values(c.prizes || {});
-    const topPrize = prizes.sort((a, b) => b.value - a.value)[0];
+    const topPrize = prizes.sort((a, b) => (b.value || 0) - (a.value || 0))[0];
 
     casesContainer.innerHTML += `
       <div class="relative p-4 bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition group overflow-hidden">
@@ -25,12 +26,15 @@ function renderCases(caseList) {
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
         </button>
 
-        <!-- Hover Overlay for Top Prize -->
-        <div class="absolute inset-0 bg-black/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center text-center p-4">
-          <img src="${topPrize?.image}" alt="${topPrize?.name}" class="w-16 h-16 object-contain mb-2 rounded">
-          <p class="text-white font-semibold">${topPrize?.name}</p>
-          <p class="text-yellow-400 font-bold">$${topPrize?.value?.toFixed(2)}</p>
-        </div>
+        ${
+          topPrize
+            ? `<div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center text-center p-4">
+                <img src="${topPrize.image}" alt="${topPrize.name}" class="w-16 h-16 object-contain mb-2 rounded">
+                <p class="text-white font-semibold">${topPrize.name}</p>
+                <p class="text-yellow-400 font-bold">$${topPrize.value?.toFixed(2)}</p>
+              </div>`
+            : ""
+        }
       </div>`;
   });
 
@@ -82,4 +86,3 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
