@@ -321,11 +321,10 @@
   });
 });
   }
-  function openCasePopup(e) {
-    const caseId = e.target.dataset.id;
-    selectedCaseId = caseId;
-    db.ref('cases/' + caseId).once('value').then(snapshot => {
-  const data = snapshot.val();
+ function openCasePopup(e) {
+  const caseId = e.target.dataset.id;
+  window.location.href = `open-case.html?id=${caseId}`;
+}
 
   // 🚨 Prevent crash if data is null
   if (!data) {
