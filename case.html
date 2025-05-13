@@ -391,10 +391,6 @@ strip.style.transition = "none";
 strip.style.transform = "translateX(0px)";
 void strip.offsetWidth; // Force reflow to apply changes
 
-
-// Find index of winning prize in stripItems
-const targetIndex = stripItems.findIndex(p => p.name === winningPrize.name && p.image === winningPrize.image);
-
 // Add buffer to ensure smooth left-to-right scroll and center alignment
 const scrollToIndex = Math.max(targetIndex - centerOffset, 0);
 
