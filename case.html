@@ -189,26 +189,36 @@
   return num.toLocaleString();
 }
 
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-  const firebaseConfig = {
-    firebase.auth().onAuthStateChanged(async user => {
+// ✅ Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyCyRm6dWH8b_BZ0oImEBPW_T3sF14Tz8dE",
+  authDomain: "cases-e5b4e.firebaseapp.com",
+  databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+  projectId: "cases-e5b4e",
+  storageBucket: "cases-e5b4e.appspot.com",
+  messagingSenderId: "1094023497986",
+  appId: "1:1094023497986:web:59e018f1aa5e8c4093d7a5"
+};
+
+// ✅ Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+// ✅ Show balance on page load if user is logged in
+onAuthStateChanged(auth, async (user) => {
   if (user) {
-    const userRef = firebase.database().ref('users/' + user.uid);
-    const userSnap = await userRef.get();
+    const userRef = ref(db, 'users/' + user.uid);
+    const userSnap = await get(userRef);
     const balance = parseFloat(userSnap.val()?.balance || 0);
-document.getElementById("user-balance").innerText = `Balance: ${balance.toLocaleString()} coins`;
+    document.getElementById("user-balance").innerText = `Balance: ${balance.toLocaleString()} coins`;
   }
 });
-    apiKey: "AIzaSyCyRm6dWH8b_BZ0oImEBPW_T3sF14Tz8dE",
-    authDomain: "cases-e5b4e.firebaseapp.com",
-    databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
-    projectId: "cases-e5b4e",
-    storageBucket: "cases-e5b4e.appspot.com",
-    messagingSenderId: "1094023497986",
-    appId: "1:1094023497986:web:59e018f1aa5e8c4093d7a5"
-  };
+
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
