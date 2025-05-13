@@ -25,10 +25,10 @@ function renderCases(caseList) {
         ${tagHTML}
         <img src="${packImg}" id="${imgId}" class="case-card-img mb-2 transition-all duration-300">
         <h3 class="mt-2 font-semibold text-white">${c.name}</h3>
-        <button class="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded open-case glow-button enhanced-glow flex justify-center items-center gap-2 text-white font-semibold" data-id="${c.id}">
-          Open for ${price.toLocaleString()}
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
-        </button>
+        <a href="case.html?id=${c.id}" class="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded glow-button enhanced-glow flex justify-center items-center gap-2 text-white font-semibold">
+  Open for ${price.toLocaleString()}
+  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
+</a>
       </div>`;
 
     // Add hover effect after rendering
