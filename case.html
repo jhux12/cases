@@ -234,8 +234,13 @@ setTimeout(() => {
   if (balance < casePrice) return alert("Not enough coins!");
 
   const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
-  const fairData = fairSnap.val();
-    const pfDiv = document.createElement("div");
+  // Remove previous provably fair block if it exists
+const existingPF = document.getElementById("pf-info");
+if (existingPF) existingPF.remove();
+
+// Create and append new provably fair info block
+const pfDiv = document.createElement("div");
+pfDiv.id = "pf-info";
 pfDiv.className = "text-xs text-gray-400 mt-4";
 pfDiv.innerHTML = `
   <div class="mt-2">
