@@ -219,10 +219,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
   const urlParams = new URLSearchParams(window.location.search);
   const caseId = urlParams.get('id');
 
