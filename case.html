@@ -128,7 +128,7 @@
 
     <!-- Possible Rewards Header -->
     <h3 class="text-xl font-semibold text-white mb-4">Possible Rewards</h3>
-    <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 text-sm"></div>
+<div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 text-sm mt-6"></div>
   </div>
 </section>
 
@@ -194,19 +194,27 @@
 
     const prizeHTML = prizeList.map(prize => {
       const rarity = (prize.rarity || "common").toLowerCase();
-      const colorClass = rarityColors[rarity] || "ring-white text-white";
-      return `
-        <div class="text-center cursor-pointer transition-all duration-300 hover:scale-105" onclick="expandPrize('${prize.image}')">
-          <img src="${prize.image}" class="h-24 mx-auto object-contain rounded ring-2 ${colorClass}">
-          <div class="mt-2 font-semibold text-white">${prize.name}</div>
-          <div class="text-xs ${colorClass} uppercase mt-1">${prize.rarity}</div>
-          <div class="text-xs text-gray-400">${prize.odds?.toFixed(2)}% chance</div>
-          <div class="text-xs text-yellow-300 flex items-center justify-center gap-1 mt-1">
-            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3"> 
-            ${parseFloat(prize.value || 0).toLocaleString()} coins
-          </div>
-        </div>
-      `;
+
+const bgColorMap = {
+  "legendary": "bg-yellow-900",
+  "ultra rare": "bg-purple-900",
+  "rare": "bg-blue-900",
+  "uncommon": "bg-green-900",
+  "common": "bg-gray-800"
+};
+     return `
+  <div class="rounded-xl p-3 text-center text-white hover:scale-105 transition transform cursor-pointer shadow-md ${bgColorMap[rarity] || 'bg-gray-800'}" onclick="expandPrize('${prize.image}')">
+    <img src="${prize.image}" class="h-36 w-full object-contain mx-auto rounded-md mb-2">
+    <div class="text-sm font-semibold truncate">${prize.name}</div>
+    <div class="mt-1 text-xs flex justify-center items-center gap-1 text-yellow-300">
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
+      ${parseFloat(prize.value || 0).toLocaleString()} coins
+    </div>
+    <div class="mt-1 text-xs">${(prize.odds || 0).toFixed(2)}%</div>
+  </div>
+`;
+
+
     }).join("");
 
     document.getElementById("prizes-grid").innerHTML = prizeHTML;
