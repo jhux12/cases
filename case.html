@@ -206,6 +206,11 @@
   };
 
   get(ref(db, `cases/${caseId}`)).then(snapshot => {
+    const openBtnText = document.getElementById("open-button-text");
+if (openBtnText) {
+  openBtnText.textContent = `Open for ${formatCoins(caseData.price || 0)} coins`;
+}
+
     if (!snapshot.exists()) {
       document.getElementById("case-name").innerText = "Case not found.";
       return;
