@@ -386,18 +386,19 @@ void strip.offsetWidth;
 strip.style.transition = "transform 2.5s cubic-bezier(0.25, 1, 0.5, 1)";
 strip.style.transform = `translateX(-${scrollToIndex * prizeWidth}px)`;
 
-// Show result after 3s
 setTimeout(() => {
   spinner.classList.add("hidden");
   document.getElementById("case-image").classList.remove("hidden");
 
-if (!resultDiv) {
-  resultDiv = document.createElement("div");
-  resultDiv.id = "result-message";
-  resultDiv.className = "mt-4 text-xl font-bold text-white";
-  document.getElementById("case-container").appendChild(resultDiv);
-}
-resultDiv.innerHTML = `🎉 You won <span class="text-yellow-400">${winningPrize.name}</span> (${winningPrize.rarity})!`;
+  let resultDiv = document.getElementById("result-message");
+  if (!resultDiv) {
+    resultDiv = document.createElement("div");
+    resultDiv.id = "result-message";
+    resultDiv.className = "mt-4 text-xl font-bold text-white";
+    document.getElementById("case-container").appendChild(resultDiv);
+  }
+  resultDiv.innerHTML = `🎉 You won <span class="text-yellow-400">${winningPrize.name}</span> (${winningPrize.rarity})!`;
+}, 3000);
 
 
     });
