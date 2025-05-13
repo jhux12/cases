@@ -2,55 +2,104 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Case Details</title>
-  <link rel="stylesheet" href="styles/main.css" />
-</head>
-<body class="bg-gray-900 text-white p-6">
-  <div class="max-w-4xl mx-auto">
-    <div class="text-center mb-8">
-      <h1 id="case-name" class="text-3xl font-bold mb-2"></h1>
-      <img id="case-image" src="" alt="Case Image" class="mx-auto w-48 h-auto rounded-lg shadow-md" />
-      <p id="case-price" class="text-yellow-400 mt-2 text-lg font-semibold"></p>
-    </div>
-
-    <div>
-      <h2 class="text-2xl font-semibold mb-4">Possible Rewards</h2>
-      <div id="prizes-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        <!-- Prize cards will be inserted here -->
-      </div>
-    </div>
-  </div>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Packly.gg | Case Preview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="scripts/firebase-config.js"></script>
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body class="bg-gray-900 text-white font-sans">
+
+  <!-- Case Section -->
+  <section class="pt-20 pb-12 px-6 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 min-h-screen">
+    <div class="container mx-auto max-w-4xl">
+
+      <!-- Updates Bar -->
+      <div class="w-full bg-gradient-to-r from-yellow-500 via-pink-500 to-purple-600 text-white py-2 px-4 overflow-hidden rounded-xl shadow-md mb-6 animate-marquee whitespace-nowrap text-sm font-medium flex items-center gap-12">
+        <span>📦 All cards are near mint unless specified otherwise</span>
+        <span class="flex items-center gap-1">
+          🪙 Sell back unwanted cards for coins
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 inline-block" />
+        </span>
+      </div>
+
+      <!-- Case Info -->
+      <div class="bg-black/30 border border-white/10 rounded-2xl p-6 text-center shadow-xl backdrop-blur-md">
+        <h1 id="case-name" class="text-3xl md:text-4xl font-bold mb-4">Loading...</h1>
+        <img id="case-image" class="w-48 h-auto mx-auto mb-4 rounded-lg shadow" />
+        <p id="case-description" class="text-gray-300 mb-6">Loading description...</p>
+        <button id="open-case-btn" class="inline-block px-6 py-2 bg-yellow-400 text-black rounded-full font-semibold border border-yellow-500 hover:bg-yellow-300 transition-all duration-200 shadow-md hover:scale-105">
+          Open Pack
+        </button>
+      </div>
+
+      <!-- Prize Grid -->
+      <h2 class="text-2xl font-bold mt-12 mb-4 text-center">Possible Rewards</h2>
+      <div id="case-prizes" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+
+    </div>
+  </section>
+
+  <!-- Optional Prize Overlay (reuse from popups.js) -->
+  <div id="prize-overlay" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+    <img id="overlay-image" class="max-w-xs rounded shadow-lg" />
+    <button onclick="document.getElementById('prize-overlay').classList.add('hidden')" class="absolute top-4 right-4 text-white text-xl">✖</button>
+  </div>
+
+  <!-- Script Logic -->
   <script>
     const params = new URLSearchParams(window.location.search);
-    const caseId = params.get("id");
+    const caseId = params.get('id');
 
-    const dbRef = firebase.database().ref("cases/" + caseId);
-    dbRef.once("value").then(snapshot => {
-      const caseData = snapshot.val();
-      if (!caseData) return;
+    if (!caseId) {
+      document.getElementById("case-name").textContent = "Case not found.";
+    } else {
+      const db = firebase.database();
+      db.ref("cases/" + caseId).once("value").then(snapshot => {
+        const caseData = snapshot.val();
+        if (!caseData) {
+          document.getElementById("case-name").textContent = "Case not found.";
+          return;
+        }
 
-      document.getElementById("case-name").textContent = caseData.name;
-      document.getElementById("case-image").src = caseData.image;
-      document.getElementById("case-price").textContent = `Price: ${parseFloat(caseData.price).toLocaleString()} 🪙`;
+        // Fill content
+        document.getElementById("case-name").textContent = caseData.name;
+        document.getElementById("case-description").textContent = caseData.description || "No description provided.";
+        document.getElementById("case-image").src = caseData.image || "";
 
-      const prizes = Object.values(caseData.prizes || {});
-      const container = document.getElementById("prizes-container");
+        const openBtn = document.getElementById("open-case-btn");
+        openBtn.textContent = `Open for ${parseFloat(caseData.price).toLocaleString()} 🪙`;
+        openBtn.onclick = () => {
+          alert('Pack opening logic goes here.');
+        };
 
-      prizes.forEach(prize => {
-        const card = document.createElement("div");
-        card.className = "bg-gray-800 p-4 rounded-lg text-center shadow";
-        card.innerHTML = `
-          <img src="${prize.image}" alt="${prize.name}" class="w-20 h-20 object-contain mx-auto mb-2 rounded" />
-          <p class="text-white text-sm font-semibold">${prize.name}</p>
-          <p class="text-yellow-400 text-sm">$${parseFloat(prize.value).toFixed(2)}</p>
-        `;
-        container.appendChild(card);
+        const prizeContainer = document.getElementById("case-prizes");
+        const prizes = caseData.prizes || {};
+
+        Object.values(prizes).forEach(prize => {
+          const card = document.createElement("div");
+          card.className = "bg-gray-800 p-4 rounded-lg text-center shadow-md hover:scale-105 transition-transform duration-300";
+          card.innerHTML = `
+            <img src="${prize.image}" alt="${prize.name}" class="w-20 h-20 object-contain mx-auto mb-2 rounded cursor-pointer" onclick="expandPrize('${prize.image}')">
+            <p class="text-sm font-semibold text-white">${prize.name}</p>
+            <p class="text-yellow-400 font-bold">$${prize.value?.toFixed(2)}</p>
+          `;
+          prizeContainer.appendChild(card);
+        });
       });
-    });
+    }
+
+    function expandPrize(imageUrl) {
+      const overlay = document.getElementById("prize-overlay");
+      const overlayImg = document.getElementById("overlay-image");
+      if (overlay && overlayImg) {
+        overlayImg.src = imageUrl;
+        overlay.classList.remove("hidden");
+      }
+    }
   </script>
 </body>
 </html>
+
