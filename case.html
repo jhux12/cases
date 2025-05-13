@@ -83,7 +83,7 @@
   </div>
 
   <!-- Static Case Image -->
-  <img id="case-image" src="" alt="Case Image" class="w-40 h-40 mx-auto rounded-lg shadow-lg object-contain ring-2 ring-white/10">
+  <img id="case-image" src="" alt="Case Image" class="w-40 h-64 sm:w-48 sm:h-72 mx-auto rounded-xl shadow-lg object-contain ring-2 ring-white/10">
   
   <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
   <p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
@@ -246,8 +246,9 @@
   flipInner.classList.add("flipped");
 
   setTimeout(() => {
-    flipInner.classList.remove("flipped");
-  }, 4000);
+  flipInner.classList.remove("flipped");
+}, 100); // or remove it entirely if you want it to stay flipped
+
 
   // 🎉 Show result
   const resultDiv = document.createElement("div");
