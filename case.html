@@ -100,17 +100,27 @@
 
 <header></header>
 
-<!-- Hero Section -->
-<section class="pt-20 pb-12 px-6 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-  <div class="container mx-auto max-w-4xl text-center">
-    <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-white tracking-tight leading-tight">
-      🎁 Case Details
+<!-- Hero Section (Enhanced) -->
+<section class="relative overflow-hidden pt-24 pb-16 px-6 bg-gradient-to-br from-[#1e1b4b] via-purple-900 to-black shadow-inner">
+  <!-- Floating Glow Orbs -->
+  <div class="absolute top-[-100px] left-[-100px] w-[300px] h-[300px] bg-purple-500 opacity-30 rounded-full blur-3xl animate-pulse"></div>
+  <div class="absolute bottom-[-80px] right-[-80px] w-[200px] h-[200px] bg-yellow-400 opacity-20 rounded-full blur-2xl animate-ping"></div>
+
+  <div class="relative z-10 container mx-auto max-w-4xl text-center">
+    <h1 class="text-5xl md:text-6xl font-extrabold mb-6 text-white tracking-tight leading-tight drop-shadow-lg">
+      🎁 Unlock Your Mystery Pack
     </h1>
-    <p class="text-md md:text-lg text-gray-300 mb-6 leading-relaxed">
-      View the possible rewards and open your pack!
+    <p class="text-lg md:text-xl text-gray-300 mb-6 leading-relaxed max-w-2xl mx-auto">
+      Discover exciting prizes inside every case — each one comes with a unique surprise. Spin, win, and collect today!
     </p>
+
+    <!-- CTA Button -->
+    <a href="#prizes-grid" class="inline-block mt-4 px-8 py-3 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-white font-bold rounded-full shadow-lg hover:scale-105 transition transform duration-200">
+      🎉 Scroll to View Rewards
+    </a>
   </div>
 </section>
+
 
 <!-- Main Content Section -->
 <section id="case-content" class="py-10 px-4 max-w-5xl mx-auto">
