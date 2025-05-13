@@ -15,26 +15,53 @@
 .glow-common    { box-shadow: 0 0 30px #a1a1aa; }
 .glow-uncommon  { box-shadow: 0 0 30px #4ade80; }
 .glow-rare      { box-shadow: 0 0 30px #60a5fa; }
-.glow-ultrarare     { box-shadow: 0 0 30px #c084fc; }
+.glow-ultra     { box-shadow: 0 0 30px #c084fc; }
 .glow-legendary { box-shadow: 0 0 40px #facc15; }
-    </style>
-    <style>
-/* ... existing glow-* styles ... */
-.card-gradient-common {
-  background: linear-gradient(135deg, #3f3f46, #52525b);
+
+  .updates-bar {
+    background: linear-gradient(to right, #facc15, #ec4899, #8b5cf6);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    font-weight: 500;
+    overflow: hidden;
+    white-space: nowrap;
+    animation: marquee 20s linear infinite;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
+  }
+  @keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+  .marquee-text {
+    display: inline-block;
+    padding-left: 100%;
+    animation: marquee 20s linear infinite;
+  }
+    .perspective {
+  perspective: 1000px;
 }
-.card-gradient-uncommon {
-  background: linear-gradient(135deg, #14532d, #22c55e);
+.transform-style-preserve-3d {
+  transform-style: preserve-3d;
 }
-.card-gradient-rare {
-  background: linear-gradient(135deg, #1e40af, #3b82f6);
+.backface-hidden {
+  backface-visibility: hidden;
 }
-.card-gradient-ultrarare {
-  background: linear-gradient(135deg, #9d4edd, #d0bfff);
+.rotate-y-180 {
+  transform: rotateY(180deg);
 }
-.card-gradient-legendary {
-  background: linear-gradient(135deg, #ffcc00, #ffe066);
+.flipped {
+  transform: rotateY(180deg);
 }
+#flip-card-inner {
+  transition: transform 2s;
+  transform-style: preserve-3d;
+}
+
+#flip-card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
 </style>
 
 </head>
@@ -76,10 +103,8 @@
   
   <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
   <p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
-  <span id="price-amount">0 coins</span>
-</p>
-<p id="user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
+    <p id="user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
+  </p>
 </div>
 
 
@@ -145,84 +170,52 @@
     "uncommon": "ring-green-500 text-green-400",
     "common": "ring-gray-400 text-gray-300"
   };
-  let caseData = null;
+
   get(ref(db, `cases/${caseId}`)).then(snapshot => {
-  if (!snapshot.exists()) {
-    document.getElementById("case-name").innerText = "Case not found.";
-    return;
-  }
-
-  caseData = snapshot.val();
-
-  // ✅ These should run right away to show the case info
-  document.getElementById("case-image").src = caseData.image;
-  document.getElementById("case-name").innerText = caseData.name;
-const priceEl = document.getElementById("price-amount");
-if (priceEl) priceEl.textContent = `${parseFloat(caseData.price || 0).toLocaleString()} coins`;
-
-  const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
-    return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
-  });
-
-  const prizeHTML = prizeList.map(prize => {
-    const rarity = (prize.rarity || "common").toLowerCase();
-    const gradientClass = `card-gradient-${rarity.replace(' ', '')}`;
-    const glowClass = `glow-${rarity.replace(' ', '')}`;
-    return `
-      <div class="rounded-xl p-3 text-center text-white hover:scale-105 transition transform cursor-pointer shadow-md ${gradientClass} ${glowClass}" onclick="expandPrize('${prize.image}')">
-        <img src="${prize.image}" class="h-36 w-full object-contain mx-auto rounded-md mb-2 ring-2 ring-white/10">
-        <div class="text-sm font-semibold truncate">${prize.name}</div>
-        <div class="mt-1 text-xs inline-block px-2 py-0.5 rounded-full font-bold uppercase ${glowClass}">
-          ${prize.rarity}
-        </div>
-        <div class="mt-1 text-xs text-yellow-300 flex justify-center items-center gap-1">
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-          ${parseFloat(prize.value || 0).toLocaleString()} coins
-        </div>
-        <div class="text-xs text-gray-200 mt-1">${(prize.odds || 0).toFixed(2)}% chance</div>
-      </div>
-    `;
-  }).join("");
-
-  document.getElementById("prizes-grid").innerHTML = prizeHTML;
-
-});
-  firebase.auth().onAuthStateChanged(async (user) => {
-  if (!user) return;
-
-  const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
-  const fairData = fairSnap.val();
-
-  if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') return;
-
-  // Show provably fair info
-  const existingPF = document.getElementById("pf-info");
-  if (existingPF) existingPF.remove();
-
-  const pfDiv = document.createElement("div");
-  pfDiv.id = "pf-info";
-  pfDiv.className = "text-xs text-gray-400 mt-4";
-  pfDiv.innerHTML = `
-    <div class="mt-2">
-      🔐 Provably Fair Info:<br>
-      Server Seed: <code>${fairData.serverSeed}</code><br>
-      Client Seed: <code>${fairData.clientSeed}</code><br>
-      Nonce: <code>${fairData.nonce}</code><br>
-      <button id="change-seed" class="mt-1 text-sm text-blue-400 underline">Change Client Seed</button>
-    </div>
-  `;
-  document.getElementById("case-container").appendChild(pfDiv);
-
-  document.getElementById("change-seed").addEventListener("click", async () => {
-    const newSeed = prompt("Enter new client seed:");
-    if (newSeed) {
-      await firebase.database().ref('users/' + user.uid + '/provablyFair/clientSeed').set(newSeed);
-      alert("✅ New client seed saved! Reload to use it.");
+    if (!snapshot.exists()) {
+      document.getElementById("case-name").innerText = "Case not found.";
+      return;
     }
-  });
-});
+
+    const caseData = snapshot.val();
+
+    document.getElementById("case-image").src = caseData.image;
+    document.getElementById("case-name").innerText = caseData.name;
+    document.getElementById("case-price").innerHTML = `
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 inline-block"> 
+      ${parseFloat(caseData.price || 0).toLocaleString()} coins
+    `;
+
+    const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
+      return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
+    });
+
+    const prizeHTML = prizeList.map(prize => {
+      const rarity = (prize.rarity || "common").toLowerCase();
+
+const bgColorMap = {
+  "legendary": "bg-yellow-900",
+  "ultra rare": "bg-purple-900",
+  "rare": "bg-blue-900",
+  "uncommon": "bg-green-900",
+  "common": "bg-gray-800"
+};
+     return `
+  <div class="rounded-xl p-3 text-center text-white hover:scale-105 transition transform cursor-pointer shadow-md ${bgColorMap[rarity] || 'bg-gray-800'}" onclick="expandPrize('${prize.image}')">
+    <img src="${prize.image}" class="h-36 w-full object-contain mx-auto rounded-md mb-2">
+    <div class="text-sm font-semibold truncate">${prize.name}</div>
+    <div class="mt-1 text-xs flex justify-center items-center gap-1 text-yellow-300">
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
+      ${parseFloat(prize.value || 0).toLocaleString()} coins
+    </div>
+    <div class="mt-1 text-xs">${(prize.odds || 0).toFixed(2)}%</div>
+  </div>
+`;
 
 
+    }).join("");
+
+    document.getElementById("prizes-grid").innerHTML = prizeHTML;
 
 
     // ✅ Add click logic for open button
@@ -246,14 +239,14 @@ setTimeout(() => {
   document.getElementById("user-balance").innerText = `Balance: ${balance.toLocaleString()} coins`;
   if (balance < casePrice) return alert("Not enough coins!");
 
- const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
-const fairData = fairSnap.val(); // ✅ YOU WERE MISSING THIS LINE
-
-if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') {
-  return alert('Missing provably fair data.');
-}
-
-
+  const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
+    document.getElementById("change-seed")?.addEventListener("click", async () => {
+  const newSeed = prompt("Enter new client seed:");
+  if (newSeed) {
+    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
+    alert("✅ New client seed saved! Reload to use it.");
+  }
+});
   // Remove previous provably fair block if it exists
 const existingPF = document.getElementById("pf-info");
 if (existingPF) existingPF.remove();
@@ -362,7 +355,10 @@ if (!resultDiv) {
   document.getElementById("case-container").appendChild(resultDiv);
 }
 resultDiv.innerHTML = `🎉 You won <span class="text-yellow-400">${winningPrize.name}</span> (${winningPrize.rarity})!`;
-});
+
+
+    });
+  });
 </script>
 
 
