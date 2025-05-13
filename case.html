@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Case Details</title>
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body class="bg-gray-900 text-white p-6">
+  <div class="max-w-4xl mx-auto">
+    <div class="text-center mb-8">
+      <h1 id="case-name" class="text-3xl font-bold mb-2"></h1>
+      <img id="case-image" src="" alt="Case Image" class="mx-auto w-48 h-auto rounded-lg shadow-md" />
+      <p id="case-price" class="text-yellow-400 mt-2 text-lg font-semibold"></p>
+    </div>
+
+    <div>
+      <h2 class="text-2xl font-semibold mb-4">Possible Rewards</h2>
+      <div id="prizes-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <!-- Prize cards will be inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const caseId = params.get("id");
+
+    const dbRef = firebase.database().ref("cases/" + caseId);
+    dbRef.once("value").then(snapshot => {
+      const caseData = snapshot.val();
+      if (!caseData) return;
+
+      document.getElementById("case-name").textContent = caseData.name;
+      document.getElementById("case-image").src = caseData.image;
+      document.getElementById("case-price").textContent = `Price: ${parseFloat(caseData.price).toLocaleString()} 🪙`;
+
+      const prizes = Object.values(caseData.prizes || {});
+      const container = document.getElementById("prizes-container");
+
+      prizes.forEach(prize => {
+        const card = document.createElement("div");
+        card.className = "bg-gray-800 p-4 rounded-lg text-center shadow";
+        card.innerHTML = `
+          <img src="${prize.image}" alt="${prize.name}" class="w-20 h-20 object-contain mx-auto mb-2 rounded" />
+          <p class="text-white text-sm font-semibold">${prize.name}</p>
+          <p class="text-yellow-400 text-sm">$${parseFloat(prize.value).toFixed(2)}</p>
+        `;
+        container.appendChild(card);
+      });
+    });
+  </script>
+</body>
+</html>
