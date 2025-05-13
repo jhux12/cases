@@ -300,24 +300,46 @@ document.getElementById("user-balance").innerText = `Balance: ${balance.toLocale
 
   const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
   const fairData = fairSnap.val();
-   let pfDiv = document.getElementById("provably-fair-info");
+  let pfPopup = document.getElementById("pf-popup");
 
-if (!pfDiv) {
-  pfDiv = document.createElement("div");
-  pfDiv.id = "provably-fair-info";
-  pfDiv.className = "text-xs text-gray-400 mt-4";
-  document.getElementById("case-container").appendChild(pfDiv);
+if (!pfPopup) {
+  pfPopup = document.createElement("div");
+  pfPopup.id = "pf-popup";
+  pfPopup.className = "fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-gray-900 text-white border border-purple-500 shadow-xl rounded-xl p-6 w-11/12 max-w-md hidden";
+  pfPopup.innerHTML = `
+    <div class="text-center">
+      <h3 class="text-lg font-bold text-purple-400 mb-2">🔐 Provably Fair Info</h3>
+      <div class="text-sm text-gray-300 space-y-1">
+        <div>Server Seed: <code>${fairData.serverSeed}</code></div>
+        <div>Client Seed: <code>${fairData.clientSeed}</code></div>
+        <div>Nonce: <code>${fairData.nonce}</code></div>
+        <button id="change-seed" class="mt-2 text-blue-400 underline text-sm">Change Client Seed</button>
+        <button id="close-pf" class="mt-4 bg-pink-600 px-4 py-2 rounded-full text-white font-semibold hover:bg-pink-700 transition">Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(pfPopup);
 }
+  // Toggle popup visibility
+document.getElementById("provably-fair-badge").addEventListener("click", () => {
+  const pfBox = document.getElementById("pf-popup");
+  if (pfBox) pfBox.classList.toggle("hidden");
+});
 
-pfDiv.innerHTML = `
-  <div class="mt-2">
-    🔐 Provably Fair Info:<br>
-    Server Seed: <code>${fairData.serverSeed}</code><br>
-    Client Seed: <code>${fairData.clientSeed}</code><br>
-    Nonce: <code>${fairData.nonce}</code><br>
-    <button id="change-seed" class="mt-1 text-sm text-blue-400 underline">Change Client Seed</button>
-  </div>
-`;
+// Close button
+document.getElementById("close-pf").addEventListener("click", () => {
+  document.getElementById("pf-popup").classList.add("hidden");
+});
+
+// Change client seed
+document.getElementById("change-seed").addEventListener("click", async () => {
+  const newSeed = prompt("Enter new client seed:");
+  if (newSeed) {
+    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
+    alert("✅ New client seed saved! Reload to use it.");
+  }
+});
+
 
 document.getElementById("change-seed").addEventListener("click", async () => {
   const newSeed = prompt("Enter new client seed:");
