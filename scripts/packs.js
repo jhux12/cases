@@ -15,27 +15,34 @@ function renderCases(caseList) {
 
     const prizes = Object.values(c.prizes || {});
     const topPrize = prizes.sort((a, b) => (b.value || 0) - (a.value || 0))[0];
+    const packImg = c.image;
+    const topPrizeImg = topPrize?.image || packImg;
+
+    const imgId = `img-${c.id}`;
 
     casesContainer.innerHTML += `
-      <div class="relative p-4 bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition group overflow-hidden">
+      <div class="relative p-4 bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition">
         ${tagHTML}
-        <img src="${c.image}" class="case-card-img mb-2 w-full object-cover rounded">
+        <img src="${packImg}" id="${imgId}" class="case-card-img mb-2 transition-all duration-300">
         <h3 class="mt-2 font-semibold text-white">${c.name}</h3>
         <button class="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded open-case glow-button enhanced-glow flex justify-center items-center gap-2 text-white font-semibold" data-id="${c.id}">
           Open for ${price.toLocaleString()}
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
         </button>
-
-        ${
-          topPrize
-            ? `<div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center text-center p-4">
-                <img src="${topPrize.image}" alt="${topPrize.name}" class="w-16 h-16 object-contain mb-2 rounded">
-                <p class="text-white font-semibold">${topPrize.name}</p>
-                <p class="text-yellow-400 font-bold">$${topPrize.value?.toFixed(2)}</p>
-              </div>`
-            : ""
-        }
       </div>`;
+
+    // Add hover effect after rendering
+    setTimeout(() => {
+      const imgEl = document.getElementById(imgId);
+      if (imgEl && topPrizeImg !== packImg) {
+        imgEl.addEventListener("mouseenter", () => {
+          imgEl.src = topPrizeImg;
+        });
+        imgEl.addEventListener("mouseleave", () => {
+          imgEl.src = packImg;
+        });
+      }
+    }, 0);
   });
 
   // Re-attach event listeners
