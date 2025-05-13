@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Packly.gg | Case Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="scripts/firebase-config.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles/main.css">
@@ -199,6 +200,17 @@ const firebaseConfig = {
 // ✅ Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
+  onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const userRef = ref(db, 'users/' + user.uid);
+    const userSnap = await get(userRef);
+    const balance = parseFloat(userSnap.val()?.balance || 0);
+    document.getElementById("user-balance").innerText = `Balance: ${balance.toLocaleString()} coins`;
+  } else {
+    document.getElementById("user-balance").innerText = `Balance: Sign in required`;
+  }
+});
 
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -208,17 +220,6 @@ const db = getDatabase(app);
     document.getElementById("case-name").innerText = "Case not found.";
     throw new Error("No case ID provided.");
   }
-const auth = getAuth(app);
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const userRef = ref(db, 'users/' + user.uid);
-    const snapshot = await get(userRef);
-    const balance = parseFloat(snapshot.val()?.balance || 0);
-    document.getElementById("user-balance").innerText = `Balance: ${balance.toLocaleString()} coins`;
-  } else {
-    document.getElementById("user-balance").innerText = "Balance: Sign in required";
-  }
-});
 
 
   const rarityOrder = {
@@ -300,16 +301,14 @@ setTimeout(() => {
   openBtn.classList.remove("opacity-50", "cursor-not-allowed");
 }, 4000);
 
-const user = firebase.auth().currentUser;
-if (!user) return alert("Please sign in first!");
+  const user = firebase.auth().currentUser;
+  if (!user) return alert("Please sign in first!");
 
-const casePrice = parseFloat(caseData.price || 0); // ✅ FIXED HERE
-
-const snapshot = await firebase.database().ref('users/' + user.uid).once('value');
-const balance = parseFloat(snapshot.val()?.balance || 0);
-if (balance < casePrice) return alert("Not enough coins!");
-
-
+  const casePrice = parseFloat(caseData.price || 0);
+  const userRef = ref(db, 'users/' + user.uid);
+  const userSnap = await get(userRef);
+  const balance = parseFloat(userSnap.val()?.balance || 0);
+  if (balance < casePrice) return alert("Not enough coins!");
 
   const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
   const fairData = fairSnap.val();
