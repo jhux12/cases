@@ -210,27 +210,6 @@
     }).join("");
 
     document.getElementById("prizes-grid").innerHTML = prizeHTML;
-    // Show provably fair seed info
-const pfDiv = document.createElement("div");
-pfDiv.className = "text-xs text-gray-400 mt-4";
-pfDiv.innerHTML = `
-  <div class="mt-2">
-    🔐 Provably Fair Info:<br>
-    Server Seed: <code>${fairData.serverSeed}</code><br>
-    Client Seed: <code>${fairData.clientSeed}</code><br>
-    Nonce: <code>${fairData.nonce}</code><br>
-    <button id="change-seed" class="mt-1 text-sm text-blue-400 underline">Change Client Seed</button>
-  </div>
-`;
-document.getElementById("case-container").appendChild(pfDiv);
-
-document.getElementById("change-seed").addEventListener("click", async () => {
-  const newSeed = prompt("Enter new client seed:");
-  if (newSeed) {
-    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
-    alert("✅ New client seed saved! Reload to use it.");
-  }
-});
 
 
     // ✅ Add click logic for open button
@@ -256,6 +235,26 @@ setTimeout(() => {
 
   const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
   const fairData = fairSnap.val();
+    const pfDiv = document.createElement("div");
+pfDiv.className = "text-xs text-gray-400 mt-4";
+pfDiv.innerHTML = `
+  <div class="mt-2">
+    🔐 Provably Fair Info:<br>
+    Server Seed: <code>${fairData.serverSeed}</code><br>
+    Client Seed: <code>${fairData.clientSeed}</code><br>
+    Nonce: <code>${fairData.nonce}</code><br>
+    <button id="change-seed" class="mt-1 text-sm text-blue-400 underline">Change Client Seed</button>
+  </div>
+`;
+document.getElementById("case-container").appendChild(pfDiv);
+
+document.getElementById("change-seed").addEventListener("click", async () => {
+  const newSeed = prompt("Enter new client seed:");
+  if (newSeed) {
+    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
+    alert("✅ New client seed saved! Reload to use it.");
+  }
+});
 
   if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') {
     return alert('Missing provably fair data.');
