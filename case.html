@@ -213,8 +213,13 @@
   });
 
   const urlParams = new URLSearchParams(window.location.search);
-  const caseId = urlParams.get('id');
-  if (!caseId) return;
+const caseId = urlParams.get('id');
+
+if (!caseId) {
+  console.error("No case ID provided in URL.");
+  throw new Error("No case ID provided.");
+}
+
 
   const rarityOrder = {
     "legendary": 5,
