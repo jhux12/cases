@@ -364,6 +364,28 @@ spinner.classList.remove("hidden");
 // Fill spinner with prizes
 const stripItems = [...prizes, ...prizes, ...prizes]; // tripled for length
 strip.innerHTML = stripItems.map(p => `<img src="${p.image}" class="h-52 w-auto object-contain rounded-lg shadow-md">`).join("");
+// Center winning prize in spinner
+const prizeWidth = 140;
+const totalVisible = Math.floor(spinner.offsetWidth / prizeWidth);
+const centerOffset = Math.floor(totalVisible / 2);
+
+// Find middle-most match of winning prize in tripled array
+const matchingIndexes = stripItems
+  .map((p, i) => (p.name === winningPrize.name && p.image === winningPrize.image ? i : -1))
+  .filter(i => i !== -1);
+
+const targetIndex = matchingIndexes[Math.floor(matchingIndexes.length / 2)];
+const scrollToIndex = Math.max(targetIndex - centerOffset, 0);
+
+// Reset + force reflow
+strip.style.transition = "none";
+strip.style.transform = "translateX(0px)";
+void strip.offsetWidth;
+
+// Animate spin to center winning prize
+strip.style.transition = "transform 2.5s cubic-bezier(0.25, 1, 0.5, 1)";
+strip.style.transform = `translateX(-${scrollToIndex * prizeWidth}px)`;
+
   // Reset transform BEFORE forcing reflow
 strip.style.transition = "none";
 strip.style.transform = "translateX(0px)";
@@ -371,11 +393,20 @@ void strip.offsetWidth; // Force reflow to apply changes
 
 
 // Animate spin
-const offset = Math.floor(Math.random() * (stripItems.length - 10)) + 5;
 const prizeWidth = 140;
-const spinAmount = offset * prizeWidth;
+const totalVisible = Math.floor(spinner.offsetWidth / prizeWidth);
+const centerOffset = Math.floor(totalVisible / 2);
+
+// Find index of winning prize in stripItems
+const targetIndex = stripItems.findIndex(p => p.name === winningPrize.name && p.image === winningPrize.image);
+
+// Add buffer to ensure smooth left-to-right scroll and center alignment
+const scrollToIndex = Math.max(targetIndex - centerOffset, 0);
+
+// Animate
 strip.style.transition = "transform 2.5s cubic-bezier(0.25, 1, 0.5, 1)";
-strip.style.transform = `translateX(-${spinAmount}px)`;
+strip.style.transform = `translateX(-${scrollToIndex * prizeWidth}px)`;
+
 
 // Show result after 3s
 setTimeout(() => {
