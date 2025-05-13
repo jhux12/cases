@@ -377,19 +377,14 @@ const matchingIndexes = stripItems
 const targetIndex = matchingIndexes[Math.floor(matchingIndexes.length / 2)];
 const scrollToIndex = Math.max(targetIndex - centerOffset, 0);
 
+
 // Reset + force reflow
 strip.style.transition = "none";
 strip.style.transform = "translateX(0px)";
 void strip.offsetWidth;
 
-// Animate spin to center winning prize
 strip.style.transition = "transform 2.5s cubic-bezier(0.25, 1, 0.5, 1)";
 strip.style.transform = `translateX(-${scrollToIndex * prizeWidth}px)`;
-
-  // Reset transform BEFORE forcing reflow
-strip.style.transition = "none";
-strip.style.transform = "translateX(0px)";
-void strip.offsetWidth; // Force reflow to apply changes
 
 // Show result after 3s
 setTimeout(() => {
