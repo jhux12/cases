@@ -64,6 +64,21 @@
   #prizes-grid > div {
   box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
 }
+.card-gradient-common {
+  background: linear-gradient(180deg, rgba(63, 63, 70, 0.7), rgba(82, 82, 91, 0.7));
+}
+.card-gradient-uncommon {
+  background: linear-gradient(180deg, rgba(20, 83, 45, 0.7), rgba(34, 197, 94, 0.7));
+}
+.card-gradient-rare {
+  background: linear-gradient(180deg, rgba(30, 64, 175, 0.7), rgba(59, 130, 246, 0.7));
+}
+.card-gradient-ultrarare {
+  background: linear-gradient(180deg, rgba(107, 33, 168, 0.7), rgba(168, 85, 247, 0.7));
+}
+.card-gradient-legendary {
+  background: linear-gradient(180deg, rgba(133, 77, 14, 0.7), rgba(250, 204, 21, 0.7));
+}
 
 
 </style>
@@ -176,7 +191,11 @@
     "uncommon": "ring-green-500 text-green-400",
     "common": "ring-gray-400 text-gray-300"
   };
-
+function formatCoins(num) {
+  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
+  if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
+  return num.toLocaleString();
+}
   get(ref(db, `cases/${caseId}`)).then(snapshot => {
     if (!snapshot.exists()) {
       document.getElementById("case-name").innerText = "Case not found.";
@@ -200,19 +219,20 @@
   const rarity = (prize.rarity || "common").toLowerCase().replace(" ", "");
   const glowClass = `glow-${rarity}`;
   const gradientClass = `card-gradient-${rarity}`;
+  const valueFormatted = formatCoins(prize.value || 0);
 
   return `
-    <div class="rounded-xl p-3 text-white cursor-pointer transition-all duration-300 transform hover:scale-105 ${gradientClass}" onclick="expandPrize('${prize.image}')">
+    <div class="rounded-xl p-3 text-white cursor-pointer transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10 ${gradientClass}" onclick="expandPrize('${prize.image}')">
       <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3 shadow-md ring-2 ring-white/10" />
       
       <div class="font-semibold text-center text-base">${prize.name}</div>
 
-      <div class="flex justify-between items-center text-xs mt-2 font-medium">
-        <div class="flex items-center gap-1 text-yellow-300">
+      <div class="flex justify-between items-center text-xs mt-2 font-semibold">
+        <div class="flex items-center gap-1 text-yellow-300 font-bold">
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-          ${parseFloat(prize.value || 0).toLocaleString()} coins
+          ${valueFormatted} coins
         </div>
-        <div class="text-white/70">${(prize.odds || 0).toFixed(1)}%</div>
+        <div class="text-white/70 font-medium">${(prize.odds || 0).toFixed(1)}%</div>
       </div>
     </div>
   `;
