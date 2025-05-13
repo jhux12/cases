@@ -17,6 +17,26 @@
 .glow-rare      { box-shadow: 0 0 30px #60a5fa; }
 .glow-ultra     { box-shadow: 0 0 30px #c084fc; }
 .glow-legendary { box-shadow: 0 0 40px #facc15; }
+    .card-common    { background: linear-gradient(to bottom right, #3f3f46, #27272a); box-shadow: 0 0 8px #a1a1aa; }
+.card-uncommon  { background: linear-gradient(to bottom right, #166534, #14532d); box-shadow: 0 0 12px #4ade80; }
+.card-rare      { background: linear-gradient(to bottom right, #1e3a8a, #1e40af); box-shadow: 0 0 14px #60a5fa; }
+.card-ultra     { background: linear-gradient(to bottom right, #6b21a8, #7e22ce); box-shadow: 0 0 16px #c084fc; }
+.card-legendary { background: linear-gradient(to bottom right, #78350f, #f59e0b); box-shadow: 0 0 18px #facc15; }
+
+.badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  display: inline-block;
+  margin-top: 0.25rem;
+}
+.badge-common { background-color: #9ca3af; color: #1f2937; }
+.badge-uncommon { background-color: #4ade80; color: #064e3b; }
+.badge-rare { background-color: #60a5fa; color: #1e3a8a; }
+.badge-ultra { background-color: #c084fc; color: #5b21b6; }
+.badge-legendary { background-color: #facc15; color: #78350f; }
+
 
   .updates-bar {
     background: linear-gradient(to right, #facc15, #ec4899, #8b5cf6);
@@ -190,30 +210,38 @@
       return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
     });
 
-    const prizeHTML = prizeList.map(prize => {
-      const rarity = (prize.rarity || "common").toLowerCase();
+   const prizeHTML = prizeList.map(prize => {
+  const rarity = (prize.rarity || "common").toLowerCase();
 
-const bgColorMap = {
-  "legendary": "bg-yellow-900",
-  "ultra rare": "bg-purple-900",
-  "rare": "bg-blue-900",
-  "uncommon": "bg-green-900",
-  "common": "bg-gray-800"
-};
-     return `
-  <div class="rounded-xl p-3 text-center text-white hover:scale-105 transition transform cursor-pointer shadow-md ${bgColorMap[rarity] || 'bg-gray-800'}" onclick="expandPrize('${prize.image}')">
-    <img src="${prize.image}" class="h-36 w-full object-contain mx-auto rounded-md mb-2">
-    <div class="text-sm font-semibold truncate">${prize.name}</div>
-    <div class="mt-1 text-xs flex justify-center items-center gap-1 text-yellow-300">
-      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-      ${parseFloat(prize.value || 0).toLocaleString()} coins
+  const bgClassMap = {
+    "common": "card-common",
+    "uncommon": "card-uncommon",
+    "rare": "card-rare",
+    "ultra rare": "card-ultra",
+    "legendary": "card-legendary"
+  };
+
+  const badgeClassMap = {
+    "common": "badge badge-common",
+    "uncommon": "badge badge-uncommon",
+    "rare": "badge badge-rare",
+    "ultra rare": "badge badge-ultra",
+    "legendary": "badge badge-legendary"
+  };
+
+  return `
+    <div class="rounded-xl p-3 text-center text-white hover:scale-105 transition transform cursor-pointer ${bgClassMap[rarity] || 'card-common'}" onclick="expandPrize('${prize.image}')">
+      <img src="${prize.image}" class="h-36 w-full object-contain mx-auto rounded-md mb-2">
+      <div class="text-sm font-semibold truncate">${prize.name}</div>
+      <div class="mt-1 text-xs flex justify-center items-center gap-1 text-yellow-300">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
+        ${parseFloat(prize.value || 0).toLocaleString()} coins
+      </div>
+      <div class="${badgeClassMap[rarity] || 'badge badge-common'}">${prize.rarity}</div>
     </div>
-    <div class="mt-1 text-xs">${(prize.odds || 0).toFixed(2)}%</div>
-  </div>
-`;
+  `;
+}).join("");
 
-
-    }).join("");
 
     document.getElementById("prizes-grid").innerHTML = prizeHTML;
 
