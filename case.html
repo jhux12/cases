@@ -112,12 +112,17 @@
 
     <!-- Case Thumbnail + Title -->
     <div class="mb-8 relative flex flex-col items-center justify-center">
-      
-<div id="spinner-container" class="w-full overflow-hidden relative h-64 hidden">
-  <div id="spinner-strip" class="flex items-center gap-6 absolute left-0 top-1/2 -translate-y-1/2 transition-transform duration-[3000ms] ease-out will-change-transform">
-    <!-- Prize images will be injected here -->
-  </div>
-</div>
+
+      <!-- Flip Card (initially hidden) -->
+      <div id="flip-card" class="relative w-40 h-64 sm:w-48 sm:h-72 perspective hidden">
+        <div id="flip-card-inner" class="relative w-full h-full transition-transform duration-[2000ms] transform-style-preserve-3d">
+          <!-- Back of the card (winning prize) -->
+          <img id="flip-back" src="" class="absolute w-full h-full rounded-xl object-contain backface-hidden rotate-y-180" alt="Back" />
+          <!-- Front of the card (case image) -->
+          <img id="flip-front" src="" class="absolute w-full h-full rounded-xl object-contain backface-hidden z-10" alt="Front" />
+        </div>
+      </div>
+
       <!-- Static Case Image -->
       <img id="case-image" src="" alt="Case Image" class="w-40 h-64 sm:w-48 sm:h-72 mx-auto rounded-xl shadow-xl object-contain border border-purple-500/30 bg-black/10">
 
@@ -356,55 +361,62 @@ document.getElementById("change-seed").addEventListener("click", async () => {
  // Play sound
 document.getElementById("pack-open-sound").play().catch(() => {});
 
+// Hide static image and show flip card
 document.getElementById("case-image").classList.add("hidden");
-const spinner = document.getElementById("spinner-container");
-const strip = document.getElementById("spinner-strip");
-spinner.classList.remove("hidden");
+document.getElementById("flip-card").classList.remove("hidden");
 
-// Fill spinner with prizes
-const stripItems = [...prizes, ...prizes, ...prizes]; // tripled for length
-strip.innerHTML = stripItems.map(p => `<img src="${p.image}" class="h-52 w-auto object-contain rounded-lg shadow-md">`).join("");
-// Center winning prize in spinner
-const prizeWidth = 140;
-const totalVisible = Math.floor(spinner.offsetWidth / prizeWidth);
-const centerOffset = Math.floor(totalVisible / 2);
+// Set front/back images
+document.getElementById("flip-front").src = caseData.image;
+document.getElementById("flip-back").src = winningPrize.image;
 
-// Find middle-most match of winning prize in tripled array
-const matchingIndexes = stripItems
-  .map((p, i) => (p.name === winningPrize.name && p.image === winningPrize.image ? i : -1))
-  .filter(i => i !== -1);
-
-const targetIndex = matchingIndexes[Math.floor(matchingIndexes.length / 2)];
-const scrollToIndex = Math.max(targetIndex - centerOffset, 0);
-
-
-// Reset + force reflow
-strip.style.transition = "none";
-strip.style.transform = "translateX(0px)";
-void strip.offsetWidth;
-
-strip.style.transition = "transform 2.5s cubic-bezier(0.25, 1, 0.5, 1)";
-strip.style.transform = `translateX(-${scrollToIndex * prizeWidth}px)`;
-
+// Set rarity glow after flip completes
+const rarityGlowMap = {
+  "common": "glow-common",
+  "uncommon": "glow-uncommon",
+  "rare": "glow-rare",
+  "ultra rare": "glow-ultra",
+  "legendary": "glow-legendary"
+};
+const card = document.getElementById("flip-card");
+card.classList.remove("glow-common", "glow-uncommon", "glow-rare", "glow-ultra", "glow-legendary");
 setTimeout(() => {
-  spinner.classList.add("hidden");
-  document.getElementById("case-image").classList.remove("hidden");
+  card.classList.add(rarityGlowMap[winningPrize.rarity?.toLowerCase()] || "glow-common");
+}, 2000);
 
+// Flip logic
+const flipInner = document.getElementById("flip-card-inner");
+flipInner.classList.remove("flipped"); // reset
+void flipInner.offsetWidth;            // force reflow
+flipInner.classList.add("flipped");    // flip
+
+// Flip back after 6s
+setTimeout(() => {
+  flipInner.classList.remove("flipped");
+
+  // Hide glow and flip card, show static image
+  card.classList.remove("glow-common", "glow-uncommon", "glow-rare", "glow-ultra", "glow-legendary");
+  document.getElementById("flip-card").classList.add("hidden");
+  document.getElementById("case-image").classList.remove("hidden");
+}, 6000);
+
+
+  // 🎉 Show result
   let resultDiv = document.getElementById("result-message");
-  if (!resultDiv) {
-    resultDiv = document.createElement("div");
-    resultDiv.id = "result-message";
-    resultDiv.className = "mt-4 text-xl font-bold text-white";
-    document.getElementById("case-container").appendChild(resultDiv);
-  }
-  resultDiv.innerHTML = `🎉 You won <span class="text-yellow-400">${winningPrize.name}</span> (${winningPrize.rarity})!`;
-}, 3000);
-});
+if (!resultDiv) {
+  resultDiv = document.createElement("div");
+  resultDiv.id = "result-message";
+  resultDiv.className = "mt-4 text-xl font-bold text-white";
+  document.getElementById("case-container").appendChild(resultDiv);
+}
+resultDiv.innerHTML = `🎉 You won <span class="text-yellow-400">${winningPrize.name}</span> (${winningPrize.rarity})!`;
 
 
     });
+  });
 </script>
 
+
+</style>
 
 <!-- Updates Bar -->
 <div class="updates-bar text-sm">
