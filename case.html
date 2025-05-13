@@ -104,6 +104,8 @@
   <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
   <p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
     <p id="user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
+    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
+    0 coins
   </p>
 </div>
 
@@ -240,13 +242,6 @@ setTimeout(() => {
   if (balance < casePrice) return alert("Not enough coins!");
 
   const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
-    document.getElementById("change-seed")?.addEventListener("click", async () => {
-  const newSeed = prompt("Enter new client seed:");
-  if (newSeed) {
-    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
-    alert("✅ New client seed saved! Reload to use it.");
-  }
-});
   // Remove previous provably fair block if it exists
 const existingPF = document.getElementById("pf-info");
 if (existingPF) existingPF.remove();
@@ -266,6 +261,13 @@ pfDiv.innerHTML = `
 `;
 document.getElementById("case-container").appendChild(pfDiv);
 
+document.getElementById("change-seed").addEventListener("click", async () => {
+  const newSeed = prompt("Enter new client seed:");
+  if (newSeed) {
+    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
+    alert("✅ New client seed saved! Reload to use it.");
+  }
+});
 
   if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') {
     return alert('Missing provably fair data.');
