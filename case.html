@@ -157,7 +157,8 @@
   // ✅ These should run right away to show the case info
   document.getElementById("case-image").src = caseData.image;
   document.getElementById("case-name").innerText = caseData.name;
-  document.getElementById("price-amount")?.textContent = `${parseFloat(caseData.price || 0).toLocaleString()} coins`;
+const priceEl = document.getElementById("price-amount");
+if (priceEl) priceEl.textContent = `${parseFloat(caseData.price || 0).toLocaleString()} coins`;
 
   const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
     return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
