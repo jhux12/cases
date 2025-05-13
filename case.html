@@ -364,11 +364,17 @@ spinner.classList.remove("hidden");
 // Fill spinner with prizes
 const stripItems = [...prizes, ...prizes, ...prizes]; // tripled for length
 strip.innerHTML = stripItems.map(p => `<img src="${p.image}" class="h-52 w-auto object-contain rounded-lg shadow-md">`).join("");
+  // Reset transform BEFORE forcing reflow
+strip.style.transition = "none";
+strip.style.transform = "translateX(0px)";
+void strip.offsetWidth; // Force reflow to apply changes
+
 
 // Animate spin
 const offset = Math.floor(Math.random() * (stripItems.length - 10)) + 5;
 const prizeWidth = 140;
 const spinAmount = offset * prizeWidth;
+strip.style.transition = "transform 2.5s cubic-bezier(0.25, 1, 0.5, 1)";
 strip.style.transform = `translateX(-${spinAmount}px)`;
 
 // Show result after 3s
