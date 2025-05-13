@@ -1,7 +1,6 @@
 import { setupFilters } from './filters.js';
 
 let allCases = [];
-
 function renderCases(caseList) {
   const casesContainer = document.getElementById("cases-container");
   casesContainer.innerHTML = "";
@@ -13,15 +12,25 @@ function renderCases(caseList) {
 
     const price = parseFloat(c.price) || 0;
 
+    const prizes = Object.values(c.prizes || {});
+    const topPrize = prizes.sort((a, b) => b.value - a.value)[0];
+
     casesContainer.innerHTML += `
-      <div class="relative p-4 bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition">
+      <div class="relative p-4 bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition group overflow-hidden">
         ${tagHTML}
-        <img src="${c.image}" class="case-card-img mb-2">
+        <img src="${c.image}" class="case-card-img mb-2 w-full object-cover rounded">
         <h3 class="mt-2 font-semibold text-white">${c.name}</h3>
         <button class="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded open-case glow-button enhanced-glow flex justify-center items-center gap-2 text-white font-semibold" data-id="${c.id}">
           Open for ${price.toLocaleString()}
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
         </button>
+
+        <!-- Hover Overlay for Top Prize -->
+        <div class="absolute inset-0 bg-black/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center text-center p-4">
+          <img src="${topPrize?.image}" alt="${topPrize?.name}" class="w-16 h-16 object-contain mb-2 rounded">
+          <p class="text-white font-semibold">${topPrize?.name}</p>
+          <p class="text-yellow-400 font-bold">$${topPrize?.value?.toFixed(2)}</p>
+        </div>
       </div>`;
   });
 
