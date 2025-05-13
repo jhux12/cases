@@ -359,7 +359,19 @@ document.getElementById("change-seed").addEventListener("click", async () => {
   await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
 
  // Play sound
-document.getElementById("pack-open-sound").play().catch(() => {});
+const rarity = winningPrize.rarity?.toLowerCase() || "common";
+
+const raritySounds = {
+  "common": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5",
+  "uncommon": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
+  "rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
+  "ultra rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de",
+  "legendary": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"
+};
+
+const audio = new Audio(raritySounds[rarity] || raritySounds["common"]);
+audio.volume = 0.75;
+audio.play().catch(() => {});
 
 // Hide static image and show flip card
 document.getElementById("case-image").classList.add("hidden");
