@@ -80,6 +80,12 @@
   background: linear-gradient(180deg, rgba(133, 77, 14, 0.7), rgba(250, 204, 21, 0.7));
 }
 
+/* Make sure you support text truncation properly */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 </style>
 
@@ -165,7 +171,7 @@
       <p class="mt-2 text-sm text-gray-300">Each case contains a mix of prizes with different rarities and values.</p>
     </div>
 
-    <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 text-sm"></div>
+  <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 text-sm"></div>
   </div>
 
 </section>
@@ -238,30 +244,31 @@ if (openBtnText) {
       return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
     });
 
-    const prizeHTML = prizeList.map(prize => {
+   const prizeHTML = prizeList.map(prize => {
   const rarity = (prize.rarity || "common").toLowerCase().replace(" ", "");
   const glowClass = `glow-${rarity}`;
   const gradientClass = `card-gradient-${rarity}`;
   const valueFormatted = formatCoins(prize.value || 0);
 
   return `
-<div class="rounded-xl p-3 h-[300px] flex flex-col justify-between text-white cursor-pointer transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10 ${gradientClass}" ...>
-      <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3 shadow-md ring-2 ring-white/10" />
-      
-<div class="font-semibold text-center text-base truncate px-1 max-w-full" title="${prize.name}">
-  ${prize.name}
-</div>
+    <div class="rounded-xl p-3 text-white cursor-pointer transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10 ${gradientClass}" onclick="expandPrize('${prize.image}')">
+      <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3 shadow-md ring-2 ring-white/10 bg-black/10 p-1" />
 
-      <div class="flex justify-between items-center text-xs mt-2 font-semibold">
-        <div class="flex items-center gap-1 text-yellow-300 font-bold">
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-          ${valueFormatted} coins
+      <div class="text-center font-semibold text-sm truncate px-2 leading-tight h-[2.5rem] flex items-center justify-center" title="${prize.name}">
+        ${prize.name}
+      </div>
+
+      <div class="flex justify-between items-center mt-2 text-sm font-semibold px-1">
+        <div class="flex items-center gap-1 text-cyan-300 font-bold">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2L15 9H22L17 14L18 21L12 17L6 21L7 14L2 9H9L12 2Z"/></svg>
+          ${valueFormatted}
         </div>
-        <div class="text-white/70 font-medium">${(prize.odds || 0).toFixed(1)}%</div>
+        <div class="text-xs text-white/70 bg-white/10 px-2 py-[2px] rounded-full">${(prize.odds || 0).toFixed(1)}%</div>
       </div>
     </div>
   `;
 }).join("");
+
 
 
     document.getElementById("prizes-grid").innerHTML = prizeHTML;
