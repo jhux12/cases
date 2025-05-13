@@ -196,7 +196,12 @@ const firebaseConfig = {
   messagingSenderId: "1094023497986",
   appId: "1:1094023497986:web:59e018f1aa5e8c4093d7a5"
 };
-onAuthStateChanged(auth, async (user) => {
+
+// ✅ Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+  onAuthStateChanged(auth, async (user) => {
   if (user) {
     const userRef = ref(db, 'users/' + user.uid);
     const userSnap = await get(userRef);
@@ -207,10 +212,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// ✅ Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app);
 
   const urlParams = new URLSearchParams(window.location.search);
   const caseId = urlParams.get('id');
@@ -219,6 +220,7 @@ const auth = getAuth(app);
     document.getElementById("case-name").innerText = "Case not found.";
     throw new Error("No case ID provided.");
   }
+
 
   const rarityOrder = {
     "legendary": 5,
