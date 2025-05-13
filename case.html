@@ -74,7 +74,7 @@
 <div class="mb-8 relative flex flex-col items-center justify-center">
   <!-- Flip Card (initially hidden) -->
   <div id="flip-card" class="relative w-40 h-64 sm:w-48 sm:h-72 perspective hidden">
-    <div id="flip-card-inner" class="relative w-full h-full transition-transform duration-700 transform-style-preserve-3d">
+ <div id="flip-card-inner" class="relative w-full h-full transition-transform duration-[2000ms] transform-style-preserve-3d">
       <!-- Front of the card (winning prize) -->
       <img id="flip-front" src="" class="absolute w-full h-full rounded-xl object-contain backface-hidden z-10" alt="Front" />
       <!-- Back of the card (case image) -->
@@ -186,6 +186,15 @@
 
     // ✅ Add click logic for open button
   document.getElementById("open-case-button").addEventListener("click", async () => {
+    const openBtn = document.getElementById("open-case-button");
+openBtn.disabled = true;
+openBtn.classList.add("opacity-50", "cursor-not-allowed");
+
+setTimeout(() => {
+  openBtn.disabled = false;
+  openBtn.classList.remove("opacity-50", "cursor-not-allowed");
+}, 10000);
+
   const user = firebase.auth().currentUser;
   if (!user) return alert("Please sign in first!");
 
@@ -245,9 +254,10 @@
   const flipInner = document.getElementById("flip-card-inner");
   flipInner.classList.add("flipped");
 
-  setTimeout(() => {
+setTimeout(() => {
   flipInner.classList.remove("flipped");
-}, 100); // or remove it entirely if you want it to stay flipped
+}, 6000);
+
 
 
   // 🎉 Show result
