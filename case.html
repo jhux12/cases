@@ -10,7 +10,14 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="scripts/firebase-config.js"></script>
   <link rel="stylesheet" href="styles/main.css">
+  <audio id="pack-open-sound" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5"></audio>
   <style>
+    .glow-common    { box-shadow: 0 0 30px #a1a1aa; }
+.glow-uncommon  { box-shadow: 0 0 30px #4ade80; }
+.glow-rare      { box-shadow: 0 0 30px #60a5fa; }
+.glow-ultra     { box-shadow: 0 0 30px #c084fc; }
+.glow-legendary { box-shadow: 0 0 40px #facc15; }
+
   .updates-bar {
     background: linear-gradient(to right, #facc15, #ec4899, #8b5cf6);
     color: white;
@@ -250,13 +257,32 @@ setTimeout(() => {
 
   document.getElementById("flip-back").src = caseData.image;
   document.getElementById("flip-front").src = winningPrize.image;
+    const rarityGlowMap = {
+  "common": "glow-common",
+  "uncommon": "glow-uncommon",
+  "rare": "glow-rare",
+  "ultra rare": "glow-ultra",
+  "legendary": "glow-legendary"
+};
+
+const card = document.getElementById("flip-card");
+card.classList.remove("glow-common", "glow-uncommon", "glow-rare", "glow-ultra", "glow-legendary"); // clear any previous glow
+card.classList.add(rarityGlowMap[winningPrize.rarity?.toLowerCase()] || "glow-common");
+
 
   const flipInner = document.getElementById("flip-card-inner");
-  flipInner.classList.add("flipped");
+  // Flip to reveal the card
+flipInner.classList.add("flipped");
 
+// Flip back after 6 seconds
 setTimeout(() => {
   flipInner.classList.remove("flipped");
-}, 1000);
+
+  // Hide the flip card and show the static case image again
+  document.getElementById("flip-card").classList.add("hidden");
+  document.getElementById("case-image").classList.remove("hidden");
+}, 6000);
+
 
 
 
