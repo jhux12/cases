@@ -5,23 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Packly.gg | Case Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="scripts/firebase-config.js"></script>
-  <script>
-  firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-      firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
-        const balance = parseFloat(snapshot.val()?.balance || 0);
-        document.getElementById("user-balance").innerText = `Balance: ${balance.toLocaleString()} coins`;
-      });
-    } else {
-      document.getElementById("user-balance").innerText = "Balance: Sign in required";
-    }
-  });
-</script>
 
   <script src="https://js.stripe.com/v3/"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -222,6 +206,17 @@ const db = getDatabase(app);
     document.getElementById("case-name").innerText = "Case not found.";
     throw new Error("No case ID provided.");
   }
+const auth = getAuth(app);
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const userRef = ref(db, 'users/' + user.uid);
+    const snapshot = await get(userRef);
+    const balance = parseFloat(snapshot.val()?.balance || 0);
+    document.getElementById("user-balance").innerText = `Balance: ${balance.toLocaleString()} coins`;
+  } else {
+    document.getElementById("user-balance").innerText = "Balance: Sign in required";
+  }
+});
 
 
   const rarityOrder = {
@@ -306,8 +301,12 @@ setTimeout(() => {
 const user = firebase.auth().currentUser;
 if (!user) return alert("Please sign in first!");
 
+const casePrice = parseFloat(caseData.price || 0); // ✅ FIXED HERE
+
 const snapshot = await firebase.database().ref('users/' + user.uid).once('value');
 const balance = parseFloat(snapshot.val()?.balance || 0);
+if (balance < casePrice) return alert("Not enough coins!");
+
 
 
   const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
