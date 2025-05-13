@@ -391,14 +391,6 @@ strip.style.transition = "none";
 strip.style.transform = "translateX(0px)";
 void strip.offsetWidth; // Force reflow to apply changes
 
-// Add buffer to ensure smooth left-to-right scroll and center alignment
-const scrollToIndex = Math.max(targetIndex - centerOffset, 0);
-
-// Animate
-strip.style.transition = "transform 2.5s cubic-bezier(0.25, 1, 0.5, 1)";
-strip.style.transform = `translateX(-${scrollToIndex * prizeWidth}px)`;
-
-
 // Show result after 3s
 setTimeout(() => {
   spinner.classList.add("hidden");
@@ -414,9 +406,6 @@ setTimeout(() => {
   resultDiv.innerHTML = `🎉 You won <span class="text-yellow-400">${winningPrize.name}</span> (${winningPrize.rarity})!`;
 }, 3000);
 
-
-  // 🎉 Show result
-  let resultDiv = document.getElementById("result-message");
 if (!resultDiv) {
   resultDiv = document.createElement("div");
   resultDiv.id = "result-message";
