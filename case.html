@@ -86,6 +86,12 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 </style>
 
@@ -253,9 +259,10 @@ if (openBtnText) {
     <div class="rounded-xl p-3 text-white cursor-pointer transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10 ${gradientClass}" onclick="expandPrize('${prize.image}')">
       <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3 shadow-md ring-2 ring-white/10 bg-black/10 p-1" />
 
-      <div class="text-center font-semibold text-xs px-2 leading-snug min-h-[2.5rem]">
-        ${prize.name}
-      </div>
+      <div class="text-center font-semibold text-xs px-2 leading-snug clamp-2">
+  ${prize.name}
+</div>
+
 
       <div class="flex justify-between items-center mt-2 text-sm font-semibold px-1">
         <div class="flex items-center gap-1 text-white font-bold">
