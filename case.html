@@ -5,10 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Packly.gg | Case Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="scripts/firebase-config.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -183,7 +179,7 @@
 }
 
  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, get, set, push, update, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
 // ✅ Firebase Config
@@ -301,7 +297,7 @@ setTimeout(() => {
   openBtn.classList.remove("opacity-50", "cursor-not-allowed");
 }, 4000);
 
-  const user = firebase.auth().currentUser;
+  const user = auth.currentUser;
   if (!user) return alert("Please sign in first!");
 
   const casePrice = parseFloat(caseData.price || 0);
@@ -347,19 +343,11 @@ document.getElementById("close-pf").addEventListener("click", () => {
 document.getElementById("change-seed").addEventListener("click", async () => {
   const newSeed = prompt("Enter new client seed:");
   if (newSeed) {
-    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
+    await set(ref(db, 'users/' + auth.currentUser.uid + '/provablyFair/clientSeed'), newSeed);
     alert("✅ New client seed saved! Reload to use it.");
   }
 });
 
-
-document.getElementById("change-seed").addEventListener("click", async () => {
-  const newSeed = prompt("Enter new client seed:");
-  if (newSeed) {
-    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
-    alert("✅ New client seed saved! Reload to use it.");
-  }
-});
 
 
   if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') {
@@ -385,21 +373,21 @@ document.getElementById("change-seed").addEventListener("click", async () => {
   }
 
   // 💰 Deduct balance
-  await firebase.database().ref('users/' + user.uid + '/balance').set(balance - casePrice);
+  await set(ref(db, 'users/' + user.uid + '/balance'), balance - casePrice);
     document.getElementById("user-balance").innerText = `Balance: ${(balance - casePrice).toLocaleString()} coins`;
 
 
   // 💾 Save prize to inventory
-  await firebase.database().ref('users/' + user.uid + '/inventory').push({
-    name: winningPrize.name,
-    image: winningPrize.image,
-    rarity: winningPrize.rarity,
-    value: winningPrize.value,
-    timestamp: Date.now()
-  });
+await push(ref(db, 'users/' + user.uid + '/inventory'), {
+  name: winningPrize.name,
+  image: winningPrize.image,
+  rarity: winningPrize.rarity,
+  value: winningPrize.value,
+  timestamp: Date.now()
+});
 
   // 🔄 Update nonce
-  await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
+await update(ref(db, 'users/' + user.uid + '/provablyFair'), { nonce: nonce + 1 });
 
  // Play sound
 const rarity = winningPrize.rarity?.toLowerCase() || "common";
