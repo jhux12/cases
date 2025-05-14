@@ -126,7 +126,7 @@
       <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
 
       <!-- User Balance -->
-      <p id="user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
+<p id="case-user-balance" class="text-xs text-gray-400 mt-1">Balance: ... coins</p>
 
       <!-- Case Price -->
       <p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
@@ -202,9 +202,15 @@ const auth = getAuth(app);
     const userRef = ref(db, 'users/' + user.uid);
     const userSnap = await get(userRef);
     const balance = parseFloat(userSnap.val()?.balance || 0);
-    document.getElementById("user-balance").innerText = `Balance: ${balance.toLocaleString()} coins`;
+const balanceDisplay = document.getElementById("case-user-balance");
+if (balanceDisplay) {
+  balanceDisplay.innerText = `Balance: ${balance.toLocaleString()} coins`;
+}
   } else {
-    document.getElementById("user-balance").innerText = `Balance: Sign in required`;
+const balanceDisplay = document.getElementById("case-user-balance");
+if (balanceDisplay) {
+  balanceDisplay.innerText = `Balance: Sign in required`;
+}
   }
 });
 
@@ -374,7 +380,10 @@ document.getElementById("change-seed").addEventListener("click", async () => {
 
   // 💰 Deduct balance
   await set(ref(db, 'users/' + user.uid + '/balance'), balance - casePrice);
-    document.getElementById("user-balance").innerText = `Balance: ${(balance - casePrice).toLocaleString()} coins`;
+const balanceDisplay = document.getElementById("case-user-balance");
+if (balanceDisplay) {
+  balanceDisplay.innerText = `Balance: ${(balance - casePrice).toLocaleString()} coins`;
+}
 
 
   // 💾 Save prize to inventory
