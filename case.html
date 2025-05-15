@@ -212,16 +212,6 @@ const auth = getAuth(app);
   }
 });
 
-  firebase.auth().onAuthStateChanged(async (user) => {
-  if (user) {
-    const snapshot = await firebase.database().ref("users/" + user.uid).get();
-    const balance = snapshot.val()?.balance || 0;
-    document.getElementById("user-balance").innerText = `Balance: ${balance.toLocaleString()} coins`;
-  } else {
-    document.getElementById("user-balance").innerText = `Balance: Sign in required`;
-  }
-});
-
 
 
   const urlParams = new URLSearchParams(window.location.search);
