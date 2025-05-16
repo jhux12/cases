@@ -307,8 +307,7 @@ if (openBtnText) {
 
 
     document.getElementById("prizes-grid").innerHTML = prizeHTML;
-renderSpinner(currentPrizes);
-
+renderSpinner(prizeList);
 
     // ✅ Add click logic for open button
   const openCaseHandler = async () => {
@@ -401,6 +400,13 @@ document.getElementById("change-seed").addEventListener("click", async () => {
     if (rand * totalOdds < cumulative) {
       winningPrize = p;
       break;
+      renderSpinner(currentPrizes); // build spinner again just in case
+document.getElementById("spinner-container").classList.remove("hidden");
+
+setTimeout(() => {
+  spinToPrize(winningPrize); // animate spin to winner
+}, 250);
+
     }
   }
     await spinToPrize(winningPrize);
