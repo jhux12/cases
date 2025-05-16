@@ -123,6 +123,16 @@
         </div>
       </div>
       <div id="prize-name" class="mt-4 text-lg font-semibold text-white hidden"></div>
+<!-- Spinner Container -->
+<div id="spinner-container" class="hidden mt-6">
+  <div class="relative w-full overflow-hidden border border-white/10 rounded-lg bg-black/20 backdrop-blur-md h-[200px]">
+    <div id="center-line" class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
+    <div id="spinner-wheel" class="flex transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)] h-full items-center"></div>
+  </div>
+</div>
+      <!-- Spinner Container -->
+<div id="spinner-container" class="w-full h-48 overflow-hidden relative hidden mt-6 border border-purple-500 rounded-xl bg-black/20"></div>
+
 
       <!-- Static Case Image -->
       <img id="case-image" src="" alt="Case Image" class="w-40 h-64 sm:w-48 sm:h-72 mx-auto rounded-xl shadow-xl object-contain border border-purple-500/30 bg-black/10">
@@ -172,10 +182,16 @@
 
   <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 text-sm"></div>
   </div>
+<!-- Spinner Wheel -->
+<div id="spinner-container" class="hidden mt-10 overflow-hidden relative w-full">
+  <div class="absolute top-0 bottom-0 left-1/2 w-[4px] -translate-x-1/2 bg-yellow-400 z-20"></div>
+  <div id="spinner-wheel" class="flex transition-transform duration-[4000ms] ease-out will-change-transform"></div>
+</div>
 
 </section>
 
 <script type="module">
+  import { renderSpinner, spinToPrize } from './scripts/spinner.js';
   function formatCoins(num) {
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
   if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
@@ -259,7 +275,8 @@ if (openBtnText) {
     const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
       return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
     });
-
+    
+  const currentPrizes = prizeList;
   const prizeHTML = prizeList.map(prize => {
   const rarity = (prize.rarity || "common").toLowerCase().replace(" ", "");
   const gradientClass = `card-gradient-${rarity}`;
@@ -289,6 +306,7 @@ if (openBtnText) {
 
 
     document.getElementById("prizes-grid").innerHTML = prizeHTML;
+renderSpinner(currentPrizes);
 
 
     // ✅ Add click logic for open button
@@ -384,6 +402,12 @@ document.getElementById("change-seed").addEventListener("click", async () => {
       break;
     }
   }
+    await spinToPrize(winningPrize);
+    document.getElementById("case-image").classList.add("hidden");
+document.getElementById("spinner-container").classList.remove("hidden");
+
+document.getElementById("prize-name").innerText = winningPrize.name;
+document.getElementById("prize-name").classList.remove("hidden");
 
   // 💰 Deduct balance
   await firebase.database().ref('users/' + user.uid + '/balance').set(balance - casePrice);
@@ -401,6 +425,8 @@ document.getElementById("change-seed").addEventListener("click", async () => {
 
   // 🔄 Update nonce
   await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
+renderSpinner(currentPrizes);
+spinToPrize(winningPrize);
 
  // Play sound
 const rarity = winningPrize.rarity?.toLowerCase() || "common";
@@ -417,48 +443,11 @@ const audio = new Audio(raritySounds[rarity] || raritySounds["common"]);
 audio.volume = 0.75;
 audio.play().catch(() => {});
 
-// Hide static image and show flip card
-document.getElementById("case-image").classList.add("hidden");
-document.getElementById("flip-card").classList.remove("hidden");
-
-// Set front/back images
-document.getElementById("flip-front").src = caseData.image;
-document.getElementById("flip-back").src = winningPrize.image;
-
-// Set rarity glow after flip completes
-const rarityGlowMap = {
-  "common": "glow-common",
-  "uncommon": "glow-uncommon",
-  "rare": "glow-rare",
-  "ultra rare": "glow-ultra",
-  "legendary": "glow-legendary"
-};
-const card = document.getElementById("flip-card");
-card.classList.remove("glow-common", "glow-uncommon", "glow-rare", "glow-ultra", "glow-legendary");
+renderSpinner(Object.values(caseData.prizes || {}), winningPrize);
 setTimeout(() => {
-  card.classList.add(rarityGlowMap[winningPrize.rarity?.toLowerCase()] || "glow-common");
-}, 2000);
+  spinToPrize(Object.values(caseData.prizes || {}), winningPrize);
+}, 250);
 
-// Flip logic
-const flipInner = document.getElementById("flip-card-inner");
-flipInner.classList.remove("flipped"); // reset
-void flipInner.offsetWidth;            // force reflow
-flipInner.classList.add("flipped");    // flip
-  // Show prize name under card
-const prizeNameDiv = document.getElementById("prize-name");
-prizeNameDiv.innerText = winningPrize.name;
-prizeNameDiv.classList.remove("hidden");
-
-  // Change button to "Claim"
-openBtn.innerHTML = `<span id="open-button-text">Open Again</span>`;
-openBtn.onclick = () => {
-  // Flip back the card
-  flipInner.classList.remove("flipped");
-
-  // Hide glow + flip-card, show static image
-  card.classList.remove("glow-common", "glow-uncommon", "glow-rare", "glow-ultra", "glow-legendary");
-  document.getElementById("flip-card").classList.add("hidden");
-  document.getElementById("case-image").classList.remove("hidden");
 
   // Reset button text and rebind event
   openBtn.innerHTML = `<span id="open-button-text">Open for ${formatCoins(caseData.price || 0)} coins</span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />`;
@@ -531,6 +520,8 @@ openBtn.onclick = openCaseHandler;
 <script src="scripts/footer.js"></script>
 <script src="scripts/topup.js"></script>
 <script src="scripts/balance.js"></script>
+<script type="module" src="scripts/spinner.js"></script>
+
 
 </body>
 </html>
