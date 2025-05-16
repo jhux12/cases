@@ -8,7 +8,7 @@ export function renderSpinner(prizes) {
   container.innerHTML = `
     <div class="relative my-6">
       <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-full bg-pink-500 z-10"></div>
-      <div id="spinner-wheel" class="flex transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)]"></div>
+      <div id="spinner-wheel" class="flex transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)] will-change-transform"></div>
     </div>
     <div id="spinner-result" class="hidden text-center text-xl font-bold text-yellow-400 mt-4"></div>
   `;
@@ -16,7 +16,7 @@ export function renderSpinner(prizes) {
   spinnerWheel = container.querySelector("#spinner-wheel");
   spinnerResultText = container.querySelector("#spinner-result");
 
-  const extended = [...prizes, ...prizes, ...prizes];
+  const extended = [...prizes, ...prizes, ...prizes]; // 3x loop for smooth scroll
 
   extended.forEach(prize => {
     const div = document.createElement("div");
@@ -34,12 +34,15 @@ export function spinToPrize(winningPrize) {
   const index = spinnerPrizes.findIndex(p => p.name === winningPrize.name);
   if (index === -1) return;
 
-  const prizeWidth = 160 + 16;
-  const centerOffset = (window.innerWidth / 2) - (prizeWidth / 2);
-  const baseIndex = spinnerPrizes.length;
-  const finalIndex = baseIndex + index;
-  const scrollDistance = -(finalIndex * prizeWidth - centerOffset);
+  const prizeWidth = 160 + 16; // width + margin
+  const totalPrizes = spinnerPrizes.length;
+  const baseOffset = totalPrizes * prizeWidth; // ensures full forward scroll
 
+  const centerOffset = (window.innerWidth / 2) - (prizeWidth / 2);
+  const finalOffset = (index * prizeWidth) + baseOffset;
+  const scrollDistance = -(finalOffset - centerOffset);
+
+  spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
   spinnerWheel.style.transform = `translateX(${scrollDistance}px)`;
 
   setTimeout(() => {
@@ -47,5 +50,4 @@ export function spinToPrize(winningPrize) {
     spinnerResultText.classList.remove("hidden");
   }, 4000);
 }
-
 
