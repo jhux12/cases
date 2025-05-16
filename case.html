@@ -406,22 +406,18 @@ for (let p of prizes) {
 }
 
 // ✅ Spinner logic (runs AFTER winningPrize is set)
-renderSpinner(currentPrizes);
-document.getElementById("spinner-container").classList.remove("hidden");
-
 const prizeIndex = currentPrizes.findIndex(p => p.name === winningPrize.name);
-renderSpinner(currentPrizes);
-document.getElementById("spinner-container").classList.remove("hidden");
 
-setTimeout(() => {
-  spinToPrize(prizeIndex);
-}, 250);
-
-    document.getElementById("case-image").classList.add("hidden");
-document.getElementById("spinner-container").classList.remove("hidden");
-
+renderSpinner(currentPrizes); // Build the spinner
+document.getElementById("spinner-container").classList.remove("hidden"); // Show spinner
+document.getElementById("case-image").classList.add("hidden"); // Hide static image
 document.getElementById("prize-name").innerText = winningPrize.name;
 document.getElementById("prize-name").classList.remove("hidden");
+
+setTimeout(() => {
+  spinToPrize(prizeIndex); // Animate to correct prize
+}, 250);
+
 
   // 💰 Deduct balance
   await firebase.database().ref('users/' + user.uid + '/balance').set(balance - casePrice);
