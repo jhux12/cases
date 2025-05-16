@@ -1,55 +1,49 @@
 let spinnerPrizes = [];
-let spinnerWheel;
-let spinnerResultText;
+let spinnerWheel, spinnerResultText;
 
 /**
- * Renders the spinner wheel with repeated prizes
- * @param {Array} prizes
+ * Render the spinner strip with repeated prizes
  */
 export function renderSpinner(prizes) {
   spinnerPrizes = prizes;
 
-  const container = document.getElementById("spinner-container");
   spinnerWheel = document.getElementById("spinner-wheel");
   spinnerResultText = document.getElementById("spinner-result");
 
-  if (!container || !spinnerWheel) return;
+  if (!spinnerWheel || !spinnerResultText) return;
 
-  // Clear any existing wheel content
-  spinnerWheel.innerHTML = '';
+  spinnerWheel.innerHTML = ""; // clear previous
 
-  // Extend prize list to simulate a long spinning strip
-  const extended = [...spinnerPrizes, ...spinnerPrizes, ...spinnerPrizes];
-
-  extended.forEach((prize) => {
-    const card = document.createElement("div");
-    card.className =
-      "min-w-[160px] h-40 flex flex-col items-center justify-center bg-black/20 text-white border border-white/10 rounded-lg mx-2 p-2 text-sm";
-    card.innerHTML = `
+  const repeated = [...prizes, ...prizes, ...prizes]; // 3x repetition
+  repeated.forEach(prize => {
+    const div = document.createElement("div");
+    div.className = "min-w-[160px] h-40 flex flex-col items-center justify-center bg-black/20 text-white border border-white/10 rounded-lg mx-2 p-2 text-sm";
+    div.innerHTML = `
       <img src="${prize.image}" class="h-20 object-contain mb-2" />
       <div class="font-semibold text-center">${prize.name}</div>
-      <div class="text-xs text-gray-400">${prize.value || ''} coins</div>
+      <div class="text-xs text-gray-400">${(prize.value || 0).toLocaleString()} coins</div>
     `;
-    spinnerWheel.appendChild(card);
+    spinnerWheel.appendChild(div);
   });
 }
 
 /**
- * Animates the spinner to land on the given index
- * @param {number} index
+ * Spin to land on the prize at the given index (relative to original prizes)
  */
 export function spinToPrize(index) {
-  const prizeWidth = 160 + 16; // 160px width + 16px margin
-  const baseIndex = spinnerPrizes.length; // middle group start
+  const prizeWidth = 160 + 16; // width + margin
+  const centerOffset = (window.innerWidth / 2) - (prizeWidth / 2);
+
+  const baseIndex = spinnerPrizes.length; // center group
   const finalIndex = baseIndex + index;
 
-  const totalScroll = finalIndex * prizeWidth;
-  const centerOffset = window.innerWidth / 2 - prizeWidth / 2;
-  const translateX = -(totalScroll - centerOffset);
+  const translateX = -(finalIndex * prizeWidth - centerOffset);
 
+  // Apply the transform
   spinnerWheel.style.transition = "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
   spinnerWheel.style.transform = `translateX(${translateX}px)`;
 
+  // Show result after spin
   setTimeout(() => {
     const prize = spinnerPrizes[index];
     if (spinnerResultText) {
@@ -58,4 +52,5 @@ export function spinToPrize(index) {
     }
   }, 4000);
 }
+
 
