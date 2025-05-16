@@ -1,33 +1,21 @@
 let spinnerPrizes = [];
 let spinnerWheel, spinnerResultText;
 
-// Render the spinner bar with enough prizes to fill the screen
 export function renderSpinner(prizes) {
   spinnerPrizes = prizes;
 
-  const container = document.getElementById("spinner-container");
-  if (!container) return;
+  const wheel = document.getElementById("spinner-wheel");
+  if (!wheel) return;
 
-  spinnerWheel = document.getElementById("spinner-wheel");
-  spinnerResultText = document.getElementById("spinner-result");
+  wheel.innerHTML = ''; // Clear previous
 
-  if (!spinnerWheel) return;
-
-  spinnerWheel.innerHTML = ""; // Clear previous
-
-  const prizeWidth = 160 + 16; // prize width + margin
-  const screenWidth = window.innerWidth;
-  const visibleItems = Math.ceil(screenWidth / prizeWidth);
-  const totalNeeded = visibleItems + 5; // extra buffer for scroll
-  const repeatCount = Math.ceil(totalNeeded / prizes.length);
-
-  const extendedPrizes = [];
-  for (let i = 0; i < repeatCount; i++) {
-    extendedPrizes.push(...prizes);
+  // Fill spinner bar fully: duplicate enough prizes to overflow container
+  const extended = [];
+  while (extended.length < 40) {
+    extended.push(...spinnerPrizes);
   }
 
-  // Rebuild spinner
-  extendedPrizes.forEach(prize => {
+  extended.forEach(prize => {
     const div = document.createElement("div");
     div.className = "min-w-[160px] h-40 flex flex-col items-center justify-center bg-black/20 text-white border border-white/10 rounded-lg mx-2 p-2 text-sm";
     div.innerHTML = `
@@ -35,28 +23,28 @@ export function renderSpinner(prizes) {
       <div class="font-semibold text-center">${prize.name}</div>
       <div class="text-xs text-gray-400">${prize.value || ''}</div>
     `;
-    spinnerWheel.appendChild(div);
+    wheel.appendChild(div);
   });
 }
 
-// Spin the wheel so it lands exactly on the winning prize index
-export function spinToPrize(prizeIndex) {
-  if (!spinnerWheel || !spinnerPrizes.length) return;
+export function spinToPrize(index) {
+  const prizeWidth = 160 + 16; // card width + margin
+  const visibleCount = Math.floor(window.innerWidth / prizeWidth);
+  const buffer = 10; // how deep into the duplicated spinner to target
+  const finalIndex = buffer + index;
 
-  const prizeWidth = 160 + 16;
-  const repeatCount = Math.ceil((window.innerWidth / prizeWidth + 5) / spinnerPrizes.length);
-  const extendedLength = spinnerPrizes.length * repeatCount;
+  const scrollDistance = -(finalIndex * prizeWidth) + (window.innerWidth / 2) - (prizeWidth / 2);
 
-  const fullList = Array(repeatCount).fill(spinnerPrizes).flat();
-  const middleOffset = Math.floor(extendedLength / 2);
-  const targetIndex = middleOffset + prizeIndex;
-  const scrollDistance = -(targetIndex * prizeWidth - window.innerWidth / 2 + prizeWidth / 2);
+  spinnerWheel = document.getElementById("spinner-wheel");
+  spinnerResultText = document.getElementById("spinner-result");
 
-  spinnerWheel.style.transition = "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
+  if (!spinnerWheel) return;
+
+  spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
   spinnerWheel.style.transform = `translateX(${scrollDistance}px)`;
 
   setTimeout(() => {
-    const prize = spinnerPrizes[prizeIndex];
+    const prize = spinnerPrizes[index];
     if (spinnerResultText) {
       spinnerResultText.textContent = `You won: ${prize.name}!`;
       spinnerResultText.classList.remove("hidden");
