@@ -442,11 +442,7 @@ const audio = new Audio(raritySounds[rarity] || raritySounds["common"]);
 audio.volume = 0.75;
 audio.play().catch(() => {});
 
-renderSpinner(Object.values(caseData.prizes || {}), winningPrize);
-setTimeout(() => {
-  spinToPrize(Object.values(caseData.prizes || {}), winningPrize);
-}, 250);
-
+await spinToPrize(winningPrize);
 
   // Reset button text and rebind event
   openBtn.innerHTML = `<span id="open-button-text">Open for ${formatCoins(caseData.price || 0)} coins</span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />`;
