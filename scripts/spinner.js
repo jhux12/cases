@@ -1,5 +1,3 @@
-// spinner.js
-
 let spinnerPrizes = [];
 let spinnerContainer, spinnerWheel, spinnerResultText;
 
@@ -17,7 +15,7 @@ export function renderSpinner(prizes) {
     wrapper.innerHTML = `
         <div class="relative my-6">
             <div class="center-line absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-full bg-pink-500 z-10"></div>
-            <div id="spinner-wheel" class="flex transition-transform duration-[4000ms] ease-in-out"></div>
+            <div id="spinner-wheel" class="flex transition-transform duration-[4000ms] ease-in-out items-center"></div>
         </div>
         <div id="spinner-result" class="hidden text-center text-xl font-bold text-yellow-400 mt-4"></div>
     `;
@@ -26,7 +24,8 @@ export function renderSpinner(prizes) {
     spinnerWheel = document.getElementById("spinner-wheel");
     spinnerResultText = document.getElementById("spinner-result");
 
-    const extended = [...spinnerPrizes, ...spinnerPrizes, ...spinnerPrizes];
+    const extended = [...prizes, ...prizes, ...prizes];
+    spinnerWheel.innerHTML = '';
 
     extended.forEach(prize => {
         const div = document.createElement("div");
@@ -40,10 +39,19 @@ export function renderSpinner(prizes) {
     });
 }
 
-export function spinToPrize(index) {
+// ✅ Spins to a specific prize object from the original spinnerPrizes array
+export function spinToPrize(winningPrize) {
+    if (!winningPrize) return console.error("⚠️ spinToPrize was called with undefined prize.");
+
+    const index = spinnerPrizes.findIndex(p => p.name === winningPrize.name && p.image === winningPrize.image);
+    if (index === -1) {
+        console.error("⚠️ Winning prize not found in spinnerPrizes.");
+        return;
+    }
+
     const prizeWidth = 160 + 16; // width + margin
     const offsetCenter = (window.innerWidth / 2) - (prizeWidth / 2);
-    const baseIndex = spinnerPrizes.length * 1; // middle group
+    const baseIndex = spinnerPrizes.length * 1; // middle group (3x prizes)
     const finalIndex = baseIndex + index;
     const scrollDistance = -(finalIndex * prizeWidth - offsetCenter);
 
@@ -51,8 +59,8 @@ export function spinToPrize(index) {
     spinnerWheel.style.transform = `translateX(${scrollDistance}px)`;
 
     setTimeout(() => {
-        const prize = spinnerPrizes[index];
-        spinnerResultText.textContent = `You won: ${prize.name}!`;
+        spinnerResultText.textContent = `You won: ${winningPrize.name}!`;
         spinnerResultText.classList.remove("hidden");
     }, 4000);
 }
+
