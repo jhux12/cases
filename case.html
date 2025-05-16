@@ -282,9 +282,10 @@ if (openBtnText) {
   const gradientClass = `card-gradient-${rarity}`;
   const valueFormatted = formatCoins(prize.value || 0);
 
- return `
-  <div class="rounded-xl p-3 text-white cursor-pointer transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10 ${gradientClass}" onclick="expandPrize('${prize.image.replace(/'/g, "\\'")}')">
-    <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3 shadow-md ring-2 ring-white/10 bg-black/10 p-1" />
+  return `
+    <div class="rounded-xl p-3 text-white cursor-pointer transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10 ${gradientClass}" onclick="expandPrize('${prize.image.replace(/'/g, "\\'")}')">
+      <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3 shadow-md ring-2 ring-white/10 bg-black/10 p-1" />
+
 
       <div class="text-center font-semibold text-xs px-2 leading-snug clamp-2">
   ${prize.name}
