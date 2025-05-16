@@ -41,26 +41,29 @@ export function renderSpinner(prizes) {
 
 // ✅ Spins to a specific prize object from the original spinnerPrizes array
 export function spinToPrize(winningPrize) {
-    if (!winningPrize) return console.error("⚠️ spinToPrize was called with undefined prize.");
+  if (!winningPrize || !winningPrize.name || !spinnerPrizes || spinnerPrizes.length === 0) {
+    console.error("Invalid winningPrize or spinnerPrizes not set");
+    return;
+  }
 
-    const index = spinnerPrizes.findIndex(p => p.name === winningPrize.name && p.image === winningPrize.image);
-    if (index === -1) {
-        console.error("⚠️ Winning prize not found in spinnerPrizes.");
-        return;
-    }
+  const index = spinnerPrizes.findIndex(p => p.name === winningPrize.name);
+  if (index === -1) {
+    console.error("Winning prize not found in spinnerPrizes");
+    return;
+  }
 
-    const prizeWidth = 160 + 16; // width + margin
-    const offsetCenter = (window.innerWidth / 2) - (prizeWidth / 2);
-    const baseIndex = spinnerPrizes.length * 1; // middle group (3x prizes)
-    const finalIndex = baseIndex + index;
-    const scrollDistance = -(finalIndex * prizeWidth - offsetCenter);
+  const prizeWidth = 160 + 16; // width + margin
+  const offsetCenter = (window.innerWidth / 2) - (prizeWidth / 2);
+  const baseIndex = spinnerPrizes.length; // middle group
+  const finalIndex = baseIndex + index;
+  const scrollDistance = -(finalIndex * prizeWidth - offsetCenter);
 
-    spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
-    spinnerWheel.style.transform = `translateX(${scrollDistance}px)`;
+  spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+  spinnerWheel.style.transform = `translateX(${scrollDistance}px)`;
 
-    setTimeout(() => {
-        spinnerResultText.textContent = `You won: ${winningPrize.name}!`;
-        spinnerResultText.classList.remove("hidden");
-    }, 4000);
+  setTimeout(() => {
+    spinnerResultText.textContent = `You won: ${winningPrize.name}!`;
+    spinnerResultText.classList.remove("hidden");
+  }, 4000);
 }
 
