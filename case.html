@@ -407,9 +407,6 @@ for (let p of prizes) {
 
 // ✅ Spinner logic (runs AFTER winningPrize is set)
 const prizeIndex = prizes.findIndex(p => p.name === winningPrize.name);
-
-const prizeIndex = currentPrizes.findIndex(p => p.name === winningPrize.name);
-
 renderSpinner(currentPrizes); // fill bar with extended prizes
 document.getElementById("spinner-container").classList.remove("hidden");
 document.getElementById("case-image").classList.add("hidden");
