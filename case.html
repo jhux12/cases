@@ -425,8 +425,6 @@ document.getElementById("prize-name").classList.remove("hidden");
 
   // 🔄 Update nonce
   await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
-renderSpinner(currentPrizes);
-spinToPrize(winningPrize);
 
  // Play sound
 const rarity = winningPrize.rarity?.toLowerCase() || "common";
