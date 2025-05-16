@@ -123,6 +123,15 @@
         </div>
       </div>
       <div id="prize-name" class="mt-4 text-lg font-semibold text-white hidden"></div>
+<!-- Spinner Container -->
+<!-- Spinner Markup (must match IDs) -->
+<div id="spinner-container" class="hidden my-4 w-full"></div>
+  <div class="relative w-full overflow-hidden border border-white/10 rounded-lg bg-black/20 backdrop-blur-md h-[200px]">
+    <div id="center-line" class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
+    <div id="spinner-wheel" class="flex transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)] h-full items-center"></div>
+  </div>
+  <div id="spinner-result" class="hidden text-center text-xl font-bold text-yellow-400 mt-4"></div>
+</div>
 
 
 
@@ -269,7 +278,7 @@ if (openBtnText) {
       return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
     });
     
- let currentPrizes = prizeList;
+  const currentPrizes = prizeList;
   const prizeHTML = prizeList.map(prize => {
   const rarity = (prize.rarity || "common").toLowerCase().replace(" ", "");
   const gradientClass = `card-gradient-${rarity}`;
@@ -365,22 +374,30 @@ document.getElementById("change-seed").addEventListener("click", async () => {
 });
 
 
+document.getElementById("change-seed").addEventListener("click", async () => {
+  const newSeed = prompt("Enter new client seed:");
+  if (newSeed) {
+    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
+    alert("✅ New client seed saved! Reload to use it.");
+  }
+});
+
+
   if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') {
     return alert('Missing provably fair data.');
   }
 
- const { serverSeed, clientSeed, nonce } = fairData;
-const hash = await sha256(`${serverSeed}:${clientSeed}:${nonce}`);
-const rand = parseInt(hash.substring(0, 8), 16) / 0xffffffff;
+  const { serverSeed, clientSeed, nonce } = fairData;
+  const hash = await sha256(`${serverSeed}:${clientSeed}:${nonce}`);
+  const rand = parseInt(hash.substring(0, 8), 16) / 0xffffffff;
 
-// Use the same array for everything
-currentPrizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
-const totalOdds = currentPrizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+  const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
+  const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
 
-let cumulative = 0;
-let winningPrize = currentPrizes[currentPrizes.length - 1]; // fallback
+  let cumulative = 0;
+  let winningPrize = prizes[prizes.length - 1]; // fallback
 
-for (let p of currentPrizes) {
+for (let p of prizes) {
   cumulative += p.odds || 0;
   if (rand * totalOdds < cumulative) {
     winningPrize = p;
@@ -388,16 +405,16 @@ for (let p of currentPrizes) {
   }
 }
 
-// ✅ Spinner logic (AFTER winningPrize is set)
-const prizeIndex = currentPrizes.findIndex(p => p.name === winningPrize.name);
-renderSpinner(currentPrizes); // Use same array
+// ✅ Spinner logic (runs AFTER winningPrize is set)
+const prizeIndex = prizes.findIndex(p => p.name === winningPrize.name);
+renderSpinner(currentPrizes); // fill bar with extended prizes
 document.getElementById("spinner-container").classList.remove("hidden");
 document.getElementById("case-image").classList.add("hidden");
 document.getElementById("prize-name").innerText = winningPrize.name;
 document.getElementById("prize-name").classList.remove("hidden");
 
 setTimeout(() => {
-  spinToPrize(prizeIndex);
+  spinToPrize(prizeIndex); // always lands on correct one
 }, 250);
 
 
