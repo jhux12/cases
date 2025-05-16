@@ -395,20 +395,22 @@ document.getElementById("change-seed").addEventListener("click", async () => {
   let cumulative = 0;
   let winningPrize = prizes[prizes.length - 1]; // fallback
 
-  for (let p of prizes) {
-    cumulative += p.odds || 0;
-    if (rand * totalOdds < cumulative) {
-      winningPrize = p;
-      break;
-      renderSpinner(currentPrizes); // build spinner again just in case
+for (let p of prizes) {
+  cumulative += p.odds || 0;
+  if (rand * totalOdds < cumulative) {
+    winningPrize = p;
+    break;
+  }
+}
+
+// ✅ Spinner logic (runs AFTER winningPrize is set)
+renderSpinner(currentPrizes);
 document.getElementById("spinner-container").classList.remove("hidden");
 
 setTimeout(() => {
-  spinToPrize(winningPrize); // animate spin to winner
+  spinToPrize(winningPrize);
 }, 250);
 
-    }
-  }
     await spinToPrize(winningPrize);
     document.getElementById("case-image").classList.add("hidden");
 document.getElementById("spinner-container").classList.remove("hidden");
