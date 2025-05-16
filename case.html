@@ -408,14 +408,16 @@ for (let p of prizes) {
 // ✅ Spinner logic (runs AFTER winningPrize is set)
 const prizeIndex = prizes.findIndex(p => p.name === winningPrize.name);
 
-renderSpinner(currentPrizes); // Build the spinner
-document.getElementById("spinner-container").classList.remove("hidden"); // Show spinner
-document.getElementById("case-image").classList.add("hidden"); // Hide static image
+const prizeIndex = currentPrizes.findIndex(p => p.name === winningPrize.name);
+
+renderSpinner(currentPrizes); // fill bar with extended prizes
+document.getElementById("spinner-container").classList.remove("hidden");
+document.getElementById("case-image").classList.add("hidden");
 document.getElementById("prize-name").innerText = winningPrize.name;
 document.getElementById("prize-name").classList.remove("hidden");
 
 setTimeout(() => {
-  spinToPrize(prizeIndex); // Animate to correct prize
+  spinToPrize(prizeIndex); // always lands on correct one
 }, 250);
 
 
