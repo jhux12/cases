@@ -1,54 +1,49 @@
 let spinnerPrizes = [];
 let spinnerContainer, spinnerWheel, spinnerResultText;
 
-export function renderSpinner(prizes) {
-    spinnerPrizes = prizes;
+export function renderSpinner(prizes, winningPrize = null) {
+  spinnerPrizes = prizes;
 
-    const container = document.getElementById("case-container");
+  const container = document.getElementById("spinner-container");
 
-    // Clear existing spinner if any
-    const existing = document.getElementById("spinner-wrapper");
-    if (existing) existing.remove();
+  // Clear old content
+  container.innerHTML = `
+    <div class="relative w-full overflow-hidden border border-white/10 rounded-lg bg-black/20 backdrop-blur-md h-[200px]">
+      <div id="center-line" class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
+      <div id="spinner-wheel" class="flex h-full items-center transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)] will-change-transform"></div>
+    </div>
+    <div id="spinner-result" class="text-center text-xl font-bold text-yellow-400 mt-4 hidden"></div>
+  `;
 
-    const wrapper = document.createElement("div");
-    wrapper.id = "spinner-wrapper";
-    wrapper.innerHTML = `
-        <div class="relative my-6">
-            <div class="center-line absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-full bg-pink-500 z-10"></div>
-            <div id="spinner-wheel" class="flex transition-transform duration-[4000ms] ease-in-out items-center"></div>
-        </div>
-        <div id="spinner-result" class="hidden text-center text-xl font-bold text-yellow-400 mt-4"></div>
+  spinnerWheel = document.getElementById("spinner-wheel");
+  spinnerResultText = document.getElementById("spinner-result");
+
+  const extended = [...spinnerPrizes, ...spinnerPrizes, ...spinnerPrizes];
+
+  extended.forEach((prize) => {
+    const card = document.createElement("div");
+    card.className = "min-w-[160px] h-40 flex flex-col items-center justify-center bg-black/20 text-white border border-white/10 rounded-lg mx-2 p-2 text-sm";
+    card.innerHTML = `
+      <img src="${prize.image}" class="h-20 object-contain mb-2" />
+      <div class="font-semibold text-center">${prize.name}</div>
+      <div class="text-xs text-gray-400">${prize.value || ''}</div>
     `;
+    spinnerWheel.appendChild(card);
+  });
 
-    container.appendChild(wrapper);
-    spinnerWheel = document.getElementById("spinner-wheel");
-    spinnerResultText = document.getElementById("spinner-result");
-
-    const extended = [...prizes, ...prizes, ...prizes];
-    spinnerWheel.innerHTML = '';
-
-    extended.forEach(prize => {
-        const div = document.createElement("div");
-        div.className = "min-w-[160px] h-40 flex flex-col items-center justify-center bg-black/20 text-white border border-white/10 rounded-lg mx-2 p-2 text-sm";
-        div.innerHTML = `
-            <img src="${prize.image}" class="h-20 object-contain mb-2" />
-            <div class="font-semibold text-center">${prize.name}</div>
-            <div class="text-xs text-gray-400">${prize.value || ''}</div>
-        `;
-        spinnerWheel.appendChild(div);
-    });
+  // If winningPrize was passed now, spin immediately
+  if (winningPrize) spinToPrize(winningPrize);
 }
 
-// ✅ Spins to a specific prize object from the original spinnerPrizes array
 export function spinToPrize(winningPrize) {
-  if (!winningPrize || !winningPrize.name || !spinnerPrizes || spinnerPrizes.length === 0) {
-    console.error("Invalid winningPrize or spinnerPrizes not set");
+  if (!winningPrize || !spinnerPrizes || spinnerPrizes.length === 0) {
+    console.error("Missing winningPrize or spinnerPrizes");
     return;
   }
 
-  const index = spinnerPrizes.findIndex(p => p.name === winningPrize.name);
+  const index = spinnerPrizes.findIndex((p) => p.name === winningPrize.name);
   if (index === -1) {
-    console.error("Winning prize not found in spinnerPrizes");
+    console.error("winningPrize not found in spinnerPrizes");
     return;
   }
 
