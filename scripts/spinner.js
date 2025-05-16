@@ -1,20 +1,33 @@
 let spinnerPrizes = [];
 let spinnerWheel, spinnerResultText;
 
+// Render the spinner bar with enough prizes to fill the screen
 export function renderSpinner(prizes) {
   spinnerPrizes = prizes;
+
   const container = document.getElementById("spinner-container");
+  if (!container) return;
 
-  // Clear any existing content
-  const existingWheel = document.getElementById("spinner-wheel");
-  if (existingWheel) existingWheel.innerHTML = "";
-
-  spinnerWheel = existingWheel;
+  spinnerWheel = document.getElementById("spinner-wheel");
   spinnerResultText = document.getElementById("spinner-result");
 
-  const repeated = [...prizes, ...prizes, ...prizes]; // More content for scroll space
+  if (!spinnerWheel) return;
 
-  repeated.forEach(prize => {
+  spinnerWheel.innerHTML = ""; // Clear previous
+
+  const prizeWidth = 160 + 16; // prize width + margin
+  const screenWidth = window.innerWidth;
+  const visibleItems = Math.ceil(screenWidth / prizeWidth);
+  const totalNeeded = visibleItems + 5; // extra buffer for scroll
+  const repeatCount = Math.ceil(totalNeeded / prizes.length);
+
+  const extendedPrizes = [];
+  for (let i = 0; i < repeatCount; i++) {
+    extendedPrizes.push(...prizes);
+  }
+
+  // Rebuild spinner
+  extendedPrizes.forEach(prize => {
     const div = document.createElement("div");
     div.className = "min-w-[160px] h-40 flex flex-col items-center justify-center bg-black/20 text-white border border-white/10 rounded-lg mx-2 p-2 text-sm";
     div.innerHTML = `
@@ -26,17 +39,20 @@ export function renderSpinner(prizes) {
   });
 }
 
+// Spin the wheel so it lands exactly on the winning prize index
 export function spinToPrize(prizeIndex) {
-  const prizeWidth = 160 + 16; // item width + margin
-  const visibleItems = Math.floor(window.innerWidth / prizeWidth);
-  const centerOffset = (window.innerWidth / 2) - (prizeWidth / 2);
+  if (!spinnerWheel || !spinnerPrizes.length) return;
 
-  const baseIndex = spinnerPrizes.length; // middle block of repeated content
-  const finalIndex = baseIndex + prizeIndex;
+  const prizeWidth = 160 + 16;
+  const repeatCount = Math.ceil((window.innerWidth / prizeWidth + 5) / spinnerPrizes.length);
+  const extendedLength = spinnerPrizes.length * repeatCount;
 
-  const scrollDistance = -(finalIndex * prizeWidth - centerOffset);
+  const fullList = Array(repeatCount).fill(spinnerPrizes).flat();
+  const middleOffset = Math.floor(extendedLength / 2);
+  const targetIndex = middleOffset + prizeIndex;
+  const scrollDistance = -(targetIndex * prizeWidth - window.innerWidth / 2 + prizeWidth / 2);
 
-  spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+  spinnerWheel.style.transition = "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
   spinnerWheel.style.transform = `translateX(${scrollDistance}px)`;
 
   setTimeout(() => {
