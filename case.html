@@ -407,11 +407,14 @@ for (let p of prizes) {
 renderSpinner(currentPrizes);
 document.getElementById("spinner-container").classList.remove("hidden");
 
+const prizeIndex = currentPrizes.findIndex(p => p.name === winningPrize.name);
+renderSpinner(currentPrizes);
+document.getElementById("spinner-container").classList.remove("hidden");
+
 setTimeout(() => {
-  spinToPrize(winningPrize);
+  spinToPrize(prizeIndex);
 }, 250);
 
-    await spinToPrize(winningPrize);
     document.getElementById("case-image").classList.add("hidden");
 document.getElementById("spinner-container").classList.remove("hidden");
 
@@ -449,8 +452,6 @@ const raritySounds = {
 const audio = new Audio(raritySounds[rarity] || raritySounds["common"]);
 audio.volume = 0.75;
 audio.play().catch(() => {});
-
-await spinToPrize(winningPrize);
 
   // Reset button text and rebind event
   openBtn.innerHTML = `<span id="open-button-text">Open for ${formatCoins(caseData.price || 0)} coins</span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />`;
