@@ -269,7 +269,7 @@ if (openBtnText) {
       return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
     });
     
-  const currentPrizes = prizeList;
+ let currentPrizes = prizeList;
   const prizeHTML = prizeList.map(prize => {
   const rarity = (prize.rarity || "common").toLowerCase().replace(" ", "");
   const gradientClass = `card-gradient-${rarity}`;
