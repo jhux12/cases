@@ -365,30 +365,22 @@ document.getElementById("change-seed").addEventListener("click", async () => {
 });
 
 
-document.getElementById("change-seed").addEventListener("click", async () => {
-  const newSeed = prompt("Enter new client seed:");
-  if (newSeed) {
-    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
-    alert("✅ New client seed saved! Reload to use it.");
-  }
-});
-
-
   if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') {
     return alert('Missing provably fair data.');
   }
 
-  const { serverSeed, clientSeed, nonce } = fairData;
-  const hash = await sha256(`${serverSeed}:${clientSeed}:${nonce}`);
-  const rand = parseInt(hash.substring(0, 8), 16) / 0xffffffff;
+ const { serverSeed, clientSeed, nonce } = fairData;
+const hash = await sha256(`${serverSeed}:${clientSeed}:${nonce}`);
+const rand = parseInt(hash.substring(0, 8), 16) / 0xffffffff;
 
-  const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
-  const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+// Use the same array for everything
+currentPrizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
+const totalOdds = currentPrizes.reduce((sum, p) => sum + (p.odds || 0), 0);
 
-  let cumulative = 0;
-  let winningPrize = prizes[prizes.length - 1]; // fallback
+let cumulative = 0;
+let winningPrize = currentPrizes[currentPrizes.length - 1]; // fallback
 
-for (let p of prizes) {
+for (let p of currentPrizes) {
   cumulative += p.odds || 0;
   if (rand * totalOdds < cumulative) {
     winningPrize = p;
@@ -396,16 +388,16 @@ for (let p of prizes) {
   }
 }
 
-// ✅ Spinner logic (runs AFTER winningPrize is set)
-const prizeIndex = prizes.findIndex(p => p.name === winningPrize.name);
-renderSpinner(currentPrizes); // fill bar with extended prizes
+// ✅ Spinner logic (AFTER winningPrize is set)
+const prizeIndex = currentPrizes.findIndex(p => p.name === winningPrize.name);
+renderSpinner(currentPrizes); // Use same array
 document.getElementById("spinner-container").classList.remove("hidden");
 document.getElementById("case-image").classList.add("hidden");
 document.getElementById("prize-name").innerText = winningPrize.name;
 document.getElementById("prize-name").classList.remove("hidden");
 
 setTimeout(() => {
-  spinToPrize(prizeIndex); // always lands on correct one
+  spinToPrize(prizeIndex);
 }, 250);
 
 
