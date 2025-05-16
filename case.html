@@ -406,7 +406,7 @@ for (let p of prizes) {
 }
 
 // ✅ Spinner logic (runs AFTER winningPrize is set)
-const prizeIndex = currentPrizes.findIndex(p => p.name === winningPrize.name);
+const prizeIndex = prizes.findIndex(p => p.name === winningPrize.name);
 
 renderSpinner(currentPrizes); // Build the spinner
 document.getElementById("spinner-container").classList.remove("hidden"); // Show spinner
