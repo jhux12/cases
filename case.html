@@ -372,7 +372,7 @@ document.getElementById("change-seed").addEventListener("click", async () => {
   const hash = await sha256(`${serverSeed}:${clientSeed}:${nonce}`);
   const rand = parseInt(hash.substring(0, 8), 16) / 0xffffffff;
 
-  const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
+  const prizes = currentPrizes;
   const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
 
   let cumulative = 0;
