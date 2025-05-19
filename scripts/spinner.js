@@ -48,21 +48,21 @@ export function renderSpinner(prizes, winningPrize) {
     const div = document.createElement("div");
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-');
     const glowMap = {
-      'common': 'ring-gray-400 shadow-[0_0_20px_#a1a1aa]',
-      'uncommon': 'ring-green-400 shadow-[0_0_20px_#4ade80]',
-      'rare': 'ring-blue-400 shadow-[0_0_20px_#60a5fa]',
-      'ultra-rare': 'ring-purple-500 shadow-[0_0_25px_#c084fc]',
-      'legendary': 'ring-yellow-400 shadow-[0_0_30px_#facc15]'
+      'common': 'shadow-[0_0_10px_#a1a1aa]',
+      'uncommon': 'shadow-[0_0_10px_#4ade80]',
+      'rare': 'shadow-[0_0_12px_#60a5fa]',
+      'ultra-rare': 'shadow-[0_0_15px_#c084fc]',
+      'legendary': 'shadow-[0_0_20px_#facc15]'
     };
-    const glowClass = glowMap[rarity] || 'ring-gray-400 shadow-[0_0_20px_#a1a1aa]';
-div.className = `
-  min-w-[160px] h-40 flex flex-col items-center justify-center rounded-xl 
-  mx-2 px-3 py-2 text-sm item ${rarity}
-  bg-gradient-to-br from-gray-800 to-gray-900 
-  backdrop-blur-md text-white
-  transition-all duration-300 transform hover:scale-105
-  shadow-xl ${glowClass}
-`.replace(/\s+/g, ' ').trim();
+    const glowClass = glowMap[rarity] || 'shadow-[0_0_10px_#a1a1aa]';
+    div.className = `
+      min-w-[160px] h-40 flex flex-col items-center justify-center rounded-xl 
+      mx-2 px-3 py-2 text-sm item ${rarity}
+      bg-gradient-to-br from-gray-800 to-gray-900 
+      backdrop-blur-md text-white
+      transition-all duration-300 transform hover:scale-105
+      shadow-xl ${glowClass}
+    `.replace(/\s+/g, ' ').trim();
     div.innerHTML = `
       <img src="${prize.image}" class="h-20 object-contain mb-2" />
       <div class="font-semibold text-center">${prize.name}</div>
@@ -101,15 +101,14 @@ export function spinToPrize() {
     if (winningCard) {
       const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-');
       const glowMap = {
-        'common': 'ring-gray-400 shadow-[0_0_20px_#a1a1aa]',
-        'uncommon': 'ring-green-400 shadow-[0_0_20px_#4ade80]',
-        'rare': 'ring-blue-400 shadow-[0_0_20px_#60a5fa]',
-        'ultra-rare': 'ring-purple-500 shadow-[0_0_25px_#c084fc]',
-        'legendary': 'ring-yellow-400 shadow-[0_0_30px_#facc15]'
+        'common': 'shadow-[0_0_10px_#a1a1aa]',
+        'uncommon': 'shadow-[0_0_10px_#4ade80]',
+        'rare': 'shadow-[0_0_12px_#60a5fa]',
+        'ultra-rare': 'shadow-[0_0_15px_#c084fc]',
+        'legendary': 'shadow-[0_0_20px_#facc15]'
       };
-      const glowClass = glowMap[rarity] || 'ring-gray-400 shadow-[0_0_20px_#a1a1aa]';
+      const glowClass = glowMap[rarity] || 'shadow-[0_0_10px_#a1a1aa]';
       winningCard.classList.add("ring-4", ...glowClass.split(" "));
     }
   }, 6000);
 }
-
