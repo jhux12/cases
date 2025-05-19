@@ -1,18 +1,28 @@
 let spinnerWheel;
-const cardWidth = 160; // card width in px
-const cardMargin = 16; // left + right margin
+const cardWidth = 160;
+const cardMargin = 16;
 const fullCardWidth = cardWidth + cardMargin;
 let spinnerPrizes = [];
+
+// Utility: Shuffle an array
+function shuffle(array) {
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
 
 export function renderSpinner(prizes, winningPrize) {
   const container = document.getElementById("spinner-container");
   if (!container) return;
 
-  // Remove previous spinner if exists
+  // Clear previous spinner
   const existing = document.getElementById("spinner-wrapper");
   if (existing) existing.remove();
 
-  // Create spinner wrapper
+  // Spinner structure
   const wrapper = document.createElement("div");
   wrapper.id = "spinner-wrapper";
   wrapper.innerHTML = `
@@ -27,15 +37,27 @@ export function renderSpinner(prizes, winningPrize) {
   spinnerWheel = document.getElementById("spinner-wheel");
   const spinnerResultText = document.getElementById("spinner-result");
 
-  // Build the prizes array and ensure the winning prize is in the center
-  const shuffled = [...prizes];
+  // Construct the spinner content
+  const shuffled = shuffle(prizes);
   spinnerPrizes = [];
+
   for (let i = 0; i < 30; i++) {
-    const prize = i === 15 ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)];
+    let prize = i === 15 ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)];
+
+    // Fallback if prize is undefined
+    if (!prize || !prize.name || !prize.image) {
+      prize = {
+        name: "Mystery",
+        image: "https://via.placeholder.com/80?text=?",
+        value: 0,
+        rarity: "common"
+      };
+    }
+
     spinnerPrizes.push(prize);
 
+    const rarity = (prize.rarity || "common").toLowerCase().replace(/\s+/g, '-');
     const div = document.createElement("div");
-const rarity = (typeof prize?.rarity === 'string' ? prize.rarity : 'common').toLowerCase().replace(/\s+/g, '-');
     div.className = `min-w-[160px] h-40 flex flex-col items-center justify-center rounded-lg mx-2 p-2 text-sm item ${rarity}`;
     div.innerHTML = `
       <img src="${prize.image}" class="h-20 object-contain mb-2" />
