@@ -394,10 +394,21 @@ for (let p of prizes) {
   }
 }
 
-// ✅ Spinner logic (runs AFTER winningPrize is set)
-const currentPrizes = [...prizeList]; // create a fresh consistent list
-const prizeIndex = currentPrizes.findIndex(p => p.name === winningPrize.name);
-renderSpinner(currentPrizes); // spinner will match
+// Step 1: Make many prize entries so the spinner is long enough
+let currentPrizes = [];
+for (let i = 0; i < 30; i++) {
+  const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
+  currentPrizes.push(randomPrize);
+}
+
+// Step 2: Inject the winning prize at a fixed visual target index (e.g. 16)
+const targetIndex = 16;
+currentPrizes[targetIndex] = winningPrize;
+
+// Step 3: Render the spinner and animate to the target
+renderSpinner(currentPrizes);
+const prizeIndex = targetIndex;
+
 document.getElementById("spinner-container").classList.remove("hidden");
 document.getElementById("prize-name").innerText = winningPrize.name;
 document.getElementById("prize-name").classList.remove("hidden");
