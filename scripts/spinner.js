@@ -1,35 +1,25 @@
-let spinnerWheel;
+let spinnerPrizes = [];
 const cardWidth = 160;
 const cardMargin = 16;
 const fullCardWidth = cardWidth + cardMargin;
-let spinnerPrizes = [];
 
 export function renderSpinner(prizes, winningPrize) {
   const container = document.getElementById("spinner-container");
   if (!container) return;
 
-  // Remove previous spinner if exists
-  const existing = document.getElementById("spinner-wrapper");
-  if (existing) existing.remove();
-
-  // Create spinner wrapper
-  const wrapper = document.createElement("div");
-  wrapper.id = "spinner-wrapper";
-  wrapper.innerHTML = `
+  // Clear previous spinner content
+  container.innerHTML = `
     <div class="relative overflow-hidden w-full">
       <div class="center-line absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-full bg-pink-500 z-10"></div>
       <div id="spinner-wheel" class="flex transition-transform duration-[4000ms] ease-in-out"></div>
     </div>
     <div id="spinner-result" class="hidden text-center text-xl font-bold text-yellow-400 mt-4"></div>
   `;
-  container.appendChild(wrapper);
 
-  spinnerWheel = document.getElementById("spinner-wheel");
-  const spinnerResultText = document.getElementById("spinner-result");
-
-  const shuffled = [...prizes];
+  const spinnerWheel = document.getElementById("spinner-wheel");
   spinnerPrizes = [];
 
+  const shuffled = [...prizes];
   for (let i = 0; i < 30; i++) {
     let prize = i === 15 ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)];
 
@@ -46,16 +36,7 @@ export function renderSpinner(prizes, winningPrize) {
 
     const div = document.createElement("div");
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-');
-    const glowMap = {
-      'common': 'ring-gray-400 shadow-[0_0_20px_#a1a1aa]',
-      'uncommon': 'ring-green-400 shadow-[0_0_20px_#4ade80]',
-      'rare': 'ring-blue-400 shadow-[0_0_20px_#60a5fa]',
-      'ultra-rare': 'ring-purple-500 shadow-[0_0_25px_#c084fc]',
-      'legendary': 'ring-yellow-400 shadow-[0_0_30px_#facc15]'
-    };
-    const glowClass = glowMap[rarity] || 'ring-gray-400 shadow-[0_0_20px_#a1a1aa]';
-
-    div.className = `min-w-[160px] h-40 flex flex-col items-center justify-center rounded-lg mx-2 p-2 text-sm item ${rarity} ring-2 ${glowClass}`;
+    div.className = `min-w-[160px] h-40 flex flex-col items-center justify-center rounded-lg mx-2 p-2 text-sm item ${rarity}`;
     div.innerHTML = `
       <img src="${prize.image}" class="h-20 object-contain mb-2" />
       <div class="font-semibold text-center">${prize.name}</div>
@@ -69,6 +50,9 @@ export function spinToPrize() {
   const targetIndex = 15;
   const scrollTo = targetIndex * fullCardWidth - (window.innerWidth / 2 - fullCardWidth / 2);
 
+  const spinnerWheel = document.getElementById("spinner-wheel"); // fresh grab each time
+  if (!spinnerWheel) return;
+
   spinnerWheel.style.transition = 'none';
   spinnerWheel.style.transform = 'translateX(0px)';
   void spinnerWheel.offsetWidth;
@@ -78,27 +62,20 @@ export function spinToPrize() {
     spinnerWheel.style.transform = `translateX(-${scrollTo}px)`;
   }, 50);
 
-  setTimeout(() => {
-    const prize = spinnerPrizes[targetIndex];
-    const spinnerResultText = document.getElementById("spinner-result");
-    if (spinnerResultText) {
-      spinnerResultText.textContent = `You won: ${prize.name}!`;
-      spinnerResultText.classList.remove("hidden");
-    }
+setTimeout(() => {
+  const prize = spinnerPrizes[targetIndex];
+  const spinnerResultText = document.getElementById("spinner-result");
+  if (spinnerResultText) {
+    spinnerResultText.textContent = `You won: ${prize.name}!`;
+    spinnerResultText.classList.remove("hidden");
+  }
 
-    const allCards = spinnerWheel.querySelectorAll(".item");
-    const winningCard = allCards[targetIndex];
-    if (winningCard) {
-      const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-');
-      const glowMap = {
-        'common': 'ring-gray-400 shadow-[0_0_20px_#a1a1aa]',
-        'uncommon': 'ring-green-400 shadow-[0_0_20px_#4ade80]',
-        'rare': 'ring-blue-400 shadow-[0_0_20px_#60a5fa]',
-        'ultra-rare': 'ring-purple-500 shadow-[0_0_25px_#c084fc]',
-        'legendary': 'ring-yellow-400 shadow-[0_0_30px_#facc15]'
-      };
-      const glowClass = glowMap[rarity] || 'ring-gray-400 shadow-[0_0_20px_#a1a1aa]';
-      winningCard.classList.add("ring-4", ...glowClass.split(" "));
-    }
-  }, 4000);
-}
+  // 🎯 Apply glow effect to the winning card
+  const allCards = spinnerWheel.querySelectorAll(".item");
+  const winningCard = allCards[targetIndex];
+  if (winningCard) {
+    const glowClass = `glow-${(prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-')}`;
+    winningCard.classList.add(glowClass, "ring-4", "ring-white");
+  }
+}, 4000);
+
