@@ -393,16 +393,19 @@ for (let p of prizes) {
   }
 }
 
-// Step 1: Make many prize entries so the spinner is long enough
-let currentPrizes = [];
+// Build spinner prizes and inject the winning prize at index 15
+const currentPrizes = [];
 for (let i = 0; i < 30; i++) {
   const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
   currentPrizes.push(randomPrize);
 }
-
-// Step 2: Inject the winning prize at a fixed visual target index (e.g. 16)
-const targetIndex = 16;
+const targetIndex = 15;
 currentPrizes[targetIndex] = winningPrize;
+
+// 🔄 Re-render spinner and spin
+renderSpinner(currentPrizes, winningPrize);
+spinToPrize();
+
 
 // Step 3: Render the spinner and animate to the target
 renderSpinner(currentPrizes, winningPrize);
