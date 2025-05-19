@@ -78,4 +78,4 @@ setTimeout(() => {
     winningCard.classList.add(glowClass, "ring-4", "ring-white");
   }
 }, 4000);
-
+}
