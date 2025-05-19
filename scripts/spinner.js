@@ -1,19 +1,31 @@
 let spinnerPrizes = [];
-let spinnerWheel, spinnerResultText;
+let spinnerContainer, spinnerWheel, spinnerResultText;
 
 export function renderSpinner(prizes) {
   spinnerPrizes = prizes;
 
+  const container = document.getElementById("spinner-container");
+  if (!container) return;
+
+  const existing = document.getElementById("spinner-wrapper");
+  if (existing) existing.remove();
+
+  const wrapper = document.createElement("div");
+  wrapper.id = "spinner-wrapper";
+  wrapper.innerHTML = `
+    <div class="relative overflow-hidden w-full">
+      <div class="center-line absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-full bg-pink-500 z-10"></div>
+      <div id="spinner-wheel" class="flex transition-transform duration-[4000ms] ease-in-out"></div>
+    </div>
+    <div id="spinner-result" class="hidden text-center text-xl font-bold text-yellow-400 mt-4"></div>
+  `;
+
+  container.appendChild(wrapper);
+
   spinnerWheel = document.getElementById("spinner-wheel");
   spinnerResultText = document.getElementById("spinner-result");
 
-  if (!spinnerWheel || !spinnerResultText) return;
-
-  // Clear previous items
-  spinnerWheel.innerHTML = '';
-
-  // Repeat the prize list 3x for smooth spin effect
-  const extended = [...prizes, ...prizes, ...prizes];
+  const extended = [...prizes, ...prizes, ...prizes]; // repeat 3x for smooth loop
 
   extended.forEach(prize => {
     const div = document.createElement("div");
@@ -25,35 +37,22 @@ export function renderSpinner(prizes) {
     `;
     spinnerWheel.appendChild(div);
   });
-
-  // ✅ Unhide the spinner wrapper
-  const spinnerWrapper = document.getElementById("spinner-wrapper");
-  if (spinnerWrapper) {
-    spinnerWrapper.classList.remove("hidden");
-  }
-
-  // Hide result text until spin finishes
-  spinnerResultText.classList.add("hidden");
-
-  // Reset transform to prevent jump if spinning multiple times
-  spinnerWheel.style.transition = 'none';
-  spinnerWheel.style.transform = 'translateX(0)';
 }
 
 export function spinToPrize(index) {
   const prizeWidth = 160 + 16; // card + margin
-  const baseIndex = spinnerPrizes.length; // middle set (3x repeated)
+  const repetitions = 3;
+  const offsetCenter = (window.innerWidth / 2) - (prizeWidth / 2);
+
+  const baseIndex = spinnerPrizes.length * 1; // 2nd repetition (middle set)
   const finalIndex = baseIndex + index;
 
-  const offsetCenter = (window.innerWidth / 2) - (prizeWidth / 2);
   const totalScroll = finalIndex * prizeWidth;
   const scrollDistance = -(totalScroll - offsetCenter);
 
-  // Trigger spin animation
   spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
   spinnerWheel.style.transform = `translateX(${scrollDistance}px)`;
 
-  // Show result text after spin completes
   setTimeout(() => {
     const prize = spinnerPrizes[index];
     spinnerResultText.textContent = `You won: ${prize.name}!`;
