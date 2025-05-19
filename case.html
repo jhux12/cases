@@ -123,7 +123,6 @@
         </div>
       </div>
       <div id="prize-name" class="mt-4 text-lg font-semibold text-white hidden"></div>
-<!-- Spinner Container -->
 <!-- Spinner Container Inside Case -->
 <div class="my-4 w-full relative h-[200px] overflow-hidden border border-white/10 rounded-lg bg-black/20 backdrop-blur-md">
   <div id="center-line" class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
@@ -396,8 +395,9 @@ for (let p of prizes) {
 }
 
 // ✅ Spinner logic (runs AFTER winningPrize is set)
-const prizeIndex = prizes.findIndex(p => p.name === winningPrize.name);
-renderSpinner(currentPrizes); // fill bar with extended prizes
+const currentPrizes = [...prizeList]; // create a fresh consistent list
+const prizeIndex = currentPrizes.findIndex(p => p.name === winningPrize.name);
+renderSpinner(currentPrizes); // spinner will match
 document.getElementById("spinner-container").classList.remove("hidden");
 document.getElementById("prize-name").innerText = winningPrize.name;
 document.getElementById("prize-name").classList.remove("hidden");
