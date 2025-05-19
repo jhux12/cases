@@ -406,7 +406,7 @@ const targetIndex = 16;
 currentPrizes[targetIndex] = winningPrize;
 
 // Step 3: Render the spinner and animate to the target
-renderSpinner(currentPrizes);
+renderSpinner(prizeList, winningPrize);
 const prizeIndex = targetIndex;
 
 document.getElementById("spinner-container").classList.remove("hidden");
