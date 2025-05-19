@@ -429,4 +429,10 @@ html {
   box-shadow: 0 0 20px crimson, 0 0 30px orange;
   color: white;
 }
+.item {
+  background: #1c1c1c;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(255,255,255,0.05);
+}
+
 
