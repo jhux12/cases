@@ -1,18 +1,23 @@
 let spinnerWheel;
-const cardWidth = 160; // card width in px
-const cardMargin = 16; // left + right margin
+const cardWidth = 160;
+const cardMargin = 16;
 const fullCardWidth = cardWidth + cardMargin;
 let spinnerPrizes = [];
 
+/**
+ * Renders the spinner with 30 prize cards and inserts the winning prize in the middle.
+ * @param {Array} prizes - List of all case prizes.
+ * @param {Object} winningPrize - The prize determined by provably fair logic.
+ */
 export function renderSpinner(prizes, winningPrize) {
   const container = document.getElementById("spinner-container");
   if (!container) return;
 
-  // Remove previous spinner if exists
+  // Clean up old spinner
   const existing = document.getElementById("spinner-wrapper");
   if (existing) existing.remove();
 
-  // Create spinner wrapper
+  // Spinner HTML structure
   const wrapper = document.createElement("div");
   wrapper.id = "spinner-wrapper";
   wrapper.innerHTML = `
@@ -27,21 +32,19 @@ export function renderSpinner(prizes, winningPrize) {
   spinnerWheel = document.getElementById("spinner-wheel");
   const spinnerResultText = document.getElementById("spinner-result");
 
-  // Build the prizes array and ensure the winning prize is in the center
-  const shuffled = [...prizes];
+  // Shuffle and fill 30 prizes, insert winningPrize at index 15
   spinnerPrizes = [];
-  for (let i = 0; i < 30; i++) {
-    let prize = i === 15 ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)];
+  const fallbackPrize = {
+    name: "Mystery",
+    image: "https://dummyimage.com/80x80/2c2c2c/ffffff.png&text=?",
+    value: 0,
+    rarity: "common"
+  };
 
-    // Fallback in case prize is missing or incomplete
-    if (!prize || typeof prize !== 'object' || !prize.image || !prize.name) {
-      prize = {
-        name: "Mystery",
-        image: "https://via.placeholder.com/80?text=?",
-        value: 0,
-        rarity: "common"
-      };
-    }
+  for (let i = 0; i < 30; i++) {
+    let prize = i === 15 ? winningPrize : prizes[Math.floor(Math.random() * prizes.length)];
+    if (!prize || typeof prize !== 'object') prize = fallbackPrize;
+    if (!prize.image || !prize.name) prize = fallbackPrize;
 
     spinnerPrizes.push(prize);
 
@@ -57,6 +60,9 @@ export function renderSpinner(prizes, winningPrize) {
   }
 }
 
+/**
+ * Animates the spinner to land on the winning prize at index 15.
+ */
 export function spinToPrize() {
   const targetIndex = 15;
   const scrollTo = targetIndex * fullCardWidth - (window.innerWidth / 2 - fullCardWidth / 2);
@@ -73,4 +79,3 @@ export function spinToPrize() {
     }
   }, 4000);
 }
-
