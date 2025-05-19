@@ -56,8 +56,11 @@ export function spinToPrize() {
   const targetIndex = 15;
   const scrollTo = targetIndex * fullCardWidth - (window.innerWidth / 2 - fullCardWidth / 2);
 
-  spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
-  spinnerWheel.style.transform = `translateX(-${scrollTo}px)`;
+  const wheel = document.getElementById("spinner-wheel");
+if (wheel) {
+  wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+  wheel.style.transform = `translateX(-${scrollTo}px)`;
+}
 
   setTimeout(() => {
     const prize = spinnerPrizes[targetIndex];
