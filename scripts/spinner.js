@@ -9,9 +9,11 @@ export function renderSpinner(prizes) {
 
   if (!spinnerWheel || !spinnerResultText) return;
 
-  const extended = [...prizes, ...prizes, ...prizes]; // repeat 3x for smooth loop
+  // Clear previous items
+  spinnerWheel.innerHTML = '';
 
-  spinnerWheel.innerHTML = ''; // clear previous prizes
+  // Repeat the prize list 3x for smooth spin effect
+  const extended = [...prizes, ...prizes, ...prizes];
 
   extended.forEach(prize => {
     const div = document.createElement("div");
@@ -23,20 +25,35 @@ export function renderSpinner(prizes) {
     `;
     spinnerWheel.appendChild(div);
   });
+
+  // ✅ Unhide the spinner wrapper
+  const spinnerWrapper = document.getElementById("spinner-wrapper");
+  if (spinnerWrapper) {
+    spinnerWrapper.classList.remove("hidden");
+  }
+
+  // Hide result text until spin finishes
+  spinnerResultText.classList.add("hidden");
+
+  // Reset transform to prevent jump if spinning multiple times
+  spinnerWheel.style.transition = 'none';
+  spinnerWheel.style.transform = 'translateX(0)';
 }
 
 export function spinToPrize(index) {
-  const prizeWidth = 160 + 16; // card width + margin
-  const baseIndex = spinnerPrizes.length; // middle repetition
+  const prizeWidth = 160 + 16; // card + margin
+  const baseIndex = spinnerPrizes.length; // middle set (3x repeated)
   const finalIndex = baseIndex + index;
 
   const offsetCenter = (window.innerWidth / 2) - (prizeWidth / 2);
   const totalScroll = finalIndex * prizeWidth;
   const scrollDistance = -(totalScroll - offsetCenter);
 
+  // Trigger spin animation
   spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
   spinnerWheel.style.transform = `translateX(${scrollDistance}px)`;
 
+  // Show result text after spin completes
   setTimeout(() => {
     const prize = spinnerPrizes[index];
     spinnerResultText.textContent = `You won: ${prize.name}!`;
