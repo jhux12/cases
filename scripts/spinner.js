@@ -29,7 +29,8 @@ export function renderSpinner(prizes) {
 
   extended.forEach(prize => {
     const div = document.createElement("div");
-    div.className = "min-w-[160px] h-40 flex flex-col items-center justify-center bg-black/20 text-white border border-white/10 rounded-lg mx-2 p-2 text-sm";
+const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-');
+div.className = `min-w-[160px] h-40 flex flex-col items-center justify-center rounded-lg mx-2 p-2 text-sm item ${rarity}`;
     div.innerHTML = `
       <img src="${prize.image}" class="h-20 object-contain mb-2" />
       <div class="font-semibold text-center">${prize.name}</div>
