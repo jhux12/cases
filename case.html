@@ -124,14 +124,16 @@
       </div>
       <div id="prize-name" class="mt-4 text-lg font-semibold text-white hidden"></div>
 <!-- Spinner Container -->
-<div id="spinner-container" class="hidden mt-6">
+<!-- Spinner Markup (must match IDs) -->
+<div id="spinner-container" class="hidden my-4 w-full"></div>
   <div class="relative w-full overflow-hidden border border-white/10 rounded-lg bg-black/20 backdrop-blur-md h-[200px]">
     <div id="center-line" class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
     <div id="spinner-wheel" class="flex transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)] h-full items-center"></div>
   </div>
+  <div id="spinner-result" class="hidden text-center text-xl font-bold text-yellow-400 mt-4"></div>
 </div>
-      <!-- Spinner Container -->
-<div id="spinner-container" class="w-full h-48 overflow-hidden relative hidden mt-6 border border-purple-500 rounded-xl bg-black/20"></div>
+
+
 
 
       <!-- Static Case Image -->
@@ -282,9 +284,10 @@ if (openBtnText) {
   const gradientClass = `card-gradient-${rarity}`;
   const valueFormatted = formatCoins(prize.value || 0);
 
- return `
-  <div class="rounded-xl p-3 text-white cursor-pointer transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10 ${gradientClass}" onclick="expandPrize('${prize.image.replace(/'/g, "\\'")}')">
-    <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3 shadow-md ring-2 ring-white/10 bg-black/10 p-1" />
+  return `
+    <div class="rounded-xl p-3 text-white cursor-pointer transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10 ${gradientClass}" onclick="expandPrize('${prize.image.replace(/'/g, "\\'")}')">
+      <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3 shadow-md ring-2 ring-white/10 bg-black/10 p-1" />
+
 
       <div class="text-center font-semibold text-xs px-2 leading-snug clamp-2">
   ${prize.name}
@@ -306,8 +309,7 @@ if (openBtnText) {
 
 
     document.getElementById("prizes-grid").innerHTML = prizeHTML;
-renderSpinner(currentPrizes);
-
+renderSpinner(prizeList);
 
     // ✅ Add click logic for open button
   const openCaseHandler = async () => {
@@ -395,19 +397,26 @@ document.getElementById("change-seed").addEventListener("click", async () => {
   let cumulative = 0;
   let winningPrize = prizes[prizes.length - 1]; // fallback
 
-  for (let p of prizes) {
-    cumulative += p.odds || 0;
-    if (rand * totalOdds < cumulative) {
-      winningPrize = p;
-      break;
-    }
+for (let p of prizes) {
+  cumulative += p.odds || 0;
+  if (rand * totalOdds < cumulative) {
+    winningPrize = p;
+    break;
   }
-    await spinToPrize(winningPrize);
-    document.getElementById("case-image").classList.add("hidden");
-document.getElementById("spinner-container").classList.remove("hidden");
+}
 
+// ✅ Spinner logic (runs AFTER winningPrize is set)
+const prizeIndex = prizes.findIndex(p => p.name === winningPrize.name);
+renderSpinner(currentPrizes); // fill bar with extended prizes
+document.getElementById("spinner-container").classList.remove("hidden");
+document.getElementById("case-image").classList.add("hidden");
 document.getElementById("prize-name").innerText = winningPrize.name;
 document.getElementById("prize-name").classList.remove("hidden");
+
+setTimeout(() => {
+  spinToPrize(prizeIndex); // always lands on correct one
+}, 250);
+
 
   // 💰 Deduct balance
   await firebase.database().ref('users/' + user.uid + '/balance').set(balance - casePrice);
@@ -440,12 +449,6 @@ const raritySounds = {
 const audio = new Audio(raritySounds[rarity] || raritySounds["common"]);
 audio.volume = 0.75;
 audio.play().catch(() => {});
-
-renderSpinner(Object.values(caseData.prizes || {}), winningPrize);
-setTimeout(() => {
-  spinToPrize(Object.values(caseData.prizes || {}), winningPrize);
-}, 250);
-
 
   // Reset button text and rebind event
   openBtn.innerHTML = `<span id="open-button-text">Open for ${formatCoins(caseData.price || 0)} coins</span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />`;
