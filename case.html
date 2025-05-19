@@ -124,13 +124,15 @@
       </div>
       <div id="prize-name" class="mt-4 text-lg font-semibold text-white hidden"></div>
 <!-- Spinner Container -->
-<!-- Spinner Markup (must match IDs) -->
-<div id="spinner-container" class="hidden my-4 w-full"></div>
-    <div id="center-line" class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
+<!-- Spinner Container Inside Case -->
+<div class="my-4 w-full relative h-[200px] overflow-hidden border border-white/10 rounded-lg bg-black/20 backdrop-blur-md">
+  <div id="center-line" class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
+  <div id="spinner-container" class="w-full h-full">
     <div id="spinner-wheel" class="flex transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)] h-full items-center"></div>
   </div>
-  <div id="spinner-result" class="hidden text-center text-xl font-bold text-yellow-400 mt-4"></div>
 </div>
+<div id="spinner-result" class="hidden text-center text-xl font-bold text-yellow-400 mt-4"></div>
+
 
 
 
