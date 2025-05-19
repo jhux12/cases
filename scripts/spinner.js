@@ -1,6 +1,6 @@
 let spinnerWheel;
-const cardWidth = 160; // card width in px
-const cardMargin = 16; // left + right margin
+const cardWidth = 160;
+const cardMargin = 16;
 const fullCardWidth = cardWidth + cardMargin;
 let spinnerPrizes = [];
 
@@ -8,11 +8,11 @@ export function renderSpinner(prizes, winningPrize) {
   const container = document.getElementById("spinner-container");
   if (!container) return;
 
-  // Remove previous spinner if exists
+  // Clear previous spinner
   const existing = document.getElementById("spinner-wrapper");
   if (existing) existing.remove();
 
-  // Create spinner wrapper
+  // Spinner container
   const wrapper = document.createElement("div");
   wrapper.id = "spinner-wrapper";
   wrapper.innerHTML = `
@@ -25,28 +25,19 @@ export function renderSpinner(prizes, winningPrize) {
   container.appendChild(wrapper);
 
   spinnerWheel = document.getElementById("spinner-wheel");
-  const spinnerResultText = document.getElementById("spinner-result");
-
-  // Build the prizes array and ensure the winning prize is in the center
   const shuffled = [...prizes];
   spinnerPrizes = [];
+
   for (let i = 0; i < 30; i++) {
     let prize = i === 15 ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)];
 
-    // Fallback in case prize is missing or incomplete
     if (!prize || typeof prize !== 'object' || !prize.image || !prize.name) {
-      prize = {
-        name: "Mystery",
-        image: "https://via.placeholder.com/80?text=?",
-        value: 0,
-        rarity: "common"
-      };
+      prize = { name: "Mystery", image: "https://via.placeholder.com/80?text=?", value: 0, rarity: "common" };
     }
 
     spinnerPrizes.push(prize);
-
-    const div = document.createElement("div");
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-');
+
     const glowMap = {
       'common': 'shadow-[0_0_10px_#a1a1aa]',
       'uncommon': 'shadow-[0_0_10px_#4ade80]',
@@ -54,15 +45,16 @@ export function renderSpinner(prizes, winningPrize) {
       'ultra-rare': 'shadow-[0_0_15px_#c084fc]',
       'legendary': 'shadow-[0_0_20px_#facc15]'
     };
+
     const glowClass = glowMap[rarity] || 'shadow-[0_0_10px_#a1a1aa]';
+    const div = document.createElement("div");
     div.className = `
       min-w-[160px] h-40 flex flex-col items-center justify-center rounded-xl 
       mx-2 px-3 py-2 text-sm item ${rarity}
-      bg-gradient-to-br from-gray-800 to-gray-900 
-      backdrop-blur-md text-white
-      transition-all duration-300 transform hover:scale-105
-      shadow-xl ${glowClass}
+      bg-gradient-to-br from-gray-800 to-gray-900 backdrop-blur-md text-white
+      transition-all duration-300 transform hover:scale-105 shadow-xl ${glowClass}
     `.replace(/\s+/g, ' ').trim();
+
     div.innerHTML = `
       <img src="${prize.image}" class="h-20 object-contain mb-2" />
       <div class="font-semibold text-center">${prize.name}</div>
@@ -76,26 +68,23 @@ export function spinToPrize() {
   const targetIndex = 15;
   const scrollTo = targetIndex * fullCardWidth - (window.innerWidth / 2 - fullCardWidth / 2);
 
-  // Reset initial transform and force reflow
   spinnerWheel.style.transition = 'none';
   spinnerWheel.style.transform = 'translateX(0px)';
   void spinnerWheel.offsetWidth;
 
   setTimeout(() => {
-    // Use dramatic slow easing
     spinnerWheel.style.transition = 'transform 6s cubic-bezier(0.05, 0.6, 0.1, 1)';
     spinnerWheel.style.transform = `translateX(-${scrollTo}px)`;
   }, 50);
 
   setTimeout(() => {
     const prize = spinnerPrizes[targetIndex];
-    const spinnerResultText = document.getElementById("spinner-result");
-    if (spinnerResultText) {
-      spinnerResultText.textContent = `You won: ${prize.name}!`;
-      spinnerResultText.classList.remove("hidden");
+    const result = document.getElementById("spinner-result");
+    if (result) {
+      result.textContent = `You won: ${prize.name}!`;
+      result.classList.remove("hidden");
     }
 
-    // 🎯 Apply extra glow to winning card
     const allCards = spinnerWheel.querySelectorAll(".item");
     const winningCard = allCards[targetIndex];
     if (winningCard) {
