@@ -394,6 +394,7 @@ for (let p of prizes) {
 }
 
 // Build spinner prizes and inject the winning prize at index 15
+// Reset spinner visually and generate fresh prize strip
 const currentPrizes = [];
 for (let i = 0; i < 30; i++) {
   const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
@@ -402,35 +403,22 @@ for (let i = 0; i < 30; i++) {
 const targetIndex = 15;
 currentPrizes[targetIndex] = winningPrize;
 
-// Make sure spinner resets between spins
-const existingWrapper = document.getElementById("spinner-wrapper");
-if (existingWrapper) existingWrapper.remove();
+// Remove old spinner DOM if exists
+const old = document.getElementById("spinner-wrapper");
+if (old) old.remove();
 
+// Render new spinner and spin to prize
 renderSpinner(currentPrizes, winningPrize);
 
-// Wait for DOM to update and spinnerWheel to be initialized
-setTimeout(() => {
-  spinToPrize();
-}, 50);
+requestAnimationFrame(() => {
+  spinToPrize(); // triggers correct animation to index 15
+});
 
-
-
-// Step 3: Render the spinner and animate to the target
-renderSpinner(currentPrizes, winningPrize);
-const prizeIndex = targetIndex;
-
-document.getElementById("spinner-container").classList.remove("hidden");
+// Show prize name below spinner
 document.getElementById("prize-name").innerText = winningPrize.name;
 document.getElementById("prize-name").classList.remove("hidden");
 
-const spinnerWheel = document.getElementById("spinner-wheel");
-spinnerWheel.style.transition = 'none';
-spinnerWheel.style.transform = 'translateX(0px)';
-void spinnerWheel.offsetWidth;
-    
-setTimeout(() => {
-  spinToPrize(prizeIndex); // always lands on correct one
-}, 250);
+
 
 setTimeout(() => {
   const rarity = (winningPrize.rarity || 'common').toLowerCase();
