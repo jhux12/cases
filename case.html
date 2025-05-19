@@ -402,8 +402,17 @@ for (let i = 0; i < 30; i++) {
 const targetIndex = 15;
 currentPrizes[targetIndex] = winningPrize;
 
-// 🔄 Re-render spinner and spin
+// Make sure spinner resets between spins
+const existingWrapper = document.getElementById("spinner-wrapper");
+if (existingWrapper) existingWrapper.remove();
+
+// Re-render the spinner with fresh prizes and correct winning prize in center
 renderSpinner(currentPrizes, winningPrize);
+
+// Force reflow to reset transform before spinning again
+void spinnerWheel?.offsetWidth;
+
+// Start the spin to land on the winning prize
 spinToPrize();
 
 
