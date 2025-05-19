@@ -408,3 +408,25 @@ html {
 .card-gradient-legendary {
   background: linear-gradient(180deg, #854d0e, #facc15);
 }
+.common {
+  border: 2px solid #aaa;
+}
+.uncommon {
+  border: 2px solid #4fc3f7;
+  box-shadow: 0 0 10px #4fc3f7;
+}
+.rare {
+  border: 2px solid #ba68c8;
+  box-shadow: 0 0 12px #ba68c8;
+}
+.ultra-rare {
+  border: 2px solid gold;
+  box-shadow: 0 0 14px gold;
+}
+.legendary {
+  border: 2px solid crimson;
+  background: linear-gradient(45deg, crimson, orange);
+  box-shadow: 0 0 20px crimson, 0 0 30px orange;
+  color: white;
+}
+
