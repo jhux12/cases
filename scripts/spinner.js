@@ -35,7 +35,7 @@ export function renderSpinner(prizes, winningPrize) {
     spinnerPrizes.push(prize);
 
     const div = document.createElement("div");
-    const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-');
+const rarity = (typeof prize?.rarity === 'string' ? prize.rarity : 'common').toLowerCase().replace(/\s+/g, '-');
     div.className = `min-w-[160px] h-40 flex flex-col items-center justify-center rounded-lg mx-2 p-2 text-sm item ${rarity}`;
     div.innerHTML = `
       <img src="${prize.image}" class="h-20 object-contain mb-2" />
