@@ -1,5 +1,5 @@
 let spinnerPrizes = [];
-let spinnerContainer, spinnerWheel, spinnerResultText;
+let spinnerWheel, spinnerResultText;
 
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -9,15 +9,15 @@ function shuffle(array) {
   return array;
 }
 
-export function renderSpinner(prizes) {
-  spinnerPrizes = prizes;
-
+export function renderSpinner(prizes, winningPrize) {
   const container = document.getElementById("spinner-container");
   if (!container) return;
 
+  // Remove previous spinner if exists
   const existing = document.getElementById("spinner-wrapper");
   if (existing) existing.remove();
 
+  // Build wrapper HTML
   const wrapper = document.createElement("div");
   wrapper.id = "spinner-wrapper";
   wrapper.innerHTML = `
@@ -27,29 +27,21 @@ export function renderSpinner(prizes) {
     </div>
     <div id="spinner-result" class="hidden text-center text-xl font-bold text-yellow-400 mt-4"></div>
   `;
-
   container.appendChild(wrapper);
 
   spinnerWheel = document.getElementById("spinner-wheel");
   spinnerResultText = document.getElementById("spinner-result");
-}
 
-export function spinToPrize(index) {
-  const prizeWidth = 160 + 16; // item width + margin
-  const repetitions = 3;
-  const offsetCenter = (window.innerWidth / 2) - (prizeWidth / 2);
+  // Insert 30 prizes with winningPrize at index 15
+  const shuffled = shuffle([...prizes]);
+  spinnerPrizes = [];
 
-  // Build extended prize array
-  const middle = [...spinnerPrizes]; // actual prizes
-  const before = shuffle([...spinnerPrizes]);
-  const after = shuffle([...spinnerPrizes]);
+  for (let i = 0; i < 30; i++) {
+    const prize = i === 15 ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)];
+    spinnerPrizes.push(prize);
 
-  const fullList = [...before, ...middle, ...after];
-  spinnerWheel.innerHTML = '';
-
-  fullList.forEach((prize, i) => {
-    const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-');
     const div = document.createElement("div");
+    const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-');
     div.className = `min-w-[160px] h-40 flex flex-col items-center justify-center rounded-lg mx-2 p-2 text-sm item ${rarity}`;
     div.innerHTML = `
       <img src="${prize.image}" class="h-20 object-contain mb-2" />
@@ -57,18 +49,22 @@ export function spinToPrize(index) {
       <div class="text-xs text-gray-400">${prize.value || ''}</div>
     `;
     spinnerWheel.appendChild(div);
-  });
+  }
+}
 
-  const finalIndex = spinnerPrizes.length + index; // middle set + index
-  const totalScroll = finalIndex * prizeWidth;
+export function spinToPrize() {
+  const targetIndex = 15; // Always land on the prize in the middle
+  const prizeWidth = 160 + 16;
+  const offsetCenter = (window.innerWidth / 2) - (prizeWidth / 2);
+  const totalScroll = targetIndex * prizeWidth;
   const scrollDistance = -(totalScroll - offsetCenter);
 
   spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
   spinnerWheel.style.transform = `translateX(${scrollDistance}px)`;
 
   setTimeout(() => {
-    const winning = spinnerPrizes[index];
-    spinnerResultText.textContent = `You won: ${winning.name}!`;
+    const prize = spinnerPrizes[targetIndex];
+    spinnerResultText.textContent = `You won: ${prize.name}!`;
     spinnerResultText.classList.remove("hidden");
   }, 4000);
 }
