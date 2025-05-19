@@ -55,7 +55,14 @@ export function renderSpinner(prizes, winningPrize) {
       'legendary': 'ring-yellow-400 shadow-[0_0_30px_#facc15]'
     };
     const glowClass = glowMap[rarity] || 'ring-gray-400 shadow-[0_0_20px_#a1a1aa]';
-    div.className = `min-w-[160px] h-40 flex flex-col items-center justify-center rounded-lg mx-2 p-2 text-sm item ${rarity} ring-2 ${glowClass}`;
+div.className = `
+  min-w-[160px] h-40 flex flex-col items-center justify-center rounded-xl 
+  mx-2 px-3 py-2 text-sm item ${rarity}
+  bg-gradient-to-br from-gray-800 to-gray-900 
+  backdrop-blur-md text-white
+  transition-all duration-300 transform hover:scale-105
+  shadow-xl ${glowClass}
+`.replace(/\s+/g, ' ').trim();
     div.innerHTML = `
       <img src="${prize.image}" class="h-20 object-contain mb-2" />
       <div class="font-semibold text-center">${prize.name}</div>
