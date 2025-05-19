@@ -406,14 +406,13 @@ currentPrizes[targetIndex] = winningPrize;
 const existingWrapper = document.getElementById("spinner-wrapper");
 if (existingWrapper) existingWrapper.remove();
 
-// Re-render the spinner with fresh prizes and correct winning prize in center
 renderSpinner(currentPrizes, winningPrize);
 
-// Force reflow to reset transform before spinning again
-void spinnerWheel?.offsetWidth;
+// Wait for DOM to update and spinnerWheel to be initialized
+setTimeout(() => {
+  spinToPrize();
+}, 50);
 
-// Start the spin to land on the winning prize
-spinToPrize();
 
 
 // Step 3: Render the spinner and animate to the target
