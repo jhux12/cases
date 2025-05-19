@@ -1,3 +1,6 @@
+let spinnerPrizes = [];
+let spinnerContainer, spinnerWheel, spinnerResultText;
+
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -5,9 +8,6 @@ function shuffle(array) {
   }
   return array;
 }
-
-let spinnerPrizes = [];
-let spinnerContainer, spinnerWheel, spinnerResultText;
 
 export function renderSpinner(prizes) {
   spinnerPrizes = prizes;
@@ -32,14 +32,25 @@ export function renderSpinner(prizes) {
 
   spinnerWheel = document.getElementById("spinner-wheel");
   spinnerResultText = document.getElementById("spinner-result");
+}
 
-const shuffled = shuffle([...prizes]);
-const extended = [...shuffled, ...shuffled, ...shuffled];
+export function spinToPrize(index) {
+  const prizeWidth = 160 + 16; // item width + margin
+  const repetitions = 3;
+  const offsetCenter = (window.innerWidth / 2) - (prizeWidth / 2);
 
-  extended.forEach(prize => {
+  // Build extended prize array
+  const middle = [...spinnerPrizes]; // actual prizes
+  const before = shuffle([...spinnerPrizes]);
+  const after = shuffle([...spinnerPrizes]);
+
+  const fullList = [...before, ...middle, ...after];
+  spinnerWheel.innerHTML = '';
+
+  fullList.forEach((prize, i) => {
+    const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-');
     const div = document.createElement("div");
-const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-');
-div.className = `min-w-[160px] h-40 flex flex-col items-center justify-center rounded-lg mx-2 p-2 text-sm item ${rarity}`;
+    div.className = `min-w-[160px] h-40 flex flex-col items-center justify-center rounded-lg mx-2 p-2 text-sm item ${rarity}`;
     div.innerHTML = `
       <img src="${prize.image}" class="h-20 object-contain mb-2" />
       <div class="font-semibold text-center">${prize.name}</div>
@@ -47,16 +58,8 @@ div.className = `min-w-[160px] h-40 flex flex-col items-center justify-center ro
     `;
     spinnerWheel.appendChild(div);
   });
-}
 
-export function spinToPrize(index) {
-  const prizeWidth = 160 + 16; // card + margin
-  const repetitions = 3;
-  const offsetCenter = (window.innerWidth / 2) - (prizeWidth / 2);
-
-  const baseIndex = spinnerPrizes.length * 1; // 2nd repetition (middle set)
-  const finalIndex = baseIndex + index;
-
+  const finalIndex = spinnerPrizes.length + index; // middle set + index
   const totalScroll = finalIndex * prizeWidth;
   const scrollDistance = -(totalScroll - offsetCenter);
 
@@ -64,8 +67,8 @@ export function spinToPrize(index) {
   spinnerWheel.style.transform = `translateX(${scrollDistance}px)`;
 
   setTimeout(() => {
-    const prize = spinnerPrizes[index];
-    spinnerResultText.textContent = `You won: ${prize.name}!`;
+    const winning = spinnerPrizes[index];
+    spinnerResultText.textContent = `You won: ${winning.name}!`;
     spinnerResultText.classList.remove("hidden");
   }, 4000);
 }
