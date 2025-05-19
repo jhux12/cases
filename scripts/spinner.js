@@ -1,13 +1,8 @@
+let spinnerWheel;
+const cardWidth = 160; // card width in px
+const cardMargin = 16; // left + right margin
+const fullCardWidth = cardWidth + cardMargin;
 let spinnerPrizes = [];
-let spinnerWheel, spinnerResultText;
-
-function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
 
 export function renderSpinner(prizes, winningPrize) {
   const container = document.getElementById("spinner-container");
@@ -17,7 +12,7 @@ export function renderSpinner(prizes, winningPrize) {
   const existing = document.getElementById("spinner-wrapper");
   if (existing) existing.remove();
 
-  // Build wrapper HTML
+  // Create spinner wrapper
   const wrapper = document.createElement("div");
   wrapper.id = "spinner-wrapper";
   wrapper.innerHTML = `
@@ -30,12 +25,11 @@ export function renderSpinner(prizes, winningPrize) {
   container.appendChild(wrapper);
 
   spinnerWheel = document.getElementById("spinner-wheel");
-  spinnerResultText = document.getElementById("spinner-result");
+  const spinnerResultText = document.getElementById("spinner-result");
 
-  // Insert 30 prizes with winningPrize at index 15
-  const shuffled = shuffle([...prizes]);
+  // Build the prizes array and ensure the winning prize is in the center
+  const shuffled = [...prizes];
   spinnerPrizes = [];
-
   for (let i = 0; i < 30; i++) {
     const prize = i === 15 ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)];
     spinnerPrizes.push(prize);
@@ -53,18 +47,19 @@ export function renderSpinner(prizes, winningPrize) {
 }
 
 export function spinToPrize() {
-  const targetIndex = 15; // Always land on the prize in the middle
-  const prizeWidth = 160 + 16;
-  const offsetCenter = (window.innerWidth / 2) - (prizeWidth / 2);
-  const totalScroll = targetIndex * prizeWidth;
-  const scrollDistance = -(totalScroll - offsetCenter);
+  const targetIndex = 15;
+  const scrollTo = targetIndex * fullCardWidth - (window.innerWidth / 2 - fullCardWidth / 2);
 
   spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
-  spinnerWheel.style.transform = `translateX(${scrollDistance}px)`;
+  spinnerWheel.style.transform = `translateX(-${scrollTo}px)`;
 
   setTimeout(() => {
     const prize = spinnerPrizes[targetIndex];
-    spinnerResultText.textContent = `You won: ${prize.name}!`;
-    spinnerResultText.classList.remove("hidden");
+    const spinnerResultText = document.getElementById("spinner-result");
+    if (spinnerResultText) {
+      spinnerResultText.textContent = `You won: ${prize.name}!`;
+      spinnerResultText.classList.remove("hidden");
+    }
   }, 4000);
 }
+
