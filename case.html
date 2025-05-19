@@ -409,6 +409,11 @@ document.getElementById("case-image").classList.add("hidden");
 document.getElementById("prize-name").innerText = winningPrize.name;
 document.getElementById("prize-name").classList.remove("hidden");
 
+const spinnerWheel = document.getElementById("spinner-wheel");
+spinnerWheel.style.transition = 'none';
+spinnerWheel.style.transform = 'translateX(0px)';
+void spinnerWheel.offsetWidth;
+    
 setTimeout(() => {
   spinToPrize(prizeIndex); // always lands on correct one
 }, 250);
