@@ -411,6 +411,22 @@ setTimeout(() => {
   spinToPrize(prizeIndex); // always lands on correct one
 }, 250);
 
+setTimeout(() => {
+  const rarity = (winningPrize.rarity || 'common').toLowerCase();
+
+  const raritySounds = {
+    "common": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5",
+    "uncommon": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
+    "rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
+    "ultra rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de",
+    "legendary": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"
+  };
+
+  const audio = new Audio(raritySounds[rarity] || raritySounds["common"]);
+  audio.volume = 0.75;
+  audio.play().catch(() => {});
+}, 4000); // wait until spinner animation finishes
+
 
   // 💰 Deduct balance
   await firebase.database().ref('users/' + user.uid + '/balance').set(balance - casePrice);
@@ -428,21 +444,6 @@ setTimeout(() => {
 
   // 🔄 Update nonce
   await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
-
- // Play sound
-const rarity = winningPrize.rarity?.toLowerCase() || "common";
-
-const raritySounds = {
-  "common": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5",
-  "uncommon": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
-  "rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
-  "ultra rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de",
-  "legendary": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"
-};
-
-const audio = new Audio(raritySounds[rarity] || raritySounds["common"]);
-audio.volume = 0.75;
-audio.play().catch(() => {});
 
   // Reset button text and rebind event
   openBtn.innerHTML = `<span id="open-button-text">Open for ${formatCoins(caseData.price || 0)} coins</span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />`;
