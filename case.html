@@ -256,7 +256,6 @@ const auth = getAuth(app);
     }
 
     const caseData = snapshot.val();
-    document.getElementById("case-image").src = caseData.image;
     document.getElementById("case-name").innerText = caseData.name;
     document.getElementById("case-price-amount").textContent = `${formatCoins(caseData.price || 0)} coins`;
 
