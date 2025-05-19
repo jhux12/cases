@@ -407,12 +407,15 @@ currentPrizes[targetIndex] = winningPrize;
 const old = document.getElementById("spinner-wrapper");
 if (old) old.remove();
 
-// Render new spinner and spin to prize
 renderSpinner(currentPrizes, winningPrize);
 
+// ✅ Delay to ensure spinnerWheel is ready
 requestAnimationFrame(() => {
-  spinToPrize(); // triggers correct animation to index 15
+  requestAnimationFrame(() => {
+    spinToPrize();
+  });
 });
+
 
 // Show prize name below spinner
 document.getElementById("prize-name").innerText = winningPrize.name;
