@@ -1,31 +1,17 @@
 let spinnerPrizes = [];
-let spinnerContainer, spinnerWheel, spinnerResultText;
+let spinnerWheel, spinnerResultText;
 
 export function renderSpinner(prizes) {
   spinnerPrizes = prizes;
 
-  const container = document.getElementById("spinner-container");
-  if (!container) return;
-
-  const existing = document.getElementById("spinner-wrapper");
-  if (existing) existing.remove();
-
-  const wrapper = document.createElement("div");
-  wrapper.id = "spinner-wrapper";
-  wrapper.innerHTML = `
-    <div class="relative overflow-hidden w-full">
-      <div class="center-line absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-full bg-pink-500 z-10"></div>
-      <div id="spinner-wheel" class="flex transition-transform duration-[4000ms] ease-in-out"></div>
-    </div>
-    <div id="spinner-result" class="hidden text-center text-xl font-bold text-yellow-400 mt-4"></div>
-  `;
-
-  container.appendChild(wrapper);
-
   spinnerWheel = document.getElementById("spinner-wheel");
   spinnerResultText = document.getElementById("spinner-result");
 
+  if (!spinnerWheel || !spinnerResultText) return;
+
   const extended = [...prizes, ...prizes, ...prizes]; // repeat 3x for smooth loop
+
+  spinnerWheel.innerHTML = ''; // clear previous prizes
 
   extended.forEach(prize => {
     const div = document.createElement("div");
@@ -40,13 +26,11 @@ export function renderSpinner(prizes) {
 }
 
 export function spinToPrize(index) {
-  const prizeWidth = 160 + 16; // card + margin
-  const repetitions = 3;
-  const offsetCenter = (window.innerWidth / 2) - (prizeWidth / 2);
-
-  const baseIndex = spinnerPrizes.length * 1; // 2nd repetition (middle set)
+  const prizeWidth = 160 + 16; // card width + margin
+  const baseIndex = spinnerPrizes.length; // middle repetition
   const finalIndex = baseIndex + index;
 
+  const offsetCenter = (window.innerWidth / 2) - (prizeWidth / 2);
   const totalScroll = finalIndex * prizeWidth;
   const scrollDistance = -(totalScroll - offsetCenter);
 
@@ -59,4 +43,3 @@ export function spinToPrize(index) {
     spinnerResultText.classList.remove("hidden");
   }, 4000);
 }
-
