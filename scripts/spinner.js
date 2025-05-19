@@ -4,20 +4,13 @@ const cardMargin = 16;
 const fullCardWidth = cardWidth + cardMargin;
 let spinnerPrizes = [];
 
-/**
- * Renders the spinner with 30 prize cards and inserts the winning prize in the middle.
- * @param {Array} prizes - List of all case prizes.
- * @param {Object} winningPrize - The prize determined by provably fair logic.
- */
 export function renderSpinner(prizes, winningPrize) {
   const container = document.getElementById("spinner-container");
   if (!container) return;
 
-  // Clean up old spinner
   const existing = document.getElementById("spinner-wrapper");
   if (existing) existing.remove();
 
-  // Spinner HTML structure
   const wrapper = document.createElement("div");
   wrapper.id = "spinner-wrapper";
   wrapper.innerHTML = `
@@ -30,39 +23,35 @@ export function renderSpinner(prizes, winningPrize) {
   container.appendChild(wrapper);
 
   spinnerWheel = document.getElementById("spinner-wheel");
-  const spinnerResultText = document.getElementById("spinner-result");
 
-  // Shuffle and fill 30 prizes, insert winningPrize at index 15
   spinnerPrizes = [];
-  const fallbackPrize = {
-    name: "Mystery",
-    image: "https://dummyimage.com/80x80/2c2c2c/ffffff.png&text=?",
-    value: 0,
-    rarity: "common"
-  };
-
   for (let i = 0; i < 30; i++) {
     let prize = i === 15 ? winningPrize : prizes[Math.floor(Math.random() * prizes.length)];
-    if (!prize || typeof prize !== 'object') prize = fallbackPrize;
-    if (!prize.image || !prize.name) prize = fallbackPrize;
+
+    // Fallback
+    if (!prize || !prize.name || !prize.image) {
+      prize = {
+        name: "Mystery",
+        image: "https://via.placeholder.com/80?text=?",
+        value: 0,
+        rarity: "common"
+      };
+    }
 
     spinnerPrizes.push(prize);
 
     const div = document.createElement("div");
-    const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-');
+    const rarity = (prize.rarity || "common").toLowerCase().replace(/\s+/g, "-");
     div.className = `min-w-[160px] h-40 flex flex-col items-center justify-center rounded-lg mx-2 p-2 text-sm item ${rarity}`;
     div.innerHTML = `
       <img src="${prize.image}" class="h-20 object-contain mb-2" />
       <div class="font-semibold text-center">${prize.name}</div>
-      <div class="text-xs text-gray-400">${prize.value || ''}</div>
+      <div class="text-xs text-gray-400">${prize.value}</div>
     `;
     spinnerWheel.appendChild(div);
   }
 }
 
-/**
- * Animates the spinner to land on the winning prize at index 15.
- */
 export function spinToPrize() {
   const targetIndex = 15;
   const scrollTo = targetIndex * fullCardWidth - (window.innerWidth / 2 - fullCardWidth / 2);
@@ -74,8 +63,16 @@ export function spinToPrize() {
     const prize = spinnerPrizes[targetIndex];
     const spinnerResultText = document.getElementById("spinner-result");
     if (spinnerResultText) {
-      spinnerResultText.textContent = `You won: ${prize.name}!`;
+      spinnerResultText.textContent = `You won: ${prize.name}`;
       spinnerResultText.classList.remove("hidden");
+    }
+
+    // ✅ Also update the #prize-name div in the center
+    const prizeNameDiv = document.getElementById("prize-name");
+    if (prizeNameDiv) {
+      prizeNameDiv.innerText = prize.name;
+      prizeNameDiv.classList.remove("hidden");
     }
   }, 4000);
 }
+
