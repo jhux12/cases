@@ -1,3 +1,11 @@
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
 let spinnerPrizes = [];
 let spinnerContainer, spinnerWheel, spinnerResultText;
 
@@ -25,7 +33,8 @@ export function renderSpinner(prizes) {
   spinnerWheel = document.getElementById("spinner-wheel");
   spinnerResultText = document.getElementById("spinner-result");
 
-  const extended = [...prizes, ...prizes, ...prizes]; // repeat 3x for smooth loop
+const shuffled = shuffle([...prizes]);
+const extended = [...shuffled, ...shuffled, ...shuffled];
 
   extended.forEach(prize => {
     const div = document.createElement("div");
