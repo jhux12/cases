@@ -62,12 +62,20 @@ export function spinToPrize() {
     spinnerWheel.style.transform = `translateX(-${scrollTo}px)`;
   }, 50);
 
-  setTimeout(() => {
-    const prize = spinnerPrizes[targetIndex];
-    const spinnerResultText = document.getElementById("spinner-result");
-    if (spinnerResultText) {
-      spinnerResultText.textContent = `You won: ${prize.name}!`;
-      spinnerResultText.classList.remove("hidden");
-    }
-  }, 4000);
-}
+setTimeout(() => {
+  const prize = spinnerPrizes[targetIndex];
+  const spinnerResultText = document.getElementById("spinner-result");
+  if (spinnerResultText) {
+    spinnerResultText.textContent = `You won: ${prize.name}!`;
+    spinnerResultText.classList.remove("hidden");
+  }
+
+  // 🎯 Apply glow effect to the winning card
+  const allCards = spinnerWheel.querySelectorAll(".item");
+  const winningCard = allCards[targetIndex];
+  if (winningCard) {
+    const glowClass = `glow-${(prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-')}`;
+    winningCard.classList.add(glowClass, "ring-4", "ring-white");
+  }
+}, 4000);
+
