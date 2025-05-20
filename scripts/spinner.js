@@ -2,18 +2,18 @@ let spinnerPrizes = [];
 const cardWidth = 160;
 const cardMargin = 16;
 const fullCardWidth = cardWidth + cardMargin;
+const targetIndex = 15;
 
 export function renderSpinner(prizes, winningPrize) {
   const container = document.getElementById("spinner-container");
   if (!container) return;
 
-  // Clear previous spinner content
+  // Clear spinner
   container.innerHTML = `
-    <div class="relative overflow-hidden w-full">
-      <div class="center-line absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-full bg-pink-500 z-10"></div>
-      <div id="spinner-wheel" class="flex transition-transform duration-[4000ms] ease-in-out"></div>
+    <div class="relative overflow-hidden w-full h-full">
+      <div id="spinner-wheel" class="flex h-full items-center transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)]"></div>
+      <div class="absolute top-0 bottom-0 w-[4px] bg-pink-500 left-1/2 transform -translate-x-1/2 z-10 rounded-full shadow-lg"></div>
     </div>
-    <div id="spinner-result" class="hidden text-center text-xl font-bold text-yellow-400 mt-4"></div>
   `;
 
   const spinnerWheel = document.getElementById("spinner-wheel");
@@ -21,7 +21,7 @@ export function renderSpinner(prizes, winningPrize) {
 
   const shuffled = [...prizes];
   for (let i = 0; i < 30; i++) {
-    let prize = i === 15 ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)];
+    let prize = i === targetIndex ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)];
 
     if (!prize || typeof prize !== 'object' || !prize.image || !prize.name) {
       prize = {
@@ -36,10 +36,10 @@ export function renderSpinner(prizes, winningPrize) {
 
     const div = document.createElement("div");
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-');
-    div.className = `min-w-[160px] h-40 flex flex-col items-center justify-center rounded-lg mx-2 p-2 text-sm item ${rarity}`;
+    div.className = `min-w-[${cardWidth}px] mx-[${cardMargin / 2}px] h-[180px] flex flex-col items-center justify-center text-white rounded-xl bg-black/30 shadow-md item ${rarity}`;
     div.innerHTML = `
-      <img src="${prize.image}" class="h-20 object-contain mb-2" />
-      <div class="font-semibold text-center">${prize.name}</div>
+      <img src="${prize.image}" class="h-20 object-contain mb-2 drop-shadow-md" />
+      <div class="font-bold text-sm text-center leading-tight">${prize.name}</div>
       <div class="text-xs text-gray-400">${prize.value || ''}</div>
     `;
     spinnerWheel.appendChild(div);
@@ -47,35 +47,37 @@ export function renderSpinner(prizes, winningPrize) {
 }
 
 export function spinToPrize() {
-  const targetIndex = 15;
-  const scrollTo = targetIndex * fullCardWidth - (window.innerWidth / 2 - fullCardWidth / 2);
-
-  const spinnerWheel = document.getElementById("spinner-wheel"); // fresh grab each time
+  const spinnerWheel = document.getElementById("spinner-wheel");
   if (!spinnerWheel) return;
 
+  // Ensure layout is stable before animating
   spinnerWheel.style.transition = 'none';
-  spinnerWheel.style.transform = 'translateX(0px)';
+  spinnerWheel.style.transform = 'translateX(0)';
   void spinnerWheel.offsetWidth;
+
+  // Calculate center alignment
+  const viewportCenter = window.innerWidth / 2;
+  const offset = targetIndex * fullCardWidth + fullCardWidth / 2 - viewportCenter;
 
   setTimeout(() => {
     spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
-    spinnerWheel.style.transform = `translateX(-${scrollTo}px)`;
+    spinnerWheel.style.transform = `translateX(-${offset}px)`;
   }, 50);
 
-setTimeout(() => {
-  const prize = spinnerPrizes[targetIndex];
-  const spinnerResultText = document.getElementById("spinner-result");
-  if (spinnerResultText) {
-    spinnerResultText.textContent = `You won: ${prize.name}!`;
-    spinnerResultText.classList.remove("hidden");
-  }
+  // Highlight winning card after spin
+  setTimeout(() => {
+    const prize = spinnerPrizes[targetIndex];
+    const spinnerResultText = document.getElementById("spinner-result");
+    if (spinnerResultText) {
+      spinnerResultText.textContent = `You won: ${prize.name}!`;
+      spinnerResultText.classList.remove("hidden");
+    }
 
-  // 🎯 Apply glow effect to the winning card
-  const allCards = spinnerWheel.querySelectorAll(".item");
-  const winningCard = allCards[targetIndex];
-  if (winningCard) {
-    const glowClass = `glow-${(prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-')}`;
-    winningCard.classList.add(glowClass, "ring-4", "ring-white");
-  }
-}, 4000);
+    const allCards = spinnerWheel.querySelectorAll(".item");
+    const winningCard = allCards[targetIndex];
+    if (winningCard) {
+      const glowClass = `glow-${(prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-')}`;
+      winningCard.classList.add(glowClass, "ring-4", "ring-white");
+    }
+  }, 4000);
 }
