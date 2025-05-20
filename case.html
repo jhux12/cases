@@ -412,12 +412,11 @@ if (old) old.remove();
 
 renderSpinner(currentPrizes, winningPrize);
 
-// ✅ Delay to ensure spinnerWheel is ready
-requestAnimationFrame(() => {
-  requestAnimationFrame(() => {
-    spinToPrize();
-  });
-});
+// 🛠 Ensure DOM is fully rendered before calculating positions
+setTimeout(() => {
+  spinToPrize();
+}, 100);
+
 
 
 // Show prize name below spinner
