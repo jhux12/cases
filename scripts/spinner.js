@@ -21,17 +21,18 @@ export function renderSpinner(prizes, winningPrize) {
   if (old) old.remove();
 
   // Inject spinner structure
-  container.innerHTML = `
-    <div id="spinner-wrapper">
-      <div class="relative overflow-hidden w-full h-[200px]">
-        <div id="spinner-wheel" class="flex h-full items-center transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)]"></div>
-        <div class="absolute top-0 bottom-0 w-[4px] bg-pink-500 left-1/2 transform -translate-x-1/2 z-10 rounded-full shadow-lg"></div>
-      </div>
-      <div id="rarity-indicator" class="h-2 mt-2 rounded-full w-full bg-gray-700 overflow-hidden">
-        <div id="rarity-bar" class="h-full transition-all duration-300 ease-in-out w-full bg-gray-500"></div>
-      </div>
+container.innerHTML = `
+  <div id="spinner-wrapper">
+    <div class="relative overflow-hidden w-full h-[200px]">
+      <div id="spinner-wheel" class="flex h-full items-center transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)]"></div>
+      <div class="absolute top-0 bottom-0 w-[4px] bg-pink-500 left-1/2 transform -translate-x-1/2 z-10 rounded-full shadow-lg"></div>
     </div>
-  `;
+  </div>
+  <div id="rarity-indicator" class="h-2 mt-2 rounded-full w-full bg-gray-700 overflow-hidden">
+    <div id="rarity-bar" class="h-full transition-all duration-300 ease-in-out w-full bg-gray-500"></div>
+  </div>
+`;
+
 
   const spinnerWheel = document.getElementById("spinner-wheel");
   spinnerPrizes = [];
