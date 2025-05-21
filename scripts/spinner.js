@@ -4,11 +4,11 @@ const targetIndex = 15;
 function getRarityColor(rarity) {
   const base = rarity?.toLowerCase().replace(/\s+/g, '');
   switch (base) {
-    case 'legendary': return '#facc15';  // gold
-    case 'ultrarare': return '#e879f9';  // purple
-    case 'rare': return '#3b82f6';       // blue
-    case 'uncommon': return '#22c55e';   // green
-    default: return '#9ca3af';           // gray
+    case 'legendary': return '#facc15';
+    case 'ultrarare': return '#e879f9';
+    case 'rare': return '#3b82f6';
+    case 'uncommon': return '#22c55e';
+    default: return '#9ca3af';
   }
 }
 
@@ -16,7 +16,6 @@ export function renderSpinner(prizes, winningPrize) {
   const container = document.getElementById("spinner-container");
   if (!container) return console.warn("🚫 Spinner container not found");
 
-  // Clear any previous spinner content
   container.innerHTML = "";
 
   const spinnerWheel = document.createElement("div");
@@ -75,11 +74,9 @@ export function spinToPrize() {
   spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
   spinnerWheel.style.transform = `translateX(-${scrollOffset}px)`;
 
-  // Show rarity info section
   const rarityInfo = document.getElementById("rarity-info");
   if (rarityInfo) rarityInfo.classList.remove("hidden");
 
-  // Live rarity tracking
   let animationFrame;
   function trackCenterPrize() {
     const cards = spinnerWheel.querySelectorAll(".item");
@@ -104,9 +101,7 @@ export function spinToPrize() {
       const color = getRarityColor(rarity);
 
       const bar = document.getElementById("rarity-bar");
-      const label = document.getElementById("rarity-label");
       if (bar) bar.style.backgroundColor = color;
-      if (label) label.textContent = `Current: ${rarity.toUpperCase()}`;
     }
 
     animationFrame = requestAnimationFrame(trackCenterPrize);
@@ -114,7 +109,6 @@ export function spinToPrize() {
 
   trackCenterPrize();
 
-  // Stop and show result
   setTimeout(() => {
     cancelAnimationFrame(animationFrame);
 
@@ -131,5 +125,4 @@ export function spinToPrize() {
     }
   }, 4000);
 }
-
 
