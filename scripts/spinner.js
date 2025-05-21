@@ -16,12 +16,12 @@ export function renderSpinner(prizes, winningPrize) {
   const container = document.getElementById("spinner-container");
   if (!container) return;
 
-  container.innerHTML = `
-    <div class="relative overflow-hidden w-full h-full">
-      <div id="spinner-wheel" class="flex h-full items-center transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)]"></div>
-      <div class="absolute top-0 bottom-0 w-[4px] bg-pink-500 left-1/2 transform -translate-x-1/2 z-10 rounded-full shadow-lg"></div>
-    </div>
-  `;
+container.innerHTML = `
+  <div id="spinner-wrapper" class="relative overflow-hidden w-full h-full">
+    <div id="spinner-wheel" class="flex h-full items-center transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)]"></div>
+    <div class="absolute top-0 bottom-0 w-[4px] bg-pink-500 left-1/2 transform -translate-x-1/2 z-10 rounded-full shadow-lg"></div>
+  </div>
+`;
 
   const spinnerWheel = document.getElementById("spinner-wheel");
   spinnerPrizes = [];
