@@ -16,20 +16,22 @@ export function renderSpinner(prizes, winningPrize) {
   const container = document.getElementById("spinner-container");
   if (!container) return console.warn("🚫 Spinner container not found");
 
-  // Clean old spinner if it exists
+  // Remove previous spinner if it exists
   const old = document.getElementById("spinner-wrapper");
   if (old) old.remove();
 
-container.innerHTML = `
-  <div id="spinner-wrapper" class="relative overflow-hidden w-full h-full">
-    <div id="spinner-wheel" class="flex h-full items-center transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)]"></div>
-    <div class="absolute top-0 bottom-0 w-[4px] bg-pink-500 left-1/2 transform -translate-x-1/2 z-10 rounded-full shadow-lg"></div>
-  </div>
-  <div id="rarity-indicator" class="h-2 mt-2 rounded-full w-full bg-gray-700 overflow-hidden">
-    <div id="rarity-bar" class="h-full transition-all duration-300 ease-in-out w-full bg-gray-500"></div>
-  </div>
-`;
-
+  // Inject spinner structure
+  container.innerHTML = `
+    <div id="spinner-wrapper">
+      <div class="relative overflow-hidden w-full h-[200px]">
+        <div id="spinner-wheel" class="flex h-full items-center transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)]"></div>
+        <div class="absolute top-0 bottom-0 w-[4px] bg-pink-500 left-1/2 transform -translate-x-1/2 z-10 rounded-full shadow-lg"></div>
+      </div>
+      <div id="rarity-indicator" class="h-2 mt-2 rounded-full w-full bg-gray-700 overflow-hidden">
+        <div id="rarity-bar" class="h-full transition-all duration-300 ease-in-out w-full bg-gray-500"></div>
+      </div>
+    </div>
+  `;
 
   const spinnerWheel = document.getElementById("spinner-wheel");
   spinnerPrizes = [];
@@ -94,7 +96,7 @@ export function spinToPrize() {
   spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
   spinnerWheel.style.transform = `translateX(-${scrollOffset}px)`;
 
-  // 🎯 Live rarity tracker
+  // Live rarity bar update
   let animationFrame;
   function trackCenterPrize() {
     const cards = spinnerWheel.querySelectorAll(".item");
@@ -125,7 +127,7 @@ export function spinToPrize() {
 
   trackCenterPrize();
 
-  // Reveal result after spin
+  // Finish after spin
   setTimeout(() => {
     cancelAnimationFrame(animationFrame);
 
@@ -142,3 +144,4 @@ export function spinToPrize() {
     }
   }, 4000);
 }
+
