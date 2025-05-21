@@ -19,34 +19,41 @@ export function renderSpinner(prizes, winningPrize) {
   const old = document.getElementById("spinner-wrapper");
   if (old) old.remove();
 
- container.innerHTML = `
-  <div id="spinner-wrapper">
-    <div class="relative overflow-hidden w-full h-[200px]">
-      <div id="spinner-wheel" class="flex h-full items-center transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)]"></div>
-      <div class="absolute top-0 bottom-0 w-[4px] bg-pink-500 left-1/2 transform -translate-x-1/2 z-10 rounded-full shadow-lg"></div>
+  container.innerHTML = `
+    <div id="spinner-wrapper">
+      <div class="relative overflow-hidden w-full h-[200px]">
+        <div id="spinner-wheel" class="flex h-full items-center transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)]"></div>
+        <div class="absolute top-0 bottom-0 w-[4px] bg-pink-500 left-1/2 transform -translate-x-1/2 z-10 rounded-full shadow-lg"></div>
+      </div>
     </div>
-  </div>
-  <div style="margin-top: 8px; display: flex; align-items: center; gap: 12px; justify-content: center;">
-    <strong id="rarity-label" style="color: white; font-size: 14px;">Current: COMMON</strong>
-    <div id="rarity-indicator" style="
-      height: 20px;
-      width: 200px;
-      border-radius: 9999px;
-      background: #1e293b;
-      border: 2px solid white;
-      overflow: hidden;
-      box-shadow: 0 0 10px rgba(255,255,255,0.3);
+    <div style="
+      position: relative;
+      z-index: 50;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
     ">
-      <div id="rarity-bar" style="
-        height: 100%;
-        width: 100%;
-        background-color: red;
-        transition: background-color 0.3s ease-in-out;
-      "></div>
+      <strong id="rarity-label" style="color: white; font-size: 14px;">Current: COMMON</strong>
+      <div id="rarity-indicator" style="
+        height: 20px;
+        width: 240px;
+        border-radius: 9999px;
+        background: #1e293b;
+        border: 2px solid white;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(255,255,255,0.3);
+      ">
+        <div id="rarity-bar" style="
+          height: 100%;
+          width: 100%;
+          background-color: lime;
+          transition: background-color 0.3s ease-in-out;
+        "></div>
+      </div>
     </div>
-  </div>
-`;
-
+  `;
 
   const spinnerWheel = document.getElementById("spinner-wheel");
   spinnerPrizes = [];
@@ -99,7 +106,7 @@ export function spinToPrize() {
   spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
   spinnerWheel.style.transform = `translateX(-${scrollOffset}px)`;
 
-  // Track center rarity
+  // Track center prize
   let animationFrame;
   function trackCenterPrize() {
     const cards = spinnerWheel.querySelectorAll(".item");
@@ -134,7 +141,6 @@ export function spinToPrize() {
 
   trackCenterPrize();
 
-  // Reveal result after spin
   setTimeout(() => {
     cancelAnimationFrame(animationFrame);
 
@@ -151,4 +157,3 @@ export function spinToPrize() {
     }
   }, 4000);
 }
-
