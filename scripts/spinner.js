@@ -28,9 +28,9 @@ export function renderSpinner(prizes, winningPrize) {
       </div>
     </div>
     <div class="mt-2 text-center text-sm font-semibold text-white" id="rarity-label">Current: COMMON</div>
-    <div id="rarity-indicator" class="h-4 mt-2 rounded-full w-full bg-gray-700 overflow-hidden border border-white/20">
-      <div id="rarity-bar" class="h-full w-full bg-red-500 transition-all duration-300 ease-in-out"></div>
-    </div>
+   <div id="rarity-indicator" style="height: 12px; margin-top: 12px; background: #1f2937; border: 1px solid #ffffff22; border-radius: 9999px; overflow: hidden;">
+  <div id="rarity-bar" style="height: 100%; width: 100%; background: #ef4444; transition: background-color 0.3s ease-in-out;"></div>
+</div>
   `;
 
   const spinnerWheel = document.getElementById("spinner-wheel");
