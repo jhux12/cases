@@ -16,21 +16,55 @@ export function renderSpinner(prizes, winningPrize) {
   const container = document.getElementById("spinner-container");
   if (!container) return console.warn("🚫 Spinner container not found");
 
-  // TEMP: Replace with visual debug box
+  // Clean old spinner if it exists
+  const old = document.getElementById("spinner-wrapper");
+  if (old) old.remove();
+
   container.innerHTML = `
-    <div id="spinner-wrapper" style="border: 2px solid red; padding: 10px; color: white;">
-      LOADING SPINNER...
+    <div id="spinner-wrapper" class="relative overflow-hidden w-full h-full">
+      <div id="spinner-wheel" class="flex h-full items-center transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)]"></div>
+      <div class="absolute top-0 bottom-0 w-[4px] bg-pink-500 left-1/2 transform -translate-x-1/2 z-10 rounded-full shadow-lg"></div>
     </div>
   `;
 
-  console.log("✅ renderSpinner() ran. Prizes:", prizes);
-  console.log("✅ Winning prize:", winningPrize);
+  const spinnerWheel = document.getElementById("spinner-wheel");
+  spinnerPrizes = [];
+
+  const shuffled = [...prizes];
+  for (let i = 0; i < 30; i++) {
+    let prize = i === targetIndex ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)];
+
+    if (!prize || typeof prize !== 'object' || !prize.image || !prize.name) {
+      prize = {
+        name: "Mystery",
+        image: "https://via.placeholder.com/80?text=?",
+        value: 0,
+        rarity: "common"
+      };
+    }
+
+    spinnerPrizes.push(prize);
+
+    const div = document.createElement("div");
+    const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
+    const borderColor = getRarityColor(rarity);
+
+    div.className = `min-w-[160px] mx-2 h-[180px] flex flex-col items-center justify-center text-white rounded-xl bg-black/30 shadow-md item border-2`;
+    div.style.borderColor = borderColor;
+
+    div.innerHTML = `
+      <img src="${prize.image}" class="h-20 object-contain mb-2 drop-shadow-md" />
+      <div class="font-bold text-sm text-center leading-tight">${prize.name}</div>
+      <div class="text-xs text-gray-400">${prize.value || ''}</div>
+    `;
+    spinnerWheel.appendChild(div);
+  }
+
+  console.log("✅ Spinner rendered with", spinnerPrizes.length, "prizes");
 }
 
 export function spinToPrize() {
   const spinnerWheel = document.getElementById("spinner-wheel");
-  console.log("📦 spinnerWheel found?", spinnerWheel);
-
   if (!spinnerWheel) {
     console.warn("⚠️ spinnerWheel is missing from DOM!");
     return;
@@ -44,19 +78,53 @@ export function spinToPrize() {
   }
 
   const targetRect = targetCard.getBoundingClientRect();
-  console.log("📐 Target card position:", targetRect);
-
   if (!targetRect.width || targetRect.width < 50) {
     console.warn("🛑 Layout not ready, skipping spin.");
     return;
   }
 
-  // TEMP: Disable movement to confirm if spinner stays
-  spinnerWheel.style.transition = 'transform 4s ease-in-out';
-  spinnerWheel.style.transform = 'translateX(0px)';
+  const cardCenter = targetRect.left + targetRect.width / 2;
+  const containerCenter = window.innerWidth / 2;
+  const scrollOffset = cardCenter - containerCenter;
 
-  // Glow + win text
+  spinnerWheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+  spinnerWheel.style.transform = `translateX(-${scrollOffset}px)`;
+
+  // 🎯 Live rarity tracker
+  let animationFrame;
+  function trackCenterPrize() {
+    const cards = spinnerWheel.querySelectorAll(".item");
+    let centerX = window.innerWidth / 2;
+    let closestCard = null;
+    let minDistance = Infinity;
+
+    cards.forEach(card => {
+      const rect = card.getBoundingClientRect();
+      const cardCenter = rect.left + rect.width / 2;
+      const distance = Math.abs(centerX - cardCenter);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestCard = card;
+      }
+    });
+
+    if (closestCard) {
+      const prizeIndex = Array.from(cards).indexOf(closestCard);
+      const rarity = (spinnerPrizes[prizeIndex]?.rarity || 'common').toLowerCase().replace(/\s+/g, '');
+      const color = getRarityColor(rarity);
+      const bar = document.getElementById("rarity-bar");
+      if (bar) bar.style.backgroundColor = color;
+    }
+
+    animationFrame = requestAnimationFrame(trackCenterPrize);
+  }
+
+  trackCenterPrize();
+
+  // Reveal result after spin
   setTimeout(() => {
+    cancelAnimationFrame(animationFrame);
+
     const prize = spinnerPrizes[targetIndex];
     const spinnerResultText = document.getElementById("spinner-result");
     if (spinnerResultText) {
