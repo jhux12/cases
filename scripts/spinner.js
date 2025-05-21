@@ -72,6 +72,10 @@ export function spinToPrize() {
 
     const targetRect = targetCard.getBoundingClientRect();
     const cardCenter = targetRect.left + targetRect.width / 2;
+    if (!targetRect.width || targetRect.width < 50) {
+  console.warn("Card layout not ready, skipping spin.");
+  return;
+}
     const containerCenter = window.innerWidth / 2;
     const scrollOffset = cardCenter - containerCenter;
 
