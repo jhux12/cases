@@ -38,4 +38,18 @@ window.updateUserBalance = function () {
     el.textContent = "Balance: error";
   });
 };
+window.updateUserBalance = function () {
+  const user = firebase.auth().currentUser;
+  const el = document.getElementById("user-balance");
+  if (!user || !el) return;
+
+  firebase.database().ref("users/" + user.uid).once("value").then((snap) => {
+    const balance = snap.val()?.balance || 0;
+    el.textContent = `Balance: ${parseFloat(balance).toLocaleString()} coins`;
+    console.log("✅ Balance updated to:", balance);
+  }).catch((error) => {
+    console.error("❌ Failed to fetch balance:", error);
+    el.textContent = "Balance: error";
+  });
+};
 
