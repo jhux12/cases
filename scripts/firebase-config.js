@@ -12,3 +12,16 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
+
+function updateUserBalanceCompat() {
+  const user = firebase.auth().currentUser;
+  const balanceEl = document.getElementById("user-balance");
+  if (!user || !balanceEl) return;
+
+  firebase.database().ref("users/" + user.uid).once("value").then((snap) => {
+    const balance = snap.val()?.balance || 0;
+    balanceEl.textContent = `Balance: ${parseFloat(balance).toLocaleString()} coins`;
+  }).catch(() => {
+    balanceEl.textContent = "Balance: error";
+  });
+}
