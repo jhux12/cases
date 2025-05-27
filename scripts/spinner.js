@@ -1,3 +1,5 @@
+// spinner.js
+
 let spinnerPrizes = [];
 const targetIndex = 15;
 
@@ -12,7 +14,13 @@ function getRarityColor(rarity) {
   }
 }
 
-export function renderSpinner(prizes, winningPrize) {
+export function getTopPrizes(prizeList, count = 30) {
+  return [...prizeList]
+    .sort((a, b) => (b.value || 0) - (a.value || 0))
+    .slice(0, count);
+}
+
+export function renderSpinner(prizes, winningPrize, isPreview = false) {
   const container = document.getElementById("spinner-container");
   if (!container) return console.warn("🚫 Spinner container not found");
 
@@ -26,8 +34,14 @@ export function renderSpinner(prizes, winningPrize) {
   spinnerPrizes = [];
 
   const shuffled = [...prizes];
+
   for (let i = 0; i < 30; i++) {
-    let prize = i === targetIndex ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)];
+    let prize;
+    if (isPreview) {
+      prize = shuffled[i % shuffled.length];
+    } else {
+      prize = i === targetIndex ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)];
+    }
 
     if (!prize || typeof prize !== 'object' || !prize.image || !prize.name) {
       prize = {
