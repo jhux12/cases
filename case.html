@@ -219,12 +219,12 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
  async function updateUserBalanceCompat(retry = 0) {
-  const el = document.getElementById("user-balance");
-  const user = firebase.auth().currentUser; // ✅ compat works here
+  const span = document.getElementById("balance-value");
+  const user = firebase.auth().currentUser; // ✅ Using compat since your db writes use compat too
 
-  if (!el || !user) {
+  if (!span || !user) {
     if (retry < 10) {
-      console.warn("⚠️ Retrying balance update... (attempt " + (retry + 1) + ")");
+      console.warn(`⚠️ Retry balance update... (${retry + 1})`);
       setTimeout(() => updateUserBalanceCompat(retry + 1), 300);
     } else {
       console.error("❌ Failed to update balance after multiple attempts.");
@@ -235,16 +235,14 @@ const auth = getAuth(app);
   try {
     const snap = await firebase.database().ref("users/" + user.uid).once("value");
     const balance = snap.val()?.balance || 0;
-const balanceSpan = document.getElementById("balance-value");
-if (balanceSpan) {
-  balanceSpan.textContent = `${parseFloat(balance).toLocaleString()} coins`;
-}
+    span.textContent = `${parseFloat(balance).toLocaleString()} coins`;
     console.log("✅ Balance displayed:", balance);
   } catch (err) {
-    el.textContent = "Balance: error";
+    span.textContent = "error";
     console.error("❌ Error fetching balance", err);
   }
 }
+
  
 onAuthStateChanged(auth, (user) => {
   const el = document.getElementById("user-balance");
