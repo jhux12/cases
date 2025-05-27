@@ -29,6 +29,9 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
   const spinnerWheel = document.createElement("div");
   spinnerWheel.id = "spinner-wheel";
   spinnerWheel.className = "flex h-full items-center transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)]";
+  if (isPreview) {
+  spinnerWheel.classList.add("animate-scroll-preview");
+}
   container.appendChild(spinnerWheel);
 
   spinnerPrizes = [];
