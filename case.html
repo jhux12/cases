@@ -232,7 +232,7 @@ const auth = getAuth(app);
   try {
     const snap = await firebase.database().ref("users/" + user.uid).once("value");
     const balance = snap.val()?.balance || 0;
-    el.textContent = `Balance: ${parseFloat(balance).toLocaleString()} coins`;
+    el.innerHTML = `Balance: <span class="ml-1 text-yellow-300">${parseFloat(balance).toLocaleString()} coins</span>`;
     console.log("✅ Balance displayed:", balance);
   } catch (err) {
     el.textContent = "Balance: error";
