@@ -215,18 +215,23 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
- async function updateUserBalanceCompat() {
+ async function updateUserBalanceCompat(retry = 0) {
   const el = document.getElementById("user-balance");
-  const user = firebase.auth().currentUser; // ✅ Use compat-style here
+  const user = auth.currentUser; // ✅ Modular-compatible
 
   if (!el || !user) {
-    console.warn("⚠️ #user-balance element or user not found.");
+    if (retry < 10) {
+      console.warn("⚠️ Retrying balance update... (attempt " + (retry + 1) + ")");
+      setTimeout(() => updateUserBalanceCompat(retry + 1), 300);
+    } else {
+      console.error("❌ Failed to update balance after multiple attempts.");
+    }
     return;
   }
 
   try {
-    const userSnap = await firebase.database().ref("users/" + user.uid).once("value");
-    const balance = userSnap.val()?.balance || 0;
+    const snap = await get(ref(db, "users/" + user.uid));
+    const balance = snap.val()?.balance || 0;
     el.textContent = `Balance: ${parseFloat(balance).toLocaleString()} coins`;
     console.log("✅ Balance displayed:", balance);
   } catch (err) {
@@ -234,16 +239,13 @@ const auth = getAuth(app);
     console.error("❌ Error fetching balance", err);
   }
 }
-
  
   onAuthStateChanged(auth, async (user) => {
   if (user) {
-    const userRef = ref(db, 'users/' + user.uid);
-    const userSnap = await get(userRef);
-    const balance = parseFloat(userSnap.val()?.balance || 0);
     updateUserBalanceCompat();
   } else {
-    document.getElementById("user-balance").innerText = `Balance: Sign in required`;
+const el = document.getElementById("user-balance");
+  if (el) el.textContent = "Balance: Sign in required";
   }
 });
 
@@ -343,7 +345,6 @@ setTimeout(() => {
   const casePrice = parseFloat(caseData.price || 0);
   const userRef = ref(db, 'users/' + user.uid);
   const userSnap = await get(userRef);
-  const balance = parseFloat(userSnap.val()?.balance || 0);
   if (balance < casePrice) return alert("Not enough coins!");
 
   const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
