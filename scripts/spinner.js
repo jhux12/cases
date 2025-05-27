@@ -28,10 +28,13 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
 
   const spinnerWheel = document.createElement("div");
   spinnerWheel.id = "spinner-wheel";
-  spinnerWheel.className = "flex h-full items-center transition-transform duration-[4000ms] ease-[cubic-bezier(0.17,0.67,0.12,0.99)]";
-  if (isPreview) {
+ spinnerWheel.className = "flex h-full items-center";
+if (isPreview) {
   spinnerWheel.classList.add("animate-scroll-preview");
+} else {
+  spinnerWheel.classList.add("transition-transform", "duration-[4000ms]", "ease-[cubic-bezier(0.17,0.67,0.12,0.99)]");
 }
+
   container.appendChild(spinnerWheel);
 
   spinnerPrizes = [];
