@@ -218,14 +218,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
- async function updateUserBalanceCompat(user, retry = 0) {
+ async function updateUserBalanceCompat(retry = 0) {
   const span = document.getElementById("balance-value");
-
+  const user = firebase.auth().currentUser; // ✅ Using compat since your db writes use compat too
 
   if (!span || !user) {
     if (retry < 10) {
       console.warn(`⚠️ Retry balance update... (${retry + 1})`);
-   setTimeout(() => updateUserBalanceCompat(user, retry + 1), 300);
+      setTimeout(() => updateUserBalanceCompat(retry + 1), 300);
     } else {
       console.error("❌ Failed to update balance after multiple attempts.");
     }
@@ -245,14 +245,13 @@ const auth = getAuth(app);
 
  
 onAuthStateChanged(auth, (user) => {
-  const el = document.getElementById("balance-value"); // 🎯 target the inner span now
+  const el = document.getElementById("user-balance");
   if (user) {
-    updateUserBalanceCompat(user); // ✅ pass user object directly
+    updateUserBalanceCompat(); // now safe to run
   } else if (el) {
-    el.textContent = "Sign in required";
+    el.textContent = "Balance: Sign in required";
   }
 });
-
 
 
   const urlParams = new URLSearchParams(window.location.search);
