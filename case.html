@@ -543,21 +543,33 @@ openBtn.onclick = openCaseHandler;
     <img id="overlay-image" src="" class="w-full h-48 object-contain mb-4 rounded-md" />
     <h3 id="overlay-name" class="text-lg font-bold text-white"></h3>
     <p id="overlay-value" class="text-sm text-yellow-300 mt-1"></p>
+    <span id="overlay-rarity" class="text-xs font-semibold px-3 py-1 rounded-full mt-2 inline-block"></span>
   </div>
 </div>
 
 <!-- Script for expanding prize image -->
 <script>
-  function expandPrize(imageUrl, name = "", value = 0) {
+  function expandPrize(imageUrl, name = "", value = 0, rarity = "common") {
     const overlay = document.getElementById('prize-overlay');
     const overlayImg = document.getElementById('overlay-image');
     const overlayName = document.getElementById('overlay-name');
     const overlayValue = document.getElementById('overlay-value');
+    const overlayRarity = document.getElementById('overlay-rarity');
 
-    if (overlay && overlayImg && overlayName && overlayValue) {
+    const rarityColors = {
+      "legendary": "bg-yellow-400 text-black",
+      "ultra rare": "bg-purple-500 text-white",
+      "rare": "bg-blue-500 text-white",
+      "uncommon": "bg-green-500 text-white",
+      "common": "bg-gray-400 text-black"
+    };
+
+    if (overlay && overlayImg && overlayName && overlayValue && overlayRarity) {
       overlayImg.src = imageUrl;
       overlayName.textContent = name;
       overlayValue.textContent = `${parseFloat(value).toLocaleString()} coins`;
+      overlayRarity.textContent = rarity.toUpperCase();
+      overlayRarity.className = `text-xs font-semibold px-3 py-1 rounded-full mt-2 inline-block ${rarityColors[rarity.toLowerCase()] || 'bg-gray-400 text-black'}`;
       overlay.classList.remove('hidden');
     }
   }
