@@ -443,5 +443,13 @@ html {
 .animate-scroll-preview {
   animation: scroll-preview 5s ease-in-out infinite;
 }
+@keyframes scrollPreview {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll-preview {
+  animation: scrollPreview 20s linear infinite;
+}
 
 
