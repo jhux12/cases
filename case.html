@@ -345,6 +345,7 @@ setTimeout(() => {
   const casePrice = parseFloat(caseData.price || 0);
   const userRef = ref(db, 'users/' + user.uid);
   const userSnap = await get(userRef);
+  const balance = parseFloat(userSnap.val()?.balance || 0);
   if (balance < casePrice) return alert("Not enough coins!");
 
   const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
@@ -465,7 +466,6 @@ setTimeout(() => {
   audio.volume = 0.75;
   audio.play().catch(() => {});
 }, 4000); // wait until spinner animation finishes
-
 
   // 💰 Deduct balance
   await firebase.database().ref('users/' + user.uid + '/balance').set(balance - casePrice);
