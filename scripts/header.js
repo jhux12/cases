@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <a href="rewards.html" class="flex items-center gap-1 text-yellow-400 font-semibold hover:text-yellow-300 transition">
           <i class="fas fa-gift"></i> Rewards
         </a>
+        <a href="marketplace.html" class="flex items-center gap-1 text-pink-400 font-semibold hover:text-pink-300 transition">
+  <i class="fas fa-store"></i> Marketplace
+</a>
         <div id="user-balance" class="flex items-center gap-1 bg-gray-800 text-white px-3 py-1 rounded-full text-sm hidden">
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
           <span id="balance-amount">0</span>
@@ -49,6 +52,9 @@ document.addEventListener("DOMContentLoaded", () => {
       <a id="inventory-link" href="inventory.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm hidden"><i class="fas fa-box-open mr-2"></i> Inventory</a>
       <a href="how-it-works.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm"><i class="fas fa-question-circle mr-2"></i> How It Works</a>
       <a href="rewards.html" class="block px-4 py-2 hover:bg-gray-700 text-yellow-400 text-sm"><i class="fas fa-gift mr-2"></i> Rewards</a>
+      <a href="marketplace.html" class="block px-4 py-2 hover:bg-gray-700 text-pink-400 text-sm">
+  <i class="fas fa-store mr-2"></i> Marketplace
+</a>
       <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 hover:bg-gray-700 text-red-400 text-sm"><i class="fas fa-sign-in-alt mr-2"></i> Sign In</a>
     </div>
   `;
