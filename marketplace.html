@@ -79,6 +79,14 @@
     });
   </script>
   <script src="scripts/topup.js"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Force re-run navbar setup if it's not working
+    if (typeof window.initNavbar === 'function') {
+      window.initNavbar();
+    }
+  });
+</script>
 </body>
 </html>
 
