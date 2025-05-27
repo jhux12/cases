@@ -195,7 +195,7 @@
 </section>
 
 <script type="module">
-  import { renderSpinner, spinToPrize } from './scripts/spinner.js';
+import { renderSpinner, spinToPrize, getTopPrizes } from './scripts/spinner.js';
   function formatCoins(num) {
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
   if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
@@ -309,6 +309,9 @@ if (openBtnText) {
     const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
       return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
     });
+    
+    renderSpinner(getTopPrizes(prizeList), null, true); // 👈 Preview mode
+
     
   const currentPrizes = prizeList;
   const prizeHTML = prizeList.map(prize => {
