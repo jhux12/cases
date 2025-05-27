@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Packly.gg | Marketplace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles/main.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script src="scripts/auth.js" type="module"></script>
+  <script src="scripts/header.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/footer.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white">
+  <header></header>
+
+  <section class="pt-32 pb-12 px-4 max-w-6xl mx-auto">
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-extrabold text-white mb-2">🛒 Marketplace</h1>
+      <p class="text-gray-400 text-sm">Buy cards directly using your coins.</p>
+    </div>
+
+    <div id="market-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+  </section>
+
+  <template id="market-card-template">
+    <div class="bg-black/30 border border-white/10 rounded-xl p-4 text-white text-sm shadow-md hover:shadow-purple-500/30 transition cursor-pointer group flex flex-col items-center">
+      <img src="" class="h-32 object-contain mb-2 rounded" alt="Card Image">
+      <div class="font-semibold text-center leading-tight name"></div>
+      <div class="text-yellow-300 font-bold mt-1 value"></div>
+      <div class="text-xs opacity-70 mt-1 rarity"></div>
+      <button class="mt-3 px-3 py-1 bg-pink-600 hover:bg-pink-700 text-white rounded-full text-xs font-bold transition buy-btn">Buy</button>
+    </div>
+  </template>
+
+  <script>
+    firebase.auth().onAuthStateChanged(async (user) => {
+      if (!user) return;
+      const userRef = firebase.database().ref("users/" + user.uid);
+      const snapshot = await userRef.once("value");
+      const userData = snapshot.val();
+      const balance = userData?.balance || 0;
+
+      firebase.database().ref("marketplace").once("value").then(snap => {
+        const cards = snap.val() || {};
+        const grid = document.getElementById("market-grid");
+        const template = document.getElementById("market-card-template");
+
+        Object.entries(cards).forEach(([key, card]) => {
+          const clone = template.content.cloneNode(true);
+          clone.querySelector("img").src = card.image;
+          clone.querySelector(".name").textContent = card.name;
+          clone.querySelector(".value").textContent = `${card.value.toLocaleString()} coins`;
+          clone.querySelector(".rarity").textContent = `Rarity: ${card.rarity}`;
+          clone.querySelector(".buy-btn").addEventListener("click", async () => {
+            if (balance < card.value) return alert("Not enough coins!");
+            await firebase.database().ref("users/" + user.uid + "/balance").set(balance - card.value);
+            await firebase.database().ref("users/" + user.uid + "/inventory").push({
+              name: card.name,
+              image: card.image,
+              value: card.value,
+              rarity: card.rarity,
+              fromMarketplace: true,
+              timestamp: Date.now()
+            });
+            alert("✅ Card purchased and added to inventory!");
+            location.reload();
+          });
+          grid.appendChild(clone);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
