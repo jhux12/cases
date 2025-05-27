@@ -146,6 +146,9 @@
 <p id="user-balance" class="text-xs text-gray-400 mt-1 flex items-center gap-1">
   Balance:
   <span id="balance-value" class="text-yellow-300">... coins</span>
+  <button id="refresh-balance" class="text-xs text-blue-400 hover:underline ml-2" title="Refresh Balance">
+    ⟳
+  </button>
 </p>
 
       <!-- Case Price -->
@@ -242,7 +245,15 @@ const auth = getAuth(app);
     console.error("❌ Error fetching balance", err);
   }
 }
-
+// ✅ Add manual refresh button listener
+document.addEventListener("DOMContentLoaded", () => {
+  const refreshBtn = document.getElementById("refresh-balance");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", () => {
+      updateUserBalanceCompat(); // re-call the same function
+    });
+  }
+});
  
 onAuthStateChanged(auth, (user) => {
   const el = document.getElementById("user-balance");
