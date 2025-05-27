@@ -240,15 +240,14 @@ const auth = getAuth(app);
   }
 }
  
-  onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, (user) => {
   if (user) {
-    updateUserBalanceCompat();
+    updateUserBalanceCompat(); // ✅ now safe to call
   } else {
-const el = document.getElementById("user-balance");
-  if (el) el.textContent = "Balance: Sign in required";
+    const el = document.getElementById("user-balance");
+    if (el) el.textContent = "Balance: Sign in required";
   }
 });
-
 
 
   const urlParams = new URLSearchParams(window.location.search);
