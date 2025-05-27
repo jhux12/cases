@@ -320,7 +320,7 @@ if (openBtnText) {
   const valueFormatted = formatCoins(prize.value || 0);
 
   return `
-    <div class="rounded-xl p-3 text-white cursor-pointer transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10 ${gradientClass}"onclick="expandPrize('${prize.image.replace(/'/g, "\\'")}', '${prize.name.replace(/'/g, "\\'")}', ${prize.value || 0})">
+    <div class="rounded-xl p-3 text-white cursor-pointer transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10 ${gradientClass}"onclick="expandPrize('${prize.image.replace(/'/g, "\\'")}', '${prize.name.replace(/'/g, "\\'")}', ${prize.value || 0}, '${prize.rarity || 'common'}')">
       <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3 shadow-md ring-2 ring-white/10 bg-black/10 p-1" />
 
 
