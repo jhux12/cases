@@ -51,6 +51,7 @@
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('shipments')">Shipments</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('support')">Support Forms</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('users')">Users</a>
+      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('marketplace')">Marketplace</a>
     </div>
   </nav>
 
@@ -96,6 +97,36 @@
         </div>
       </div>
     </section>
+    <!-- Marketplace Management Section -->
+<section id="marketplace-section" class="hidden">
+  <h1 class="text-3xl font-bold mb-6">Marketplace</h1>
+  <form id="marketplace-form" class="space-y-4 max-w-xl bg-gray-800 p-6 rounded-lg">
+    <div>
+      <label class="block mb-1">Card Name:</label>
+      <input type="text" id="market-name" class="w-full p-2 rounded" required />
+    </div>
+    <div>
+      <label class="block mb-1">Image URL:</label>
+      <input type="text" id="market-image" class="w-full p-2 rounded" required />
+    </div>
+    <div>
+      <label class="block mb-1">Value (Coins):</label>
+      <input type="number" id="market-value" class="w-full p-2 rounded" required />
+    </div>
+    <div>
+      <label class="block mb-1">Rarity:</label>
+      <select id="market-rarity" class="w-full p-2 rounded">
+        <option value="common">Common</option>
+        <option value="uncommon">Uncommon</option>
+        <option value="rare">Rare</option>
+        <option value="ultra rare">Ultra Rare</option>
+        <option value="legendary">Legendary</option>
+      </select>
+    </div>
+    <button type="submit" class="px-6 py-2 bg-pink-600 hover:bg-pink-700 rounded font-semibold">Add to Marketplace</button>
+  </form>
+</section>
+
 
     <!-- Shipment Management Section -->
     <section id="shipments-section" class="hidden">
@@ -464,6 +495,22 @@ firebase.auth().onAuthStateChanged(user => {
   loadCases();
   loadShipments();
   loadSupportForms();
+});
+
+document.getElementById("marketplace-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("market-name").value.trim();
+  const image = document.getElementById("market-image").value.trim();
+  const value = parseInt(document.getElementById("market-value").value.trim());
+  const rarity = document.getElementById("market-rarity").value;
+
+  if (!name || !image || !value || !rarity) return alert("All fields are required!");
+
+  const newRef = firebase.database().ref("marketplace").push();
+  await newRef.set({ name, image, value, rarity, timestamp: Date.now() });
+
+  document.getElementById("marketplace-form").reset();
+  showToast("✅ Card added to marketplace!");
 });
 
   </script>
