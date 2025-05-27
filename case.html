@@ -217,7 +217,7 @@ const db = getDatabase(app);
 const auth = getAuth(app);
  async function updateUserBalanceCompat() {
   const el = document.getElementById("user-balance");
-  const user = auth.currentUser;
+  const user = firebase.auth().currentUser; // ✅ Use compat-style here
 
   if (!el || !user) {
     console.warn("⚠️ #user-balance element or user not found.");
@@ -225,7 +225,7 @@ const auth = getAuth(app);
   }
 
   try {
-    const userSnap = await get(ref(db, "users/" + user.uid));
+    const userSnap = await firebase.database().ref("users/" + user.uid).once("value");
     const balance = userSnap.val()?.balance || 0;
     el.textContent = `Balance: ${parseFloat(balance).toLocaleString()} coins`;
     console.log("✅ Balance displayed:", balance);
