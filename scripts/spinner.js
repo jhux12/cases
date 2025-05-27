@@ -20,7 +20,7 @@ export function getTopPrizes(prizeList, count = 30) {
     .slice(0, count);
 }
 
-export function renderSpinner(prizes, winningPrize, isPreview = false) {
+export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
   const container = document.getElementById("spinner-container");
   if (!container) return console.warn("🚫 Spinner container not found");
 
@@ -37,7 +37,7 @@ export function renderSpinner(prizes, winningPrize, isPreview = false) {
 
   for (let i = 0; i < 30; i++) {
     let prize;
-    if (isPreview) {
+    if (isPreview || !winningPrize) {
       prize = shuffled[i % shuffled.length];
     } else {
       prize = i === targetIndex ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)];
