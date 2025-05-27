@@ -78,7 +78,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
 export function spinToPrize() {
   const spinnerWheel = document.getElementById("spinner-wheel");
   if (!spinnerWheel) return;
-
+  spinnerWheel.classList.remove("animate-scroll-preview");
   const cards = spinnerWheel.querySelectorAll(".item");
   const targetCard = cards[targetIndex];
   if (!targetCard) return;
