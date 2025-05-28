@@ -1,40 +1,56 @@
-<div id="topup-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
-  <div class="bg-gray-900 px-4 py-6 sm:px-6 rounded-xl w-[95%] max-w-md text-center relative max-h-[90vh] overflow-y-auto shadow-2xl">
-    <button id="close-topup" class="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl">&times;</button>
-    <h2 class="text-2xl sm:text-3xl font-extrabold text-yellow-300 mb-2">Top Up Coins</h2>
-    <p class="text-sm text-gray-400 mb-6">Select a coin package and checkout securely via Stripe.</p>
-    
-    <div class="grid grid-cols-1 gap-3">
-      <form data-price-id="price_1RMAdnI76TkBIa1xcaolfel9" class="topup-form bg-gray-800 p-3 rounded-lg border border-yellow-500">
-        <h3 class="text-md font-bold text-white">100 Coins</h3>
-        <p class="text-yellow-400 text-sm mb-2">$1.00</p>
-        <button type="submit" class="topup-button w-full bg-yellow-500 text-black py-1.5 rounded-full font-bold hover:bg-yellow-400 text-sm">Buy</button>
-      </form>
-
-      <form data-price-id="price_1RMAePI76TkBIa1x97hQ8cxx" class="topup-form bg-gray-800 p-3 rounded-lg border border-yellow-500">
-        <h3 class="text-md font-bold text-white">500 Coins</h3>
-        <p class="text-yellow-400 text-sm mb-2">$5.00</p>
-        <button type="submit" class="topup-button w-full bg-yellow-500 text-black py-1.5 rounded-full font-bold hover:bg-yellow-400 text-sm">Buy</button>
-      </form>
-
-      <form data-price-id="price_1RMAelI76TkBIa1x2qEv8FDm" class="topup-form bg-gray-800 p-3 rounded-lg border border-yellow-500">
-        <h3 class="text-md font-bold text-white">1000 Coins</h3>
-        <p class="text-yellow-400 text-sm mb-2">$10.00</p>
-        <button type="submit" class="topup-button w-full bg-yellow-500 text-black py-1.5 rounded-full font-bold hover:bg-yellow-400 text-sm">Buy</button>
-      </form>
-
-      <form data-price-id="price_1RMAf3I76TkBIa1xnc97kpdE" class="topup-form bg-gray-800 p-3 rounded-lg border border-yellow-500">
-        <h3 class="text-md font-bold text-white">2000 Coins</h3>
-        <p class="text-yellow-400 text-sm mb-2">$20.00</p>
-        <button type="submit" class="topup-button w-full bg-yellow-500 text-black py-1.5 rounded-full font-bold hover:bg-yellow-400 text-sm">Buy</button>
-      </form>
-
-      <form data-price-id="price_1RMAfJI76TkBIa1xTqo9xmtq" class="topup-form bg-yellow-900 p-3 rounded-lg border-2 border-yellow-400 relative">
-        <span class="absolute -top-2 -right-2 bg-yellow-300 text-black text-xs font-semibold px-2 py-0.5 rounded-full shadow">+500 Bonus!</span>
-        <h3 class="text-md font-bold text-white">5500 Coins</h3>
-        <p class="text-yellow-300 text-sm mb-2">$50.00</p>
-        <button type="submit" class="topup-button w-full bg-yellow-400 text-black py-1.5 rounded-full font-bold hover:bg-yellow-300 text-sm">Buy & Bonus</button>
-      </form>
+<div id="topup-popup" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 px-4">
+  <div class="bg-[#1c1c24] text-white max-w-lg w-full rounded-2xl shadow-2xl border border-gray-700 p-6 relative glassmorphism">
+    <button onclick="closeTopup()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+    <div class="text-center">
+      <h2 class="text-2xl font-bold text-white mb-2">Buy Coins</h2>
+      <p class="text-gray-400 text-sm mb-6">Select a package to instantly top up your account.</p>
     </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <button onclick="redirectToCheckout(event, 'price_1RMAdnI76TkBIa1xcaolfel9')" class="topup-card">
+        <div class="topup-amount">100</div>
+        <div class="topup-price">$1</div>
+      </button>
+      <button onclick="redirectToCheckout(event, 'price_1RMAe2I76TkBIa1xz5kTY3Dj')" class="topup-card">
+        <div class="topup-amount">500</div>
+        <div class="topup-price">$5</div>
+      </button>
+      <button onclick="redirectToCheckout(event, 'price_1RMAeFI76TkBIa1xVrXbKXjk')" class="topup-card">
+        <div class="topup-amount">1,000</div>
+        <div class="topup-price">$10</div>
+      </button>
+      <button onclick="redirectToCheckout(event, 'price_1RMAeVI76TkBIa1xRBWrw83j')" class="topup-card">
+        <div class="topup-amount">2,500</div>
+        <div class="topup-price">$25</div>
+      </button>
+      <button onclick="redirectToCheckout(event, 'price_1RMAeoI76TkBIa1xTLKTFfpe')" class="topup-card col-span-2">
+        <div class="topup-amount">5,000</div>
+        <div class="topup-price">$50</div>
+      </button>
+    </div>
+
+    <p class="text-center text-xs text-gray-500 mt-6">
+      Payments handled securely via Stripe.
+    </p>
   </div>
 </div>
+
+<style>
+  .glassmorphism {
+    backdrop-filter: blur(14px);
+    background: rgba(28, 28, 36, 0.85);
+  }
+
+  .topup-card {
+    @apply bg-gradient-to-br from-gray-800 to-gray-900 hover:from-purple-700 hover:to-purple-900 text-white border border-gray-600 rounded-xl px-4 py-6 flex flex-col items-center justify-center transition-all hover:scale-105 cursor-pointer shadow-lg;
+  }
+
+  .topup-amount {
+    @apply text-2xl font-bold mb-1;
+  }
+
+  .topup-price {
+    @apply text-sm text-gray-400;
+  }
+</style>
+
