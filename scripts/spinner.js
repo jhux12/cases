@@ -1,5 +1,3 @@
-// spinner.js
-
 let spinnerPrizes = [];
 const targetIndex = 15;
 
@@ -28,15 +26,15 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
 
   const spinnerWheel = document.createElement("div");
   spinnerWheel.id = "spinner-wheel";
- spinnerWheel.className = "flex h-full items-center";
-if (isPreview) {
-  spinnerWheel.classList.add("animate-scroll-preview");
-} else {
-  spinnerWheel.classList.add("transition-transform", "duration-[4000ms]", "ease-[cubic-bezier(0.17,0.67,0.12,0.99)]");
-}
+  spinnerWheel.className = "flex h-full items-center";
+
+  if (isPreview) {
+    spinnerWheel.classList.add("animate-scroll-preview");
+  } else {
+    spinnerWheel.classList.add("transition-transform", "duration-[4000ms]", "ease-[cubic-bezier(0.17,0.67,0.12,0.99)]");
+  }
 
   container.appendChild(spinnerWheel);
-
   spinnerPrizes = [];
 
   const shuffled = [...prizes];
@@ -62,7 +60,6 @@ if (isPreview) {
 
     const div = document.createElement("div");
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-    document.getElementById("popup-image").className = `max-h-40 rounded shadow-lg border-2 border-white/20 glow-flash-${rarity}`;
     const borderColor = getRarityColor(rarity);
 
     div.className = "min-w-[160px] mx-2 h-[180px] flex flex-col items-center justify-center text-white rounded-xl bg-black/30 shadow-md item border-2";
@@ -83,6 +80,7 @@ export function spinToPrize() {
   const spinnerWheel = document.getElementById("spinner-wheel");
   if (!spinnerWheel) return;
   spinnerWheel.classList.remove("animate-scroll-preview");
+
   const cards = spinnerWheel.querySelectorAll(".item");
   const targetCard = cards[targetIndex];
   if (!targetCard) return;
@@ -135,16 +133,22 @@ export function spinToPrize() {
 
     const prize = spinnerPrizes[targetIndex];
     const spinnerResultText = document.getElementById("spinner-result");
+
     if (prize) {
-document.getElementById("popup-image").src = prize.image;
-document.getElementById("popup-name").textContent = prize.name;
-document.getElementById("popup-value").innerHTML = `
-  ${prize.value.toLocaleString()}
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="inline-block w-4 h-4 ml-1 align-text-bottom" />
-`;
-document.getElementById("sell-amount").textContent = Math.floor(prize.value * 0.8).toLocaleString();
-document.getElementById("win-popup").classList.remove("hidden");
-}
+      const img = document.getElementById("popup-image");
+      img.src = prize.image;
+      img.className = "max-h-40 rounded shadow-lg border-2 border-white/20";
+      const flashClass = `glow-flash-${(prize.rarity || 'common').toLowerCase().replace(/\s+/g, '')}`;
+      img.classList.add(flashClass);
+
+      document.getElementById("popup-name").textContent = prize.name;
+      document.getElementById("popup-value").innerHTML = `
+        ${prize.value.toLocaleString()}
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="inline-block w-4 h-4 ml-1 align-text-bottom" />
+      `;
+      document.getElementById("sell-amount").textContent = Math.floor(prize.value * 0.8).toLocaleString();
+      document.getElementById("win-popup").classList.remove("hidden");
+    }
 
     if (targetCard) {
       const glowClass = `glow-${(prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-')}`;
@@ -152,4 +156,5 @@ document.getElementById("win-popup").classList.remove("hidden");
     }
   }, 4000);
 }
+
 
