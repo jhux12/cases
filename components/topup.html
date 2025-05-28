@@ -1,48 +1,50 @@
-<div id="topup-popup" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 px-4">
-  <div class="bg-[#1c1c24] text-white max-w-lg w-full rounded-2xl shadow-2xl border border-gray-700 p-6 relative backdrop-blur-md">
-    <button onclick="closeTopup()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
-    <div class="text-center">
-      <h2 class="text-2xl font-bold text-white mb-2">Buy Coins</h2>
-      <p class="text-gray-400 text-sm mb-6">Select a package to instantly top up your account.</p>
-    </div>
+<!-- components/topup.html -->
+<div id="topup-popup" class="fixed inset-0 z-50 bg-black/70 hidden flex items-center justify-center px-4">
+  <div class="bg-gray-900 text-white p-6 rounded-xl max-w-md w-full shadow-lg relative">
+    <button id="close-topup" class="absolute top-3 right-3 text-gray-400 hover:text-white text-xl font-bold">&times;</button>
+    <h2 class="text-center text-2xl font-extrabold text-yellow-400 mb-6">💰 Buy Coins</h2>
 
     <div class="grid grid-cols-2 gap-4">
-      <!-- Each package button -->
-      <button onclick="redirectToCheckout(event, 'price_1RMAdnI76TkBIa1xcaolfel9')"
-        class="bg-gray-800 hover:bg-purple-800 text-white border border-gray-600 rounded-xl px-4 py-5 flex flex-col items-center justify-center transition-all hover:scale-105 shadow-md">
-        <span class="text-lg font-bold">100</span>
-        <span class="text-sm text-gray-300">$1</span>
-      </button>
+      <!-- Package 1 -->
+      <form data-price-id="price_1RMAdnI76TkBIa1xcaolfel9" class="bg-gray-800 p-4 rounded-lg flex flex-col items-center">
+        <span class="text-white font-bold text-lg">100</span>
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 mb-2" alt="coin">
+        <span class="text-sm text-gray-400 mb-2">$1.00</span>
+        <button class="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 text-sm rounded-full font-semibold w-full">Buy</button>
+      </form>
 
-      <button onclick="redirectToCheckout(event, 'price_1RMAe2I76TkBIa1xz5kTY3Dj')"
-        class="bg-gray-800 hover:bg-purple-800 text-white border border-gray-600 rounded-xl px-4 py-5 flex flex-col items-center justify-center transition-all hover:scale-105 shadow-md">
-        <span class="text-lg font-bold">500</span>
-        <span class="text-sm text-gray-300">$5</span>
-      </button>
+      <!-- Package 2 -->
+      <form data-price-id="price_1RMAdnI76TkBIa1xr0oxxXcC" class="bg-gray-800 p-4 rounded-lg flex flex-col items-center">
+        <span class="text-white font-bold text-lg">500</span>
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 mb-2" alt="coin">
+        <span class="text-sm text-gray-400 mb-2">$5.00</span>
+        <button class="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 text-sm rounded-full font-semibold w-full">Buy</button>
+      </form>
 
-      <button onclick="redirectToCheckout(event, 'price_1RMAeFI76TkBIa1xVrXbKXjk')"
-        class="bg-gray-800 hover:bg-purple-800 text-white border border-gray-600 rounded-xl px-4 py-5 flex flex-col items-center justify-center transition-all hover:scale-105 shadow-md">
-        <span class="text-lg font-bold">1,000</span>
-        <span class="text-sm text-gray-300">$10</span>
-      </button>
+      <!-- Package 3 -->
+      <form data-price-id="price_1RMAdnI76TkBIa1xEvMgAzw3" class="bg-gray-800 p-4 rounded-lg flex flex-col items-center">
+        <span class="text-white font-bold text-lg">1,000</span>
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 mb-2" alt="coin">
+        <span class="text-sm text-gray-400 mb-2">$10.00</span>
+        <button class="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 text-sm rounded-full font-semibold w-full">Buy</button>
+      </form>
 
-      <button onclick="redirectToCheckout(event, 'price_1RMAeVI76TkBIa1xRBWrw83j')"
-        class="bg-gray-800 hover:bg-purple-800 text-white border border-gray-600 rounded-xl px-4 py-5 flex flex-col items-center justify-center transition-all hover:scale-105 shadow-md">
-        <span class="text-lg font-bold">2,500</span>
-        <span class="text-sm text-gray-300">$25</span>
-      </button>
+      <!-- Package 4 -->
+      <form data-price-id="price_1RMAdnI76TkBIa1xaXYAAVUn" class="bg-gray-800 p-4 rounded-lg flex flex-col items-center">
+        <span class="text-white font-bold text-lg">2,500</span>
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 mb-2" alt="coin">
+        <span class="text-sm text-gray-400 mb-2">$25.00</span>
+        <button class="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 text-sm rounded-full font-semibold w-full">Buy</button>
+      </form>
 
-      <button onclick="redirectToCheckout(event, 'price_1RMAeoI76TkBIa1xTLKTFfpe')"
-        class="bg-yellow-600 hover:bg-yellow-700 text-black border border-yellow-400 rounded-xl px-4 py-5 flex flex-col items-center justify-center transition-all hover:scale-105 shadow-lg col-span-2 relative">
-        <span class="absolute top-1 left-1 bg-yellow-300 text-black text-[10px] px-2 py-[2px] rounded-full">+Bonus</span>
-        <span class="text-lg font-bold">5,000</span>
-        <span class="text-sm">$50</span>
-      </button>
+      <!-- Package 5 -->
+      <form data-price-id="price_1RMAdnI76TkBIa1xMTzmbhD6" class="bg-gray-800 p-4 rounded-lg flex flex-col items-center col-span-2">
+        <span class="text-white font-bold text-lg">5,000</span>
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 mb-2" alt="coin">
+        <span class="text-sm text-gray-400 mb-2">$50.00</span>
+        <button class="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 text-sm rounded-full font-semibold w-full">Buy</button>
+      </form>
     </div>
-
-    <p class="text-center text-xs text-gray-500 mt-6">
-      Payments handled securely via Stripe.
-    </p>
   </div>
 </div>
 
