@@ -62,6 +62,7 @@ if (isPreview) {
 
     const div = document.createElement("div");
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
+    document.getElementById("popup-image").className = `max-h-40 rounded shadow-lg border-2 border-white/20 glow-flash-${rarity}`;
     const borderColor = getRarityColor(rarity);
 
     div.className = "min-w-[160px] mx-2 h-[180px] flex flex-col items-center justify-center text-white rounded-xl bg-black/30 shadow-md item border-2";
@@ -137,7 +138,10 @@ export function spinToPrize() {
     if (prize) {
 document.getElementById("popup-image").src = prize.image;
 document.getElementById("popup-name").textContent = prize.name;
-document.getElementById("popup-value").innerHTML = `${prize.value.toLocaleString()} <img src="/assets/coin.png" alt="coin" class="inline-block w-4 h-4 ml-1" />`;
+document.getElementById("popup-value").innerHTML = `
+  ${prize.value.toLocaleString()}
+  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="inline-block w-4 h-4 ml-1 align-text-bottom" />
+`;
 document.getElementById("sell-amount").textContent = Math.floor(prize.value * 0.8).toLocaleString();
 document.getElementById("win-popup").classList.remove("hidden");
 }
