@@ -66,6 +66,10 @@
       <div class="text-right text-sm">
         <button type="button" onclick="forgotPassword()" class="text-purple-300 hover:underline">Forgot Password?</button>
       </div>
+      <div class="flex items-center">
+  <input type="checkbox" id="keep-signed-in" class="mr-2">
+  <label for="keep-signed-in" class="text-sm text-gray-300">Keep me signed in</label>
+</div>
       <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">Login</button>
     </form>
 
@@ -163,20 +167,27 @@ registerForm.addEventListener('submit', e => {
     });
 });
 
-loginForm.addEventListener('submit', e => {
+loginForm.addEventListener('submit', async e => {
   e.preventDefault();
   const email = document.getElementById('login-email').value;
   const password = document.getElementById('login-password').value;
+  const keepSignedIn = document.getElementById('keep-signed-in').checked;
 
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => {
-      showToast('✅ Login successful!');
-      setTimeout(() => window.location.href = 'index.html', 1500);
-    })
-    .catch(() => {
-  showToast("❌ Invalid login credentials");
-  });
+  try {
+    const persistence = keepSignedIn
+      ? firebase.auth.Auth.Persistence.LOCAL
+      : firebase.auth.Auth.Persistence.SESSION;
+
+    await auth.setPersistence(persistence);
+    await auth.signInWithEmailAndPassword(email, password);
+
+    showToast('✅ Login successful!');
+    setTimeout(() => window.location.href = 'index.html', 1500);
+  } catch (error) {
+    showToast("❌ Invalid login credentials");
+  }
 });
+
 
 function forgotPassword() {
   const email = document.getElementById('login-email').value;
