@@ -1,43 +1,40 @@
 <div id="topup-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
-  <div class="bg-gray-800 px-4 py-6 sm:px-8 sm:py-8 rounded-lg w-[95%] max-w-md text-center relative max-h-[90vh] overflow-y-auto">
-    <button id="close-topup" class="absolute top-2 right-2 text-xl text-white">
-      <i class="fas fa-times"></i>
-    </button>
-    <h2 class="text-3xl font-bold mb-6 text-yellow-300">Top Up Your Coins</h2>
-    <p class="mb-8 text-gray-400">Choose a package and securely checkout with Stripe</p>
-    <div class="grid grid-cols-1 gap-4">
-
-      <form data-price-id="price_1RMAdnI76TkBIa1xcaolfel9" class="topup-form bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500">
-        <h3 class="text-lg font-semibold mb-2 text-white">100 Coins</h3>
-        <p class="text-yellow-400 mb-4">$1.00</p>
-        <button type="submit" class="topup-button w-full bg-yellow-500 text-black py-2 rounded-full font-bold hover:bg-yellow-400">Buy</button>
+  <div class="bg-gray-900 px-4 py-6 sm:px-6 rounded-xl w-[95%] max-w-md text-center relative max-h-[90vh] overflow-y-auto shadow-2xl">
+    <button id="close-topup" class="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl">&times;</button>
+    <h2 class="text-2xl sm:text-3xl font-extrabold text-yellow-300 mb-2">Top Up Coins</h2>
+    <p class="text-sm text-gray-400 mb-6">Select a coin package and checkout securely via Stripe.</p>
+    
+    <div class="grid grid-cols-1 gap-3">
+      <form data-price-id="price_1RMAdnI76TkBIa1xcaolfel9" class="topup-form bg-gray-800 p-3 rounded-lg border border-yellow-500">
+        <h3 class="text-md font-bold text-white">100 Coins</h3>
+        <p class="text-yellow-400 text-sm mb-2">$1.00</p>
+        <button type="submit" class="topup-button w-full bg-yellow-500 text-black py-1.5 rounded-full font-bold hover:bg-yellow-400 text-sm">Buy</button>
       </form>
 
-      <form data-price-id="price_1RMAePI76TkBIa1x97hQ8cxx" class="topup-form bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500">
-        <h3 class="text-lg font-semibold mb-2 text-white">500 Coins</h3>
-        <p class="text-yellow-400 mb-4">$5.00</p>
-        <button type="submit" class="topup-button w-full bg-yellow-500 text-black py-2 rounded-full font-bold hover:bg-yellow-400">Buy</button>
+      <form data-price-id="price_1RMAePI76TkBIa1x97hQ8cxx" class="topup-form bg-gray-800 p-3 rounded-lg border border-yellow-500">
+        <h3 class="text-md font-bold text-white">500 Coins</h3>
+        <p class="text-yellow-400 text-sm mb-2">$5.00</p>
+        <button type="submit" class="topup-button w-full bg-yellow-500 text-black py-1.5 rounded-full font-bold hover:bg-yellow-400 text-sm">Buy</button>
       </form>
 
-      <form data-price-id="price_1RMAelI76TkBIa1x2qEv8FDm" class="topup-form bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500">
-        <h3 class="text-lg font-semibold mb-2 text-white">1000 Coins</h3>
-        <p class="text-yellow-400 mb-4">$10.00</p>
-        <button type="submit" class="topup-button w-full bg-yellow-500 text-black py-2 rounded-full font-bold hover:bg-yellow-400">Buy</button>
+      <form data-price-id="price_1RMAelI76TkBIa1x2qEv8FDm" class="topup-form bg-gray-800 p-3 rounded-lg border border-yellow-500">
+        <h3 class="text-md font-bold text-white">1000 Coins</h3>
+        <p class="text-yellow-400 text-sm mb-2">$10.00</p>
+        <button type="submit" class="topup-button w-full bg-yellow-500 text-black py-1.5 rounded-full font-bold hover:bg-yellow-400 text-sm">Buy</button>
       </form>
 
-      <form data-price-id="price_1RMAf3I76TkBIa1xnc97kpdE" class="topup-form bg-gray-900 p-4 rounded-xl shadow-md border border-yellow-500">
-        <h3 class="text-lg font-semibold mb-2 text-white">2000 Coins</h3>
-        <p class="text-yellow-400 mb-4">$20.00</p>
-        <button type="submit" class="topup-button w-full bg-yellow-500 text-black py-2 rounded-full font-bold hover:bg-yellow-400">Buy</button>
+      <form data-price-id="price_1RMAf3I76TkBIa1xnc97kpdE" class="topup-form bg-gray-800 p-3 rounded-lg border border-yellow-500">
+        <h3 class="text-md font-bold text-white">2000 Coins</h3>
+        <p class="text-yellow-400 text-sm mb-2">$20.00</p>
+        <button type="submit" class="topup-button w-full bg-yellow-500 text-black py-1.5 rounded-full font-bold hover:bg-yellow-400 text-sm">Buy</button>
       </form>
 
-      <form data-price-id="price_1RMAfJI76TkBIa1xTqo9xmtq" class="topup-form bg-yellow-900 p-4 rounded-xl shadow-md border-2 border-yellow-400 relative">
-        <span class="absolute -top-3 -right-3 bg-yellow-300 text-black text-xs font-bold px-3 py-1 rounded-full shadow-md">+500 Bonus!</span>
-        <h3 class="text-lg font-semibold mb-2 text-white">5500 Coins</h3>
-        <p class="text-yellow-300 mb-4">$50.00</p>
-        <button type="submit" class="topup-button w-full bg-yellow-400 text-black py-2 rounded-full font-bold hover:bg-yellow-300">Buy &amp; Get Bonus</button>
+      <form data-price-id="price_1RMAfJI76TkBIa1xTqo9xmtq" class="topup-form bg-yellow-900 p-3 rounded-lg border-2 border-yellow-400 relative">
+        <span class="absolute -top-2 -right-2 bg-yellow-300 text-black text-xs font-semibold px-2 py-0.5 rounded-full shadow">+500 Bonus!</span>
+        <h3 class="text-md font-bold text-white">5500 Coins</h3>
+        <p class="text-yellow-300 text-sm mb-2">$50.00</p>
+        <button type="submit" class="topup-button w-full bg-yellow-400 text-black py-1.5 rounded-full font-bold hover:bg-yellow-300 text-sm">Buy & Bonus</button>
       </form>
-
     </div>
   </div>
 </div>
