@@ -1,12 +1,12 @@
 <!-- components/topup.html -->
-<div id="topup-popup" class="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center hidden">
-  <div class="bg-gray-900 p-6 rounded-xl shadow-2xl w-full max-w-md relative border border-purple-700">
+<div id="topup-popup" class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-md bg-black/70 bg-[url('https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1400&q=80')] bg-cover bg-center">
+  <div class="bg-gray-900/95 p-6 rounded-xl shadow-2xl w-full max-w-md relative border border-purple-700">
     <button id="close-topup" class="absolute top-3 right-3 text-gray-300 hover:text-white text-xl">&times;</button>
     <h2 class="text-white text-center text-2xl font-bold mb-4">Top Up Coins</h2>
 
     <div class="grid grid-cols-2 gap-4">
       <!-- Package 1 -->
-      <form data-price-id="price_1RMAdnI76TkBIa1xcaolfel9" class="bg-gray-800 rounded-lg p-4 text-center shadow hover:shadow-md">
+      <form data-price-id="price_1RMAdnI76TkBIa1xcaolfel9" class="bg-gray-800/90 rounded-lg p-4 text-center shadow hover:shadow-md">
         <div class="text-lg font-bold text-yellow-400 mb-2 flex items-center justify-center gap-1">
           100 
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-4 h-4 inline" />
@@ -18,7 +18,7 @@
       </form>
 
       <!-- Package 2 -->
-      <form data-price-id="price_1RMAdnI76TkBIa1xOulQCVXd" class="bg-gray-800 rounded-lg p-4 text-center shadow hover:shadow-md">
+      <form data-price-id="price_1RMAdnI76TkBIa1xOulQCVXd" class="bg-gray-800/90 rounded-lg p-4 text-center shadow hover:shadow-md">
         <div class="text-lg font-bold text-yellow-400 mb-2 flex items-center justify-center gap-1">
           500 
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-4 h-4 inline" />
@@ -30,7 +30,7 @@
       </form>
 
       <!-- Package 3 -->
-      <form data-price-id="price_1RMAdnI76TkBIa1xLO2p6smD" class="bg-gray-800 rounded-lg p-4 text-center shadow hover:shadow-md">
+      <form data-price-id="price_1RMAdnI76TkBIa1xLO2p6smD" class="bg-gray-800/90 rounded-lg p-4 text-center shadow hover:shadow-md">
         <div class="text-lg font-bold text-yellow-400 mb-2 flex items-center justify-center gap-1">
           1100 
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-4 h-4 inline" />
@@ -42,7 +42,7 @@
       </form>
 
       <!-- Package 4 -->
-      <form data-price-id="price_1RMAdnI76TkBIa1x5ojRopLk" class="bg-gray-800 rounded-lg p-4 text-center shadow hover:shadow-md">
+      <form data-price-id="price_1RMAdnI76TkBIa1x5ojRopLk" class="bg-gray-800/90 rounded-lg p-4 text-center shadow hover:shadow-md">
         <div class="text-lg font-bold text-yellow-400 mb-2 flex items-center justify-center gap-1">
           2250 
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-4 h-4 inline" />
@@ -53,11 +53,12 @@
         </button>
       </form>
 
-      <!-- Package 5 -->
-      <form data-price-id="price_1RMAdnI76TkBIa1xMTzmbhD6" class="bg-gray-800 rounded-lg p-4 text-center shadow hover:shadow-md">
-        <div class="text-lg font-bold text-yellow-400 mb-2 flex items-center justify-center gap-1">
-          6000 
+      <!-- Package 5 (Bonus) -->
+      <form data-price-id="price_1RMAdnI76TkBIa1xMTzmbhD6" class="bg-gray-800/90 rounded-lg p-4 text-center shadow hover:shadow-md">
+        <div class="text-lg font-bold text-yellow-400 mb-1 flex items-center justify-center gap-1">
+          5000 
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-4 h-4 inline" />
+          <span class="text-xs text-pink-400 ml-1 font-medium">+ 500 Bonus</span>
         </div>
         <p class="text-sm text-gray-300 mb-2">$50.00</p>
         <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-1 rounded-full font-semibold">
