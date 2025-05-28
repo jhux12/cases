@@ -1,70 +1,81 @@
 <!-- components/topup.html -->
-<div id="topup-popup" class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-md bg-black/70 bg-[url('https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1400&q=80')] bg-cover bg-center">
-  <div class="bg-gray-900/95 p-6 rounded-xl shadow-2xl w-full max-w-md relative border border-purple-700">
-    <button id="close-topup" class="absolute top-3 right-3 text-gray-300 hover:text-white text-xl">&times;</button>
-    <h2 class="text-white text-center text-2xl font-bold mb-4">Top Up Coins</h2>
+<div id="topup-popup" class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-xl bg-black/70">
+  <div class="relative bg-gradient-to-br from-gray-900/95 via-gray-800/90 to-gray-900/95 border border-purple-700 p-6 rounded-2xl shadow-2xl w-full max-w-md mx-4">
+    
+    <!-- Close Button -->
+    <button id="close-topup" class="absolute top-3 right-4 text-gray-400 hover:text-white text-2xl font-bold leading-none transition duration-200 ease-in-out">
+      &times;
+    </button>
 
-    <div class="grid grid-cols-2 gap-4">
-      <!-- Package 1 -->
-      <form data-price-id="price_1RMAdnI76TkBIa1xcaolfel9" class="bg-gray-800/90 rounded-lg p-4 text-center shadow hover:shadow-md">
-        <div class="text-lg font-bold text-yellow-400 mb-2 flex items-center justify-center gap-1">
+    <!-- Title -->
+    <h2 class="text-center text-white text-2xl sm:text-3xl font-bold mb-6 tracking-wide">
+      💰 Top Up Coins
+    </h2>
+
+    <!-- Grid Container -->
+    <div class="grid grid-cols-2 sm:grid-cols-2 gap-4">
+      
+      <!-- Package -->
+      <form data-price-id="price_1RMAdnI76TkBIa1xcaolfel9" class="bg-gray-800/80 rounded-xl px-4 py-5 text-center shadow-inner border border-purple-600 hover:shadow-purple-600/40 hover:scale-[1.02] transition-all duration-200">
+        <div class="text-yellow-400 text-lg font-bold flex justify-center items-center gap-1 mb-1">
           100 
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-4 h-4 inline" />
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" alt="coin" />
         </div>
-        <p class="text-sm text-gray-300 mb-2">$1.00</p>
-        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-1 rounded-full font-semibold">
+        <div class="text-sm text-gray-300 mb-3">$1.00</div>
+        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold py-1.5 rounded-full transition">
           Buy
         </button>
       </form>
 
-      <!-- Package 2 -->
-      <form data-price-id="price_1RMAdnI76TkBIa1xOulQCVXd" class="bg-gray-800/90 rounded-lg p-4 text-center shadow hover:shadow-md">
-        <div class="text-lg font-bold text-yellow-400 mb-2 flex items-center justify-center gap-1">
+      <!-- Package -->
+      <form data-price-id="price_1RMAdnI76TkBIa1xOulQCVXd" class="bg-gray-800/80 rounded-xl px-4 py-5 text-center shadow-inner border border-purple-600 hover:shadow-purple-600/40 hover:scale-[1.02] transition-all duration-200">
+        <div class="text-yellow-400 text-lg font-bold flex justify-center items-center gap-1 mb-1">
           500 
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-4 h-4 inline" />
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" alt="coin" />
         </div>
-        <p class="text-sm text-gray-300 mb-2">$5.00</p>
-        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-1 rounded-full font-semibold">
+        <div class="text-sm text-gray-300 mb-3">$5.00</div>
+        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold py-1.5 rounded-full transition">
           Buy
         </button>
       </form>
 
-      <!-- Package 3 -->
-      <form data-price-id="price_1RMAdnI76TkBIa1xLO2p6smD" class="bg-gray-800/90 rounded-lg p-4 text-center shadow hover:shadow-md">
-        <div class="text-lg font-bold text-yellow-400 mb-2 flex items-center justify-center gap-1">
+      <!-- Package -->
+      <form data-price-id="price_1RMAdnI76TkBIa1xLO2p6smD" class="bg-gray-800/80 rounded-xl px-4 py-5 text-center shadow-inner border border-purple-600 hover:shadow-purple-600/40 hover:scale-[1.02] transition-all duration-200">
+        <div class="text-yellow-400 text-lg font-bold flex justify-center items-center gap-1 mb-1">
           1100 
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-4 h-4 inline" />
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" alt="coin" />
         </div>
-        <p class="text-sm text-gray-300 mb-2">$10.00</p>
-        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-1 rounded-full font-semibold">
+        <div class="text-sm text-gray-300 mb-3">$10.00</div>
+        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold py-1.5 rounded-full transition">
           Buy
         </button>
       </form>
 
-      <!-- Package 4 -->
-      <form data-price-id="price_1RMAdnI76TkBIa1x5ojRopLk" class="bg-gray-800/90 rounded-lg p-4 text-center shadow hover:shadow-md">
-        <div class="text-lg font-bold text-yellow-400 mb-2 flex items-center justify-center gap-1">
+      <!-- Package -->
+      <form data-price-id="price_1RMAdnI76TkBIa1x5ojRopLk" class="bg-gray-800/80 rounded-xl px-4 py-5 text-center shadow-inner border border-purple-600 hover:shadow-purple-600/40 hover:scale-[1.02] transition-all duration-200">
+        <div class="text-yellow-400 text-lg font-bold flex justify-center items-center gap-1 mb-1">
           2250 
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-4 h-4 inline" />
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" alt="coin" />
         </div>
-        <p class="text-sm text-gray-300 mb-2">$20.00</p>
-        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-1 rounded-full font-semibold">
+        <div class="text-sm text-gray-300 mb-3">$20.00</div>
+        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold py-1.5 rounded-full transition">
           Buy
         </button>
       </form>
 
-      <!-- Package 5 (Bonus) -->
-      <form data-price-id="price_1RMAdnI76TkBIa1xMTzmbhD6" class="bg-gray-800/90 rounded-lg p-4 text-center shadow hover:shadow-md">
-        <div class="text-lg font-bold text-yellow-400 mb-1 flex items-center justify-center gap-1">
+      <!-- Bonus Package -->
+      <form data-price-id="price_1RMAdnI76TkBIa1xMTzmbhD6" class="bg-gray-800/80 rounded-xl px-4 py-5 text-center shadow-inner border border-pink-500 hover:shadow-pink-500/40 hover:scale-[1.02] transition-all duration-200 col-span-2">
+        <div class="text-yellow-400 text-lg font-bold flex justify-center items-center gap-1 mb-1">
           5000 
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-4 h-4 inline" />
-          <span class="text-xs text-pink-400 ml-1 font-medium">+ 500 Bonus</span>
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" alt="coin" />
+          <span class="ml-1 text-xs text-pink-400 font-semibold">+ 500 Bonus</span>
         </div>
-        <p class="text-sm text-gray-300 mb-2">$50.00</p>
-        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-1 rounded-full font-semibold">
+        <div class="text-sm text-gray-300 mb-3">$50.00</div>
+        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 via-purple-600 to-purple-700 hover:brightness-110 text-white text-sm font-bold py-1.5 rounded-full transition">
           Buy
         </button>
       </form>
+
     </div>
   </div>
 </div>
