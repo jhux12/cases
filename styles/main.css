@@ -463,6 +463,7 @@ html {
   }
 </style>
 
+/* Entry animation for popup */
 @keyframes popupIn {
   0% {
     transform: scale(0.8);
@@ -474,19 +475,45 @@ html {
   }
 }
 
-@keyframes flash {
-  0%, 100% { filter: drop-shadow(0 0 0px white); }
-  50% { filter: drop-shadow(0 0 12px white); }
-}
-
 .popup-box {
   animation: popupIn 0.4s ease-out;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out;
+/* Rarity-based glow flash animations */
+@keyframes glow-flash-legendary {
+  0%, 100% { filter: drop-shadow(0 0 0px #facc15); }
+  50% { filter: drop-shadow(0 0 14px #facc15); }
+}
+@keyframes glow-flash-ultrarare {
+  0%, 100% { filter: drop-shadow(0 0 0px #e879f9); }
+  50% { filter: drop-shadow(0 0 14px #e879f9); }
+}
+@keyframes glow-flash-rare {
+  0%, 100% { filter: drop-shadow(0 0 0px #3b82f6); }
+  50% { filter: drop-shadow(0 0 14px #3b82f6); }
+}
+@keyframes glow-flash-uncommon {
+  0%, 100% { filter: drop-shadow(0 0 0px #22c55e); }
+  50% { filter: drop-shadow(0 0 14px #22c55e); }
+}
+@keyframes glow-flash-common {
+  0%, 100% { filter: drop-shadow(0 0 0px #9ca3af); }
+  50% { filter: drop-shadow(0 0 14px #9ca3af); }
 }
 
-.glow-flash {
-  animation: flash 1s ease-in-out 2;
+/* Apply glow animation classes */
+.glow-flash-legendary {
+  animation: glow-flash-legendary 1s ease-in-out 2;
+}
+.glow-flash-ultrarare {
+  animation: glow-flash-ultrarare 1s ease-in-out 2;
+}
+.glow-flash-rare {
+  animation: glow-flash-rare 1s ease-in-out 2;
+}
+.glow-flash-uncommon {
+  animation: glow-flash-uncommon 1s ease-in-out 2;
+}
+.glow-flash-common {
+  animation: glow-flash-common 1s ease-in-out 2;
 }
