@@ -1,5 +1,5 @@
 <div id="topup-popup" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 px-4">
-  <div class="bg-[#1c1c24] text-white max-w-lg w-full rounded-2xl shadow-2xl border border-gray-700 p-6 relative glassmorphism">
+  <div class="bg-[#1c1c24] text-white max-w-lg w-full rounded-2xl shadow-2xl border border-gray-700 p-6 relative backdrop-blur-md">
     <button onclick="closeTopup()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
     <div class="text-center">
       <h2 class="text-2xl font-bold text-white mb-2">Buy Coins</h2>
@@ -7,25 +7,36 @@
     </div>
 
     <div class="grid grid-cols-2 gap-4">
-      <button onclick="redirectToCheckout(event, 'price_1RMAdnI76TkBIa1xcaolfel9')" class="topup-card">
-        <div class="topup-amount">100</div>
-        <div class="topup-price">$1</div>
+      <!-- Each package button -->
+      <button onclick="redirectToCheckout(event, 'price_1RMAdnI76TkBIa1xcaolfel9')"
+        class="bg-gray-800 hover:bg-purple-800 text-white border border-gray-600 rounded-xl px-4 py-5 flex flex-col items-center justify-center transition-all hover:scale-105 shadow-md">
+        <span class="text-lg font-bold">100</span>
+        <span class="text-sm text-gray-300">$1</span>
       </button>
-      <button onclick="redirectToCheckout(event, 'price_1RMAe2I76TkBIa1xz5kTY3Dj')" class="topup-card">
-        <div class="topup-amount">500</div>
-        <div class="topup-price">$5</div>
+
+      <button onclick="redirectToCheckout(event, 'price_1RMAe2I76TkBIa1xz5kTY3Dj')"
+        class="bg-gray-800 hover:bg-purple-800 text-white border border-gray-600 rounded-xl px-4 py-5 flex flex-col items-center justify-center transition-all hover:scale-105 shadow-md">
+        <span class="text-lg font-bold">500</span>
+        <span class="text-sm text-gray-300">$5</span>
       </button>
-      <button onclick="redirectToCheckout(event, 'price_1RMAeFI76TkBIa1xVrXbKXjk')" class="topup-card">
-        <div class="topup-amount">1,000</div>
-        <div class="topup-price">$10</div>
+
+      <button onclick="redirectToCheckout(event, 'price_1RMAeFI76TkBIa1xVrXbKXjk')"
+        class="bg-gray-800 hover:bg-purple-800 text-white border border-gray-600 rounded-xl px-4 py-5 flex flex-col items-center justify-center transition-all hover:scale-105 shadow-md">
+        <span class="text-lg font-bold">1,000</span>
+        <span class="text-sm text-gray-300">$10</span>
       </button>
-      <button onclick="redirectToCheckout(event, 'price_1RMAeVI76TkBIa1xRBWrw83j')" class="topup-card">
-        <div class="topup-amount">2,500</div>
-        <div class="topup-price">$25</div>
+
+      <button onclick="redirectToCheckout(event, 'price_1RMAeVI76TkBIa1xRBWrw83j')"
+        class="bg-gray-800 hover:bg-purple-800 text-white border border-gray-600 rounded-xl px-4 py-5 flex flex-col items-center justify-center transition-all hover:scale-105 shadow-md">
+        <span class="text-lg font-bold">2,500</span>
+        <span class="text-sm text-gray-300">$25</span>
       </button>
-      <button onclick="redirectToCheckout(event, 'price_1RMAeoI76TkBIa1xTLKTFfpe')" class="topup-card col-span-2">
-        <div class="topup-amount">5,000</div>
-        <div class="topup-price">$50</div>
+
+      <button onclick="redirectToCheckout(event, 'price_1RMAeoI76TkBIa1xTLKTFfpe')"
+        class="bg-yellow-600 hover:bg-yellow-700 text-black border border-yellow-400 rounded-xl px-4 py-5 flex flex-col items-center justify-center transition-all hover:scale-105 shadow-lg col-span-2 relative">
+        <span class="absolute top-1 left-1 bg-yellow-300 text-black text-[10px] px-2 py-[2px] rounded-full">+Bonus</span>
+        <span class="text-lg font-bold">5,000</span>
+        <span class="text-sm">$50</span>
       </button>
     </div>
 
@@ -34,23 +45,4 @@
     </p>
   </div>
 </div>
-
-<style>
-  .glassmorphism {
-    backdrop-filter: blur(14px);
-    background: rgba(28, 28, 36, 0.85);
-  }
-
-  .topup-card {
-    @apply bg-gradient-to-br from-gray-800 to-gray-900 hover:from-purple-700 hover:to-purple-900 text-white border border-gray-600 rounded-xl px-4 py-6 flex flex-col items-center justify-center transition-all hover:scale-105 cursor-pointer shadow-lg;
-  }
-
-  .topup-amount {
-    @apply text-2xl font-bold mb-1;
-  }
-
-  .topup-price {
-    @apply text-sm text-gray-400;
-  }
-</style>
 
