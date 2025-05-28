@@ -497,7 +497,9 @@ firebase.auth().onAuthStateChanged(user => {
   loadCases();
   loadShipments();
   loadSupportForms();
+  loadMarketplaceItems(); // 👈 Add this line
 });
+
 
 document.getElementById("marketplace-form").addEventListener("submit", async (e) => {
   e.preventDefault();
