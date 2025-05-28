@@ -537,16 +537,16 @@ if (editingKey) {
       const card = document.createElement("div");
       card.className = "bg-gray-800 p-4 rounded flex justify-between items-center";
 
-      card.innerHTML = `
-        <div>
-          <p class="text-lg font-semibold">${item.name}</p>
-          <p class="text-sm text-gray-400">${item.value} coins · ${item.rarity}</p>
-        </div>
-        <div class="flex gap-2">
-          <button onclick='editMarketplaceItem("${child.key}", ${JSON.stringify(item)})' class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm">Edit</button>
-          <button onclick="deleteMarketplaceItem('${child.key}')" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm">Delete</button>
-        </div>
-      `;
+     card.innerHTML = `
+  <div>
+    <p class="text-lg font-semibold">${item.name}</p>
+    <p class="text-sm text-gray-400">${item.value} coins · ${item.rarity}</p>
+  </div>
+  <div class="flex gap-2">
+    <button onclick='editMarketplaceItem("${child.key}", ${JSON.stringify(item)})' class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm">Edit</button>
+    <button onclick="deleteMarketplaceItem('${child.key}')" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm">Delete</button>
+  </div>
+`;
 
       container.appendChild(card);
     });
