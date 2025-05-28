@@ -553,8 +553,8 @@ if (editingKey) {
   });
 }
 
-function editMarketplaceItem(key, itemJson) {
-  const item = JSON.parse(JSON.parse(itemJson));
+function editMarketplaceItem(key, item) {
+
   document.getElementById("market-name").value = item.name;
   document.getElementById("market-image").value = item.image;
   document.getElementById("market-value").value = item.value;
