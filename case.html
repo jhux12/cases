@@ -573,6 +573,7 @@ openBtn.onclick = openCaseHandler;
     return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
   }
   </script>
+  
 <script type="module" src="scripts/auth.js"></script>
 <script src="scripts/header.js"></script>
 <script src="scripts/navbar.js"></script>
@@ -581,6 +582,21 @@ openBtn.onclick = openCaseHandler;
 <script src="scripts/balance.js"></script>
 <script type="module" src="scripts/spinner.js"></script>
 
+<!-- Win Popup Modal -->
+<div id="win-popup" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
+  <div class="bg-gray-900 p-6 rounded-xl shadow-xl border border-pink-500 max-w-sm w-full text-center animate-bounce-in">
+    <h2 class="text-xl font-bold text-pink-400 mb-4">🎉 You won!</h2>
+    <div class="relative mb-4 w-full flex justify-center">
+      <img id="win-popup-image" src="" alt="Prize" class="max-h-40 rounded shadow-lg border border-white/10 glow-card">
+    </div>
+    <div class="text-white font-semibold" id="win-popup-name"></div>
+    <div class="text-yellow-300 font-bold" id="win-popup-value"></div>
+    <div class="flex justify-center gap-4 mt-6">
+      <button id="keep-btn" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-full text-white text-sm font-bold">Keep</button>
+      <button id="sell-btn" class="px-6 py-2 bg-pink-600 hover:bg-pink-700 rounded-full text-white text-sm font-bold">Sell for <span id="sell-amount"></span> 🪙</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
