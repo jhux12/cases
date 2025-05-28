@@ -23,25 +23,28 @@
       <p class="text-gray-400 text-sm max-w-xl mx-auto">Browse and buy premium cards with your coins. All purchases go straight to your inventory.</p>
     </div>
 
+    <!-- Filter Bar -->
     <div class="bg-black/40 border border-white/10 p-4 rounded-lg mb-8 flex flex-wrap items-center gap-4">
-  <input type="text" id="search-input" placeholder="Search by name..." class="p-2 rounded bg-gray-800 text-white w-full sm:w-48">
-  <input type="number" id="min-price" placeholder="Min coins" class="p-2 rounded bg-gray-800 text-white w-full sm:w-32">
-  <input type="number" id="max-price" placeholder="Max coins" class="p-2 rounded bg-gray-800 text-white w-full sm:w-32">
-  <label class="flex items-center gap-2 text-sm text-white">
-    <input type="checkbox" id="enough-coins" class="accent-pink-500"> Enough coins
-  </label>
-  <select id="sort-select" class="p-2 rounded bg-gray-800 text-white w-full sm:w-48">
-    <option value="">Sort by</option>
-    <option value="low">Price: Low to High</option>
-    <option value="high">Price: High to Low</option>
-  </select>
-  <button onclick="applyFilters()" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 rounded text-white text-sm">Apply</button>
-  <button onclick="resetFilters()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm">Clear</button>
-</div>
+      <input type="text" id="search-input" placeholder="Search by name..." class="p-2 rounded bg-gray-800 text-white w-full sm:w-48">
+      <input type="number" id="min-price" placeholder="Min coins" class="p-2 rounded bg-gray-800 text-white w-full sm:w-32">
+      <input type="number" id="max-price" placeholder="Max coins" class="p-2 rounded bg-gray-800 text-white w-full sm:w-32">
+      <label class="flex items-center gap-2 text-sm text-white">
+        <input type="checkbox" id="enough-coins" class="accent-pink-500"> Enough coins
+      </label>
+      <select id="sort-select" class="p-2 rounded bg-gray-800 text-white w-full sm:w-48">
+        <option value="">Sort by</option>
+        <option value="low">Price: Low to High</option>
+        <option value="high">Price: High to Low</option>
+      </select>
+      <button onclick="applyFilters()" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 rounded text-white text-sm">Apply</button>
+      <button onclick="resetFilters()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm">Clear</button>
+    </div>
 
+    <!-- Card Grid -->
     <div id="market-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-6"></div>
   </section>
 
+  <!-- Card Template -->
   <template id="market-card-template">
     <div class="bg-black/40 border border-white/10 rounded-xl p-4 text-white text-sm shadow-lg hover:shadow-pink-500/40 transition cursor-pointer group flex flex-col items-center relative">
       <div class="w-full h-40 flex items-center justify-center">
@@ -54,105 +57,100 @@
     </div>
   </template>
 
+  <!-- Core Script -->
   <script>
+    let allMarketplaceItems = [];
+
     firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) return;
       const userRef = firebase.database().ref("users/" + user.uid);
       const snapshot = await userRef.once("value");
       const userData = snapshot.val();
-      const balance = userData?.balance || 0;
+      const userBalance = userData?.balance || 0;
 
-  let allMarketplaceItems = [];
+      const snap = await firebase.database().ref("marketplace").once("value");
+      const cards = snap.val() || {};
+      allMarketplaceItems = Object.entries(cards).map(([key, card]) => ({
+        ...card,
+        id: key
+      }));
 
-  firebase.auth().onAuthStateChanged(async (user) => {
-    if (!user) return;
-    const userSnap = await firebase.database().ref("users/" + user.uid).once("value");
-    const userData = userSnap.val();
-    const userBalance = userData?.balance || 0;
-
-    const snap = await firebase.database().ref("marketplace").once("value");
-    const cards = snap.val() || {};
-    allMarketplaceItems = Object.entries(cards).map(([key, card]) => ({
-      ...card,
-      id: key
-    }));
-    
-    applyFilters(userBalance); // Load with filters
-  });
-
-  function applyFilters(userBalance = 0) {
-    const search = document.getElementById("search-input").value.toLowerCase();
-    const min = parseInt(document.getElementById("min-price").value) || 0;
-    const max = parseInt(document.getElementById("max-price").value) || Infinity;
-    const enough = document.getElementById("enough-coins").checked;
-    const sort = document.getElementById("sort-select").value;
-
-    let filtered = allMarketplaceItems.filter(card => {
-      return (
-        (!search || card.name.toLowerCase().includes(search)) &&
-        card.value >= min &&
-        card.value <= max &&
-        (!enough || card.value <= userBalance)
-      );
+      applyFilters(userBalance);
     });
 
-    if (sort === "low") filtered.sort((a, b) => a.value - b.value);
-    if (sort === "high") filtered.sort((a, b) => b.value - a.value);
+    function applyFilters(userBalance = 0) {
+      const search = document.getElementById("search-input").value.toLowerCase();
+      const min = parseInt(document.getElementById("min-price").value) || 0;
+      const max = parseInt(document.getElementById("max-price").value) || Infinity;
+      const enough = document.getElementById("enough-coins").checked;
+      const sort = document.getElementById("sort-select").value;
 
-    renderMarketplaceCards(filtered, userBalance);
-  }
-
-  function resetFilters() {
-    document.getElementById("search-input").value = "";
-    document.getElementById("min-price").value = "";
-    document.getElementById("max-price").value = "";
-    document.getElementById("enough-coins").checked = false;
-    document.getElementById("sort-select").value = "";
-    applyFilters();
-  }
-
-  function renderMarketplaceCards(cards, userBalance) {
-    const grid = document.getElementById("market-grid");
-    const template = document.getElementById("market-card-template");
-    grid.innerHTML = "";
-
-    cards.forEach(card => {
-      const clone = template.content.cloneNode(true);
-      clone.querySelector("img").src = card.image;
-      clone.querySelector(".name").textContent = card.name;
-      clone.querySelector(".value").textContent = `${card.value.toLocaleString()} coins`;
-      clone.querySelector(".rarity").textContent = `Rarity: ${card.rarity}`;
-      clone.querySelector(".buy-btn").addEventListener("click", async () => {
-        if (userBalance < card.value) return alert("Not enough coins!");
-        await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/balance").set(userBalance - card.value);
-        await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/inventory").push({
-          name: card.name,
-          image: card.image,
-          value: card.value,
-          rarity: card.rarity,
-          fromMarketplace: true,
-          timestamp: Date.now()
-        });
-        alert("✅ Card purchased and added to inventory!");
-        location.reload();
+      let filtered = allMarketplaceItems.filter(card => {
+        return (
+          (!search || card.name.toLowerCase().includes(search)) &&
+          card.value >= min &&
+          card.value <= max &&
+          (!enough || card.value <= userBalance)
+        );
       });
-      grid.appendChild(clone);
-    });
-  });
-</script>
 
-  <script src="scripts/topup.js"></script>
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    // Force re-run navbar setup if it's not working
-    if (typeof window.initNavbar === 'function') {
-      window.initNavbar();
+      if (sort === "low") filtered.sort((a, b) => a.value - b.value);
+      if (sort === "high") filtered.sort((a, b) => b.value - a.value);
+
+      renderMarketplaceCards(filtered, userBalance);
     }
-  });
-</script>
+
+    function resetFilters() {
+      document.getElementById("search-input").value = "";
+      document.getElementById("min-price").value = "";
+      document.getElementById("max-price").value = "";
+      document.getElementById("enough-coins").checked = false;
+      document.getElementById("sort-select").value = "";
+      applyFilters();
+    }
+
+    function renderMarketplaceCards(cards, userBalance) {
+      const grid = document.getElementById("market-grid");
+      const template = document.getElementById("market-card-template");
+      grid.innerHTML = "";
+
+      cards.forEach(card => {
+        const clone = template.content.cloneNode(true);
+        clone.querySelector("img").src = card.image;
+        clone.querySelector(".name").textContent = card.name;
+        clone.querySelector(".value").textContent = `${card.value.toLocaleString()} coins`;
+        clone.querySelector(".rarity").textContent = `Rarity: ${card.rarity}`;
+        clone.querySelector(".buy-btn").addEventListener("click", async () => {
+          if (userBalance < card.value) return alert("Not enough coins!");
+          await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/balance").set(userBalance - card.value);
+          await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/inventory").push({
+            name: card.name,
+            image: card.image,
+            value: card.value,
+            rarity: card.rarity,
+            fromMarketplace: true,
+            timestamp: Date.now()
+          });
+          alert("✅ Card purchased and added to inventory!");
+          location.reload();
+        });
+        grid.appendChild(clone);
+      });
+    }
+  </script>
+
+  <!-- External Scripts -->
+  <script src="scripts/topup.js"></script>
   <script src="scripts/header.js"></script>
-<script src="scripts/navbar.js"></script>
-<script src="scripts/footer.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/footer.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof window.initNavbar === 'function') {
+        window.initNavbar();
+      }
+    });
+  </script>
 </body>
 </html>
 
