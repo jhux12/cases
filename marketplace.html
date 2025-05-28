@@ -28,9 +28,14 @@
       <input type="text" id="search-input" placeholder="Search by name..." class="p-2 rounded bg-gray-800 text-white w-full sm:w-48">
       <input type="number" id="min-price" placeholder="Min coins" class="p-2 rounded bg-gray-800 text-white w-full sm:w-32">
       <input type="number" id="max-price" placeholder="Max coins" class="p-2 rounded bg-gray-800 text-white w-full sm:w-32">
-      <label class="flex items-center gap-2 text-sm text-white">
-        <input type="checkbox" id="enough-coins" class="accent-pink-500"> Enough coins
-      </label>
+      <div class="flex items-center gap-2">
+  <span class="text-sm text-white">Enough coins</span>
+  <label class="inline-flex relative items-center cursor-pointer">
+    <input type="checkbox" id="enough-coins" class="sr-only peer">
+    <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-pink-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-pink-600 transition-all"></div>
+    <div class="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full shadow transform peer-checked:translate-x-full transition-transform"></div>
+  </label>
+</div>
       <select id="sort-select" class="p-2 rounded bg-gray-800 text-white w-full sm:w-48">
         <option value="">Sort by</option>
         <option value="low">Price: Low to High</option>
