@@ -134,10 +134,14 @@ export function spinToPrize() {
 
     const prize = spinnerPrizes[targetIndex];
     const spinnerResultText = document.getElementById("spinner-result");
-    if (spinnerResultText) {
-      spinnerResultText.textContent = `You won: ${prize.name}!`;
-      spinnerResultText.classList.remove("hidden");
-    }
+    if (prize) {
+  document.getElementById("popup-image").src = prize.image;
+  document.getElementById("popup-name").textContent = prize.name;
+  document.getElementById("popup-value").textContent = `${prize.value.toLocaleString()} coins`;
+  document.getElementById("popup-rarity").textContent = `Rarity: ${prize.rarity}`;
+  document.getElementById("popup-sell").textContent = `Sell for ${Math.floor(prize.value * 0.8).toLocaleString()} coins 🪙`;
+  document.getElementById("win-popup").classList.remove("hidden");
+}
 
     if (targetCard) {
       const glowClass = `glow-${(prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-')}`;
