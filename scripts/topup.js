@@ -1,5 +1,8 @@
 // scripts/topup.js
 
+// ✅ Initialize Stripe at the top of the file
+const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
+
 // Load and inject the top-up popup component
 async function loadTopupPopup() {
   const res = await fetch("components/topup.html");
