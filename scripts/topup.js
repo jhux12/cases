@@ -1,9 +1,5 @@
 // scripts/topup.js
 
-// ✅ Initialize Stripe at the top of the file
-const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
-
-// Load and inject the top-up popup component
 async function loadTopupPopup() {
   const res = await fetch("components/topup.html");
   const html = await res.text();
@@ -22,7 +18,14 @@ async function loadTopupPopup() {
   if (topupDesktop) topupDesktop.onclick = openPopup;
   if (topupMobile) topupMobile.onclick = openPopup;
 
-  // Attach loading feedback to all buy buttons
+  // Make packages more compact visually
+  document.querySelectorAll("#topup-popup .package").forEach(pkg => {
+    pkg.classList.add("bg-gray-800", "rounded-lg", "p-4", "shadow-md", "text-center", "hover:bg-gray-700", "transition");
+    pkg.querySelector("h3")?.classList.add("text-white", "font-semibold", "mb-1", "text-sm");
+    pkg.querySelector("p")?.classList.add("text-yellow-300", "text-sm", "mb-2");
+    pkg.querySelector("button")?.classList.add("bg-yellow-500", "hover:bg-yellow-600", "text-sm", "py-1.5", "px-4", "rounded", "font-bold", "w-full");
+  });
+
   document.querySelectorAll("#topup-popup form").forEach(form => {
     form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -80,7 +83,7 @@ function redirectToCheckout(event, priceId, button) {
     });
 }
 
-// Update coin balance when payment is successful
+// Update coin balance after payment
 firebase.auth().onAuthStateChanged(async (user) => {
   if (!user) return;
   const dbRTDB = firebase.database();
@@ -98,7 +101,6 @@ firebase.auth().onAuthStateChanged(async (user) => {
         if (payment.status === "succeeded" && !payment.processed && priceId) {
           try {
             const productSnap = await dbFS.collection("products").where("priceId", "==", priceId).get();
-
             if (!productSnap.empty) {
               const product = productSnap.docs[0].data();
               const coins = parseInt(product.coin_amount || "0");
@@ -113,7 +115,6 @@ firebase.auth().onAuthStateChanged(async (user) => {
 
               document.getElementById("balance-amount").innerText = newBalance;
               document.getElementById("balance-amount-mobile").innerText = newBalance;
-
               const popupBalance = document.getElementById("popup-balance");
               if (popupBalance) popupBalance.innerText = `${newBalance} coins`;
 
@@ -127,4 +128,5 @@ firebase.auth().onAuthStateChanged(async (user) => {
     }
   });
 });
+
 
