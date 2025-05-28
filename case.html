@@ -21,17 +21,6 @@
 .glow-ultra     { box-shadow: 0 0 30px #c084fc; }
 .glow-legendary { box-shadow: 0 0 40px #facc15; }
 
-  .updates-bar {
-    background: linear-gradient(to right, #facc15, #ec4899, #8b5cf6);
-    color: white;
-    padding: 0.5rem;
-    border-radius: 1rem;
-    font-weight: 500;
-    overflow: hidden;
-    white-space: nowrap;
-    animation: marquee 20s linear infinite;
-    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
-  }
   @keyframes marquee {
     0% { transform: translateX(100%); }
     100% { transform: translateX(-100%); }
@@ -512,14 +501,6 @@ openBtn.onclick = openCaseHandler;
 }); // ✅ closes get(ref(...)).then
 </script>
 
-
-
-<!-- Updates Bar -->
-<div class="updates-bar text-sm">
-  <div class="marquee-text">
-    📦 All cards are near mint unless specified otherwise — 🪙 Sell back unwanted cards for coins 💰
-  </div>
-</div>
 
 <!-- Toast Notification -->
 <div id="inventory-toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg text-center font-semibold hidden z-[9999]">
