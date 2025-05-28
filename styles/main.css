@@ -463,3 +463,30 @@ html {
   }
 </style>
 
+@keyframes popupIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes flash {
+  0%, 100% { filter: drop-shadow(0 0 0px white); }
+  50% { filter: drop-shadow(0 0 12px white); }
+}
+
+.popup-box {
+  animation: popupIn 0.4s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.glow-flash {
+  animation: flash 1s ease-in-out 2;
+}
