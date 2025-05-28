@@ -2,67 +2,80 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Packly.gg | Marketplace</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Marketplace | PrimePull.gg</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles/main.css" />
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="scripts/firebase-config.js"></script>
-  <script src="scripts/auth.js" type="module"></script>
 </head>
-<body class="bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white min-h-screen">
-  <header></header>
+<body class="bg-gray-950 text-white">
+  <div class="max-w-6xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">Marketplace</h1>
 
-  <section class="pt-32 pb-16 px-4 max-w-7xl mx-auto">
-    <div class="text-center mb-12">
-      <h1 class="text-5xl font-extrabold bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-500 bg-clip-text text-transparent drop-shadow-sm mb-3">🛒 Marketplace</h1>
-      <p class="text-gray-400 text-sm max-w-xl mx-auto">Browse and buy premium cards with your coins. All purchases go straight to your inventory.</p>
-    </div>
+    <!-- Filters -->
+    <div class="flex flex-wrap items-end gap-4 mb-6">
+      <input id="search-input" type="text" placeholder="Search cards..." class="p-2 rounded bg-gray-800 text-white w-48" />
+      <input id="min-price" type="number" placeholder="Min Price" class="p-2 rounded bg-gray-800 text-white w-32" />
+      <input id="max-price" type="number" placeholder="Max Price" class="p-2 rounded bg-gray-800 text-white w-32" />
 
-    <!-- Filter Bar -->
-    <div class="bg-black/40 border border-white/10 p-4 rounded-lg mb-8 flex flex-wrap items-center gap-4">
-      <input type="text" id="search-input" placeholder="Search by name..." class="p-2 rounded bg-gray-800 text-white w-full sm:w-48">
-      <input type="number" id="min-price" placeholder="Min coins" class="p-2 rounded bg-gray-800 text-white w-full sm:w-32">
-      <input type="number" id="max-price" placeholder="Max coins" class="p-2 rounded bg-gray-800 text-white w-full sm:w-32">
-      <div class="flex items-center gap-2">
-  <span class="text-sm text-white">Enough coins</span>
-  <label class="inline-flex relative items-center cursor-pointer">
-    <input type="checkbox" id="enough-coins" class="sr-only peer">
-    <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-pink-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-pink-600 transition-all"></div>
-    <div class="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full shadow transform peer-checked:translate-x-full transition-transform"></div>
-  </label>
-</div>
-      <select id="sort-select" class="p-2 rounded bg-gray-800 text-white w-full sm:w-48">
-        <option value="">Sort by</option>
+      <!-- Toggle switch -->
+      <label class="flex items-center space-x-2">
+        <span class="text-sm">Enough Coins</span>
+        <input type="checkbox" id="enough-coins" class="sr-only peer">
+        <div class="w-10 h-5 bg-gray-600 rounded-full peer peer-checked:bg-green-500 relative transition-colors duration-300">
+          <div class="absolute left-1 top-0.5 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5"></div>
+        </div>
+      </label>
+
+      <select id="sort-select" class="p-2 rounded bg-gray-800 text-white">
+        <option value="">Sort</option>
         <option value="low">Price: Low to High</option>
         <option value="high">Price: High to Low</option>
       </select>
-      <button onclick="applyFilters()" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 rounded text-white text-sm">Apply</button>
-      <button onclick="resetFilters()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm">Clear</button>
+      <button onclick="resetFilters()" class="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600">Clear</button>
     </div>
 
     <!-- Card Grid -->
-    <div id="market-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-6"></div>
-  </section>
+    <div id="market-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
+  </div>
 
-  <!-- Card Template -->
+  <!-- Template -->
   <template id="market-card-template">
-    <div class="bg-black/40 border border-white/10 rounded-xl p-4 text-white text-sm shadow-lg hover:shadow-pink-500/40 transition cursor-pointer group flex flex-col items-center relative">
-      <div class="w-full h-40 flex items-center justify-center">
-        <img src="" class="max-h-full object-contain rounded drop-shadow-md transition-transform duration-300 group-hover:scale-105" alt="Card Image">
-      </div>
-      <div class="font-semibold text-center leading-tight mt-2 name text-white"></div>
-      <div class="text-yellow-300 font-bold mt-1 value"></div>
-      <div class="text-xs opacity-70 mt-1 rarity"></div>
-      <button class="mt-4 px-4 py-1.5 bg-pink-600 hover:bg-pink-700 text-white rounded-full text-xs font-bold uppercase tracking-wide transition buy-btn">Buy</button>
+    <div class="bg-gray-800 p-4 rounded-lg shadow-md flex flex-col items-center">
+      <img src="" class="w-full h-32 object-contain mb-2" />
+      <div class="name font-semibold text-center mb-1"></div>
+      <div class="rarity text-xs text-gray-400 mb-1"></div>
+      <div class="value text-sm mb-3"></div>
+      <button class="buy-btn px-3 py-1 bg-pink-600 hover:bg-pink-700 rounded">Buy</button>
     </div>
   </template>
 
-  <!-- Core Script -->
+  <!-- Purchase Popup -->
+  <div id="purchase-popup" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+    <div class="bg-gray-900 p-6 rounded-lg max-w-sm text-center shadow-lg border border-pink-500">
+      <img id="popup-image" src="" class="w-32 h-32 object-contain mx-auto mb-4" />
+      <h2 id="popup-name" class="text-xl font-bold mb-2"></h2>
+      <p id="popup-value" class="text-pink-400 mb-4"></p>
+      <button onclick="closePopup()" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 rounded">Close</button>
+    </div>
+  </div>
+
+  <!-- Firebase Config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+      authDomain: "cases-e5b4e.firebaseapp.com",
+      databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+      projectId: "cases-e5b4e",
+      storageBucket: "cases-e5b4e.appspot.com",
+      messagingSenderId: "22502548396",
+      appId: "1:22502548396:web:aac335672c21f07524d009"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <!-- Core Logic -->
   <script>
     let allMarketplaceItems = [];
 
@@ -75,11 +88,7 @@
 
       const snap = await firebase.database().ref("marketplace").once("value");
       const cards = snap.val() || {};
-      allMarketplaceItems = Object.entries(cards).map(([key, card]) => ({
-        ...card,
-        id: key
-      }));
-
+      allMarketplaceItems = Object.entries(cards).map(([key, card]) => ({ ...card, id: key }));
       applyFilters(userBalance);
     });
 
@@ -127,8 +136,9 @@
         clone.querySelector(".rarity").textContent = `Rarity: ${card.rarity}`;
         clone.querySelector(".buy-btn").addEventListener("click", async () => {
           if (userBalance < card.value) return alert("Not enough coins!");
-          await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/balance").set(userBalance - card.value);
-          await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/inventory").push({
+          const uid = firebase.auth().currentUser.uid;
+          await firebase.database().ref("users/" + uid + "/balance").set(userBalance - card.value);
+          await firebase.database().ref("users/" + uid + "/inventory").push({
             name: card.name,
             image: card.image,
             value: card.value,
@@ -136,26 +146,28 @@
             fromMarketplace: true,
             timestamp: Date.now()
           });
-          alert("✅ Card purchased and added to inventory!");
-          location.reload();
+          showPurchasePopup(card);
         });
         grid.appendChild(clone);
       });
     }
-  </script>
 
-  <!-- External Scripts -->
-  <script src="scripts/topup.js"></script>
-  <script src="scripts/header.js"></script>
-  <script src="scripts/navbar.js"></script>
-  <script src="scripts/footer.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      if (typeof window.initNavbar === 'function') {
-        window.initNavbar();
-      }
+    function showPurchasePopup(card) {
+      document.getElementById("popup-image").src = card.image;
+      document.getElementById("popup-name").textContent = card.name;
+      document.getElementById("popup-value").textContent = `${card.value.toLocaleString()} coins`;
+      document.getElementById("purchase-popup").classList.remove("hidden");
+    }
+
+    function closePopup() {
+      document.getElementById("purchase-popup").classList.add("hidden");
+      location.reload();
+    }
+
+    // Reapply filters on interaction
+    ["search-input", "min-price", "max-price", "enough-coins", "sort-select"].forEach(id => {
+      document.getElementById(id).addEventListener("input", () => applyFilters());
     });
   </script>
 </body>
 </html>
-
