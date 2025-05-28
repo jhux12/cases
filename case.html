@@ -606,24 +606,29 @@ openBtn.onclick = openCaseHandler;
 <script type="module" src="scripts/spinner.js"></script>
 
 <div id="win-popup" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
-  <div class="popup-box bg-gray-900 p-6 rounded-xl shadow-xl border border-pink-500 max-w-sm w-full text-center relative">
-    <h2 class="text-xl font-bold text-pink-400 mb-4 animate-fade-in">🎉 You won this card!</h2>
+  <div class="popup-box bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-2xl shadow-2xl border border-pink-500 max-w-sm w-full text-center relative animate-fade-in">
+    <h2 class="text-2xl font-extrabold text-pink-400 mb-4">🎉 You Won This Card!</h2>
+    
     <div class="relative mb-4 w-full flex justify-center">
-  <img id="popup-image" src="" alt="Card" class="max-h-40 rounded shadow-lg border-2 border-white/20" />
+      <img id="popup-image" src="" alt="Card" class="max-h-44 rounded-lg border-4 border-white/10 shadow-lg rarity-flash" />
     </div>
-    <div class="text-white font-semibold" id="popup-name"></div>
-    <div class="text-yellow-300 font-bold flex justify-center items-center gap-1" id="popup-value">
-      <!-- Value inserted by JS -->
+    
+    <div id="popup-name" class="text-xl text-white font-bold mb-1"></div>
+    
+    <div id="popup-value" class="text-yellow-300 font-semibold flex justify-center items-center gap-1 text-lg">
+      <!-- Value and Coin Icon inserted via JS -->
     </div>
+    
     <div class="flex justify-center gap-4 mt-6">
-<button onclick="location.reload()" class="px-6 py-2 bg-gray-700 hover:bg-gray-800 rounded-full text-white text-sm font-bold">Keep</button>
-      <button onclick="handleSellBack()" class="mt-3 px-6 py-2 bg-yellow-500 hover:bg-yellow-600 rounded-full text-black text-sm font-bold flex items-center justify-center gap-2">
-  Sell for <span id="sell-amount"></span>
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-4 h-4" />
-</button>
+      <button onclick="document.getElementById('win-popup').classList.add('hidden')" class="px-5 py-2 bg-gray-700 hover:bg-gray-800 rounded-full text-white text-sm font-bold transition">Keep</button>
+      <button onclick="handleSellBack()" class="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 rounded-full text-black text-sm font-bold flex items-center gap-2 transition">
+        Sell for <span id="sell-amount"></span>
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-4 h-4" />
+      </button>
     </div>
   </div>
 </div>
+
 
 </body>
 </html>
