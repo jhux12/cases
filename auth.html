@@ -174,9 +174,7 @@ loginForm.addEventListener('submit', async e => {
   const keepSignedIn = document.getElementById('keep-signed-in').checked;
 
   try {
-    const persistence = keepSignedIn
-      ? firebase.auth.Auth.Persistence.LOCAL
-      : firebase.auth.Auth.Persistence.SESSION;
+    const persistence = firebase.auth.Auth.Persistence.LOCAL;
 
     await auth.setPersistence(persistence);
     await auth.signInWithEmailAndPassword(email, password);
