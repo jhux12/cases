@@ -176,7 +176,7 @@ renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
 
   return `
   <div class="prize-card relative rounded-2xl border border-white/10 p-3 text-white text-center shadow-md backdrop-blur-sm transition-all hover:scale-[1.03] ${gradientClass} ${glowClass}">
-<img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto rounded-2xl mb-3 bg-black/20 shadow-inner border border-white/10" />
+<img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-black/20 shadow-inner border border-white/10" style="border-radius: 2rem;" />
       <div class="font-bold text-sm clamp-2 mb-4">${prize.name}</div>
 
       <!-- Bottom overlay: coin left, odds right -->
