@@ -344,6 +344,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 });
   // Enable popup on existing prizes
+window.addEventListener("load", () => {
 document.querySelectorAll("#prizes-grid .prize-card").forEach(card => {
   card.addEventListener("click", () => {
     const image = card.querySelector("img")?.src;
