@@ -343,6 +343,27 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("win-popup").classList.add("hidden");
 });
 });
+  // Enable popup on existing prizes
+document.querySelectorAll("#prizes-grid .prize-card").forEach(card => {
+  card.addEventListener("click", () => {
+    const image = card.querySelector("img")?.src;
+    const name = card.querySelector(".text-white")?.textContent.trim();
+    const value = card.querySelector(".text-yellow-300")?.textContent.trim();
+    const odds = card.querySelector(".bg-white\\/10")?.textContent.trim();
+
+    document.getElementById("prize-popup-image").src = image;
+    document.getElementById("prize-popup-name").textContent = name;
+    document.getElementById("prize-popup-value").textContent = value;
+    document.getElementById("prize-popup-odds").textContent = odds.replace('chance', '').trim();
+
+    document.getElementById("prize-popup").classList.remove("hidden");
+  });
+});
+
+// Close popup
+document.getElementById("close-prize-popup").addEventListener("click", () => {
+  document.getElementById("prize-popup").classList.add("hidden");
+});
 </script>
 
 <audio id="sound-common" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5"></audio>
@@ -372,6 +393,23 @@ document.addEventListener("DOMContentLoaded", () => {
       <button id="keep-button" class="px-4 py-2 rounded-full bg-green-600 hover:bg-green-700 text-white font-bold text-sm">
         Add to Inventory
       </button>
+    </div>
+  </div>
+</div>
+    <!-- Prize Detail Popup -->
+<div id="prize-popup" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden">
+  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center relative border border-white/10">
+    <div class="absolute top-3 right-3 text-gray-400 hover:text-white cursor-pointer text-xl" id="close-prize-popup">&times;</div>
+    <img id="prize-popup-image" src="" class="w-40 h-40 object-contain mx-auto mb-4 rounded-xl shadow-md" />
+    <div id="prize-popup-name" class="text-white font-bold text-lg mb-2"></div>
+    <div class="flex justify-center gap-4">
+      <div class="inline-flex items-center gap-1 bg-yellow-500/10 text-yellow-300 px-3 py-1 rounded-full text-sm font-semibold shadow-inner">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
+        <span id="prize-popup-value">0</span>
+      </div>
+      <div class="bg-white/10 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-inner">
+        <span id="prize-popup-odds">0%</span> chance
+      </div>
     </div>
   </div>
 </div>
