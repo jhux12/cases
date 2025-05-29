@@ -64,15 +64,14 @@ if (isPreview) {
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
     const borderColor = getRarityColor(rarity);
 
-    div.className = "min-w-[160px] mx-2 h-[180px] flex flex-col items-center justify-center text-white rounded-xl bg-black/30 shadow-md item border-2";
+    div.className = "min-w-[140px] h-[160px] mx-1 flex items-center justify-center rounded-xl bg-transparent shadow-md item border-2";
     div.style.borderColor = borderColor;
     div.setAttribute("data-index", i);
 
     div.innerHTML = `
-      <img src="${prize.image}" class="h-20 object-contain mb-2 drop-shadow-md" />
-      <div class="font-bold text-sm text-center leading-tight">${prize.name}</div>
-      <div class="text-xs text-gray-400">${prize.value || ''}</div>
-    `;
+  <img src="${prize.image}" class="h-[120px] object-contain drop-shadow-md" />
+`;
+
 
     spinnerWheel.appendChild(div);
   }
