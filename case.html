@@ -149,22 +149,20 @@ import { renderSpinner, spinToPrize } from './scripts/spinner.js';
       });
 renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
       document.getElementById("prizes-grid").innerHTML = prizeList.map(prize => {
-  const rarity = (prize.rarity || "common").toLowerCase().replace(" ", "");
+  const rarity = (prize.rarity || "common").toLowerCase().replace(/\s+/g, '');
+  const glowClass = `glow-${rarity}`;
   const gradientClass = `card-gradient-${rarity}`;
+
   return `
-    <div class="rounded-xl p-3 text-white cursor-pointer transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10 ${gradientClass}">
-      <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3 shadow-md ring-2 ring-white/10 bg-black/10 p-1" />
-      <div class="text-center font-semibold text-xs px-2 leading-snug clamp-2">${prize.name}</div>
-      <div class="flex justify-between items-center mt-2 text-sm font-semibold px-1">
-        <div class="flex items-center gap-1 text-yellow-300 font-bold">
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-          ${formatCoins(prize.value || 0)}
-        </div>
-        <div class="text-xs text-white/70 bg-white/10 px-2 py-[2px] rounded-full">${(prize.odds || 0).toFixed(1)}%</div>
-      </div>
+    <div class="rounded-2xl border border-white/10 p-3 text-white text-center shadow-md backdrop-blur-sm transition-all hover:scale-[1.03] ${gradientClass} ${glowClass}">
+      <img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto rounded-md mb-3 bg-black/20 shadow-inner" />
+      <div class="font-bold text-sm clamp-2">${prize.name}</div>
+      <div class="text-yellow-300 font-bold text-sm mt-1">${formatCoins(prize.value || 0)} coins</div>
+      <div class="text-xs text-white/70 mt-1 bg-white/10 px-2 py-[2px] inline-block rounded-full">${(prize.odds || 0).toFixed(1)}% chance</div>
     </div>
   `;
 }).join("");
+
 
 document.getElementById("open-case-button").addEventListener("click", async () => {
 
