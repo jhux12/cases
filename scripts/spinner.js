@@ -135,6 +135,16 @@ spinnerWheel.style.transition = 'transform 8s cubic-bezier(0.17, 0.67, 0.12, 0.9
     cancelAnimationFrame(animationFrame);
 
     const prize = spinnerPrizes[targetIndex];
+    const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
+const soundMap = {
+  common: document.getElementById("sound-common"),
+  uncommon: document.getElementById("sound-rare"),
+  rare: document.getElementById("sound-rare"),
+  ultrarare: document.getElementById("sound-ultrarare"),
+  legendary: document.getElementById("sound-legendary"),
+};
+const sound = soundMap[rarity];
+if (sound) sound.play();
     const spinnerResultText = document.getElementById("spinner-result");
     if (spinnerResultText) {
       spinnerResultText.textContent = `You won: ${prize.name}!`;
