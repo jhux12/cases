@@ -21,6 +21,17 @@
 .glow-ultra     { box-shadow: 0 0 30px #c084fc; }
 .glow-legendary { box-shadow: 0 0 40px #facc15; }
 
+  .updates-bar {
+    background: linear-gradient(to right, #facc15, #ec4899, #8b5cf6);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    font-weight: 500;
+    overflow: hidden;
+    white-space: nowrap;
+    animation: marquee 20s linear infinite;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
+  }
   @keyframes marquee {
     0% { transform: translateX(100%); }
     100% { transform: translateX(-100%); }
@@ -502,6 +513,14 @@ openBtn.onclick = openCaseHandler;
 </script>
 
 
+
+<!-- Updates Bar -->
+<div class="updates-bar text-sm">
+  <div class="marquee-text">
+    📦 All cards are near mint unless specified otherwise — 🪙 Sell back unwanted cards for coins 💰
+  </div>
+</div>
+
 <!-- Toast Notification -->
 <div id="inventory-toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg text-center font-semibold hidden z-[9999]">
   Item added to inventory: <span id="toast-item-name"></span>
@@ -610,40 +629,6 @@ openBtn.onclick = openCaseHandler;
   </div>
 </div>
 
-<!-- Mute Toggle Button -->
-<button id="sound-toggle" class="fixed bottom-6 left-6 bg-black/70 text-white text-xl p-2 rounded-full border border-white/10 shadow-lg hover:scale-105 transition z-50">
-  🔊
-</button>
-  <script>
-  let isMuted = localStorage.getItem("packlyMuted") === "true";
-
-  function updateSoundToggle() {
-    const icon = isMuted ? "🔇" : "🔊";
-    document.getElementById("sound-toggle").textContent = icon;
-
-    // Mute all <audio> elements
-    document.querySelectorAll("audio").forEach(audio => {
-      audio.muted = isMuted;
-    });
-  }
-
-  document.getElementById("sound-toggle").addEventListener("click", () => {
-    isMuted = !isMuted;
-    localStorage.setItem("packlyMuted", isMuted);
-    updateSoundToggle();
-  });
-
-  // On page load
-  updateSoundToggle();
-
-  // If using dynamically created Audio objects (like `new Audio()`), override play to respect mute
-  const originalAudio = window.Audio;
-  window.Audio = function(...args) {
-    const audio = new originalAudio(...args);
-    audio.muted = isMuted;
-    return audio;
-  };
-</script>
 
 </body>
 </html>
