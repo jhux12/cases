@@ -86,6 +86,14 @@
     <p>Your prized pulls, safely stored and ready to ship or sell. Welcome to your vault.</p>
   </section>
 
+<!-- Profile Tabs -->
+<div class="w-full flex justify-center mt-6">
+  <div class="flex space-x-4 bg-gray-800 p-2 rounded-xl shadow-md">
+    <button onclick="showTab('inventory-section')" class="tab-button px-4 py-2 text-white bg-pink-600 rounded-full">Inventory</button>
+    <button onclick="showTab('profile-section')" class="tab-button px-4 py-2 text-white hover:bg-pink-600 rounded-full">Profile</button>
+  </div>
+</div>
+<div id="inventory-section" class="tab-content">
   <!-- Inventory -->
   <main class="p-6">
     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
@@ -134,6 +142,7 @@
       </div>
     </div>
   </main>
+</div>
 
   <!-- Dynamic Footer -->
   <footer></footer>
@@ -204,6 +213,65 @@
       });
   }
 </script>
+  <script>
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', () => {
+      const tab = button.getAttribute('data-tab');
+
+      // Hide all tab sections
+      document.querySelectorAll('.tab-content').forEach(section => {
+        section.classList.add('hidden');
+      });
+
+      // Remove active state from all buttons
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('border-blue-500', 'text-blue-500');
+        btn.classList.add('border-transparent', 'text-gray-400');
+      });
+
+      // Show selected section
+      document.getElementById(tab + '-section').classList.remove('hidden');
+
+      // Highlight selected button
+      button.classList.remove('border-transparent', 'text-gray-400');
+      button.classList.add('border-blue-500', 'text-blue-500');
+    });
+  });
+</script>
+<script>
+function showTab(tabId) {
+  document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden"));
+  document.getElementById(tabId).classList.remove("hidden");
+
+  document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("bg-pink-600"));
+  event.target.classList.add("bg-pink-600");
+}
+
+// Load profile data
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById("email").value = user.email;
+    document.getElementById("username").value = user.displayName || "No username set";
+    document.getElementById("profile-pic").src = user.photoURL || "https://via.placeholder.com/150";
+  }
+});
+
+// Password update function
+function changePassword() {
+  const newPassword = document.getElementById("new-password").value;
+  const user = firebase.auth().currentUser;
+
+  if (user && newPassword) {
+    user.updatePassword(newPassword).then(() => {
+      alert("Password updated successfully.");
+      document.getElementById("new-password").value = "";
+    }).catch(error => {
+      alert("Error: " + error.message);
+    });
+  }
+}
+</script>
+
 </body>
 </html>
 
