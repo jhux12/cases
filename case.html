@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Packly.gg | Case Opening</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="styles/main.css">
 </head>
 <body class="bg-black text-white">
   <section class="container mx-auto px-4 py-8">
@@ -16,7 +16,6 @@
       <p class="text-yellow-300 mt-2" id="case-price">Price: <span id="case-price-amount">...</span></p>
     </div>
 
-    <!-- Spinner Section -->
     <div class="my-8 border border-white/10 rounded-lg bg-black/20">
       <div class="relative h-[200px] overflow-hidden">
         <div id="center-line" class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
@@ -24,12 +23,10 @@
       </div>
     </div>
 
-    <!-- Open Button -->
     <div class="text-center">
       <button id="open-case-button" class="px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold">Open Case</button>
     </div>
 
-    <!-- Rewards Grid -->
     <div class="mt-10 bg-black/30 p-6 rounded-lg border border-white/10">
       <h3 class="text-xl font-bold text-center">Rewards</h3>
       <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4"></div>
@@ -91,7 +88,7 @@
         return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
       });
 
-      const prizeHTML = prizeList.map(prize => `
+      document.getElementById("prizes-grid").innerHTML = prizeList.map(prize => `
         <div class="rounded-xl p-3 text-white backdrop-blur-sm bg-white/10">
           <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3" />
           <div class="text-center text-xs font-semibold">${prize.name}</div>
@@ -99,12 +96,57 @@
         </div>
       `).join("");
 
-      document.getElementById("prizes-grid").innerHTML = prizeHTML;
       renderSpinner(getTopPrizes(prizeList), null, true);
 
       document.getElementById("open-case-button").addEventListener("click", async () => {
-        // Placeholder for future case opening logic
-        alert("Add your open case logic here");
+        const user = auth.currentUser;
+        if (!user) return alert("Please sign in to open cases.");
+
+        const userSnap = await get(ref(db, 'users/' + user.uid));
+        const balance = parseFloat(userSnap.val()?.balance || 0);
+        const price = parseFloat(caseData.price || 0);
+
+        if (balance < price) return alert("Not enough coins.");
+
+        const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
+        const fairData = fairSnap.val();
+        if (!fairData) return alert("Provably fair data missing.");
+
+        const { serverSeed, clientSeed, nonce } = fairData;
+        const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${serverSeed}:${clientSeed}:${nonce}`));
+        const hashHex = [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+        const rand = parseInt(hashHex.substring(0, 8), 16) / 0xffffffff;
+
+        const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
+        const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+
+        let cumulative = 0;
+        let winningPrize = prizes[prizes.length - 1];
+        for (let p of prizes) {
+          cumulative += p.odds || 0;
+          if (rand * totalOdds < cumulative) {
+            winningPrize = p;
+            break;
+          }
+        }
+
+        const spinnerPrizes = [];
+        for (let i = 0; i < 30; i++) spinnerPrizes.push(prizes[Math.floor(Math.random() * prizes.length)]);
+        spinnerPrizes[15] = winningPrize;
+
+        renderSpinner(spinnerPrizes, winningPrize);
+        setTimeout(() => spinToPrize(), 150);
+
+        await set(ref(db, 'users/' + user.uid + '/balance'), balance - price);
+        await push(ref(db, 'users/' + user.uid + '/inventory'), {
+          name: winningPrize.name,
+          image: winningPrize.image,
+          rarity: winningPrize.rarity,
+          value: winningPrize.value,
+          timestamp: Date.now()
+        });
+        await update(ref(db, 'users/' + user.uid + '/provablyFair'), { nonce: nonce + 1 });
+        updateUserBalance();
       });
     })();
   </script>
