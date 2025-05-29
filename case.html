@@ -407,14 +407,6 @@ document.getElementById("change-seed").addEventListener("click", async () => {
 });
 
 
-document.getElementById("change-seed").addEventListener("click", async () => {
-  const newSeed = prompt("Enter new client seed:");
-  if (newSeed) {
-    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
-    alert("✅ New client seed saved! Reload to use it.");
-  }
-});
-
 
   if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') {
     return alert('Missing provably fair data.');
@@ -464,18 +456,20 @@ setTimeout(() => {
   const rarity = (winningPrize.rarity || 'common').toLowerCase();
 
   const raritySounds = {
-    "common": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5",
-    "uncommon": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
-    "rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
-    "ultra rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de",
-    "legendary": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"
-  };
+  "common": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5",
+  "uncommon": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
+  "rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
+  "ultra rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de",
+  "legendary": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"
+};
 
-  if (!isMuted) {
+if (!isMuted) {
   const audio = new Audio(raritySounds[rarity] || raritySounds["common"]);
   audio.volume = 0.75;
   audio.play().catch(() => {});
 }
+
+
 
 }, 4000); // wait until spinner animation finishes
 
