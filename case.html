@@ -3,594 +3,171 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Packly.gg | Case Details</title>
+  <title>Packly.gg | Case Opening</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="scripts/firebase-config.js"></script>
-  <script src="https://js.stripe.com/v3/"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles/main.css">
-  <audio id="pack-open-sound" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5"></audio>
-  <style>
-.glow-common    { box-shadow: 0 0 30px #a1a1aa; }
-.glow-uncommon  { box-shadow: 0 0 30px #4ade80; }
-.glow-rare      { box-shadow: 0 0 30px #60a5fa; }
-.glow-ultra     { box-shadow: 0 0 30px #c084fc; }
-.glow-legendary { box-shadow: 0 0 40px #facc15; }
-
-  .updates-bar {
-    background: linear-gradient(to right, #facc15, #ec4899, #8b5cf6);
-    color: white;
-    padding: 0.5rem;
-    border-radius: 1rem;
-    font-weight: 500;
-    overflow: hidden;
-    white-space: nowrap;
-    animation: marquee 20s linear infinite;
-    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
-  }
-  @keyframes marquee {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-  }
-  .marquee-text {
-    display: inline-block;
-    padding-left: 100%;
-    animation: marquee 20s linear infinite;
-  }
-    .perspective {
-  perspective: 1000px;
-}
-.transform-style-preserve-3d {
-  transform-style: preserve-3d;
-}
-.backface-hidden {
-  backface-visibility: hidden;
-}
-.rotate-y-180 {
-  transform: rotateY(180deg);
-}
-.flipped {
-  transform: rotateY(180deg);
-}
-#flip-card-inner {
-  transition: transform 2s;
-  transform-style: preserve-3d;
-}
-
-#flip-card-inner.flipped {
-  transform: rotateY(180deg);
-}
-  #prizes-grid > div {
-  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
-}
-.card-gradient-common {
-  background: linear-gradient(180deg, rgba(63, 63, 70, 0.7), rgba(82, 82, 91, 0.7));
-}
-.card-gradient-uncommon {
-  background: linear-gradient(180deg, rgba(20, 83, 45, 0.7), rgba(34, 197, 94, 0.7));
-}
-.card-gradient-rare {
-  background: linear-gradient(180deg, rgba(30, 64, 175, 0.7), rgba(59, 130, 246, 0.7));
-}
-.card-gradient-ultrarare {
-  background: linear-gradient(180deg, rgba(107, 33, 168, 0.7), rgba(168, 85, 247, 0.7));
-}
-.card-gradient-legendary {
-  background: linear-gradient(180deg, rgba(133, 77, 14, 0.7), rgba(250, 204, 21, 0.7));
-}
-
-/* Make sure you support text truncation properly */
-.truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-</style>
-
+  <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script>
 </head>
-<body class="bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white">
+<body class="bg-black text-white">
+  <section class="container mx-auto px-4 py-8">
+    <div class="text-center">
+      <h2 id="case-name" class="text-3xl font-bold">Loading...</h2>
+      <p id="user-balance" class="mt-2 text-sm">Balance: <span id="balance-value" class="text-yellow-400">... coins</span></p>
+      <button id="refresh-balance" class="text-blue-400 text-xs underline">Refresh</button>
+      <p class="text-yellow-300 mt-2" id="case-price">Price: <span id="case-price-amount">...</span></p>
+    </div>
 
-<header></header>
-
-
-<!-- Main Content Section -->
-<section id="case-content" class="pt-32 pb-10 px-4 max-w-5xl mx-auto">
-
-  <!-- Case Opening Section -->
-  <div id="case-container" class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 p-6 shadow-xl backdrop-blur-md text-center">
-
-    <!-- Case Thumbnail + Title -->
-    <div class="mb-8 relative flex flex-col items-center justify-center">
-
-      <!-- Flip Card (initially hidden) -->
-      <div id="flip-card" class="relative w-40 h-64 sm:w-48 sm:h-72 perspective hidden">
-        <div id="flip-card-inner" class="relative w-full h-full transition-transform duration-[2000ms] transform-style-preserve-3d">
-          <!-- Back of the card (winning prize) -->
-          <img id="flip-back" src="" class="absolute w-full h-full rounded-xl object-contain backface-hidden rotate-y-180" alt="Back" />
-          <!-- Front of the card (case image) -->
-          <img id="flip-front" src="" class="absolute w-full h-full rounded-xl object-contain backface-hidden z-10" alt="Front" />
-        </div>
+    <!-- Spinner Section -->
+    <div class="my-8 border border-white/10 rounded-lg bg-black/20">
+      <div class="relative h-[200px] overflow-hidden">
+        <div id="center-line" class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
+        <div id="spinner-container" class="w-full h-full"></div>
       </div>
-      <div id="prize-name" class="mt-4 text-lg font-semibold text-white hidden"></div>
-<!-- Spinner Container Inside Case -->
-<div class="my-4 w-full relative border border-white/10 rounded-lg bg-black/20 backdrop-blur-md">
-  <div class="relative h-[200px] overflow-hidden">
-    <div id="center-line" class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
-    <div id="spinner-container" class="w-full h-full"></div>
-  </div>
-</div>
-      
-<div id="rarity-info" class="hidden w-full mt-2">
-  <div id="rarity-indicator" class="h-[6px] w-full rounded-full bg-gray-800 overflow-hidden border border-white/20">
-    <div id="rarity-bar" class="h-full w-full bg-lime-500 transition-colors duration-300"></div>
-  </div>
-</div>
-<div id="spinner-result" class="hidden text-center text-xl font-bold text-yellow-400 mt-4"></div>
-
-
-
-      <h2 id="case-name" class="mt-4 text-3xl font-bold text-white">Loading...</h2>
-
-      <!-- User Balance -->
-<p id="user-balance" class="text-xs text-gray-400 mt-1 flex items-center gap-1">
-  Balance:
-  <span id="balance-value" class="text-yellow-300">... coins</span>
-  <button id="refresh-balance" class="text-xs text-blue-400 hover:underline ml-2" title="Refresh Balance">
-    ⟳
-  </button>
-</p>
-
-      <!-- Case Price -->
-      <p id="case-price" class="mt-1 text-sm text-yellow-300 flex justify-center items-center gap-1">
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />
-        <span id="case-price-amount">0 coins</span>
-      </p>
     </div>
 
     <!-- Open Button -->
-    <button id="open-case-button" class="relative mb-6 px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold text-sm uppercase tracking-wide shadow-lg hover:scale-105 transition-transform duration-200">
-      <span id="open-button-text">Open for ...</span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />
-    </button>
+    <div class="text-center">
+      <button id="open-case-button" class="px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold">Open Case</button>
+    </div>
 
-    <!-- Provably Fair Info -->
-    <div class="mt-2 flex items-center justify-center gap-2 text-xs text-gray-400">
-      <div class="relative flex justify-center">
-        <div id="provably-fair-badge" class="flex items-center text-sm text-green-400 font-semibold cursor-pointer">
-          <i class="fas fa-shield-alt mr-2 text-green-400"></i> Provably Fair
-        </div>
-        <div id="fair-tooltip" class="absolute top-full mt-2 bg-gray-800 text-white text-xs rounded-lg px-4 py-2 shadow-lg hidden z-50 w-64 text-center left-1/2 transform -translate-x-1/2">
-          Each result is generated using a hashed server seed + your client seed and nonce. You can verify fairness anytime.
-        </div>
+    <!-- Rewards Grid -->
+    <div class="mt-10 bg-black/30 p-6 rounded-lg border border-white/10">
+      <h3 class="text-xl font-bold text-center">Rewards</h3>
+      <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4"></div>
+    </div>
+  </section>
+
+  <div id="prize-modal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+    <div class="bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-400 p-1 rounded-xl shadow-xl animate-pulse">
+      <div class="bg-black rounded-lg p-6 text-center w-[300px] relative">
+        <button onclick="document.getElementById('prize-modal').classList.add('hidden')" class="absolute top-2 right-2 text-white">&times;</button>
+        <img id="modal-image" src="" class="w-32 h-32 mx-auto mb-4 object-contain rounded-xl shadow-lg" />
+        <h3 id="modal-name" class="text-xl font-bold text-white mb-2"></h3>
+        <p id="modal-value" class="text-yellow-300 text-sm mb-4 flex items-center justify-center gap-1">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
+          <span>...</span>
+        </p>
+        <button onclick="document.getElementById('prize-modal').classList.add('hidden')" class="bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 px-4 py-2 rounded-full text-white font-semibold shadow hover:scale-105 transition-transform">Add to Inventory</button>
       </div>
     </div>
   </div>
 
-  <!-- Divider Line -->
-  <div class="my-10 w-full h-[1px] bg-gradient-to-r from-pink-500 via-yellow-400 to-purple-500 opacity-25"></div>
+  <script type="module">
+    import { app, db, auth } from './scripts/firebase-config.js';
+    import { ref, get, set, push, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { renderSpinner, spinToPrize, getTopPrizes } from './scripts/spinner.js';
 
-  <!-- Rewards Section -->
-  <div class="bg-black/30 backdrop-blur-md rounded-2xl shadow-md border border-white/10 p-6 hover:shadow-purple-500/20 transition-all duration-300">
-    <div class="text-center mb-6">
-      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 shadow-md">
-        <img src="https://cdn-icons-png.flaticon.com/128/5172/5172637.png" alt="Rewards Icon" class="w-5 h-5" />
-        <span class="text-sm font-bold uppercase tracking-wider text-white">Rewards Table</span>
-      </div>
-      <p class="mt-2 text-sm text-gray-300">Each case contains a mix of prizes with different rarities and values.</p>
-    </div>
+    const formatCoins = (num) => {
+      if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
+      if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
+      return num.toLocaleString();
+    };
 
-  <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 text-sm"></div>
-  </div>
+    const updateUserBalance = async () => {
+      const span = document.getElementById("balance-value");
+      const user = auth.currentUser;
+      if (!span || !user) return;
+      try {
+        const snap = await get(ref(db, 'users/' + user.uid));
+        const balance = snap.val()?.balance || 0;
+        span.textContent = `${parseFloat(balance).toLocaleString()} coins`;
+      } catch (e) {
+        span.textContent = "error";
+        console.error(e);
+      }
+    };
 
-</section>
-
-<script type="module">
-import { renderSpinner, spinToPrize, getTopPrizes } from './scripts/spinner.js';
-  function formatCoins(num) {
-  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
-  if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
-  return num.toLocaleString();
-}
-
- import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-
-// ✅ Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyCyRm6dWH8b_BZ0oImEBPW_T3sF14Tz8dE",
-  authDomain: "cases-e5b4e.firebaseapp.com",
-  databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
-  projectId: "cases-e5b4e",
-  storageBucket: "cases-e5b4e.appspot.com",
-  messagingSenderId: "1094023497986",
-  appId: "1:1094023497986:web:59e018f1aa5e8c4093d7a5"
-};
-
-// ✅ Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app);
- async function updateUserBalanceCompat(retry = 0) {
-  const span = document.getElementById("balance-value");
-  const user = firebase.auth().currentUser; // ✅ Using compat since your db writes use compat too
-
-  if (!span || !user) {
-    if (retry < 10) {
-      console.warn(`⚠️ Retry balance update... (${retry + 1})`);
-      setTimeout(() => updateUserBalanceCompat(retry + 1), 300);
-    } else {
-      console.error("❌ Failed to update balance after multiple attempts.");
-    }
-    return;
-  }
-
-  try {
-    const snap = await firebase.database().ref("users/" + user.uid).once("value");
-    const balance = snap.val()?.balance || 0;
-    span.textContent = `${parseFloat(balance).toLocaleString()} coins`;
-    console.log("✅ Balance displayed:", balance);
-  } catch (err) {
-    span.textContent = "error";
-    console.error("❌ Error fetching balance", err);
-  }
-}
-// ✅ Add manual refresh button listener
-document.addEventListener("DOMContentLoaded", () => {
-  const refreshBtn = document.getElementById("refresh-balance");
-  if (refreshBtn) {
-    refreshBtn.addEventListener("click", () => {
-      updateUserBalanceCompat(); // re-call the same function
+    document.addEventListener("DOMContentLoaded", () => {
+      const refreshBtn = document.getElementById("refresh-balance");
+      if (refreshBtn) refreshBtn.addEventListener("click", updateUserBalance);
     });
-  }
-});
- 
-onAuthStateChanged(auth, (user) => {
-  const el = document.getElementById("user-balance");
-  if (user) {
-    updateUserBalanceCompat(); // now safe to run
-  } else if (el) {
-    el.textContent = "Balance: Sign in required";
-  }
-});
 
+    onAuthStateChanged(auth, (user) => {
+      const el = document.getElementById("user-balance");
+      if (user) updateUserBalance();
+      else if (el) el.textContent = "Balance: Sign in required";
+    });
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const caseId = urlParams.get('id');
+    const urlParams = new URLSearchParams(window.location.search);
+    const caseId = urlParams.get('id');
+    if (!caseId) return document.getElementById("case-name").innerText = "Case not found.";
 
-  if (!caseId) {
-    document.getElementById("case-name").innerText = "Case not found.";
-    throw new Error("No case ID provided.");
-  }
+    const rarityOrder = { legendary: 5, "ultra rare": 4, rare: 3, uncommon: 2, common: 1 };
 
+    const snap = await get(ref(db, `cases/${caseId}`));
+    if (!snap.exists()) return document.getElementById("case-name").innerText = "Case not found.";
 
-  const rarityOrder = {
-    "legendary": 5,
-    "ultra rare": 4,
-    "rare": 3,
-    "uncommon": 2,
-    "common": 1
-  };
-
-  const rarityColors = {
-    "legendary": "ring-yellow-400 glow-legendary text-yellow-400",
-    "ultra rare": "ring-purple-500 text-purple-400",
-    "rare": "ring-blue-500 text-blue-400",
-    "uncommon": "ring-green-500 text-green-400",
-    "common": "ring-gray-400 text-gray-300"
-  };
-
-  get(ref(db, `cases/${caseId}`)).then(snapshot => {
-
-    if (!snapshot.exists()) {
-      document.getElementById("case-name").innerText = "Case not found.";
-      return;
-    }
-
-    const caseData = snapshot.val();
+    const caseData = snap.val();
     document.getElementById("case-name").innerText = caseData.name;
-    document.getElementById("case-price-amount").textContent = `${formatCoins(caseData.price || 0)} coins`;
-
-    const openBtnText = document.getElementById("open-button-text");
-if (openBtnText) {
-  openBtnText.textContent = `Open for ${formatCoins(caseData.price || 0)} coins`;
-}
+    document.getElementById("case-price-amount").textContent = `${formatCoins(caseData.price)} coins`;
 
     const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
       return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
     });
-    
-    renderSpinner(getTopPrizes(prizeList), null, true); // 👈 Preview mode
 
-    
-  const currentPrizes = prizeList;
-  const prizeHTML = prizeList.map(prize => {
-  const rarity = (prize.rarity || "common").toLowerCase().replace(" ", "");
-  const gradientClass = `card-gradient-${rarity}`;
-  const valueFormatted = formatCoins(prize.value || 0);
-
-  return `
-    <div class="rounded-xl p-3 text-white cursor-pointer transition-all duration-300 transform hover:scale-105 backdrop-blur-sm bg-white/10 ${gradientClass}"onclick="expandPrize('${prize.image.replace(/'/g, "\\'")}', '${prize.name.replace(/'/g, "\\'")}', ${prize.value || 0}, '${prize.rarity || 'common'}')">
-      <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3 shadow-md ring-2 ring-white/10 bg-black/10 p-1" />
-
-
-      <div class="text-center font-semibold text-xs px-2 leading-snug clamp-2">
-  ${prize.name}
-</div>
-
-
-      <div class="flex justify-between items-center mt-2 text-sm font-semibold px-1">
-        <div class="flex items-center gap-1 text-yellow-300 font-bold">
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-  ${valueFormatted}
-</div>
-        <div class="text-xs text-white/70 bg-white/10 px-2 py-[2px] rounded-full">${(prize.odds || 0).toFixed(1)}%</div>
+    const prizeHTML = prizeList.map(prize => `
+      <div class="rounded-xl p-3 text-white backdrop-blur-sm bg-white/10">
+        <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3" />
+        <div class="text-center text-xs font-semibold">${prize.name}</div>
+        <div class="text-yellow-300 text-center text-sm">${formatCoins(prize.value)} coins</div>
       </div>
-    </div>
-  `;
-}).join("");
-
-
-
+    `).join("");
 
     document.getElementById("prizes-grid").innerHTML = prizeHTML;
+    renderSpinner(getTopPrizes(prizeList), null, true);
 
-    // ✅ Add click logic for open button
-  const openCaseHandler = async () => {
-    const openBtn = document.getElementById("open-case-button");
-openBtn.disabled = true;
-openBtn.classList.add("opacity-50", "cursor-not-allowed");
+    document.getElementById("open-case-button").addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (!user) return alert("Please sign in first!");
 
-setTimeout(() => {
-  openBtn.disabled = false;
-  openBtn.classList.remove("opacity-50", "cursor-not-allowed");
-}, 4000);
+      const casePrice = parseFloat(caseData.price || 0);
+      const userSnap = await get(ref(db, 'users/' + user.uid));
+      const balance = parseFloat(userSnap.val()?.balance || 0);
+      if (balance < casePrice) return alert("Not enough coins!");
 
-  const user = firebase.auth().currentUser;
-  if (!user) return alert("Please sign in first!");
+      const prizes = Object.values(caseData.prizes || {});
+      const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+      const rand = Math.random() * totalOdds;
 
-  const casePrice = parseFloat(caseData.price || 0);
-  const userRef = ref(db, 'users/' + user.uid);
-  const userSnap = await get(userRef);
-  const balance = parseFloat(userSnap.val()?.balance || 0);
-  if (balance < casePrice) return alert("Not enough coins!");
+      let cumulative = 0;
+      let winningPrize = prizes[prizes.length - 1];
+      for (let p of prizes) {
+        cumulative += p.odds || 0;
+        if (rand < cumulative) {
+          winningPrize = p;
+          break;
+        }
+      }
 
-  const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
-  const fairData = fairSnap.val();
-  let pfPopup = document.getElementById("pf-popup");
+      const currentPrizes = [];
+      for (let i = 0; i < 30; i++) {
+        const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
+        currentPrizes.push(randomPrize);
+      }
+      currentPrizes[15] = winningPrize;
 
-if (!pfPopup) {
-  pfPopup = document.createElement("div");
-  pfPopup.id = "pf-popup";
-  pfPopup.className = "fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-gray-900 text-white border border-purple-500 shadow-xl rounded-xl p-6 w-11/12 max-w-md hidden";
-  pfPopup.innerHTML = `
-  <div class="text-center space-y-3">
-    <h3 class="text-lg font-bold text-purple-400">🔐 Provably Fair Info</h3>
-    <div class="text-left text-sm text-gray-300 space-y-2 break-all">
-      <div><strong>Server Seed:</strong><br><code class="text-white">${fairData.serverSeed}</code></div>
-      <div><strong>Client Seed:</strong><br><code class="text-white">${fairData.clientSeed}</code></div>
-      <div><strong>Nonce:</strong><br><code class="text-white">${fairData.nonce}</code></div>
-    </div>
-    <button id="change-seed" class="mt-2 text-blue-400 underline text-sm">Change Client Seed</button>
-    <button id="close-pf" class="mt-4 bg-pink-600 px-4 py-2 rounded-full text-white font-semibold hover:bg-pink-700 transition">Close</button>
-  </div>
-`;
-  document.body.appendChild(pfPopup);
-}
-  // Toggle popup visibility
-document.getElementById("provably-fair-badge").addEventListener("click", () => {
-  const pfBox = document.getElementById("pf-popup");
-  if (pfBox) pfBox.classList.toggle("hidden");
-});
+      renderSpinner(currentPrizes, winningPrize);
+      setTimeout(spinToPrize, 150);
 
-// Close button
-document.getElementById("close-pf").addEventListener("click", () => {
-  document.getElementById("pf-popup").classList.add("hidden");
-});
+      setTimeout(() => {
+        document.getElementById('modal-image').src = winningPrize.image;
+        document.getElementById('modal-name').textContent = winningPrize.name;
+        document.getElementById('modal-value').querySelector('span').textContent = `${formatCoins(winningPrize.value)} coins`;
+        document.getElementById('prize-modal').classList.remove('hidden');
+      }, 4000);
 
-// Change client seed
-document.getElementById("change-seed").addEventListener("click", async () => {
-  const newSeed = prompt("Enter new client seed:");
-  if (newSeed) {
-    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
-    alert("✅ New client seed saved! Reload to use it.");
-  }
-});
+      await set(ref(db, 'users/' + user.uid + '/balance'), balance - casePrice);
+      updateUserBalance();
 
-
-document.getElementById("change-seed").addEventListener("click", async () => {
-  const newSeed = prompt("Enter new client seed:");
-  if (newSeed) {
-    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
-    alert("✅ New client seed saved! Reload to use it.");
-  }
-});
-
-
-  if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') {
-    return alert('Missing provably fair data.');
-  }
-
-  const { serverSeed, clientSeed, nonce } = fairData;
-  const hash = await sha256(`${serverSeed}:${clientSeed}:${nonce}`);
-  const rand = parseInt(hash.substring(0, 8), 16) / 0xffffffff;
-
-  const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
-  const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
-
-  let cumulative = 0;
-  let winningPrize = prizes[prizes.length - 1]; // fallback
-
-for (let p of prizes) {
-  cumulative += p.odds || 0;
-  if (rand * totalOdds < cumulative) {
-    winningPrize = p;
-    break;
-  }
-}
-
-// Build spinner prizes and inject the winning prize at index 15
-// Reset spinner visually and generate fresh prize strip
-const currentPrizes = [];
-for (let i = 0; i < 30; i++) {
-  const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
-  currentPrizes.push(randomPrize);
-}
-const targetIndex = 15;
-currentPrizes[targetIndex] = winningPrize;
-
-// Remove old spinner DOM if exists
-const old = document.getElementById("spinner-wrapper");
-if (old) old.remove();
-
-renderSpinner(currentPrizes, winningPrize);
-
-setTimeout(() => {
-  spinToPrize();
-}, 150);
-
-
-
-
-// Show prize name below spinner
-document.getElementById("prize-name").innerText = winningPrize.name;
-document.getElementById("prize-name").classList.remove("hidden");
-
-
-
-setTimeout(() => {
-  const rarity = (winningPrize.rarity || 'common').toLowerCase();
-
-  const raritySounds = {
-    "common": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5",
-    "uncommon": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
-    "rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
-    "ultra rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de",
-    "legendary": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"
-  };
-
-  const audio = new Audio(raritySounds[rarity] || raritySounds["common"]);
-  audio.volume = 0.75;
-  audio.play().catch(() => {});
-}, 4000); // wait until spinner animation finishes
-
-  // 💰 Deduct balance
-  await firebase.database().ref('users/' + user.uid + '/balance').set(balance - casePrice);
- updateUserBalanceCompat();
-
-
-  // 💾 Save prize to inventory
-  await firebase.database().ref('users/' + user.uid + '/inventory').push({
-    name: winningPrize.name,
-    image: winningPrize.image,
-    rarity: winningPrize.rarity,
-    value: winningPrize.value,
-    timestamp: Date.now()
-  });
-
-  // 🔄 Update nonce
-  await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
-
-  // Reset button text and rebind event
-  openBtn.innerHTML = `<span id="open-button-text">Open for ${formatCoins(caseData.price || 0)} coins</span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />`;
-  openBtn.onclick = openCaseHandler;
-};
-
-
-  // 🎉 Show result
-  let resultDiv = document.getElementById("result-message");
-if (!resultDiv) {
-  resultDiv = document.createElement("div");
-  resultDiv.id = "result-message";
-  resultDiv.className = "mt-4 text-xl font-bold text-white";
-  document.getElementById("case-container").appendChild(resultDiv);
-}
-const openBtn = document.getElementById("open-case-button");
-    document.getElementById("prize-name").classList.add("hidden");
-openBtn.onclick = openCaseHandler;
-
-}); // ✅ closes get(ref(...)).then
-</script>
-
-
-
-<!-- Updates Bar -->
-<div class="updates-bar text-sm">
-  <div class="marquee-text">
-    📦 All cards are near mint unless specified otherwise — 🪙 Sell back unwanted cards for coins 💰
-  </div>
-</div>
-
-<!-- Toast Notification -->
-<div id="inventory-toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg text-center font-semibold hidden z-[9999]">
-  Item added to inventory: <span id="toast-item-name"></span>
-</div>
-
-<!-- Expandable Prize Overlay -->
-<div id="prize-overlay" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[100]" onclick="this.classList.add('hidden')">
-  <div class="bg-gray-900 rounded-xl border border-white/20 shadow-2xl p-6 w-[300px] sm:w-[400px] text-center relative" onclick="event.stopPropagation()">
-    <button onclick="document.getElementById('prize-overlay').classList.add('hidden')" class="absolute top-2 right-2 text-white text-xl bg-black/70 px-3 py-1 rounded-full z-10 hover:bg-pink-600 transition">&times;</button>
-    <img id="overlay-image" src="" class="w-full h-48 object-contain mb-4 rounded-md" />
-    <h3 id="overlay-name" class="text-lg font-bold text-white"></h3>
-    <p id="overlay-value" class="text-sm text-yellow-300 mt-1"></p>
-    <span id="overlay-rarity" class="text-xs font-semibold px-3 py-1 rounded-full mt-2 inline-block"></span>
-  </div>
-</div>
-
-<!-- Script for expanding prize image -->
-<script>
-  function expandPrize(imageUrl, name = "", value = 0, rarity = "common") {
-    const overlay = document.getElementById('prize-overlay');
-    const overlayImg = document.getElementById('overlay-image');
-    const overlayName = document.getElementById('overlay-name');
-    const overlayValue = document.getElementById('overlay-value');
-    const overlayRarity = document.getElementById('overlay-rarity');
-
-    const rarityColors = {
-      "legendary": "bg-yellow-400 text-black",
-      "ultra rare": "bg-purple-500 text-white",
-      "rare": "bg-blue-500 text-white",
-      "uncommon": "bg-green-500 text-white",
-      "common": "bg-gray-400 text-black"
-    };
-
-    if (overlay && overlayImg && overlayName && overlayValue && overlayRarity) {
-      overlayImg.src = imageUrl;
-      overlayName.textContent = name;
-      overlayValue.textContent = `${parseFloat(value).toLocaleString()} coins`;
-      overlayRarity.textContent = rarity.toUpperCase();
-      overlayRarity.className = `text-xs font-semibold px-3 py-1 rounded-full mt-2 inline-block ${rarityColors[rarity.toLowerCase()] || 'bg-gray-400 text-black'}`;
-      overlay.classList.remove('hidden');
-    }
-  }
-</script>
-  
-  <script>
-  async function sha256(message) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(message);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
-  }
+      await push(ref(db, 'users/' + user.uid + '/inventory'), {
+        name: winningPrize.name,
+        image: winningPrize.image,
+        rarity: winningPrize.rarity,
+        value: winningPrize.value,
+        timestamp: Date.now()
+      });
+    });
   </script>
-<script type="module" src="scripts/auth.js"></script>
-<script src="scripts/header.js"></script>
-<script src="scripts/navbar.js"></script>
-<script src="scripts/footer.js"></script>
-<script src="scripts/topup.js"></script>
-<script src="scripts/balance.js"></script>
-<script type="module" src="scripts/spinner.js"></script>
-
-
 </body>
 </html>
+
