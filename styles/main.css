@@ -571,3 +571,39 @@ html {
   mix-blend-mode: screen;
 }
 </style>
+
+@keyframes shimmer {
+  0% {
+    background-position: -150% 0;
+  }
+  100% {
+    background-position: 150% 0;
+  }
+}
+@keyframes holo-foil {
+  0% {
+    transform: translateX(-20%) translateY(-20%) rotate(0deg);
+  }
+  100% {
+    transform: translateX(20%) translateY(20%) rotate(360deg);
+  }
+}
+.shimmer-pointer-events {
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.12) 45%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.12) 55%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite linear;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.animate-holo-foil {
+  animation: holo-foil 12s linear infinite;
+}
+
