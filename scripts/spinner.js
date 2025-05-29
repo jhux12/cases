@@ -151,7 +151,7 @@ export function spinToPrize() {
 
     popup.innerHTML = `
       <div class="bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-purple-600 rounded-2xl p-6 text-white text-center w-80 shadow-2xl scale-90 animate-[zoomIn_0.3s_ease-out_forwards]">
-        <img src="${prize.image}" alt="${prize.name}" class="w-32 h-32 mx-auto mb-4 drop-shadow-lg rounded-lg" />
+        <img src="${prize.image}" alt="${prize.name}" class="w-32 h-32 mx-auto mb-4 rounded-xl shadow-xl border-4 border-white/20 animate-[pop_0.4s_ease-out_forwards]" style="filter: drop-shadow(0 0 12px rgba(255,255,255,0.2)); transform: scale(0.8);" />
         <h2 class="text-xl font-bold mb-2">${prize.name}</h2>
         <div class="flex items-center justify-center text-yellow-300 font-semibold text-lg gap-2 mb-4">
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
