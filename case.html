@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Packly.gg | Case Opening</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script type="module" src="scripts/spinner.js"></script>
 
   <!-- Firebase compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -87,7 +86,8 @@
   </section>
 
   <!-- Main logic -->
-  <script>
+<script type="module">
+import { renderSpinner, spinToPrize } from './scripts/spinner.js';
     const formatCoins = (num) => {
       if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
       if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
@@ -226,6 +226,5 @@ setTimeout(() => {
       });
     });
   </script>
-  <script type="module" src="scripts/spinner.js"></script>
 </body>
 </html>
