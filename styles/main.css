@@ -555,21 +555,33 @@ html {
     background-position: 200% 0;
   }
 }
+@keyframes rainbowShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
 
 .holographic-card .shimmer {
   background: linear-gradient(
     120deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.2) 30%,
-    rgba(255, 255, 255, 0.5) 50%,
-    rgba(255, 255, 255, 0.2) 70%,
-    transparent 100%
+    rgba(255, 0, 255, 0.15),
+    rgba(0, 255, 255, 0.15),
+    rgba(255, 255, 0, 0.15),
+    rgba(255, 0, 255, 0.15)
   );
-  background-size: 200% 100%;
-  animation: shimmer 2.5s infinite linear;
-  opacity: 0.4;
-  mix-blend-mode: screen;
+  background-size: 400% 100%;
+  animation: rainbowShimmer 4s linear infinite;
+  opacity: 0.5;
+  mix-blend-mode: color-dodge;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
 }
+
 </style>
 
 @keyframes shimmer {
