@@ -316,7 +316,7 @@ document.addEventListener("DOMContentLoaded", () => {
       balanceRef.set(newBalance);
 
       // ✅ Update UI immediately
-      const balanceEl = document.getElementById("coin-balance");
+      const balanceEl = document.getElementById("balance-value");
       if (balanceEl) balanceEl.textContent = newBalance;
     });
 
@@ -342,7 +342,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("win-popup").classList.add("hidden");
 });
-
 });
 </script>
 
