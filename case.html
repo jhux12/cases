@@ -415,8 +415,8 @@ const fairData = fairSnap.val();
 const clientSeed = fairData.clientSeed;
 const nonce = fairData.nonce || 0;
 
-const hash = CryptoJS.HmacSHA256(`${clientSeed}:${nonce}`, fairData.serverSeed).toString();
-const roll = parseInt(hash.substring(0, 8), 16) / 0xffffffff;
+const hashValue = CryptoJS.HmacSHA256(`${clientSeed}:${nonce}`, fairData.serverSeed).toString();
+const roll = parseInt(hashValue.substring(0, 8), 16) / 0xffffffff;
 
 
 // 🎲 Provably fair roll
