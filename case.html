@@ -403,62 +403,53 @@ setTimeout(() => {
   openBtn.classList.remove("opacity-50", "cursor-not-allowed");
 }, 4000);
 
-  const casePrice = parseFloat(caseData.price || 0);
-  const userRef = ref(db, 'users/' + user.uid);
-  const userSnap = await get(userRef);
-  const balance = parseFloat(userSnap.val()?.balance || 0);
-  if (balance < casePrice) return alert("Not enough coins!");
+const casePrice = parseFloat(caseData.price || 0);
+const userRef = ref(db, 'users/' + user.uid);
+const userSnap = await get(userRef);
+const balance = parseFloat(userSnap.val()?.balance || 0);
+if (balance < casePrice) return alert("Not enough coins!");
 
-  const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
-  const fairData = fairSnap.val();
-  let pfPopup = document.getElementById("pf-popup");
+// 🔐 Get provably fair data
+const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
+const fairData = fairSnap.val();
+const clientSeed = fairData.clientSeed;
+const serverSeed = fairData.serverSeed;
+const nonce = fairData.nonce || 0;
 
-if (!pfPopup) {
-  pfPopup = document.createElement("div");
-  pfPopup.id = "pf-popup";
-  pfPopup.className = "fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-gray-900 text-white border border-purple-500 shadow-xl rounded-xl p-6 w-11/12 max-w-md hidden";
-  pfPopup.innerHTML = `
-  <div class="text-center space-y-3">
-    <h3 class="text-lg font-bold text-purple-400">🔐 Provably Fair Info</h3>
-    <div class="text-left text-sm text-gray-300 space-y-2 break-all">
-      <div><strong>Server Seed:</strong><br><code class="text-white">${fairData.serverSeed}</code></div>
-      <div><strong>Client Seed:</strong><br><code class="text-white">${fairData.clientSeed}</code></div>
-      <div><strong>Nonce:</strong><br><code class="text-white">${fairData.nonce}</code></div>
-    </div>
-    <button id="change-seed" class="mt-2 text-blue-400 underline text-sm">Change Client Seed</button>
-    <button id="close-pf" class="mt-4 bg-pink-600 px-4 py-2 rounded-full text-white font-semibold hover:bg-pink-700 transition">Close</button>
-  </div>
-`;
-  document.body.appendChild(pfPopup);
-}
-  // Toggle popup visibility
-document.getElementById("provably-fair-badge").addEventListener("click", () => {
-  const pfBox = document.getElementById("pf-popup");
-  if (pfBox) pfBox.classList.toggle("hidden");
+// 🎲 Provably fair roll
+const hash = CryptoJS.HmacSHA256(`${clientSeed}:${nonce}`, serverSeed).toString();
+const roll = parseInt(hash.substring(0, 8), 16) / 0xffffffff;
+
+// 🎁 Pick winning prize
+const winningPrize = currentPrizes.find((prize, index) => {
+  const cumulativeChance = currentPrizes
+    .slice(0, index + 1)
+    .reduce((acc, p) => acc + parseFloat(p.odds || 0), 0);
+  return roll * 100 <= cumulativeChance;
+}) || currentPrizes[currentPrizes.length - 1];
+
+// 🎞 Spin to prize
+spinToPrize(winningPrize);
+
+// 💸 Deduct coins
+await firebase.database().ref(`users/${user.uid}/balance`).set(balance - casePrice);
+
+// 🔢 Increment nonce
+await firebase.database().ref(`users/${user.uid}/provablyFair/nonce`).set(nonce + 1);
+
+// 🏆 Save win
+await firebase.database().ref(`wins`).push({
+  uid: user.uid,
+  prize: winningPrize,
+  timestamp: Date.now(),
+  caseId: caseId,
+  caseName: caseData.name
 });
 
-// Close button
-document.getElementById("close-pf").addEventListener("click", () => {
-  document.getElementById("pf-popup").classList.add("hidden");
-});
+// 🪄 Show prize popup
+expandPrize(winningPrize.image, winningPrize.name, winningPrize.value, winningPrize.rarity);
+updateUserBalanceCompat();
 
-// Change client seed
-document.getElementById("change-seed").addEventListener("click", async () => {
-  const newSeed = prompt("Enter new client seed:");
-  if (newSeed) {
-    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
-    alert("✅ New client seed saved! Reload to use it.");
-  }
-});
-
-
-document.getElementById("change-seed").addEventListener("click", async () => {
-  const newSeed = prompt("Enter new client seed:");
-  if (newSeed) {
-    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
-    alert("✅ New client seed saved! Reload to use it.");
-  }
-});
 
 
   if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') {
