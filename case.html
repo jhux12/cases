@@ -138,15 +138,10 @@ import { renderSpinner, spinToPrize } from './scripts/spinner.js';
 
     const rarityOrder = { legendary: 5, "ultra rare": 4, rare: 3, uncommon: 2, common: 1 };
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const refreshBtn = document.getElementById("refresh-balance");
-      if (refreshBtn) refreshBtn.addEventListener("click", updateUserBalance);
-    });
-    document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
   const refreshBtn = document.getElementById("refresh-balance");
   if (refreshBtn) refreshBtn.addEventListener("click", updateUserBalance);
 
-  // 👇 Add all this inside here:
   const closeBtn = document.getElementById("close-popup");
   if (closeBtn) closeBtn.addEventListener("click", () => {
     document.getElementById("win-popup").classList.add("hidden");
