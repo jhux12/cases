@@ -115,7 +115,7 @@
   </section>
   <!-- Main logic -->
 <script type="module">
-import { renderSpinner, spinToPrize } from './scripts/spinner.js';
+import { renderSpinner, spinToPrize, showWinPopup } from './scripts/spinner.js';
     const formatCoins = (num) => {
       if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
       if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
@@ -236,6 +236,9 @@ spinnerPrizes[15] = winningPrize;
 renderSpinner(spinnerPrizes, winningPrize);
 setTimeout(() => {
   spinToPrize();
+  setTimeout(() => {
+    showWinPopup(winningPrize);
+  }, 2000); // Adjust delay if needed to match spin duration
 }, 150);
 
 
