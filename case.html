@@ -317,7 +317,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // ✅ Update UI immediately
       const balanceEl = document.getElementById("balance-value");
-      if (balanceEl) balanceEl.textContent = newBalance.toLocaleString();
+      if (balanceEl) balanceEl.textContent = `${newBalance.toLocaleString()} coins`;
     });
 
     // Step 2: Remove item from inventory
