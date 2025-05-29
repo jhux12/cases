@@ -235,10 +235,9 @@ spinnerPrizes[15] = winningPrize;
 
 renderSpinner(spinnerPrizes, winningPrize);
 setTimeout(() => {
-  spinToPrize();
-  setTimeout(() => {
+  spinToPrize(() => {
     showWinPopup(winningPrize);
-  }, 2000); // Adjust delay if needed to match spin duration
+  });
 }, 150);
 
 
