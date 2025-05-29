@@ -154,11 +154,18 @@ renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
   const gradientClass = `card-gradient-${rarity}`;
 
   return `
-    <div class="rounded-2xl border border-white/10 p-3 text-white text-center shadow-md backdrop-blur-sm transition-all hover:scale-[1.03] ${gradientClass} ${glowClass}">
+    <div class="relative rounded-2xl border border-white/10 p-3 text-white text-center shadow-md backdrop-blur-sm transition-all hover:scale-[1.03] ${gradientClass} ${glowClass}">
       <img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto rounded-md mb-3 bg-black/20 shadow-inner" />
-      <div class="font-bold text-sm clamp-2">${prize.name}</div>
-      <div class="text-yellow-300 font-bold text-sm mt-1">${formatCoins(prize.value || 0)} coins</div>
-      <div class="text-xs text-white/70 mt-1 bg-white/10 px-2 py-[2px] inline-block rounded-full">${(prize.odds || 0).toFixed(1)}% chance</div>
+      <div class="font-bold text-sm clamp-2 mb-4">${prize.name}</div>
+
+      <!-- Bottom overlay: coin left, odds right -->
+      <div class="absolute bottom-2 left-2 flex items-center gap-1 text-yellow-300 font-bold text-xs">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
+        ${formatCoins(prize.value || 0)}
+      </div>
+      <div class="absolute bottom-2 right-2 text-white/70 bg-white/10 px-2 py-[2px] text-xs rounded-full">
+        ${(prize.odds || 0).toFixed(1)}%
+      </div>
     </div>
   `;
 }).join("");
