@@ -146,4 +146,3 @@ export function spinToPrize() {
   }, 4000);
 }
 
-
