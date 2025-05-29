@@ -286,11 +286,57 @@ setTimeout(() => {
   <script src="./scripts/footer.js"></script>
   <script src="./scripts/navbar.js"></script>
   <script src="./scripts/topup.js"></script>
+    <script>
+document.getElementById("close-popup").addEventListener("click", () => {
+  document.getElementById("win-popup").classList.add("hidden");
+});
+
+document.getElementById("keep-button").addEventListener("click", () => {
+  document.getElementById("win-popup").classList.add("hidden");
+});
+
+document.getElementById("sell-button").addEventListener("click", () => {
+  const sellAmount = parseInt(document.getElementById("sell-value").textContent);
+  const user = firebase.auth().currentUser;
+  if (user) {
+    const db = firebase.firestore();
+    db.collection("users").doc(user.uid).update({
+      coins: firebase.firestore.FieldValue.increment(sellAmount)
+    });
+  }
+  document.getElementById("win-popup").classList.add("hidden");
+});
+</script>
 <audio id="sound-common" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5"></audio>
 <audio id="sound-rare" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8"></audio>
 <audio id="sound-ultrarare" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de"></audio>
 <audio id="sound-legendary" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"></audio>
+<!-- Winning Prize Popup -->
+<div id="win-popup" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden">
+  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center relative border border-white/10">
+    
+    <div class="absolute top-3 right-3 text-gray-400 hover:text-white cursor-pointer text-xl" id="close-popup">&times;</div>
 
+    <img id="popup-image" src="" class="w-40 h-40 object-contain mx-auto mb-4 rounded-xl shadow-md" />
+
+    <div class="inline-block bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow mb-2" id="popup-name">Prize Name</div>
+
+    <div class="inline-block bg-gray-700 text-white text-xs font-semibold px-4 py-1 rounded-full mb-4">
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 mr-1" />
+      <span id="popup-value">0</span>
+    </div>
+
+    <div class="flex justify-center gap-3">
+      <button id="sell-button" class="px-4 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white font-bold text-sm flex items-center gap-2">
+        Sell for <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
+        <span id="sell-value">0</span>
+      </button>
+      <button id="keep-button" class="px-4 py-2 rounded-full bg-green-600 hover:bg-green-700 text-white font-bold text-sm">
+        Add to Inventory
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
 
