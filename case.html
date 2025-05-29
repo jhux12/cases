@@ -328,10 +328,17 @@ if (openBtnText) {
   `;
 }).join("");
 
-
-
-
     document.getElementById("prizes-grid").innerHTML = prizeHTML;
+
+    function getCurrentUserSafe(callback) {
+  const user = firebase.auth().currentUser;
+  if (user) return callback(user);
+
+  firebase.auth().onAuthStateChanged((u) => {
+    if (u) return callback(u);
+    alert("⚠️ Please sign in first.");
+  });
+}
 
     // ✅ Add click logic for open button
   const openCaseHandler = async () => {
