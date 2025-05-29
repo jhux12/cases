@@ -88,7 +88,8 @@ export function spinToPrize() {
   const targetRect = targetCard.getBoundingClientRect();
   const cardCenter = targetRect.left + targetRect.width / 2;
   const containerCenter = window.innerWidth / 2;
-  const scrollOffset = cardCenter - containerCenter;
+const randomOffset = Math.floor(Math.random() * 41) - 20; // [-20, +20]
+const scrollOffset = cardCenter - containerCenter + randomOffset;
 
 spinnerWheel.style.transition = 'transform 8s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
   spinnerWheel.style.transform = `translateX(-${scrollOffset}px)`;
