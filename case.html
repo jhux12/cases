@@ -413,8 +413,11 @@ if (balance < casePrice) return alert("Not enough coins!");
 const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
 const fairData = fairSnap.val();
 const clientSeed = fairData.clientSeed;
-const serverSeed = fairData.serverSeed;
 const nonce = fairData.nonce || 0;
+
+const hash = CryptoJS.HmacSHA256(`${clientSeed}:${nonce}`, fairData.serverSeed).toString();
+const roll = parseInt(hash.substring(0, 8), 16) / 0xffffffff;
+
 
 // 🎲 Provably fair roll
 const hash = CryptoJS.HmacSHA256(`${clientSeed}:${nonce}`, serverSeed).toString();
