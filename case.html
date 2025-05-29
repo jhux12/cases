@@ -166,7 +166,8 @@ renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
   `;
 }).join("");
 
-  ).addEventListener("click", async () => {
+document.getElementById("open-case-button").addEventListener("click", async () => {
+
         const user = firebase.auth().currentUser;
         if (!user) return alert("Please sign in to open cases.");
 
