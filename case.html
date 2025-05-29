@@ -175,7 +175,7 @@ renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
   const gradientClass = `card-gradient-${rarity}`;
 
   return `
-    <div class="relative rounded-2xl border border-white/10 p-3 text-white text-center shadow-md backdrop-blur-sm transition-all hover:scale-[1.03] ${gradientClass} ${glowClass}">
+  <div class="prize-card relative rounded-2xl border border-white/10 p-3 text-white text-center shadow-md backdrop-blur-sm transition-all hover:scale-[1.03] ${gradientClass} ${glowClass}">
       <img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto rounded-md mb-3 bg-black/20 shadow-inner" />
       <div class="font-bold text-sm clamp-2 mb-4">${prize.name}</div>
 
@@ -190,6 +190,7 @@ renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
     </div>
   `;
 }).join("");
+enablePrizePopups();
 
 
 document.getElementById("open-case-button").addEventListener("click", async () => {
@@ -266,7 +267,24 @@ setTimeout(() => {
 
   document.getElementById("provably-fair-modal").classList.remove("hidden");
 });
+function enablePrizePopups() {
+  const cards = document.querySelectorAll(".prize-card");
+  cards.forEach(card => {
+    card.addEventListener("click", () => {
+      const image = card.querySelector("img")?.src;
+      const name = card.querySelector(".font-bold")?.textContent.trim();
+      const value = card.querySelector(".text-yellow-300")?.textContent.trim();
+      const odds = card.querySelector(".bg-white\\/10")?.textContent.trim();
 
+      document.getElementById("prize-popup-image").src = image;
+      document.getElementById("prize-popup-name").textContent = name;
+      document.getElementById("prize-popup-value").textContent = value;
+      document.getElementById("prize-popup-odds").textContent = odds;
+
+      document.getElementById("prize-popup").classList.remove("hidden");
+    });
+  });
+}
   </script>
   <!-- Provably Fair Modal -->
 <div id="provably-fair-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
