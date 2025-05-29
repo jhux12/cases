@@ -66,10 +66,6 @@
       <div class="text-right text-sm">
         <button type="button" onclick="forgotPassword()" class="text-purple-300 hover:underline">Forgot Password?</button>
       </div>
-      <div class="flex items-center">
-  <input type="checkbox" id="keep-signed-in" class="mr-2">
-  <label for="keep-signed-in" class="text-sm text-gray-300">Keep me signed in</label>
-</div>
       <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">Login</button>
     </form>
 
@@ -171,13 +167,7 @@ loginForm.addEventListener('submit', async e => {
   e.preventDefault();
   const email = document.getElementById('login-email').value;
   const password = document.getElementById('login-password').value;
-  const keepSignedIn = document.getElementById('keep-signed-in').checked;
-
-  try {
-    const persistence = firebase.auth.Auth.Persistence.LOCAL;
-
-    await auth.setPersistence(persistence);
-    await auth.signInWithEmailAndPassword(email, password);
+ await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
     showToast('✅ Login successful!');
     setTimeout(() => window.location.href = 'index.html', 1500);
