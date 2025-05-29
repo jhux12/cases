@@ -51,12 +51,6 @@
 <body class="bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white">
 <section id="case-content" class="pt-32 pb-10 px-4 max-w-5xl mx-auto">
   <div id="case-container" class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 p-6 shadow-xl backdrop-blur-md text-center">
-    <div class="text-center">
-      <h2 id="case-name" class="text-3xl font-bold">Loading...</h2>
-      <p id="user-balance" class="mt-2 text-sm">Balance: <span id="balance-value" class="text-yellow-400">... coins</span></p>
-      <button id="refresh-balance" class="text-blue-400 text-xs underline">Refresh</button>
-      <p class="text-yellow-300 mt-2" id="case-price">Price: <span id="case-price-amount">...</span></p>
-    </div>
 
     <div class="my-8 border border-white/10 rounded-lg bg-black/20">
       <div class="relative h-[200px] overflow-hidden">
@@ -64,14 +58,25 @@
         <div id="spinner-container" class="w-full h-full"></div>
       </div>
     </div>
+    <div class="text-center space-y-2 mb-4">
+  <h2 id="case-name" class="text-3xl font-bold">Loading...</h2>
+  <p class="text-sm">Balance: <span id="balance-value" class="text-yellow-400">... coins</span> <button id="refresh-balance" class="text-blue-400 text-xs underline ml-2">Refresh</button></p>
+  <p class="text-yellow-300 text-sm">Price: <span id="case-price-amount">...</span></p>
+</div>
 <div id="rarity-info" class="hidden w-full mt-2">
   <div id="rarity-indicator" class="h-[6px] w-full rounded-full bg-gray-800 overflow-hidden border border-white/20">
     <div id="rarity-bar" class="h-full w-full bg-lime-500 transition-colors duration-300"></div>
   </div>
 </div>
     <div class="text-center">
-      <button id="open-case-button" class="px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold">Open Case</button>
+<button id="open-case-button" class="px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2">
+  Open for <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" /> <span id="button-price">...</span>
+</button>
     </div>
+<div class="mt-2 text-xs text-white/60 italic">
+  Provably Fair Enabled
+  <button id="pf-info" class="ml-2 underline text-blue-400">What is this?</button>
+</div>
 
     <div class="bg-black/30 backdrop-blur-md rounded-2xl shadow-md border border-white/10 p-6 hover:shadow-purple-500/20 transition-all duration-300 mt-10">
   <div class="text-center mb-6">
@@ -142,7 +147,8 @@ import { renderSpinner, spinToPrize } from './scripts/spinner.js';
 
       const caseData = snap.val();
       document.getElementById("case-name").innerText = caseData.name;
-      document.getElementById("case-price-amount").textContent = `${formatCoins(caseData.price)} coins`;
+document.getElementById("case-price-amount").textContent = `${formatCoins(caseData.price)} coins`;
+document.getElementById("button-price").textContent = formatCoins(caseData.price);
 
       const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
         return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
@@ -230,6 +236,22 @@ setTimeout(() => {
         updateUserBalance();
       });
     });
+  document.getElementById("pf-info").addEventListener("click", () => {
+  document.getElementById("provably-fair-modal").classList.remove("hidden");
+});
   </script>
+  <!-- Provably Fair Modal -->
+<div id="provably-fair-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+  <div class="bg-gray-900 p-6 rounded-xl w-full max-w-md text-white relative">
+    <button onclick="document.getElementById('provably-fair-modal').classList.add('hidden')" class="absolute top-2 right-3 text-white text-xl">&times;</button>
+    <h3 class="text-lg font-bold mb-2">Provably Fair</h3>
+    <p class="text-sm text-gray-300">
+      Every spin is determined by a verifiable combination of a server seed, your client seed, and a nonce, ensuring that outcomes are fair and tamper-proof.
+    </p>
+  </div>
+</div>
+</body>
+</html>
+
 </body>
 </html>
