@@ -149,6 +149,12 @@ if (sound) sound.play();
     if (spinnerResultText) {
       spinnerResultText.textContent = `You won: ${prize.name}!`;
       spinnerResultText.classList.remove("hidden");
+      // 🎉 Show Win Popup
+document.getElementById("popup-image").src = prize.image;
+document.getElementById("popup-name").textContent = prize.name;
+document.getElementById("popup-value").textContent = prize.value;
+document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
+document.getElementById("win-popup").classList.remove("hidden");
     }
 
     if (targetCard) {
