@@ -132,12 +132,12 @@ export function spinToPrize() {
   setTimeout(() => {
     cancelAnimationFrame(animationFrame);
 
-    const prize = spinnerPrizes[targetIndex];
-    const spinnerResultText = document.getElementById("spinner-result");
-    if (spinnerResultText) {
-      spinnerResultText.textContent = `You won: ${prize.name}!`;
-      spinnerResultText.classList.remove("hidden");
-    }
+const prize = spinnerPrizes[targetIndex] || {
+  name: "Mystery Card",
+  image: "https://via.placeholder.com/100?text=?",
+  value: 0,
+  rarity: "common"
+};
 
     if (targetCard) {
       const glowClass = `glow-${(prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-')}`;
