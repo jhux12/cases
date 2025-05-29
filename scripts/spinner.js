@@ -68,11 +68,11 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
     div.style.borderColor = borderColor;
     div.setAttribute("data-index", i);
 
-    div.innerHTML = `
-      <img src="${prize.image}" class="h-20 object-contain mb-2 drop-shadow-md" />
-      <div class="font-bold text-sm text-center leading-tight">${prize.name}</div>
-      <div class="text-xs text-gray-400">${prize.value || ''}</div>
-    `;
+<div class="relative w-32 h-48 mx-auto mb-4 rounded-xl overflow-hidden flex items-center justify-center bg-black border-2 border-purple-500 shadow-xl holographic-card">
+  <img src="${prize.image}" alt="${prize.name}" class="max-w-full max-h-full object-contain z-10 relative" />
+  <div class="absolute inset-0 z-0 shimmer"></div>
+</div>
+
 
     spinnerWheel.appendChild(div);
   }
