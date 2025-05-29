@@ -142,5 +142,5 @@ export function spinToPrize() {
       const glowClass = `glow-${(prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-')}`;
       targetCard.classList.add(glowClass, "ring-4", "ring-white");
     }
-  }, 4000);
+  }, 6000);
 }
