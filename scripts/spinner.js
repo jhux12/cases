@@ -28,14 +28,15 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
 
   const spinnerWheel = document.createElement("div");
   spinnerWheel.id = "spinner-wheel";
-  spinnerWheel.className = "flex h-full items-center";
-  if (isPreview) {
-    spinnerWheel.classList.add("animate-scroll-preview");
-  } else {
-    spinnerWheel.classList.add("transition-transform", "duration-[4000ms]", "ease-[cubic-bezier(0.17,0.67,0.12,0.99)]");
-  }
+ spinnerWheel.className = "flex h-full items-center";
+if (isPreview) {
+  spinnerWheel.classList.add("animate-scroll-preview");
+} else {
+  spinnerWheel.classList.add("transition-transform", "duration-[4000ms]", "ease-[cubic-bezier(0.17,0.67,0.12,0.99)]");
+}
 
   container.appendChild(spinnerWheel);
+
   spinnerPrizes = [];
 
   const shuffled = [...prizes];
@@ -63,18 +64,19 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
     const borderColor = getRarityColor(rarity);
 
-    div.className = "min-w-[180px] h-[220px] mx-1 flex items-center justify-center bg-black/40 rounded-xl border-2 shadow-md";
+    div.className = "min-w-[160px] mx-2 h-[180px] flex flex-col items-center justify-center text-white rounded-xl bg-black/30 shadow-md item border-2";
     div.style.borderColor = borderColor;
     div.setAttribute("data-index", i);
 
     div.innerHTML = `
-      <img src="${prize.image}" class="h-[140px] object-contain drop-shadow-md" />
+      <img src="${prize.image}" class="h-20 object-contain mb-2 drop-shadow-md" />
+      <div class="font-bold text-sm text-center leading-tight">${prize.name}</div>
+      <div class="text-xs text-gray-400">${prize.value || ''}</div>
     `;
 
     spinnerWheel.appendChild(div);
   }
 }
-
 
 export function spinToPrize() {
   const spinnerWheel = document.getElementById("spinner-wheel");
