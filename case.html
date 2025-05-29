@@ -302,17 +302,18 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("win-popup").classList.add("hidden");
   });
 
-  if (sellBtn) sellBtn.addEventListener("click", () => {
-    const sellAmount = parseInt(document.getElementById("sell-value").textContent);
-    const user = firebase.auth().currentUser;
-    if (user) {
-      firebase.database().ref("users/" + user.uid + "/balance").once("value").then(snap => {
-        const currentBalance = snap.val() || 0;
-        firebase.database().ref("users/" + user.uid + "/balance").set(currentBalance + sellAmount);
-      });
-    }
-    document.getElementById("win-popup").classList.add("hidden");
-  });
+sellBtn.addEventListener("click", () => {
+  const sellAmount = parseInt(document.getElementById("sell-value").textContent);
+  const user = firebase.auth().currentUser;
+  if (user) {
+    firebase.database().ref("users/" + user.uid + "/balance").once("value").then(snap => {
+      const currentBalance = snap.val() || 0;
+      firebase.database().ref("users/" + user.uid + "/balance").set(currentBalance + sellAmount);
+    });
+  }
+  document.getElementById("win-popup").classList.add("hidden");
+});
+
 });
 </script>
 
