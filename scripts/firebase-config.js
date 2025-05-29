@@ -1,6 +1,6 @@
 // Initialize Firebase globally using the compat SDK
 const firebaseConfig = {
-  apiKey: "1:22502548396:web:aac335672c21f07524d009",
+  apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
   authDomain: "cases-e5b4e.firebaseapp.com",
   databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
   projectId: "cases-e5b4e",
