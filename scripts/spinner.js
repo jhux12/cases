@@ -163,3 +163,12 @@ document.getElementById("win-popup").classList.remove("hidden");
     }
   }, 8000);
 }
+
+export function showWinPopup(prize) {
+  document.getElementById("popup-image").src = prize.image;
+  document.getElementById("popup-name").textContent = prize.name;
+  document.getElementById("popup-value").textContent = prize.value;
+  document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
+  document.getElementById("win-popup").classList.remove("hidden");
+}
+
