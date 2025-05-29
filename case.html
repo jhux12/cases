@@ -471,9 +471,12 @@ setTimeout(() => {
     "legendary": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"
   };
 
+  if (!isMuted) {
   const audio = new Audio(raritySounds[rarity] || raritySounds["common"]);
   audio.volume = 0.75;
   audio.play().catch(() => {});
+}
+
 }, 4000); // wait until spinner animation finishes
 
   // 💰 Deduct balance
