@@ -77,7 +77,7 @@ if (isPreview) {
   }
 }
 
-export function spinToPrize() {
+export function spinToPrize(callback) {
   const spinnerWheel = document.getElementById("spinner-wheel");
   if (!spinnerWheel) return;
   spinnerWheel.classList.remove("animate-scroll-preview");
@@ -95,6 +95,10 @@ const scrollOffset = cardCenter - containerCenter + randomOffset;
 
 spinnerWheel.style.transition = 'transform 8s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
   spinnerWheel.style.transform = `translateX(-${scrollOffset}px)`;
+ spinnerWheel.addEventListener("transitionend", () => {
+    if (callback) callback();
+  }, { once: true });
+}
 
   const rarityInfo = document.getElementById("rarity-info");
   if (rarityInfo) rarityInfo.classList.remove("hidden");
