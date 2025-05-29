@@ -517,3 +517,22 @@ html {
 .glow-flash-common {
   animation: glow-flash-common 1s ease-in-out 2;
 }
+
+@keyframes zoom-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-zoom-in {
+  animation: zoom-in 0.4s ease-out forwards;
+}
+
