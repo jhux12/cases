@@ -41,55 +41,6 @@
 }
 </style>
 <style>
-/* Spinner visual styling */
-#spinner-wrapper {
-  position: relative;
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-}
-
-#spinner-strip {
-  display: flex;
-  gap: 8px;
-  transition: transform 4s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.spinner-card {
-  flex: 0 0 auto;
-  width: 120px;
-  height: 100%;
-  background-color: #111;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 0.5rem;
-  text-align: center;
-}
-
-.spinner-card img {
-  width: 100%;
-  height: 100px;
-  object-fit: contain;
-  margin-bottom: 0.25rem;
-}
-
-.spinner-card .label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #fff;
-  line-height: 1.1;
-}
-
-.spinner-card .value {
-  font-size: 0.75rem;
-  color: #facc15;
-}
-</style>
-<style>
 .glow-common    { box-shadow: 0 0 30px #a1a1aa; }
 .glow-uncommon  { box-shadow: 0 0 30px #4ade80; }
 .glow-rare      { box-shadow: 0 0 30px #60a5fa; }
@@ -215,53 +166,7 @@ renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
   `;
 }).join("");
 
-function renderSpinner(prizes, winningPrize) {
-  const spinnerContainer = document.getElementById("spinner-container");
-  spinnerContainer.innerHTML = "";
-
-  const wrapper = document.createElement("div");
-  wrapper.id = "spinner-wrapper";
-
-  const strip = document.createElement("div");
-  strip.id = "spinner-strip";
-
-  prizes.forEach(prize => {
-    const card = document.createElement("div");
-    card.className = "spinner-card";
-
-    const img = document.createElement("img");
-    img.src = prize.image;
-
-    const label = document.createElement("div");
-    label.className = "label";
-    label.textContent = prize.name;
-
-    const value = document.createElement("div");
-    value.className = "value";
-    value.textContent = `${formatCoins(prize.value)} coins`;
-
-    card.appendChild(img);
-    card.appendChild(label);
-    card.appendChild(value);
-    strip.appendChild(card);
-  });
-
-  wrapper.appendChild(strip);
-  spinnerContainer.appendChild(wrapper);
-}
-
-function spinToPrize() {
-  const strip = document.getElementById("spinner-strip");
-  if (!strip) return;
-
-  const cardWidth = 120 + 8; // card width + gap
-  const targetIndex = 15;
-  const offset = (targetIndex * cardWidth) - (strip.parentElement.offsetWidth / 2) + (cardWidth / 2);
-
-  strip.style.transform = `translateX(-${offset}px)`;
-}
-
-      document.getElementById("open-case-button").addEventListener("click", async () => {
+  ).addEventListener("click", async () => {
         const user = firebase.auth().currentUser;
         if (!user) return alert("Please sign in to open cases.");
 
