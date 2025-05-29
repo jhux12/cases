@@ -74,10 +74,12 @@
   </button>
 </div>
 
-<div class="mt-2 text-xs text-white/60 italic">
-  Provably Fair Enabled
-  <button id="pf-info" class="ml-2 underline text-blue-400">What is this?</button>
+<div class="mt-2 flex items-center justify-center gap-2 text-xs text-white/70">
+  <img src="https://cdn-icons-png.flaticon.com/128/1828/1828640.png" alt="Provably Fair" class="w-4 h-4" />
+  <span>Provably Fair</span>
+  <button id="pf-info" class="underline text-blue-400 ml-1">(View)</button>
 </div>
+
 
     <div class="bg-black/30 backdrop-blur-md rounded-2xl shadow-md border border-white/10 p-6 hover:shadow-purple-500/20 transition-all duration-300 mt-10">
   <div class="text-center mb-6">
@@ -236,20 +238,35 @@ setTimeout(() => {
         updateUserBalance();
       });
     });
-  document.getElementById("pf-info").addEventListener("click", () => {
+  document.getElementById("pf-info").addEventListener("click", async () => {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  const fairSnap = await firebase.database().ref(`users/${user.uid}/provablyFair`).once("value");
+  const fairData = fairSnap.val();
+
+  document.getElementById("pf-server-seed").textContent = fairData?.serverSeed || "Not found";
+  document.getElementById("pf-client-seed").textContent = fairData?.clientSeed || "Not found";
+  document.getElementById("pf-nonce").textContent = fairData?.nonce ?? "Not found";
+
   document.getElementById("provably-fair-modal").classList.remove("hidden");
 });
+
   </script>
   <!-- Provably Fair Modal -->
 <div id="provably-fair-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-  <div class="bg-gray-900 p-6 rounded-xl w-full max-w-md text-white relative">
+  <div class="bg-gray-900 p-4 rounded-xl w-full max-w-sm text-white relative border border-white/10">
     <button onclick="document.getElementById('provably-fair-modal').classList.add('hidden')" class="absolute top-2 right-3 text-white text-xl">&times;</button>
-    <h3 class="text-lg font-bold mb-2">Provably Fair</h3>
-    <p class="text-sm text-gray-300">
-      Every spin is determined by a verifiable combination of a server seed, your client seed, and a nonce, ensuring that outcomes are fair and tamper-proof.
-    </p>
+    <h3 class="text-lg font-bold mb-3">Provably Fair</h3>
+    <p class="text-xs text-gray-300 mb-4">All outcomes are generated using your client seed, our server seed, and a nonce. This ensures every spin is fair and verifiable.</p>
+    <div class="text-left text-xs space-y-2 font-mono text-gray-100 break-words">
+      <div><strong>Server Seed:</strong> <span id="pf-server-seed">...</span></div>
+      <div><strong>Client Seed:</strong> <span id="pf-client-seed">...</span></div>
+      <div><strong>Nonce:</strong> <span id="pf-nonce">...</span></div>
+    </div>
   </div>
 </div>
+
 </body>
 </html>
 
