@@ -90,7 +90,7 @@ export function spinToPrize() {
   const containerCenter = window.innerWidth / 2;
   const scrollOffset = cardCenter - containerCenter;
 
-  spinnerWheel.style.transition = 'transform 6s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+spinnerWheel.style.transition = 'transform 8s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
   spinnerWheel.style.transform = `translateX(-${scrollOffset}px)`;
 
   const rarityInfo = document.getElementById("rarity-info");
@@ -142,5 +142,5 @@ export function spinToPrize() {
       const glowClass = `glow-${(prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-')}`;
       targetCard.classList.add(glowClass, "ring-4", "ring-white");
     }
-  }, 6000);
+  }, 8000);
 }
