@@ -33,129 +33,133 @@
     </div>
   </section>
 
-  <script type="module">
-    import { app, db, auth } from './scripts/firebase-config.js';
-    import { ref, get, set, push, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import { renderSpinner, spinToPrize, getTopPrizes } from './scripts/spinner.js';
+ <script type="module">
+  import firebaseApp from './scripts/firebase-config.js';
+  import { getDatabase, ref, get, set, update, push } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+  import { renderSpinner, spinToPrize, getTopPrizes } from './scripts/spinner.js';
 
-    const formatCoins = (num) => {
-      if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
-      if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
-      return num.toLocaleString();
-    };
+  const db = getDatabase(firebaseApp);
+  const auth = getAuth(firebaseApp);
 
-    const updateUserBalance = async () => {
-      const span = document.getElementById("balance-value");
-      const user = auth.currentUser;
-      if (!span || !user) return;
-      try {
-        const snap = await get(ref(db, 'users/' + user.uid));
-        const balance = snap.val()?.balance || 0;
-        span.textContent = `${parseFloat(balance).toLocaleString()} coins`;
-      } catch (e) {
-        span.textContent = "error";
-        console.error(e);
-      }
-    };
+  const formatCoins = (num) => {
+    if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
+    if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
+    return num.toLocaleString();
+  };
 
+  const updateUserBalance = async () => {
+    const span = document.getElementById("balance-value");
+    const user = auth.currentUser;
+    if (!span || !user) return;
+    try {
+      const snap = await get(ref(db, 'users/' + user.uid));
+      const balance = snap.val()?.balance || 0;
+      span.textContent = `${parseFloat(balance).toLocaleString()} coins`;
+    } catch (e) {
+      span.textContent = "error";
+      console.error(e);
+    }
+  };
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const refreshBtn = document.getElementById("refresh-balance");
+    if (refreshBtn) refreshBtn.addEventListener("click", updateUserBalance);
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    const el = document.getElementById("user-balance");
+    if (user) updateUserBalance();
+    else if (el) el.textContent = "Balance: Sign in required";
+  });
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const caseId = urlParams.get('id');
+  if (!caseId) {
     document.addEventListener("DOMContentLoaded", () => {
-      const refreshBtn = document.getElementById("refresh-balance");
-      if (refreshBtn) refreshBtn.addEventListener("click", updateUserBalance);
+      document.getElementById("case-name").innerText = "Case not found.";
     });
+  }
 
-    onAuthStateChanged(auth, (user) => {
-      const el = document.getElementById("user-balance");
-      if (user) updateUserBalance();
-      else if (el) el.textContent = "Balance: Sign in required";
-    });
+  const rarityOrder = { legendary: 5, "ultra rare": 4, rare: 3, uncommon: 2, common: 1 };
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const caseId = urlParams.get('id');
-    if (!caseId) {
-      document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("case-name").innerText = "Case not found.";
-      });
+  (async () => {
+    const snap = await get(ref(db, `cases/${caseId}`));
+    if (!snap.exists()) {
+      document.getElementById("case-name").innerText = "Case not found.";
+      return;
     }
 
-    const rarityOrder = { legendary: 5, "ultra rare": 4, rare: 3, uncommon: 2, common: 1 };
+    const caseData = snap.val();
+    document.getElementById("case-name").innerText = caseData.name;
+    document.getElementById("case-price-amount").textContent = `${formatCoins(caseData.price)} coins`;
 
-    (async () => {
-      const snap = await get(ref(db, `cases/${caseId}`));
-      if (!snap.exists()) {
-        document.getElementById("case-name").innerText = "Case not found.";
-        return;
+    const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
+      return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
+    });
+
+    document.getElementById("prizes-grid").innerHTML = prizeList.map(prize => `
+      <div class="rounded-xl p-3 text-white backdrop-blur-sm bg-white/10">
+        <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3" />
+        <div class="text-center text-xs font-semibold">${prize.name}</div>
+        <div class="text-yellow-300 text-center text-sm">${formatCoins(prize.value)} coins</div>
+      </div>
+    `).join("");
+
+    renderSpinner(getTopPrizes(prizeList), null, true);
+
+    document.getElementById("open-case-button").addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (!user) return alert("Please sign in to open cases.");
+
+      const userSnap = await get(ref(db, 'users/' + user.uid));
+      const balance = parseFloat(userSnap.val()?.balance || 0);
+      const price = parseFloat(caseData.price || 0);
+
+      if (balance < price) return alert("Not enough coins.");
+
+      const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
+      const fairData = fairSnap.val();
+      if (!fairData) return alert("Provably fair data missing.");
+
+      const { serverSeed, clientSeed, nonce } = fairData;
+      const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${serverSeed}:${clientSeed}:${nonce}`));
+      const hashHex = [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+      const rand = parseInt(hashHex.substring(0, 8), 16) / 0xffffffff;
+
+      const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
+      const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+
+      let cumulative = 0;
+      let winningPrize = prizes[prizes.length - 1];
+      for (let p of prizes) {
+        cumulative += p.odds || 0;
+        if (rand * totalOdds < cumulative) {
+          winningPrize = p;
+          break;
+        }
       }
 
-      const caseData = snap.val();
-      document.getElementById("case-name").innerText = caseData.name;
-      document.getElementById("case-price-amount").textContent = `${formatCoins(caseData.price)} coins`;
+      const spinnerPrizes = [];
+      for (let i = 0; i < 30; i++) spinnerPrizes.push(prizes[Math.floor(Math.random() * prizes.length)]);
+      spinnerPrizes[15] = winningPrize;
 
-      const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
-        return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
+      renderSpinner(spinnerPrizes, winningPrize);
+      setTimeout(() => spinToPrize(), 150);
+
+      await set(ref(db, 'users/' + user.uid + '/balance'), balance - price);
+      await push(ref(db, 'users/' + user.uid + '/inventory'), {
+        name: winningPrize.name,
+        image: winningPrize.image,
+        rarity: winningPrize.rarity,
+        value: winningPrize.value,
+        timestamp: Date.now()
       });
+      await update(ref(db, 'users/' + user.uid + '/provablyFair'), { nonce: nonce + 1 });
+      updateUserBalance();
+    });
+  })();
+</script>
 
-      document.getElementById("prizes-grid").innerHTML = prizeList.map(prize => `
-        <div class="rounded-xl p-3 text-white backdrop-blur-sm bg-white/10">
-          <img src="${prize.image}" class="h-40 w-full object-contain mx-auto rounded-md mb-3" />
-          <div class="text-center text-xs font-semibold">${prize.name}</div>
-          <div class="text-yellow-300 text-center text-sm">${formatCoins(prize.value)} coins</div>
-        </div>
-      `).join("");
-
-      renderSpinner(getTopPrizes(prizeList), null, true);
-
-      document.getElementById("open-case-button").addEventListener("click", async () => {
-        const user = auth.currentUser;
-        if (!user) return alert("Please sign in to open cases.");
-
-        const userSnap = await get(ref(db, 'users/' + user.uid));
-        const balance = parseFloat(userSnap.val()?.balance || 0);
-        const price = parseFloat(caseData.price || 0);
-
-        if (balance < price) return alert("Not enough coins.");
-
-        const fairSnap = await get(ref(db, `users/${user.uid}/provablyFair`));
-        const fairData = fairSnap.val();
-        if (!fairData) return alert("Provably fair data missing.");
-
-        const { serverSeed, clientSeed, nonce } = fairData;
-        const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${serverSeed}:${clientSeed}:${nonce}`));
-        const hashHex = [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
-        const rand = parseInt(hashHex.substring(0, 8), 16) / 0xffffffff;
-
-        const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
-        const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
-
-        let cumulative = 0;
-        let winningPrize = prizes[prizes.length - 1];
-        for (let p of prizes) {
-          cumulative += p.odds || 0;
-          if (rand * totalOdds < cumulative) {
-            winningPrize = p;
-            break;
-          }
-        }
-
-        const spinnerPrizes = [];
-        for (let i = 0; i < 30; i++) spinnerPrizes.push(prizes[Math.floor(Math.random() * prizes.length)]);
-        spinnerPrizes[15] = winningPrize;
-
-        renderSpinner(spinnerPrizes, winningPrize);
-        setTimeout(() => spinToPrize(), 150);
-
-        await set(ref(db, 'users/' + user.uid + '/balance'), balance - price);
-        await push(ref(db, 'users/' + user.uid + '/inventory'), {
-          name: winningPrize.name,
-          image: winningPrize.image,
-          rarity: winningPrize.rarity,
-          value: winningPrize.value,
-          timestamp: Date.now()
-        });
-        await update(ref(db, 'users/' + user.uid + '/provablyFair'), { nonce: nonce + 1 });
-        updateUserBalance();
-      });
-    })();
-  </script>
 </body>
 </html>
