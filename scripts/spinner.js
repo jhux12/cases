@@ -28,26 +28,23 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
 
   const spinnerWheel = document.createElement("div");
   spinnerWheel.id = "spinner-wheel";
- spinnerWheel.className = "flex h-full items-center";
-if (isPreview) {
-  spinnerWheel.classList.add("animate-scroll-preview");
-} else {
-  spinnerWheel.classList.add("transition-transform", "duration-[4000ms]", "ease-[cubic-bezier(0.17,0.67,0.12,0.99)]");
-}
+  spinnerWheel.className = "flex h-full items-center";
+
+  if (isPreview) {
+    spinnerWheel.classList.add("animate-scroll-preview");
+  } else {
+    spinnerWheel.classList.add("transition-transform", "duration-[4000ms]", "ease-[cubic-bezier(0.17,0.67,0.12,0.99)]");
+  }
 
   container.appendChild(spinnerWheel);
-
   spinnerPrizes = [];
 
   const shuffled = [...prizes];
 
   for (let i = 0; i < 30; i++) {
-    let prize;
-    if (isPreview || !winningPrize) {
-      prize = shuffled[i % shuffled.length];
-    } else {
-      prize = i === targetIndex ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)];
-    }
+    let prize = isPreview || !winningPrize
+      ? shuffled[i % shuffled.length]
+      : (i === targetIndex ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)]);
 
     if (!prize || typeof prize !== 'object' || !prize.image || !prize.name) {
       prize = {
@@ -67,11 +64,7 @@ if (isPreview) {
     div.className = "min-w-[140px] h-[160px] mx-1 flex items-center justify-center rounded-xl bg-transparent shadow-md item border-2";
     div.style.borderColor = borderColor;
     div.setAttribute("data-index", i);
-
-    div.innerHTML = `
-  <img src="${prize.image}" class="h-[120px] object-contain drop-shadow-md" />
-`;
-
+    div.innerHTML = `<img src="${prize.image}" class="h-[120px] object-contain drop-shadow-md" />`;
 
     spinnerWheel.appendChild(div);
   }
@@ -80,7 +73,9 @@ if (isPreview) {
 export function spinToPrize(callback) {
   const spinnerWheel = document.getElementById("spinner-wheel");
   if (!spinnerWheel) return;
+
   spinnerWheel.classList.remove("animate-scroll-preview");
+
   const cards = spinnerWheel.querySelectorAll(".item");
   const targetCard = cards[targetIndex];
   if (!targetCard) return;
@@ -88,22 +83,18 @@ export function spinToPrize(callback) {
   const targetRect = targetCard.getBoundingClientRect();
   const cardCenter = targetRect.left + targetRect.width / 2;
   const containerCenter = window.innerWidth / 2;
-const suspenseRange = 70; // Change this number to control how far off-center it can land
-const randomOffset = Math.floor(Math.random() * (suspenseRange * 2 + 1)) - suspenseRange;
+  const suspenseRange = 70;
+  const randomOffset = Math.floor(Math.random() * (suspenseRange * 2 + 1)) - suspenseRange;
+  const scrollOffset = cardCenter - containerCenter + randomOffset;
 
-const scrollOffset = cardCenter - containerCenter + randomOffset;
-
-spinnerWheel.style.transition = 'transform 8s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+  spinnerWheel.style.transition = 'transform 8s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
   spinnerWheel.style.transform = `translateX(-${scrollOffset}px)`;
- spinnerWheel.addEventListener("transitionend", () => {
-    if (callback) callback();
-  }, { once: true });
-}
 
   const rarityInfo = document.getElementById("rarity-info");
   if (rarityInfo) rarityInfo.classList.remove("hidden");
 
   let animationFrame;
+
   function trackCenterPrize() {
     const cards = spinnerWheel.querySelectorAll(".item");
     const centerX = window.innerWidth / 2;
@@ -135,37 +126,41 @@ spinnerWheel.style.transition = 'transform 8s cubic-bezier(0.17, 0.67, 0.12, 0.9
 
   trackCenterPrize();
 
-  setTimeout(() => {
+  spinnerWheel.addEventListener("transitionend", () => {
     cancelAnimationFrame(animationFrame);
 
     const prize = spinnerPrizes[targetIndex];
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-const soundMap = {
-  common: document.getElementById("sound-common"),
-  uncommon: document.getElementById("sound-rare"),
-  rare: document.getElementById("sound-rare"),
-  ultrarare: document.getElementById("sound-ultrarare"),
-  legendary: document.getElementById("sound-legendary"),
-};
-const sound = soundMap[rarity];
-if (sound) sound.play();
+
+    const soundMap = {
+      common: document.getElementById("sound-common"),
+      uncommon: document.getElementById("sound-rare"),
+      rare: document.getElementById("sound-rare"),
+      ultrarare: document.getElementById("sound-ultrarare"),
+      legendary: document.getElementById("sound-legendary"),
+    };
+    const sound = soundMap[rarity];
+    if (sound) sound.play();
+
     const spinnerResultText = document.getElementById("spinner-result");
     if (spinnerResultText) {
       spinnerResultText.textContent = `You won: ${prize.name}!`;
       spinnerResultText.classList.remove("hidden");
-      // 🎉 Show Win Popup
-document.getElementById("popup-image").src = prize.image;
-document.getElementById("popup-name").textContent = prize.name;
-document.getElementById("popup-value").textContent = prize.value;
-document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
-document.getElementById("win-popup").classList.remove("hidden");
     }
 
+    document.getElementById("popup-image").src = prize.image;
+    document.getElementById("popup-name").textContent = prize.name;
+    document.getElementById("popup-value").textContent = prize.value;
+    document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
+    document.getElementById("win-popup").classList.remove("hidden");
+
     if (targetCard) {
-      const glowClass = `glow-${(prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-')}`;
+      const glowClass = `glow-${rarity}`;
       targetCard.classList.add(glowClass, "ring-4", "ring-white");
     }
-  }, 8000);
+
+    if (callback) callback(prize);
+  }, { once: true });
 }
 
 export function showWinPopup(prize) {
@@ -175,4 +170,3 @@ export function showWinPopup(prize) {
   document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
   document.getElementById("win-popup").classList.remove("hidden");
 }
-
