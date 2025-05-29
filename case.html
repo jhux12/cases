@@ -182,10 +182,9 @@
       document.getElementById("case-price-amount").textContent = `${formatCoins(caseData.price)} coins`;
 
       const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
-        renderSpinner(prizeList.slice(0, 30), null); // preview mode
         return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
       });
-
+ renderSpinner(prizeList.slice(0, 30), null); // preview mode
       document.getElementById("prizes-grid").innerHTML = prizeList.map(prize => {
   const rarity = (prize.rarity || "common").toLowerCase().replace(" ", "");
   const gradientClass = `card-gradient-${rarity}`;
