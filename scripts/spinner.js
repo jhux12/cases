@@ -28,12 +28,12 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
 
   const spinnerWheel = document.createElement("div");
   spinnerWheel.id = "spinner-wheel";
-  spinnerWheel.className = "flex h-full items-center";
-  if (isPreview) {
-    spinnerWheel.classList.add("animate-scroll-preview");
-  } else {
-    spinnerWheel.classList.add("transition-transform", "duration-[4000ms]", "ease-[cubic-bezier(0.17,0.67,0.12,0.99)]");
-  }
+ spinnerWheel.className = "flex h-full items-center";
+if (isPreview) {
+  spinnerWheel.classList.add("animate-scroll-preview");
+} else {
+  spinnerWheel.classList.add("transition-transform", "duration-[4000ms]", "ease-[cubic-bezier(0.17,0.67,0.12,0.99)]");
+}
 
   container.appendChild(spinnerWheel);
 
@@ -132,53 +132,18 @@ export function spinToPrize() {
   setTimeout(() => {
     cancelAnimationFrame(animationFrame);
 
-    const prize = spinnerPrizes[targetIndex] || {
-      name: "Mystery Card",
-      image: "https://via.placeholder.com/100?text=?",
-      value: 0,
-      rarity: "common"
-    };
+    const prize = spinnerPrizes[targetIndex];
+    const spinnerResultText = document.getElementById("spinner-result");
+    if (spinnerResultText) {
+      spinnerResultText.textContent = `You won: ${prize.name}!`;
+      spinnerResultText.classList.remove("hidden");
+    }
 
     if (targetCard) {
       const glowClass = `glow-${(prize.rarity || 'common').toLowerCase().replace(/\s+/g, '-')}`;
       targetCard.classList.add(glowClass, "ring-4", "ring-white");
     }
-
-    // 🎉 Show animated popup
-    const popup = document.createElement("div");
-    popup.id = "prize-popup";
-    popup.className = "fixed inset-0 bg-black/80 flex items-center justify-center z-50";
-
-    popup.innerHTML = `
-      <<div class="relative w-32 h-48 mx-auto mb-4 rounded-xl overflow-hidden flex items-center justify-center bg-black border border-purple-600 shadow-2xl holographic-card">
-  <img src="${prize.image}" alt="${prize.name}" class="max-w-full max-h-full object-contain z-10 relative animate-[pop_0.4s_ease-out_forwards]" style="filter: drop-shadow(0 0 15px rgba(255,255,255,0.3)); transform: scale(0.95);" />
-  
-  <!-- Shimmer Layer -->
-  <div class="absolute inset-0 z-20 shimmer-pointer-events"></div>
-
-  <!-- Holographic Grain -->
-  <div class="absolute inset-0 z-10 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
-
-  <!-- Holofoil Gradient Overlay -->
-  <div class="absolute inset-0 z-0 bg-gradient-to-br from-indigo-500 via-pink-500 to-yellow-400 opacity-20 blur-sm mix-blend-overlay pointer-events-none animate-holo-foil"></div>
-</div>
-
-        <h2 class="text-xl font-bold mb-2">${prize.name}</h2>
-        <div class="flex items-center justify-center text-yellow-300 font-semibold text-lg gap-2 mb-4">
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
-          ${prize.value || 0}
-        </div>
-        <button id="close-popup" class="mt-2 bg-pink-600 px-4 py-2 rounded-full text-white font-semibold hover:bg-pink-700 transition">
-          Add to Inventory
-        </button>
-      </div>
-    `;
-
-    document.body.appendChild(popup);
-
-    document.getElementById("close-popup").addEventListener("click", () => {
-      popup.remove();
-    });
   }, 4000);
 }
+
 
