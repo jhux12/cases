@@ -63,17 +63,18 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
     const borderColor = getRarityColor(rarity);
 
-    div.className = "min-w-[120px] h-[160px] mx-1 flex items-center justify-center bg-black/40 rounded-lg border-2 shadow-md";
+    div.className = "min-w-[180px] h-[220px] mx-1 flex items-center justify-center bg-black/40 rounded-xl border-2 shadow-md";
     div.style.borderColor = borderColor;
     div.setAttribute("data-index", i);
 
     div.innerHTML = `
-      <img src="${prize.image}" class="h-[90px] object-contain drop-shadow-md" />
+      <img src="${prize.image}" class="h-[140px] object-contain drop-shadow-md" />
     `;
 
     spinnerWheel.appendChild(div);
   }
 }
+
 
 export function spinToPrize() {
   const spinnerWheel = document.getElementById("spinner-wheel");
