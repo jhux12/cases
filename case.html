@@ -306,13 +306,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const sellAmount = parseInt(document.getElementById("sell-value").textContent);
   const user = firebase.auth().currentUser;
   if (user) {
-    // Increase balance
-    firebase.database().ref("users/" + user.uid + "/balance").once("value").then(snap => {
+    const balanceRef = firebase.database().ref("users/" + user.uid + "/balance");
+
+    // Step 1: Add coins
+    balanceRef.once("value").then(snap => {
       const currentBalance = snap.val() || 0;
-      firebase.database().ref("users/" + user.uid + "/balance").set(currentBalance + sellAmount);
+      const newBalance = currentBalance + sellAmount;
+
+      balanceRef.set(newBalance);
+
+      // ✅ Update UI immediately
+      const balanceEl = document.getElementById("coin-balance");
+      if (balanceEl) balanceEl.textContent = newBalance;
     });
 
-    // Remove one matching prize from inventory
+    // Step 2: Remove item from inventory
     const name = document.getElementById("popup-name").textContent;
     const value = parseInt(document.getElementById("popup-value").textContent);
 
@@ -325,7 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const item = inventory[key];
           if (item.name === name && item.value === value) {
             firebase.database().ref("users/" + user.uid + "/inventory/" + key).remove();
-            break; // Only remove one match
+            break;
           }
         }
       }
@@ -334,6 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("win-popup").classList.add("hidden");
 });
+
 });
 </script>
 
