@@ -142,6 +142,29 @@ import { renderSpinner, spinToPrize } from './scripts/spinner.js';
       const refreshBtn = document.getElementById("refresh-balance");
       if (refreshBtn) refreshBtn.addEventListener("click", updateUserBalance);
     });
+    const closeBtn = document.getElementById("close-popup");
+  if (closeBtn) closeBtn.addEventListener("click", () => {
+    document.getElementById("win-popup").classList.add("hidden");
+  });
+
+  const keepBtn = document.getElementById("keep-button");
+  if (keepBtn) keepBtn.addEventListener("click", () => {
+    document.getElementById("win-popup").classList.add("hidden");
+  });
+
+  const sellBtn = document.getElementById("sell-button");
+  if (sellBtn) sellBtn.addEventListener("click", () => {
+    const sellAmount = parseInt(document.getElementById("sell-value").textContent);
+    const user = firebase.auth().currentUser;
+    if (user) {
+      firebase.database().ref("users/" + user.uid + "/balance").once("value").then(snap => {
+        const currentBalance = snap.val() || 0;
+        firebase.database().ref("users/" + user.uid + "/balance").set(currentBalance + sellAmount);
+      });
+    }
+    document.getElementById("win-popup").classList.add("hidden");
+  });
+
 
     firebase.auth().onAuthStateChanged((user) => {
       if (user) updateUserBalance();
@@ -286,27 +309,6 @@ setTimeout(() => {
   <script src="./scripts/footer.js"></script>
   <script src="./scripts/navbar.js"></script>
   <script src="./scripts/topup.js"></script>
-    <script>
-document.getElementById("close-popup").addEventListener("click", () => {
-  document.getElementById("win-popup").classList.add("hidden");
-});
-
-document.getElementById("keep-button").addEventListener("click", () => {
-  document.getElementById("win-popup").classList.add("hidden");
-});
-
-document.getElementById("sell-button").addEventListener("click", () => {
-  const sellAmount = parseInt(document.getElementById("sell-value").textContent);
-  const user = firebase.auth().currentUser;
-  if (user) {
-    const db = firebase.firestore();
-    db.collection("users").doc(user.uid).update({
-      coins: firebase.firestore.FieldValue.increment(sellAmount)
-    });
-  }
-  document.getElementById("win-popup").classList.add("hidden");
-});
-</script>
 <audio id="sound-common" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5"></audio>
 <audio id="sound-rare" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8"></audio>
 <audio id="sound-ultrarare" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de"></audio>
