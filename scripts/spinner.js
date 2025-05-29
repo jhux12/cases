@@ -88,7 +88,7 @@ export function spinToPrize() {
   const targetRect = targetCard.getBoundingClientRect();
   const cardCenter = targetRect.left + targetRect.width / 2;
   const containerCenter = window.innerWidth / 2;
-const suspenseRange = 80; // Change this number to control how far off-center it can land
+const suspenseRange = 70; // Change this number to control how far off-center it can land
 const randomOffset = Math.floor(Math.random() * (suspenseRange * 2 + 1)) - suspenseRange;
 
 const scrollOffset = cardCenter - containerCenter + randomOffset;
