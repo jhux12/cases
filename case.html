@@ -126,13 +126,6 @@ import { renderSpinner, spinToPrize } from './scripts/spinner.js';
     document.addEventListener("DOMContentLoaded", () => {
       const refreshBtn = document.getElementById("refresh-balance");
       if (refreshBtn) refreshBtn.addEventListener("click", updateUserBalance);
-
-      const user = firebase.auth().currentUser;
-      if (!user) {
-        document.getElementById("user-balance").textContent = "Balance: Sign in required";
-      } else {
-        updateUserBalance();
-      }
     });
 
     firebase.auth().onAuthStateChanged((user) => {
