@@ -142,7 +142,12 @@ import { renderSpinner, spinToPrize } from './scripts/spinner.js';
       const refreshBtn = document.getElementById("refresh-balance");
       if (refreshBtn) refreshBtn.addEventListener("click", updateUserBalance);
     });
-    const closeBtn = document.getElementById("close-popup");
+    document.addEventListener("DOMContentLoaded", () => {
+  const refreshBtn = document.getElementById("refresh-balance");
+  if (refreshBtn) refreshBtn.addEventListener("click", updateUserBalance);
+
+  // 👇 Add all this inside here:
+  const closeBtn = document.getElementById("close-popup");
   if (closeBtn) closeBtn.addEventListener("click", () => {
     document.getElementById("win-popup").classList.add("hidden");
   });
@@ -164,6 +169,7 @@ import { renderSpinner, spinToPrize } from './scripts/spinner.js';
     }
     document.getElementById("win-popup").classList.add("hidden");
   });
+});
 
 
     firebase.auth().onAuthStateChanged((user) => {
