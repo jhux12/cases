@@ -21,17 +21,6 @@
 .glow-ultra     { box-shadow: 0 0 30px #c084fc; }
 .glow-legendary { box-shadow: 0 0 40px #facc15; }
 
-  .updates-bar {
-    background: linear-gradient(to right, #facc15, #ec4899, #8b5cf6);
-    color: white;
-    padding: 0.5rem;
-    border-radius: 1rem;
-    font-weight: 500;
-    overflow: hidden;
-    white-space: nowrap;
-    animation: marquee 20s linear infinite;
-    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
-  }
   @keyframes marquee {
     0% { transform: translateX(100%); }
     100% { transform: translateX(-100%); }
@@ -513,14 +502,6 @@ openBtn.onclick = openCaseHandler;
 </script>
 
 
-
-<!-- Updates Bar -->
-<div class="updates-bar text-sm">
-  <div class="marquee-text">
-    📦 All cards are near mint unless specified otherwise — 🪙 Sell back unwanted cards for coins 💰
-  </div>
-</div>
-
 <!-- Toast Notification -->
 <div id="inventory-toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg text-center font-semibold hidden z-[9999]">
   Item added to inventory: <span id="toast-item-name"></span>
@@ -573,7 +554,30 @@ openBtn.onclick = openCaseHandler;
     return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
   }
   </script>
-  
+  <script>
+  async function handleSellBack() {
+    const user = firebase.auth().currentUser;
+    const prizeName = document.getElementById("popup-name").textContent;
+    const prizeValue = parseInt(document.getElementById("popup-value").textContent.replace(/\D/g, ""));
+    const sellValue = Math.floor(prizeValue * 0.8);
+
+    const inventoryRef = firebase.database().ref("users/" + user.uid + "/inventory");
+    const snapshot = await inventoryRef.orderByChild("name").equalTo(prizeName).once("value");
+    const data = snapshot.val();
+    if (!data) return;
+
+    const key = Object.keys(data)[0];
+    await inventoryRef.child(key).remove();
+
+    const balanceRef = firebase.database().ref("users/" + user.uid + "/balance");
+    const balanceSnap = await balanceRef.once("value");
+    const currentBalance = balanceSnap.val() || 0;
+    await balanceRef.set(currentBalance + sellValue);
+
+    location.reload();
+  }
+</script>
+
 <script type="module" src="scripts/auth.js"></script>
 <script src="scripts/header.js"></script>
 <script src="scripts/navbar.js"></script>
@@ -582,21 +586,64 @@ openBtn.onclick = openCaseHandler;
 <script src="scripts/balance.js"></script>
 <script type="module" src="scripts/spinner.js"></script>
 
-<!-- Win Popup Modal -->
 <div id="win-popup" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
-  <div class="bg-gray-900 p-6 rounded-xl shadow-xl border border-pink-500 max-w-sm w-full text-center animate-bounce-in">
-    <h2 class="text-xl font-bold text-pink-400 mb-4">🎉 You won!</h2>
+  <div class="popup-box bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-2xl shadow-2xl border border-pink-500 max-w-sm w-full text-center relative animate-fade-in">
+    <h2 class="text-2xl font-extrabold text-pink-400 mb-4">🎉 You Won This Card!</h2>
+    
     <div class="relative mb-4 w-full flex justify-center">
-      <img id="win-popup-image" src="" alt="Prize" class="max-h-40 rounded shadow-lg border border-white/10 glow-card">
+      <img id="popup-image" src="" alt="Card" class="max-h-44 rounded-lg border-4 border-white/10 shadow-lg rarity-flash" />
     </div>
-    <div class="text-white font-semibold" id="win-popup-name"></div>
-    <div class="text-yellow-300 font-bold" id="win-popup-value"></div>
+    
+    <div id="popup-name" class="text-xl text-white font-bold mb-1"></div>
+    
+    <div id="popup-value" class="text-yellow-300 font-semibold flex justify-center items-center gap-1 text-lg">
+      <!-- Value and Coin Icon inserted via JS -->
+    </div>
+    
     <div class="flex justify-center gap-4 mt-6">
-      <button id="keep-btn" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-full text-white text-sm font-bold">Keep</button>
-      <button id="sell-btn" class="px-6 py-2 bg-pink-600 hover:bg-pink-700 rounded-full text-white text-sm font-bold">Sell for <span id="sell-amount"></span> 🪙</button>
+      <button onclick="document.getElementById('win-popup').classList.add('hidden')" class="px-5 py-2 bg-gray-700 hover:bg-gray-800 rounded-full text-white text-sm font-bold transition">Keep</button>
+      <button onclick="handleSellBack()" class="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 rounded-full text-black text-sm font-bold flex items-center gap-2 transition">
+        Sell for <span id="sell-amount"></span>
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-4 h-4" />
+      </button>
     </div>
   </div>
 </div>
+
+<!-- Mute Toggle Button -->
+<button id="sound-toggle" class="fixed bottom-6 left-6 bg-black/70 text-white text-xl p-2 rounded-full border border-white/10 shadow-lg hover:scale-105 transition z-50">
+  🔊
+</button>
+  <script>
+  let isMuted = localStorage.getItem("packlyMuted") === "true";
+
+  function updateSoundToggle() {
+    const icon = isMuted ? "🔇" : "🔊";
+    document.getElementById("sound-toggle").textContent = icon;
+
+    // Mute all <audio> elements
+    document.querySelectorAll("audio").forEach(audio => {
+      audio.muted = isMuted;
+    });
+  }
+
+  document.getElementById("sound-toggle").addEventListener("click", () => {
+    isMuted = !isMuted;
+    localStorage.setItem("packlyMuted", isMuted);
+    updateSoundToggle();
+  });
+
+  // On page load
+  updateSoundToggle();
+
+  // If using dynamically created Audio objects (like `new Audio()`), override play to respect mute
+  const originalAudio = window.Audio;
+  window.Audio = function(...args) {
+    const audio = new originalAudio(...args);
+    audio.muted = isMuted;
+    return audio;
+  };
+</script>
 
 </body>
 </html>
