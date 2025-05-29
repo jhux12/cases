@@ -571,11 +571,11 @@ openBtn.onclick = openCaseHandler;
 document.addEventListener("DOMContentLoaded", () => {
   const muteBtn = document.getElementById("mute-toggle");
   if (muteBtn) {
-    muteBtn.textContent = isMuted ? "🔇 Sound Off" : "🔊 Sound On";
+    muteBtn.textContent = isMuted ? "🔇" : "🔊";
     muteBtn.addEventListener("click", () => {
       isMuted = !isMuted;
       localStorage.setItem("soundMuted", isMuted);
-      muteBtn.textContent = isMuted ? "🔇 Sound Off" : "🔊 Sound On";
+      muteBtn.textContent = isMuted ? "🔇" : "🔊";
     });
   }
 });
