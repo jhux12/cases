@@ -72,13 +72,20 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const caseId = urlParams.get('id');
-    if (!caseId) return document.getElementById("case-name").innerText = "Case not found.";
+    if (!caseId) {
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("case-name").innerText = "Case not found.";
+      });
+    }
 
     const rarityOrder = { legendary: 5, "ultra rare": 4, rare: 3, uncommon: 2, common: 1 };
 
     (async () => {
       const snap = await get(ref(db, `cases/${caseId}`));
-      if (!snap.exists()) return document.getElementById("case-name").innerText = "Case not found.";
+      if (!snap.exists()) {
+        document.getElementById("case-name").innerText = "Case not found.";
+        return;
+      }
 
       const caseData = snap.val();
       document.getElementById("case-name").innerText = caseData.name;
