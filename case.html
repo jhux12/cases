@@ -80,11 +80,16 @@
   </div>
 </div>
     <div class="flex justify-center mt-6">
-  <button id="open-case-button" class="px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2">
-    Open for <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
-    <span id="button-price">...</span>
+  <button id="open-case-button" class="relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform transform hover:scale-105 animate-pulse focus:outline-none overflow-hidden">
+        <div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50 z-0 animate-spin-slow"></div>
+        <span class="relative z-10 flex items-center gap-2">
+      Open for
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+      <span id="button-price">...</span>
+    </span>
   </button>
 </div>
+
 
 <!-- Provably Fair Display -->
 <div class="flex justify-center mt-2">
