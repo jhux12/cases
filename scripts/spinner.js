@@ -64,8 +64,15 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
     div.className = "min-w-[140px] h-[160px] mx-1 flex items-center justify-center rounded-xl bg-transparent shadow-md item border-2";
     div.style.borderColor = borderColor;
     div.setAttribute("data-index", i);
-    div.innerHTML = `<img src="${prize.image}" class="h-[120px] object-contain drop-shadow-md" />`;
-
+div.innerHTML = `
+  <div class="flex flex-col items-center">
+    <img src="${prize.image}" class="h-[100px] object-contain drop-shadow-md rounded-xl" />
+    <div class="mt-1 text-xs text-white bg-black/50 px-2 py-0.5 rounded-full flex items-center gap-1">
+      <span>${prize.value.toLocaleString()}</span>
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin" />
+    </div>
+  </div>
+`;
     spinnerWheel.appendChild(div);
   }
 }
