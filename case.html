@@ -344,16 +344,19 @@ setTimeout(() => {
   openBtn.classList.remove("opacity-50", "cursor-not-allowed");
 }, 4000);
 
-  let user = firebase.auth().currentUser;
+let user = firebase.auth().currentUser;
 if (!user) {
-  return firebase.auth().onAuthStateChanged(u => {
-    if (u) {
-      openCaseHandler(); // retry the spin
+  // Retry once after short delay (no infinite loop)
+  return setTimeout(() => {
+    user = firebase.auth().currentUser;
+    if (user) {
+      openCaseHandler(); // retry spin
     } else {
       alert("Please sign in first!");
     }
-  });
+  }, 250); // 250ms retry window
 }
+
 
 
   const casePrice = parseFloat(caseData.price || 0);
