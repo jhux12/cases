@@ -5,11 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Packly.gg | Case Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="scripts/firebase-config.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles/main.css">
@@ -202,7 +197,7 @@ import { renderSpinner, spinToPrize, getTopPrizes } from './scripts/spinner.js';
 }
 
  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, get, child, set, push, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
 // ✅ Firebase Config
@@ -222,7 +217,7 @@ const db = getDatabase(app);
 const auth = getAuth(app);
  async function updateUserBalanceCompat(retry = 0) {
   const span = document.getElementById("balance-value");
-  const user = firebase.auth().currentUser; // ✅ Using compat since your db writes use compat too
+const user = auth.currentUser;
 
   if (!span || !user) {
     if (retry < 10) {
@@ -235,7 +230,7 @@ const auth = getAuth(app);
   }
 
   try {
-    const snap = await firebase.database().ref("users/" + user.uid).once("value");
+const snap = await get(ref(db, "users/" + user.uid));
     const balance = snap.val()?.balance || 0;
     span.textContent = `${parseFloat(balance).toLocaleString()} coins`;
     console.log("✅ Balance displayed:", balance);
@@ -355,7 +350,7 @@ setTimeout(() => {
   openBtn.classList.remove("opacity-50", "cursor-not-allowed");
 }, 4000);
 
-  const user = firebase.auth().currentUser;
+  const user = auth.currentUser;
   if (!user) return alert("Please sign in first!");
 
   const casePrice = parseFloat(caseData.price || 0);
@@ -401,7 +396,7 @@ document.getElementById("close-pf").addEventListener("click", () => {
 document.getElementById("change-seed").addEventListener("click", async () => {
   const newSeed = prompt("Enter new client seed:");
   if (newSeed) {
-    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
+    await set(ref(db, 'users/' + user.uid + '/provablyFair/clientSeed'), newSeed);
     alert("✅ New client seed saved! Reload to use it.");
   }
 });
@@ -474,12 +469,12 @@ if (!isMuted) {
 }, 4000); // wait until spinner animation finishes
 
   // 💰 Deduct balance
-  await firebase.database().ref('users/' + user.uid + '/balance').set(balance - casePrice);
+  await set(ref(db, 'users/' + user.uid + '/balance'), balance - casePrice);
  updateUserBalanceCompat();
 
 
   // 💾 Save prize to inventory
-  await firebase.database().ref('users/' + user.uid + '/inventory').push({
+  await push(ref(db, 'users/' + user.uid + '/inventory'), {
     name: winningPrize.name,
     image: winningPrize.image,
     rarity: winningPrize.rarity,
@@ -488,7 +483,7 @@ if (!isMuted) {
   });
 
   // 🔄 Update nonce
-  await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
+  await update(ref(db, 'users/' + user.uid + '/provablyFair'), { nonce: nonce + 1 });
 
   // Reset button text and rebind event
   openBtn.innerHTML = `<span id="open-button-text">Open for ${formatCoins(caseData.price || 0)} coins</span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />`;
