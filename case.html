@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Packly.gg | Case Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles/main.css">
@@ -117,6 +122,7 @@
           <img id="flip-front" src="" class="absolute w-full h-full rounded-xl object-contain backface-hidden z-10" alt="Front" />
         </div>
       </div>
+      <div id="prize-name" class="mt-4 text-lg font-semibold text-white hidden"></div>
 <!-- Spinner Container Inside Case -->
 <div class="my-4 w-full relative border border-white/10 rounded-lg bg-black/20 backdrop-blur-md">
   <div class="relative h-[200px] overflow-hidden">
@@ -195,10 +201,29 @@ import { renderSpinner, spinToPrize, getTopPrizes } from './scripts/spinner.js';
   if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
   return num.toLocaleString();
 }
-import { app, db, auth } from './scripts/firebase-config.js';
+
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+// ✅ Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyCyRm6dWH8b_BZ0oImEBPW_T3sF14Tz8dE",
+  authDomain: "cases-e5b4e.firebaseapp.com",
+  databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+  projectId: "cases-e5b4e",
+  storageBucket: "cases-e5b4e.appspot.com",
+  messagingSenderId: "1094023497986",
+  appId: "1:1094023497986:web:59e018f1aa5e8c4093d7a5"
+};
+
+// ✅ Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
  async function updateUserBalanceCompat(retry = 0) {
   const span = document.getElementById("balance-value");
-const user = auth.currentUser;
+  const user = firebase.auth().currentUser; // ✅ Using compat since your db writes use compat too
 
   if (!span || !user) {
     if (retry < 10) {
@@ -211,7 +236,7 @@ const user = auth.currentUser;
   }
 
   try {
-const snap = await get(ref(db, "users/" + user.uid));
+    const snap = await firebase.database().ref("users/" + user.uid).once("value");
     const balance = snap.val()?.balance || 0;
     span.textContent = `${parseFloat(balance).toLocaleString()} coins`;
     console.log("✅ Balance displayed:", balance);
@@ -331,7 +356,7 @@ setTimeout(() => {
   openBtn.classList.remove("opacity-50", "cursor-not-allowed");
 }, 4000);
 
-  const user = auth.currentUser;
+  const user = firebase.auth().currentUser;
   if (!user) return alert("Please sign in first!");
 
   const casePrice = parseFloat(caseData.price || 0);
@@ -377,11 +402,19 @@ document.getElementById("close-pf").addEventListener("click", () => {
 document.getElementById("change-seed").addEventListener("click", async () => {
   const newSeed = prompt("Enter new client seed:");
   if (newSeed) {
-    await set(ref(db, 'users/' + user.uid + '/provablyFair/clientSeed'), newSeed);
+    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
     alert("✅ New client seed saved! Reload to use it.");
   }
 });
 
+
+document.getElementById("change-seed").addEventListener("click", async () => {
+  const newSeed = prompt("Enter new client seed:");
+  if (newSeed) {
+    await firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/provablyFair/clientSeed').set(newSeed);
+    alert("✅ New client seed saved! Reload to use it.");
+  }
+});
 
 
   if (!fairData || !fairData.serverSeed || !fairData.clientSeed || typeof fairData.nonce !== 'number') {
@@ -428,34 +461,36 @@ setTimeout(() => {
 
 
 
+
+// Show prize name below spinner
+document.getElementById("prize-name").innerText = winningPrize.name;
+document.getElementById("prize-name").classList.remove("hidden");
+
+
+
 setTimeout(() => {
   const rarity = (winningPrize.rarity || 'common').toLowerCase();
 
   const raritySounds = {
-  "common": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5",
-  "uncommon": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
-  "rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
-  "ultra rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de",
-  "legendary": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"
-};
+    "common": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5",
+    "uncommon": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
+    "rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8",
+    "ultra rare": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de",
+    "legendary": "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"
+  };
 
-if (!isMuted) {
   const audio = new Audio(raritySounds[rarity] || raritySounds["common"]);
   audio.volume = 0.75;
   audio.play().catch(() => {});
-}
-
-
-
 }, 4000); // wait until spinner animation finishes
 
   // 💰 Deduct balance
-  await set(ref(db, 'users/' + user.uid + '/balance'), balance - casePrice);
+  await firebase.database().ref('users/' + user.uid + '/balance').set(balance - casePrice);
  updateUserBalanceCompat();
 
 
   // 💾 Save prize to inventory
-  await push(ref(db, 'users/' + user.uid + '/inventory'), {
+  await firebase.database().ref('users/' + user.uid + '/inventory').push({
     name: winningPrize.name,
     image: winningPrize.image,
     rarity: winningPrize.rarity,
@@ -464,7 +499,7 @@ if (!isMuted) {
   });
 
   // 🔄 Update nonce
-  await update(ref(db, 'users/' + user.uid + '/provablyFair'), { nonce: nonce + 1 });
+  await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
 
   // Reset button text and rebind event
   openBtn.innerHTML = `<span id="open-button-text">Open for ${formatCoins(caseData.price || 0)} coins</span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />`;
@@ -481,11 +516,20 @@ if (!resultDiv) {
   document.getElementById("case-container").appendChild(resultDiv);
 }
 const openBtn = document.getElementById("open-case-button");
+    document.getElementById("prize-name").classList.add("hidden");
 openBtn.onclick = openCaseHandler;
 
 }); // ✅ closes get(ref(...)).then
 </script>
 
+
+
+<!-- Updates Bar -->
+<div class="updates-bar text-sm">
+  <div class="marquee-text">
+    📦 All cards are near mint unless specified otherwise — 🪙 Sell back unwanted cards for coins 💰
+  </div>
+</div>
 
 <!-- Toast Notification -->
 <div id="inventory-toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg text-center font-semibold hidden z-[9999]">
@@ -530,7 +574,7 @@ openBtn.onclick = openCaseHandler;
     }
   }
 </script>
-
+  
   <script>
   async function sha256(message) {
     const encoder = new TextEncoder();
@@ -538,21 +582,6 @@ openBtn.onclick = openCaseHandler;
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
   }
-    let isMuted = localStorage.getItem("soundMuted") === "true";
-
-// Initialize button on page load
-document.addEventListener("DOMContentLoaded", () => {
-  const muteBtn = document.getElementById("mute-toggle");
-  if (muteBtn) {
-    muteBtn.textContent = isMuted ? "🔇" : "🔊";
-    muteBtn.addEventListener("click", () => {
-      isMuted = !isMuted;
-      localStorage.setItem("soundMuted", isMuted);
-      muteBtn.textContent = isMuted ? "🔇" : "🔊";
-    });
-  }
-});
-
   </script>
 <script type="module" src="scripts/auth.js"></script>
 <script src="scripts/header.js"></script>
@@ -562,9 +591,6 @@ document.addEventListener("DOMContentLoaded", () => {
 <script src="scripts/balance.js"></script>
 <script type="module" src="scripts/spinner.js"></script>
 
-<button id="mute-toggle" class="fixed bottom-4 left-4 bg-black/60 backdrop-blur-lg px-5 py-3 rounded-full text-white text-base font-semibold z-50 shadow-2xl">
-  🔊
-</button>
 
 </body>
 </html>
