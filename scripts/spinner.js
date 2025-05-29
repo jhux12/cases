@@ -68,11 +68,11 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
     div.style.borderColor = borderColor;
     div.setAttribute("data-index", i);
 
-<div class="relative w-32 h-48 mx-auto mb-4 rounded-xl overflow-hidden flex items-center justify-center bg-black border-2 border-purple-500 shadow-xl holographic-card">
-  <img src="${prize.image}" alt="${prize.name}" class="max-w-full max-h-full object-contain z-10 relative" />
-  <div class="absolute inset-0 z-0 shimmer"></div>
-</div>
-
+    div.innerHTML = `
+      <img src="${prize.image}" class="h-20 object-contain mb-2 drop-shadow-md" />
+      <div class="font-bold text-sm text-center leading-tight">${prize.name}</div>
+      <div class="text-xs text-gray-400">${prize.value || ''}</div>
+    `;
 
     spinnerWheel.appendChild(div);
   }
@@ -151,8 +151,9 @@ export function spinToPrize() {
 
     popup.innerHTML = `
       <div class="bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-purple-600 rounded-2xl p-6 text-white text-center w-80 shadow-2xl scale-90 animate-[zoomIn_0.3s_ease-out_forwards]">
-<div class="w-32 h-32 mx-auto mb-4 rounded-xl overflow-hidden flex items-center justify-center bg-black">
-  <img src="${prize.image}" alt="${prize.name}" class="max-w-full max-h-full object-contain animate-[pop_0.4s_ease-out_forwards]" style="filter: drop-shadow(0 0 12px rgba(255,255,255,0.2)); transform: scale(0.95);" />
+<div class="relative w-32 h-48 mx-auto mb-4 rounded-xl overflow-hidden flex items-center justify-center bg-black border border-purple-600 shadow-xl holographic-card">
+  <img src="${prize.image}" alt="${prize.name}" class="max-w-full max-h-full object-contain z-10 relative animate-[pop_0.4s_ease-out_forwards]" style="filter: drop-shadow(0 0 12px rgba(255,255,255,0.3)); transform: scale(0.95);" />
+  <div class="absolute inset-0 z-0 shimmer"></div>
 </div>
         <h2 class="text-xl font-bold mb-2">${prize.name}</h2>
         <div class="flex items-center justify-center text-yellow-300 font-semibold text-lg gap-2 mb-4">
