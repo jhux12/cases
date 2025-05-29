@@ -557,7 +557,7 @@ openBtn.onclick = openCaseHandler;
     }
   }
 </script>
-  
+
   <script>
   async function sha256(message) {
     const encoder = new TextEncoder();
@@ -565,6 +565,21 @@ openBtn.onclick = openCaseHandler;
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
   }
+    let isMuted = localStorage.getItem("soundMuted") === "true";
+
+// Initialize button on page load
+document.addEventListener("DOMContentLoaded", () => {
+  const muteBtn = document.getElementById("mute-toggle");
+  if (muteBtn) {
+    muteBtn.textContent = isMuted ? "🔇 Sound Off" : "🔊 Sound On";
+    muteBtn.addEventListener("click", () => {
+      isMuted = !isMuted;
+      localStorage.setItem("soundMuted", isMuted);
+      muteBtn.textContent = isMuted ? "🔇 Sound Off" : "🔊 Sound On";
+    });
+  }
+});
+
   </script>
 <script type="module" src="scripts/auth.js"></script>
 <script src="scripts/header.js"></script>
@@ -574,6 +589,9 @@ openBtn.onclick = openCaseHandler;
 <script src="scripts/balance.js"></script>
 <script type="module" src="scripts/spinner.js"></script>
 
+<button id="mute-toggle" class="fixed top-4 right-4 bg-black/50 backdrop-blur px-3 py-1 rounded-full text-white text-sm z-50 shadow-lg">
+  🔊 Sound On
+</button>
 
 </body>
 </html>
