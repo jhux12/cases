@@ -145,4 +145,30 @@ export function spinToPrize() {
     }
   }, 4000);
 }
+// 🏆 Create zoom-in popup for the winning prize
+const prize = spinnerPrizes[targetIndex];
+const popup = document.createElement("div");
+popup.id = "prize-popup";
+popup.className = "fixed inset-0 bg-black/80 flex items-center justify-center z-50";
+
+popup.innerHTML = `
+  <div class="bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-purple-600 rounded-2xl p-6 text-white text-center w-80 shadow-2xl scale-0 animate-zoom-in">
+    <img src="${prize.image}" alt="${prize.name}" class="w-32 h-32 mx-auto mb-4 drop-shadow-lg rounded-lg" />
+    <h2 class="text-xl font-bold mb-2">${prize.name}</h2>
+    <div class="flex items-center justify-center text-yellow-300 font-semibold text-lg gap-2 mb-4">
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+      ${prize.value || 0}
+    </div>
+    <button id="close-popup" class="mt-2 bg-pink-600 px-4 py-2 rounded-full text-white font-semibold hover:bg-pink-700 transition">
+      Add to Inventory
+    </button>
+  </div>
+`;
+
+document.body.appendChild(popup);
+
+// Close button logic
+document.getElementById("close-popup").addEventListener("click", () => {
+  popup.remove();
+});
 
