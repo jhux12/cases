@@ -344,8 +344,17 @@ setTimeout(() => {
   openBtn.classList.remove("opacity-50", "cursor-not-allowed");
 }, 4000);
 
-  const user = firebase.auth().currentUser;
-  if (!user) return alert("Please sign in first!");
+  let user = firebase.auth().currentUser;
+if (!user) {
+  return firebase.auth().onAuthStateChanged(u => {
+    if (u) {
+      openCaseHandler(); // retry the spin
+    } else {
+      alert("Please sign in first!");
+    }
+  });
+}
+
 
   const casePrice = parseFloat(caseData.price || 0);
   const userRef = ref(db, 'users/' + user.uid);
