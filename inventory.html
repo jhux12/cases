@@ -321,19 +321,20 @@ function updateProfile() {
 
   const newUsername = document.getElementById("username-input").value;
 
+  // 1. Update display name (auth)
   user.updateProfile({ displayName: newUsername })
     .then(() => {
-      // Also update the Realtime Database
+      // 2. Update Realtime Database
       return firebase.database().ref('users/' + user.uid).update({
         username: newUsername
       });
     })
     .then(() => {
-      alert("Username updated!");
-      location.reload();
+      alert("✅ Username updated!");
+      location.reload(); // Refresh so you see the updated username
     })
     .catch(err => {
-      alert("Error: " + err.message);
+      alert("❌ Error: " + err.message);
     });
 }
 </script>
