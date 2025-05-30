@@ -826,13 +826,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Filter panel toggle logic (mobile)
+  // Filter panel toggle logic (mobile only)
   const toggleButton = document.getElementById("filter-toggle");
   const filterPanel = document.getElementById("filter-panel");
 
   if (toggleButton && filterPanel) {
     toggleButton.addEventListener("click", () => {
-      filterPanel.classList.toggle("hidden");
+      if (window.innerWidth < 640) {
+        filterPanel.classList.toggle("hidden");
+      }
     });
   }
 });
