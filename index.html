@@ -182,53 +182,15 @@ function startAutoScrollCarousel(containerId, speed = 0.5) {
 </script>
 
 <script>
-  const canvas = document.getElementById('particles');
-  let particles = [];
-
-  function resizeCanvas() {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-  }
-
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-
-  for (let i = 0; i < 30; i++) {
-    particles.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      radius: Math.random() * 1.5 + 1,
-      dx: (Math.random() - 0.5) * 0.5,
-      dy: (Math.random() - 0.5) * 0.5
-    });
-  }
-
-  function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-    for (let p of particles) {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fill();
-
-      p.x += p.dx;
-      p.y += p.dy;
-
-      if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-    }
-    requestAnimationFrame(animateParticles);
-  }
-
-  animateParticles();
-</script>
+  
 <div id="prize-overlay" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[100]" onclick="this.classList.add('hidden')">
   <div class="relative" onclick="event.stopPropagation()">
     <button onclick="document.getElementById('prize-overlay').classList.add('hidden')" class="absolute top-2 right-2 text-white text-xl bg-black/70 px-3 py-1 rounded-full z-10 hover:bg-pink-600 transition">&times;</button>
     <img id="overlay-image" src="" class="w-[300px] sm:w-[400px] rounded-lg shadow-lg border border-white/20 transition-all duration-300 scale-75 opacity-0 animate-overlay-zoom">
   </div>
 </div>
-
+  
+</script>
 <script>
 
 function playRaritySound(rarity) {
