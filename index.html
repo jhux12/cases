@@ -156,20 +156,24 @@
 <footer></footer>
 
 <script>
+let scrollIntervalId = null;
 function startAutoScrollCarousel(containerId, speed = 0.5) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
+  // Prevent multiple intervals stacking
+  if (scrollIntervalId) clearInterval(scrollIntervalId);
+
   container.style.scrollBehavior = "auto";
   let scrollPos = 0;
 
-  setInterval(() => {
+  scrollIntervalId = setInterval(() => {
     scrollPos += speed;
     if (scrollPos >= container.scrollWidth - container.clientWidth) {
       scrollPos = 0;
     }
     container.scrollLeft = scrollPos;
-  }, 16); // ~60 FPS
+  }, 16); // ~60fps
 }
 </script>
   
