@@ -165,9 +165,12 @@ import { renderSpinner, spinToPrize, showWinPopup } from './scripts/spinner.js';
       document.getElementById("case-name").innerText = caseData.name;
 document.getElementById("button-price").textContent = formatCoins(caseData.price);
 
-      const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
-        return (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
-      });
+const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
+  const rarityDiff = (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
+  if (rarityDiff !== 0) return rarityDiff;
+  return (b.value || 0) - (a.value || 0); // secondary sort by value
+});
+
 renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
       document.getElementById("prizes-grid").innerHTML = prizeList.map(prize => {
   const rarity = (prize.rarity || "common").toLowerCase().replace(/\s+/g, '');
