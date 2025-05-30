@@ -97,7 +97,7 @@
 </div>
 
 <!-- Filter Panel -->
-<div id="filter-panel" class="hidden sm:flex sm:flex-wrap sm:gap-4 sm:mb-6 sm:items-center">
+<div id="filter-panel" class="hidden sm:flex flex-wrap gap-4 mb-6 items-center">
   <!-- Search -->
   <input id="search-box" type="text" placeholder="Search packs" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-48" />
 
@@ -690,22 +690,16 @@ const filterToggle = document.getElementById("filter-toggle");
 const filterPanel = document.getElementById("filter-panel");
 
 if (filterToggle && filterPanel) {
-  const isMobile = window.innerWidth < 640;
-
-  if (isMobile) {
-    filterToggle.classList.remove("hidden"); // Show toggle on mobile
-    filterPanel.classList.add("hidden"); // Ensure hidden on mobile load
-  } else {
-    filterPanel.classList.remove("hidden"); // Show filters on desktop
-    filterToggle.classList.add("hidden"); // Hide toggle on desktop
-  }
+  // Ensure button starts in correct state based on classes
+  const isHidden = filterPanel.classList.contains("hidden");
+  filterToggle.textContent = isHidden ? "Show Filters" : "Hide Filters";
 
   filterToggle.addEventListener("click", () => {
     filterPanel.classList.toggle("hidden");
-    filterToggle.textContent = filterPanel.classList.contains("hidden") ? "Show Filters" : "Hide Filters";
+    const nowHidden = filterPanel.classList.contains("hidden");
+    filterToggle.textContent = nowHidden ? "Show Filters" : "Hide Filters";
   });
 }
-
 
 
 
@@ -809,9 +803,8 @@ if (userData.username) {
 <script src="scripts/footer.js"></script>
 <script src="scripts/topup.js"></script>
 
-<script>
+  <script>
 document.addEventListener("DOMContentLoaded", () => {
-  // Mobile dropdown menu logic
   const menuToggle = document.getElementById("menu-toggle");
   const mobileDropdown = document.getElementById("mobile-dropdown");
 
@@ -828,18 +821,6 @@ document.addEventListener("DOMContentLoaded", () => {
         !menuToggle.contains(event.target)
       ) {
         mobileDropdown.classList.add("hidden");
-      }
-    });
-  }
-
-  // Filter panel toggle logic (mobile only)
-  const toggleButton = document.getElementById("filter-toggle");
-  const filterPanel = document.getElementById("filter-panel");
-
-  if (toggleButton && filterPanel) {
-    toggleButton.addEventListener("click", () => {
-      if (window.innerWidth < 640) {
-        filterPanel.classList.toggle("hidden");
       }
     });
   }
