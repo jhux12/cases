@@ -100,9 +100,9 @@ function startInfiniteCarouselScroll(containerId, speed = 0.2) {
   function scrollStep() {
     if (!isPaused) {
       container.scrollLeft += speed;
-      if (container.scrollLeft >= container.scrollWidth / 2) {
-        container.scrollLeft = 0;
-      }
+      if (container.scrollLeft >= container.scrollWidth - container.clientWidth) {
+  container.scrollLeft = 0;
+}
     }
     requestAnimationFrame(scrollStep);
   }
