@@ -112,16 +112,27 @@ registerForm.addEventListener('submit', e => {
   auth.createUserWithEmailAndPassword(email, password)
     .then(userCredential => {
       const uid = userCredential.user.uid;
-      db.ref('users/' + uid).set({
-        name: name,
-        username: username,
-        email: email,
-        phone: phone,
-        balance: 0,
-        role: 'user'
-      });
-      alert('Registration successful!');
-      window.location.href = 'index.html';
+      const user = userCredential.user;
+
+// ✅ Update Firebase Auth displayName
+user.updateProfile({
+  displayName: username
+}).then(() => {
+  // ✅ Save user data to Realtime Database
+  return db.ref('users/' + user.uid).set({
+    name: name,
+    username: username,
+    email: email,
+    phone: phone,
+    balance: 0,
+    role: 'user'
+  });
+}).then(() => {
+  alert('Registration successful!');
+  window.location.href = 'index.html';
+}).catch((error) => {
+  alert("❌ " + error.message);
+});
     })
     .catch(error => {
       alert(error.message);
