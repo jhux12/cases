@@ -851,6 +851,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+    function applyFiltersDesktop() {
+  const search = document.getElementById("search-box-desktop").value.toLowerCase();
+  const min = parseFloat(document.getElementById("min-price-desktop").value);
+  const max = parseFloat(document.getElementById("max-price-desktop").value);
+  const affordable = document.getElementById("affordable-only-desktop").checked;
+  const sort = document.getElementById("sort-select-desktop").value;
+}
+
+document.getElementById("search-box-desktop").addEventListener("input", applyFiltersDesktop);
+document.getElementById("min-price-desktop").addEventListener("input", applyFiltersDesktop);
+document.getElementById("max-price-desktop").addEventListener("input", applyFiltersDesktop);
+document.getElementById("affordable-only-desktop").addEventListener("change", applyFiltersDesktop);
+document.getElementById("sort-select-desktop").addEventListener("change", applyFiltersDesktop);
+document.getElementById("clear-filters-desktop").addEventListener("click", () => {
+  document.getElementById("search-box-desktop").value = "";
+  document.getElementById("min-price-desktop").value = "";
+  document.getElementById("max-price-desktop").value = "";
+  document.getElementById("affordable-only-desktop").checked = false;
+  document.getElementById("sort-select-desktop").value = "default";
+  applyFiltersDesktop();
+});
+
 </script>
 </body>
 </html>
