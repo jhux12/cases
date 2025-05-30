@@ -114,11 +114,9 @@ registerForm.addEventListener('submit', e => {
       const uid = userCredential.user.uid;
       const user = userCredential.user;
 
-// ✅ Update Firebase Auth displayName
 user.updateProfile({
   displayName: username
 }).then(() => {
-  // ✅ Save user data to Realtime Database
   return db.ref('users/' + user.uid).set({
     name: name,
     username: username,
@@ -128,16 +126,14 @@ user.updateProfile({
     role: 'user'
   });
 }).then(() => {
+  return user.reload(); // 🔁 Ensures displayName is up-to-date before redirect
+}).then(() => {
   alert('Registration successful!');
   window.location.href = 'index.html';
 }).catch((error) => {
   alert("❌ " + error.message);
 });
-    })
-    .catch(error => {
-      alert(error.message);
-    });
-});
+
 
 // Login
 loginForm.addEventListener('submit', e => {
