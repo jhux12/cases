@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
         userRef.once("value").then((snap) => {
           const data = snap.val() || {};
           const balance = data.balance || 0;
-          const username = data.username || user.email;
+          const username = user.displayName || data.username || user.email;
 
           usernameEl.innerText = username;
           balanceEl.innerText = balance;
