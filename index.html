@@ -186,23 +186,6 @@ function playRaritySound(rarity) {
     audio.play().catch(err => console.warn("Sound error:", err));
   }
 }
-
-function startAutoScrollCarousel(containerId, speed = 0.5) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-
-  container.style.scrollBehavior = "auto"; // Prevent snapping
-  let scrollPos = 0;
-
-  setInterval(() => {
-    scrollPos += speed;
-    if (scrollPos >= container.scrollWidth - container.clientWidth) {
-      scrollPos = 0;
-    }
-    container.scrollLeft = scrollPos;
-  }, 16); // ~60fps
-}
-
 const filterToggle = document.getElementById("filter-toggle");
 const filterPanel = document.getElementById("filter-panel");
 
