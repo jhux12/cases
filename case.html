@@ -366,12 +366,12 @@ window.addEventListener("load", () => {
 document.querySelectorAll("#prizes-grid .prize-card").forEach(card => {
   card.addEventListener("click", () => {
     const image = card.querySelector("img")?.src;
-    const name = card.querySelector(".text-white")?.textContent.trim();
+    const name = card.querySelector(".font-bold.text-sm")?.textContent.trim() || "Unknown";
     const value = card.querySelector(".text-yellow-300")?.textContent.trim();
     const odds = card.querySelector(".bg-white\\/10")?.textContent.trim();
 
     document.getElementById("prize-popup-image").src = image;
-    document.getElementById("prize-popup-name").textContent = name;
+    document.getElementById("prize-popup-name").textContent = name || "Unknown";
     document.getElementById("prize-popup-value").textContent = value;
     document.getElementById("prize-popup-odds").textContent = odds.replace('chance', '').trim();
 
