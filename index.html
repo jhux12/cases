@@ -95,6 +95,32 @@
     Show Filters
   </button>
 </div>
+  <!-- Desktop Filter Panel -->
+<div id="filter-panel-desktop" class="hidden sm:flex flex-wrap gap-4 mb-6 items-center">
+  <input type="text" placeholder="Search packs" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-48" />
+  <input type="number" placeholder="Min" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
+  <input type="number" placeholder="Max" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
+
+  <div class="flex items-center gap-3 px-3 py-2 rounded bg-gray-800 border border-gray-700 hover:border-yellow-400 transition-all">
+    <label for="affordable-only-desktop" class="flex items-center cursor-pointer select-none">
+      <div class="relative">
+        <input type="checkbox" id="affordable-only-desktop" class="sr-only peer">
+        <div class="w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-yellow-400 transition-all duration-300"></div>
+        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
+      </div>
+      <span class="ml-3 text-sm text-white">Enough coins to buy</span>
+    </label>
+  </div>
+
+  <select class="px-3 py-2 rounded bg-gray-800 text-white">
+    <option value="default">Sorting</option>
+    <option value="asc">Ascending</option>
+    <option value="desc">Descending</option>
+  </select>
+
+  <button class="text-sm text-gray-400 hover:text-white ml-auto">Clear Filters</button>
+</div>
+
 
 <!-- Filter Panel -->
 <div id="filter-panel" class="hidden sm:flex flex-wrap gap-4 mb-6 items-center">
