@@ -241,7 +241,7 @@ function showTab(tabId) {
 firebase.auth().onAuthStateChanged(user => {
   if (user) {
     document.getElementById("email").value = user.email;
-    document.getElementById("username").value = user.displayName || "No username set";
+    document.getElementById("username").textContent = user.displayName || "No username set";
     document.getElementById("profile-pic").src = user.photoURL || "https://ui-avatars.com/api/?name=User&background=333&color=fff";
   }
 });
