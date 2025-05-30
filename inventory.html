@@ -10,6 +10,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <style>
     body {
       margin: 0;
@@ -148,11 +149,24 @@
 <div id="profile-section" class="tab-content hidden px-6 py-8">
   <div class="max-w-lg mx-auto bg-gray-900 rounded-2xl p-6 shadow-lg">
     <h2 class="text-xl font-bold mb-4 text-white">Your Profile</h2>
+    <div class="mb-6 text-center">
+  <img id="profile-pic" src="https://ui-avatars.com/api/?name=User&background=333&color=fff" alt="Profile Picture" class="w-24 h-24 rounded-full mx-auto border-4 border-pink-600 shadow-lg" />
+</div>
 
-    <div class="flex flex-col items-center mb-6">
-      <img id="profile-pic" src="" class="w-24 h-24 rounded-full border-4 border-pink-500 shadow-lg mb-2 object-cover" />
-      <p id="username" class="text-white text-lg font-semibold">Loading...</p>
-    </div>
+<div class="mb-4 text-center">
+  <label class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+  <input id="username-input" type="text" class="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-600 text-center" />
+</div>
+
+<div class="mb-6 text-center">
+  <label class="block text-sm font-medium text-gray-300 mb-1">Update Profile Picture</label>
+  <input id="profile-pic-input" type="file" accept="image/*" class="text-sm text-gray-400 file:bg-pink-600 file:text-white file:px-4 file:py-2 file:rounded file:border-none file:cursor-pointer" />
+</div>
+
+<button onclick="updateProfile()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition">
+  Save Changes
+</button>
+
 
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-300 mb-1">Email</label>
@@ -241,7 +255,7 @@ function showTab(tabId) {
 firebase.auth().onAuthStateChanged(user => {
   if (user) {
     document.getElementById("email").value = user.email;
-    document.getElementById("username").textContent = user.displayName || "No username set";
+    document.getElementById("username-input").value = user.displayName || "";
     document.getElementById("profile-pic").src = user.photoURL || "https://ui-avatars.com/api/?name=User&background=333&color=fff";
   }
 });
@@ -257,6 +271,42 @@ function changePassword() {
       document.getElementById("new-password").value = "";
     }).catch(error => {
       alert("Error: " + error.message);
+    });
+  }
+}
+</script>
+<script>
+function updateProfile() {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  const newUsername = document.getElementById("username-input").value;
+  const fileInput = document.getElementById("profile-pic-input");
+  const file = fileInput.files[0];
+
+  if (file) {
+    const storageRef = firebase.storage().ref();
+    const profilePicRef = storageRef.child(`profile-pics/${user.uid}`);
+
+    profilePicRef.put(file).then(snapshot => {
+      return snapshot.ref.getDownloadURL();
+    }).then(url => {
+      return user.updateProfile({
+        displayName: newUsername,
+        photoURL: url
+      });
+    }).then(() => {
+      alert("Profile updated!");
+      location.reload();
+    }).catch(err => {
+      alert("Error: " + err.message);
+    });
+  } else {
+    user.updateProfile({ displayName: newUsername }).then(() => {
+      alert("Username updated!");
+      location.reload();
+    }).catch(err => {
+      alert("Error: " + err.message);
     });
   }
 }
