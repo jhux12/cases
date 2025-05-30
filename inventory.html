@@ -136,6 +136,7 @@
     <div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
       <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
         <h2 class="text-xl font-bold mb-4">Enter Shipping Info</h2>
+        <input id="ship-username" type="text" class="w-full mb-2 px-4 py-2 rounded bg-gray-700 text-gray-400 cursor-not-allowed" disabled />
         <input id="ship-name" type="text" placeholder="Full Name" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
         <input id="ship-address" type="text" placeholder="Address" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
         <input id="ship-city" type="text" placeholder="City" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
@@ -255,12 +256,25 @@ function showTab(tabId) {
 
 
 // Load profile data
+// Load profile data
 firebase.auth().onAuthStateChanged(user => {
   if (user) {
     document.getElementById("email").value = user.email;
     document.getElementById("username-input").value = user.displayName || "";
-const emailInitials = user.email ? user.email.substring(0, 2).toUpperCase() : "??";
-document.getElementById("profile-pic").textContent = emailInitials;
+
+    const emailInitials = user.email ? user.email.substring(0, 2).toUpperCase() : "??";
+    document.getElementById("profile-pic").textContent = emailInitials;
+
+    // Populate disabled username field in shipment popup
+    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+      const userData = snapshot.val();
+      if (userData && userData.username) {
+        const shipUsernameInput = document.getElementById("ship-username");
+        if (shipUsernameInput) {
+          shipUsernameInput.value = userData.username;
+        }
+      }
+    });
   }
 });
 
