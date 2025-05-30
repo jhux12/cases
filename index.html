@@ -97,7 +97,7 @@
 </div>
 
 <!-- Filter Panel -->
-<div id="filter-panel" class="hidden sm:flex flex-wrap gap-4 mb-6 items-center">
+<div id="filter-panel" class="flex flex-wrap gap-4 mb-6 items-center hidden sm:flex">
   <!-- Search -->
   <input id="search-box" type="text" placeholder="Search packs" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-48" />
 
@@ -803,8 +803,9 @@ if (userData.username) {
 <script src="scripts/footer.js"></script>
 <script src="scripts/topup.js"></script>
 
-  <script>
+<script>
 document.addEventListener("DOMContentLoaded", () => {
+  // Mobile dropdown menu logic
   const menuToggle = document.getElementById("menu-toggle");
   const mobileDropdown = document.getElementById("mobile-dropdown");
 
@@ -822,6 +823,16 @@ document.addEventListener("DOMContentLoaded", () => {
       ) {
         mobileDropdown.classList.add("hidden");
       }
+    });
+  }
+
+  // Filter panel toggle logic (mobile)
+  const toggleButton = document.getElementById("filter-toggle");
+  const filterPanel = document.getElementById("filter-panel");
+
+  if (toggleButton && filterPanel) {
+    toggleButton.addEventListener("click", () => {
+      filterPanel.classList.toggle("hidden");
     });
   }
 });
