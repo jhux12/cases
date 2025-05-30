@@ -259,24 +259,33 @@ function showTab(tabId) {
 // Load profile data
 firebase.auth().onAuthStateChanged(user => {
   if (user) {
-    document.getElementById("email").value = user.email;
-    document.getElementById("username-input").value = user.displayName || "";
+    const uid = user.uid;
+    const userRef = firebase.database().ref('users/' + uid);
 
-    const emailInitials = user.email ? user.email.substring(0, 2).toUpperCase() : "??";
-    document.getElementById("profile-pic").textContent = emailInitials;
-
-    // Populate disabled username field in shipment popup
-    firebase.database().ref('users/' + user.uid).once('value').then(snapshot => {
+    userRef.once('value').then(snapshot => {
       const userData = snapshot.val();
-      if (userData && userData.username) {
-        const shipUsernameInput = document.getElementById("ship-username");
-        if (shipUsernameInput) {
-          shipUsernameInput.value = userData.username;
-        }
+
+      // Set email
+      document.getElementById("email").value = user.email;
+
+      // Set profile username input
+      if (userData.username) {
+        document.getElementById("username-input").value = userData.username;
+      }
+
+      // Set profile pic initials
+      const emailInitials = user.email ? user.email.substring(0, 2).toUpperCase() : "??";
+      document.getElementById("profile-pic").textContent = emailInitials;
+
+      // Set shipment popup username (if exists)
+      const shipUsernameInput = document.getElementById("ship-username");
+      if (shipUsernameInput && userData.username) {
+        shipUsernameInput.value = userData.username;
       }
     });
   }
 });
+
 
 // Password update function
 function changePassword() {
