@@ -136,7 +136,7 @@
     <div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
       <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
         <h2 class="text-xl font-bold mb-4">Enter Shipping Info</h2>
-        <input id="ship-username" type="text" class="w-full mb-2 px-4 py-2 rounded bg-gray-700 text-gray-400 cursor-not-allowed" disabled />
+        <input id="ship-username" type="text" placeholder="Username" class="w-full mb-2 px-4 py-2 rounded bg-gray-700 text-gray-400 cursor-not-allowed" disabled />
         <input id="ship-name" type="text" placeholder="Full Name" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
         <input id="ship-address" type="text" placeholder="Address" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
         <input id="ship-city" type="text" placeholder="City" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
@@ -321,12 +321,20 @@ function updateProfile() {
 
   const newUsername = document.getElementById("username-input").value;
 
-  user.updateProfile({ displayName: newUsername }).then(() => {
-    alert("Username updated!");
-    location.reload();
-  }).catch(err => {
-    alert("Error: " + err.message);
-  });
+  user.updateProfile({ displayName: newUsername })
+    .then(() => {
+      // Also update the Realtime Database
+      return firebase.database().ref('users/' + user.uid).update({
+        username: newUsername
+      });
+    })
+    .then(() => {
+      alert("Username updated!");
+      location.reload();
+    })
+    .catch(err => {
+      alert("Error: " + err.message);
+    });
 }
 </script>
 
