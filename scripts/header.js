@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (balanceDesktop) balanceDesktop.innerText = balance;
     if (balanceMobile) balanceMobile.innerText = balance;
     if (userBalanceDiv) userBalanceDiv.classList.remove("hidden");
-    if (usernameDisplay) usernameDisplay.innerText = data.username || user.displayName || user.email || "User";
+    if (usernameDisplay) usernameDisplay.innerText = user.displayName || data.username || user.email || "User";
     if (signinDesktop) signinDesktop.classList.add("hidden");
     if (logoutDesktop) logoutDesktop.classList.remove("hidden");
     if (inventoryLink) inventoryLink.classList.remove("hidden");
