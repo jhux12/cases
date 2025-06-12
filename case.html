@@ -138,6 +138,27 @@ import { renderSpinner, spinToPrize, showWinPopup } from './scripts/spinner.js';
 
     const rarityOrder = { legendary: 5, "ultra rare": 4, rare: 3, uncommon: 2, common: 1 };
 
+  function playRaritySound(rarity) {
+  const soundMap = {
+    "common": "sound-common",
+    "uncommon": "sound-rare",
+    "rare": "sound-rare",
+    "ultra rare": "sound-ultrarare",
+    "ultrarare": "sound-ultrarare",
+    "legendary": "sound-legendary"
+  };
+
+  const key = rarity?.toLowerCase().replace(/\s+/g, '') || "common";
+  const audioId = soundMap[rarity?.toLowerCase()] || "sound-common";
+  const audio = document.getElementById(audioId);
+  if (audio) {
+    audio.currentTime = 0;
+    audio.play().catch((e) => {
+      console.warn("Audio playback failed:", e);
+    });
+  }
+}
+
     document.addEventListener("DOMContentLoaded", () => {
       const refreshBtn = document.getElementById("refresh-balance");
       if (refreshBtn) refreshBtn.addEventListener("click", updateUserBalance);
@@ -239,9 +260,10 @@ spinnerPrizes[15] = winningPrize;
 
 renderSpinner(spinnerPrizes, winningPrize);
 setTimeout(() => {
-  spinToPrize(() => {
-    showWinPopup(winningPrize);
-  });
+ spinToPrize(() => {
+  playRaritySound(winningPrize.rarity);
+  showWinPopup(winningPrize);
+});
 }, 150);
 
 
