@@ -10,79 +10,77 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
-
-
   <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #0f0f12;
+      background: linear-gradient(to bottom right, #0f0f12, #1f1f27);
       color: white;
     }
-    .section {
-      padding: 4rem 1.5rem;
-    }
-    .step-card {
-      background-color: rgba(255, 255, 255, 0.05);
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 1rem;
-      padding: 2rem;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
     }
-    .step-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 24px rgba(236, 72, 153, 0.2);
-    }
-    .icon {
-      font-size: 2rem;
+    .step-icon {
+      font-size: 2.5rem;
       color: #ec4899;
+      animation: pop 0.6s ease;
+    }
+    @keyframes pop {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
   </style>
 </head>
 <body>
   <header></header>
 
-  <!-- How It Works Section -->
-<section class="section text-center pt-32">
-    <h1 class="text-4xl font-extrabold mb-4 text-white">How It Works</h1>
-    <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-12">Packly.gg is the ultimate case-opening experience. Here’s how to get started and strike gold.</p>
+  <!-- 🔥 Upgraded How It Works Section -->
+  <section class="pt-32 pb-24 px-6 max-w-7xl mx-auto text-center">
+    <h1 class="text-5xl sm:text-6xl font-extrabold mb-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 bg-clip-text text-transparent">
+      How Packly.gg Works
+    </h1>
+    <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-16">
+      Discover the ultimate thrill of opening premium cases filled with real prizes. Here's your quick guide to winning big.
+    </p>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-      <div class="step-card">
-        <div class="icon mb-4">🔑</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+      <div class="glass rounded-3xl p-8 text-left transition hover:scale-[1.02]">
+        <div class="step-icon mb-4">🔑</div>
         <h2 class="text-xl font-bold mb-2">1. Sign Up or Log In</h2>
         <p class="text-gray-300">Create an account or sign in to start your pack-opening journey. Your pulls and balance will be securely tracked.</p>
       </div>
-      <div class="step-card">
-        <div class="icon mb-4">💼</div>
+      <div class="glass rounded-3xl p-8 text-left transition hover:scale-[1.02]">
+        <div class="step-icon mb-4">💼</div>
         <h2 class="text-xl font-bold mb-2">2. Top Up Coins</h2>
         <p class="text-gray-300">Easily top up your coin balance using the built-in system. Coins are used to open packs and try your luck!</p>
       </div>
-      <div class="step-card">
-        <div class="icon mb-4">🎁</div>
+      <div class="glass rounded-3xl p-8 text-left transition hover:scale-[1.02]">
+        <div class="step-icon mb-4">🎁</div>
         <h2 class="text-xl font-bold mb-2">3. Open Packs</h2>
         <p class="text-gray-300">Choose a case, view its possible rewards, and open it for a chance to win amazing items of varying rarities.</p>
       </div>
-      <div class="step-card">
-        <div class="icon mb-4">🏆</div>
+      <div class="glass rounded-3xl p-8 text-left transition hover:scale-[1.02]">
+        <div class="step-icon mb-4">🏆</div>
         <h2 class="text-xl font-bold mb-2">4. View Your Inventory</h2>
         <p class="text-gray-300">Everything you win is stored in your personal inventory. Access it anytime to manage your prizes.</p>
       </div>
-      <div class="step-card">
-        <div class="icon mb-4">🚚</div>
+      <div class="glass rounded-3xl p-8 text-left transition hover:scale-[1.02]">
+        <div class="step-icon mb-4">🚚</div>
         <h2 class="text-xl font-bold mb-2">5. Ship or Sell Back</h2>
         <p class="text-gray-300">You can choose to ship your item straight to your home, or sell it back for coins (with a 20% restock fee).</p>
       </div>
-      <div class="step-card">
-        <div class="icon mb-4">✨</div>
+      <div class="glass rounded-3xl p-8 text-left transition hover:scale-[1.02]">
+        <div class="step-icon mb-4">✨</div>
         <h2 class="text-xl font-bold mb-2">6. Keep Pulling!</h2>
         <p class="text-gray-300">Top up, pull again, and chase those legendary rewards. Packly.gg is all about the thrill of the win.</p>
       </div>
     </div>
   </section>
 
-  <!-- Dynamic Footer -->
   <footer></footer>
 
   <!-- Firebase Config -->
@@ -103,43 +101,41 @@
   <script src="scripts/footer.js"></script>
   <script src="scripts/topup.js"></script>
 
-<script>
-  const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
-
-  function redirectToCheckout(event, priceId) {
-    event.preventDefault();
-
-    const user = firebase.auth().currentUser;
-    if (!user) {
-      alert("Please sign in to purchase coins.");
-      return;
-    }
-
-    firebase.firestore()
-      .collection("customers")
-      .doc(user.uid)
-      .collection("checkout_sessions")
-      .add({
-        mode: "payment",
-        success_url: window.location.href,
-        cancel_url: window.location.href,
-        allow_promotion_codes: true,
-        line_items: [{ price: priceId, quantity: 1 }],
-        metadata: { priceId }
-      })
-      .then((docRef) => {
-        docRef.onSnapshot((snap) => {
-          const { error, sessionId } = snap.data();
-          if (error) {
-            alert(`An error occurred: ${error.message}`);
-          }
-          if (sessionId) {
-            stripe.redirectToCheckout({ sessionId });
-          }
+  <script>
+    const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
+    function redirectToCheckout(event, priceId) {
+      event.preventDefault();
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        alert("Please sign in to purchase coins.");
+        return;
+      }
+      firebase.firestore()
+        .collection("customers")
+        .doc(user.uid)
+        .collection("checkout_sessions")
+        .add({
+          mode: "payment",
+          success_url: window.location.href,
+          cancel_url: window.location.href,
+          allow_promotion_codes: true,
+          line_items: [{ price: priceId, quantity: 1 }],
+          metadata: { priceId }
+        })
+        .then((docRef) => {
+          docRef.onSnapshot((snap) => {
+            const { error, sessionId } = snap.data();
+            if (error) {
+              alert(`An error occurred: ${error.message}`);
+            }
+            if (sessionId) {
+              stripe.redirectToCheckout({ sessionId });
+            }
+          });
         });
-      });
-  }
-</script>
+    }
+  </script>
 </body>
 </html>
+
 
