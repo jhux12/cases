@@ -219,6 +219,19 @@ enablePrizePopups();
 
 document.getElementById("open-case-button").addEventListener("click", async () => {
 
+  const btn = document.getElementById("open-case-button");
+btn.disabled = true;
+btn.classList.add("cursor-not-allowed", "opacity-60");
+btn.innerHTML = `
+  <span class="relative z-10 flex items-center gap-2 animate-pulse">
+    <svg class="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+    </svg>
+    Spinning...
+  </span>
+`;
+
         const user = firebase.auth().currentUser;
         if (!user) return alert("Please sign in to open cases.");
 
@@ -260,11 +273,25 @@ spinnerPrizes[15] = winningPrize;
 
 renderSpinner(spinnerPrizes, winningPrize);
 setTimeout(() => {
- spinToPrize(() => {
-  playRaritySound(winningPrize.rarity);
-  showWinPopup(winningPrize);
-});
+  spinToPrize(() => {
+    // ✅ Restore button after spin ends
+    const btn = document.getElementById("open-case-button");
+    btn.disabled = false;
+    btn.classList.remove("cursor-not-allowed", "opacity-60");
+    btn.innerHTML = `
+      <div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50 z-0 animate-spin-slow"></div>
+      <span class="relative z-10 flex items-center gap-2">
+        Open for
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+        <span id="button-price">${formatCoins(caseData.price)}</span>
+      </span>
+    `;
+
+    playRaritySound(winningPrize.rarity);
+    showWinPopup(winningPrize);
+  });
 }, 150);
+
 
 
         await firebase.database().ref('users/' + user.uid + '/balance').set(balance - price);
