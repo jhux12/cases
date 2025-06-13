@@ -314,6 +314,29 @@ setTimeout(() => {
       });
     });
   let isMuted = false;
+  // Unlock audio elements on first user tap (especially for mobile)
+document.addEventListener("click", unlockAudio, { once: true });
+
+function unlockAudio() {
+  const sounds = [
+    document.getElementById("sound-common"),
+    document.getElementById("sound-rare"),
+    document.getElementById("sound-ultrarare"),
+    document.getElementById("sound-legendary"),
+    document.getElementById("sell-sound")
+  ];
+
+  sounds.forEach((audio) => {
+    if (audio) {
+      audio.play().then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+      }).catch(() => {
+        // fail silently
+      });
+    }
+  });
+}
 
 document.getElementById("mute-toggle").addEventListener("click", () => {
   isMuted = !isMuted;
