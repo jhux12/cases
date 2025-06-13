@@ -56,7 +56,7 @@
       <div class="w-full h-40 flex items-center justify-center">
         <img src="" class="max-h-full object-contain rounded drop-shadow-md transition-transform duration-300 group-hover:scale-105" alt="Card Image">
       </div>
-      <div class="font-semibold text-center leading-tight mt-2 name text-white"></div>
+      <div class="font-semibold text-center leading-tight mt-2 name text-white line-clamp-2 break-words"></div>
       <div class="text-yellow-300 font-bold mt-1 value"></div>
       <div class="text-xs opacity-70 mt-1 rarity"></div>
       <button class="mt-4 px-4 py-1.5 bg-pink-600 hover:bg-pink-700 text-white rounded-full text-xs font-bold uppercase tracking-wide transition buy-btn">Buy</button>
@@ -80,19 +80,23 @@
   <script>
     let allMarketplaceItems = [];
 
-    firebase.auth().onAuthStateChanged(async (user) => {
-      if (!user) return;
-      const userRef = firebase.database().ref("users/" + user.uid);
-      const snapshot = await userRef.once("value");
-      const userData = snapshot.val();
-      const userBalance = userData?.balance || 0;
+   firebase.auth().onAuthStateChanged(async (user) => {
+  let userBalance = 0;
 
-      const snap = await firebase.database().ref("marketplace").once("value");
-      const cards = snap.val() || {};
-      allMarketplaceItems = Object.entries(cards).map(([key, card]) => ({ ...card, id: key }));
+  if (user) {
+    const userRef = firebase.database().ref("users/" + user.uid);
+    const snapshot = await userRef.once("value");
+    const userData = snapshot.val();
+    userBalance = userData?.balance || 0;
+  }
 
-      applyFilters(userBalance);
-    });
+  const snap = await firebase.database().ref("marketplace").once("value");
+  const cards = snap.val() || {};
+  allMarketplaceItems = Object.entries(cards).map(([key, card]) => ({ ...card, id: key }));
+
+  applyFilters(userBalance);
+});
+
 
     function applyFilters(userBalance = 0) {
       const search = document.getElementById("search-input").value.toLowerCase();
