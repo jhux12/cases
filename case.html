@@ -116,6 +116,12 @@
   <!-- Main logic -->
 <script type="module">
 import { renderSpinner, spinToPrize, showWinPopup } from './scripts/spinner.js';
+  document.addEventListener("click", () => {
+  document.getElementById("sound-common")?.play().catch(() => {});
+  document.getElementById("sound-rare")?.play().catch(() => {});
+  document.getElementById("sound-ultrarare")?.play().catch(() => {});
+  document.getElementById("sound-legendary")?.play().catch(() => {});
+}, { once: true });
     const formatCoins = (num) => {
       if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
       if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
@@ -139,7 +145,6 @@ import { renderSpinner, spinToPrize, showWinPopup } from './scripts/spinner.js';
     const rarityOrder = { legendary: 5, "ultra rare": 4, rare: 3, uncommon: 2, common: 1 };
 
   function playRaritySound(rarity) {
-  if (isMuted) return; // ⛔ don't play if muted
   const soundMap = {
     "common": "sound-common",
     "uncommon": "sound-rare",
@@ -307,47 +312,6 @@ setTimeout(() => {
         updateUserBalance();
       });
     });
-  let isMuted = false;
-  // Unlock audio elements on first user tap (especially for mobile)
-document.addEventListener("click", unlockAudio, { once: true });
-
-function unlockAudio() {
-  const sounds = [
-    document.getElementById("sound-common"),
-    document.getElementById("sound-rare"),
-    document.getElementById("sound-ultrarare"),
-    document.getElementById("sound-legendary"),
-    document.getElementById("sell-sound")
-  ];
-
-  sounds.forEach((audio) => {
-    if (audio) {
-      audio.play().then(() => {
-        audio.pause();
-        audio.currentTime = 0;
-      }).catch(() => {
-        // fail silently
-      });
-    }
-  });
-}
-
-document.getElementById("mute-toggle").addEventListener("click", () => {
-  setTimeout(() => {
-    isMuted = !isMuted;
-    const icon = document.getElementById("mute-icon");
-    const label = document.getElementById("mute-label");
-
-    if (isMuted) {
-      icon.classList.replace("fa-volume-up", "fa-volume-mute");
-      label.textContent = "Muted";
-    } else {
-      icon.classList.replace("fa-volume-mute", "fa-volume-up");
-      label.textContent = "Sound On";
-    }
-  }, 100); // delay to avoid triggering audio from click event
-});
-
   document.getElementById("pf-info").addEventListener("click", async () => {
   const user = firebase.auth().currentUser;
   if (!user) return;
@@ -427,7 +391,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       balanceRef.set(newBalance);
 const sellSound = document.getElementById("sell-sound");
-if (sellSound && !isMuted) sellSound.play();
+if (sellSound) sellSound.play();
       // ✅ Update UI immediately
       const balanceEl = document.getElementById("balance-value");
       if (balanceEl) balanceEl.textContent = `${newBalance.toLocaleString()} coins`;
@@ -529,9 +493,5 @@ document.getElementById("close-prize-popup").addEventListener("click", () => {
   </div>
 </div>
     <audio id="sell-sound" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/coin-drops-and-spins-272429.mp3?alt=media&token=e867f5db-1646-4548-8403-6d1fce220c71"></audio>
-    <button id="mute-toggle" class="fixed bottom-4 left-4 z-50 bg-gray-800 border border-white/10 text-white px-4 py-2 rounded-full shadow-lg backdrop-blur-md flex items-center gap-2 hover:bg-red-500 transition">
-  <i class="fa-solid fa-volume-up" id="mute-icon"></i>
-  <span id="mute-label">Sound On</span>
-</button>
 </body>
 </html>
