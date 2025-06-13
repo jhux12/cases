@@ -384,7 +384,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const newBalance = currentBalance + sellAmount;
 
       balanceRef.set(newBalance);
-
+const sellSound = document.getElementById("sell-sound");
+if (sellSound) sellSound.play();
       // ✅ Update UI immediately
       const balanceEl = document.getElementById("balance-value");
       if (balanceEl) balanceEl.textContent = `${newBalance.toLocaleString()} coins`;
@@ -485,5 +486,6 @@ document.getElementById("close-prize-popup").addEventListener("click", () => {
     </div>
   </div>
 </div>
+    <audio id="sell-sound" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/coin-drops-and-spins-272429.mp3?alt=media&token=e867f5db-1646-4548-8403-6d1fce220c71"></audio>
 </body>
 </html>
