@@ -85,6 +85,16 @@
   <label>Case Tag (e.g. 🔥 Hot, 🆕 New):</label>
   <input type="text" id="case-tag" class="w-full p-2 rounded" placeholder="Optional badge">
 </div>
+            <div>
+  <label>Spice Level:</label>
+  <select id="case-spice" class="w-full p-2 rounded">
+    <option value="">None</option>
+    <option value="easy">🌶️ Easy</option>
+    <option value="medium">🌶️🌶️ Medium</option>
+    <option value="hard">🌶️🌶️🌶️ Hard</option>
+  </select>
+</div>
+
             <div id="prizes-section" class="space-y-4">
               <h3 class="text-xl">Prizes:</h3>
               <button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>
@@ -343,6 +353,7 @@ function adminReply(event, caseId) {
         previewImage(data.image);
         document.getElementById('case-price').value = data.price;
         document.getElementById('case-tag').value = data.tag || '';
+        document.getElementById('case-spice').value = data.spiceLevel || '';
         prizesSection.innerHTML = '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
         if (data.prizes) Object.values(data.prizes).forEach(p => addPrize(p));
         cancelEditBtn.classList.remove('hidden');
@@ -377,6 +388,7 @@ function adminReply(event, caseId) {
       const image = document.getElementById('case-image').value;
       const price = parseFloat(document.getElementById('case-price').value) || 0;
       const tag = document.getElementById('case-tag').value.trim();
+      const spiceLevel = document.getElementById('case-spice').value.trim();
       const prizesElements = prizesSection.querySelectorAll('div.prize-block');
       const prizes = {};
       prizesElements.forEach((div, idx) => {
@@ -388,7 +400,7 @@ function adminReply(event, caseId) {
           odds: parseFloat(div.querySelector('.prize-odds').value) || 0
         };
       });
-     db.ref('cases/' + id).set({ name, image, price, tag, prizes }).then(() => {
+     db.ref('cases/' + id).set({ name, image, price, tag, spiceLevel, prizes }).then(() => {
         caseForm.reset();
         previewImage('');
        document.getElementById('case-tag').value = '';
