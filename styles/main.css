@@ -641,4 +641,12 @@ html {
     transform: translateY(0);
   }
 }
+@keyframes subtle-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.near-miss-flash {
+  animation: subtle-flash 0.5s ease-in-out 3;
+}
 
