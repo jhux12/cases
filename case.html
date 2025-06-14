@@ -201,10 +201,11 @@ document.addEventListener("click", () => {
       const caseData = snap.val();
       document.getElementById("case-name").innerText = caseData.name;
       const spiceEmojis = {
-  easy: '🟢 Easy',
-  medium: '🟠 Medium',
-  hard: '🔴 Hard'
+  easy: '🌶️ Easy',
+  medium: '🌶️🌶️ Medium',
+  hard: '🌶️🌶️🌶️ Hard'
 };
+
 
 document.getElementById("case-spice").innerText = spiceEmojis[caseData.spice?.toLowerCase()] || '';
 
