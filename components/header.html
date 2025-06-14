@@ -22,6 +22,14 @@
       <span>coins</span>
       <button id="topup-button" class="text-green-400 font-bold ml-1">+</button>
     </div>
+    <!-- XP / Level Display -->
+<div id="level-display" class="flex items-center gap-2 bg-black/40 px-3 py-1 rounded-full border border-white/10 shadow-md text-xs">
+  <span class="text-pink-400 font-bold">Lvl <span id="level-number">1</span></span>
+  <div class="relative w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
+    <div id="xp-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-pink-500 via-yellow-400 to-purple-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+  </div>
+</div>
+
 
     <!-- Username + Dropdown -->
     <div class="relative">
