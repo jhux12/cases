@@ -59,6 +59,7 @@
     <div class="absolute top-4 left-4 z-10">
   <div class="inline-block bg-gray-900 text-white text-sm font-bold px-4 py-2 rounded-full shadow-md border border-white/10 backdrop-blur-sm">
     <h2 id="case-name" class="mb-0">Loading...</h2>
+    <div id="case-spice" class="text-xs mt-1 text-gray-300"></div>
   </div>
 </div>
     <div class="absolute top-4 right-4 z-10">
@@ -199,6 +200,14 @@ document.addEventListener("click", () => {
 
       const caseData = snap.val();
       document.getElementById("case-name").innerText = caseData.name;
+      const spiceEmojis = {
+  easy: '🟢 Easy',
+  medium: '🟠 Medium',
+  hard: '🔴 Hard'
+};
+
+document.getElementById("case-spice").innerText = spiceEmojis[caseData.spice?.toLowerCase()] || '';
+
 document.getElementById("button-price").textContent = formatCoins(caseData.price);
 
 const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
