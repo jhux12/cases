@@ -213,10 +213,6 @@ const spiceHTML = spiceData
   : "";
 
 document.getElementById("case-name").innerHTML = `${caseData.name} ${spiceHTML}`;
-
-
-document.getElementById("case-spice").innerText = spiceEmojis[caseData.spice?.toLowerCase()] || '';
-
 document.getElementById("button-price").textContent = formatCoins(caseData.price);
 
 const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
