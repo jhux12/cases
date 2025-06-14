@@ -136,6 +136,13 @@ export function spinToPrize(callback) {
   spinnerWheel.addEventListener("transitionend", () => {
     cancelAnimationFrame(animationFrame);
 
+    // Flash the near-miss card before final stop
+const nearMissCard = spinnerWheel.querySelector(`.item[data-index="${targetIndex - 1}"]`)
+  || spinnerWheel.querySelector(`.item[data-index="${targetIndex + 1}"]`);
+if (nearMissCard) {
+  nearMissCard.classList.add("near-miss-flash");
+}
+
     const prize = spinnerPrizes[targetIndex];
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
 
