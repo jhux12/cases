@@ -199,14 +199,20 @@ document.addEventListener("click", () => {
       }
 
       const caseData = snap.val();
-      let spiceEmojis = {
-  easy: "🌶",
-  medium: "🌶🌶",
-  hot: "🌶🌶🌶"
+      const spiceMap = {
+  easy: { label: "Easy 🌶️", color: "text-green-400" },
+  medium: { label: "Medium 🌶️🌶️", color: "text-orange-400" },
+  hard: { label: "Hard 🌶️🌶️🌶️", color: "text-red-500" }
 };
+
 const spice = caseData.spice?.toLowerCase();
-const spiceDisplay = spiceEmojis[spice] ? ` <span class="ml-2">${spiceEmojis[spice]}</span>` : "";
-document.getElementById("case-name").innerHTML = `${caseData.name}${spiceDisplay}`;
+const spiceData = spiceMap[spice];
+
+const spiceHTML = spiceData
+  ? `<span class="ml-2 ${spiceData.color} text-xs font-semibold bg-black/40 px-2 py-1 rounded-full">${spiceData.label}</span>`
+  : "";
+
+document.getElementById("case-name").innerHTML = `${caseData.name} ${spiceHTML}`;
 
 
 document.getElementById("case-spice").innerText = spiceEmojis[caseData.spice?.toLowerCase()] || '';
