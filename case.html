@@ -58,8 +58,8 @@
   <div id="case-container" class="relative bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 p-6 shadow-xl backdrop-blur-md">
     <div class="absolute top-4 left-4 z-10">
   <div class="inline-block bg-gray-900 text-white text-sm font-bold px-4 py-2 rounded-full shadow-md border border-white/10 backdrop-blur-sm">
-    <h2 id="case-name" class="mb-0">Loading...</h2>
-    <div id="case-spice" class="text-xs mt-1 text-gray-300"></div>
+    <h2 id="case-name" class="mb-0 font-bold text-lg leading-tight"></h2>
+<div id="case-spice-badge" class="mt-1"></div>
   </div>
 </div>
     <div class="absolute top-4 right-4 z-10">
@@ -212,7 +212,8 @@ const spiceHTML = spiceData
   ? `<span class="ml-2 ${spiceData.color} text-xs font-semibold bg-black/40 px-2 py-1 rounded-full">${spiceData.label}</span>`
   : "";
 
-document.getElementById("case-name").innerHTML = `${caseData.name} ${spiceHTML}`;
+document.getElementById("case-name").textContent = caseData.name;
+document.getElementById("case-spice-badge").innerHTML = spiceHTML;
 document.getElementById("button-price").textContent = formatCoins(caseData.price);
 
 const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
