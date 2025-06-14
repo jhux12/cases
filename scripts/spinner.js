@@ -61,7 +61,8 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
     const borderColor = getRarityColor(rarity);
 
-    div.className = "min-w-[140px] h-[160px] mx-1 flex items-center justify-center rounded-xl bg-transparent shadow-md item border-2";
+const glowClass = `glow-${rarity}`;
+div.className = `min-w-[140px] h-[160px] mx-1 flex items-center justify-center rounded-xl bg-transparent shadow-md item border-2 ${glowClass}`;
     div.style.borderColor = borderColor;
     div.setAttribute("data-index", i);
 div.innerHTML = `
