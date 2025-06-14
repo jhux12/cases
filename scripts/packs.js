@@ -1,7 +1,23 @@
 import { setupFilters } from './filters.js';
 
 let allCases = [];
+function getPepperHTML(spiceLevel) {
+  const map = {
+    easy: { color: "text-green-400", label: "Easy 🌶️" },
+    medium: { color: "text-orange-400", label: "Medium 🌶️🌶️" },
+    hard: { color: "text-red-500", label: "Hard 🌶️🌶️🌶️" }
+  };
 
+  if (!map[spiceLevel]) return "";
+
+  const { color, label } = map[spiceLevel];
+
+  return `
+    <div class="absolute top-2 right-2 ${color} text-xs font-bold bg-black/50 px-2 py-1 rounded-full z-10">
+      ${label}
+    </div>
+  `;
+}
 function renderCases(caseList) {
   const casesContainer = document.getElementById("cases-container");
   casesContainer.innerHTML = "";
@@ -10,6 +26,7 @@ function renderCases(caseList) {
     const tagHTML = c.tag
       ? `<div class="absolute top-2 left-2 bg-pink-600 text-white text-xs px-2 py-1 rounded-full font-bold z-10">${c.tag}</div>`
       : "";
+const pepperHTML = getPepperHTML(c.spiceLevel);
 
     const price = parseFloat(c.price) || 0;
 
@@ -23,6 +40,7 @@ function renderCases(caseList) {
     casesContainer.innerHTML += `
       <div class="relative p-4 bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition">
         ${tagHTML}
+        ${pepperHTML}
         <img src="${packImg}" id="${imgId}" class="case-card-img mb-2 transition-all duration-300">
         <h3 class="mt-2 font-semibold text-white">${c.name}</h3>
         <a href="case.html?id=${c.id}" class="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded glow-button enhanced-glow flex justify-center items-center gap-2 text-white font-semibold">
