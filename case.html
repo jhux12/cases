@@ -199,12 +199,14 @@ document.addEventListener("click", () => {
       }
 
       const caseData = snap.val();
-      document.getElementById("case-name").innerText = caseData.name;
-      const spiceEmojis = {
-  easy: '🌶️ Easy',
-  medium: '🌶️🌶️ Medium',
-  hard: '🌶️🌶️🌶️ Hard'
+      let spiceEmojis = {
+  easy: "🌶",
+  medium: "🌶🌶",
+  hot: "🌶🌶🌶"
 };
+const spice = caseData.spice?.toLowerCase();
+const spiceDisplay = spiceEmojis[spice] ? ` <span class="ml-2">${spiceEmojis[spice]}</span>` : "";
+document.getElementById("case-name").innerHTML = `${caseData.name}${spiceDisplay}`;
 
 
 document.getElementById("case-spice").innerText = spiceEmojis[caseData.spice?.toLowerCase()] || '';
