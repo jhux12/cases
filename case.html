@@ -116,11 +116,20 @@
   <!-- Main logic -->
 <script type="module">
 import { renderSpinner, spinToPrize, showWinPopup } from './scripts/spinner.js';
-  document.addEventListener("click", () => {
-  document.getElementById("sound-common")?.play().catch(() => {});
-  document.getElementById("sound-rare")?.play().catch(() => {});
-  document.getElementById("sound-ultrarare")?.play().catch(() => {});
-  document.getElementById("sound-legendary")?.play().catch(() => {});
+document.addEventListener("click", () => {
+  const unlockAudio = (id) => {
+    const audio = document.getElementById(id);
+    if (audio) {
+      audio.muted = true;
+      audio.play().then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.muted = false;
+      }).catch(() => {});
+    }
+  };
+
+  ["sound-common", "sound-rare", "sound-ultrarare", "sound-legendary", "sell-sound"].forEach(unlockAudio);
 }, { once: true });
     const formatCoins = (num) => {
       if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
