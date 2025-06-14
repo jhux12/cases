@@ -310,6 +310,18 @@ setTimeout(() => {
 
 
         await firebase.database().ref('users/' + user.uid + '/balance').set(balance - price);
+  const xpGain = Math.floor((price / 100) * 100);
+const userRef = firebase.database().ref('users/' + user.uid);
+const userSnap = await userRef.once("value");
+const userData = userSnap.val();
+const currentXP = userData?.xp || 0;
+const newXP = currentXP + xpGain;
+const newLevel = Math.floor(newXP / 1000) + 1;
+
+await userRef.update({
+  xp: newXP,
+  level: newLevel
+});
         await firebase.database().ref('users/' + user.uid + '/inventory').push({
           name: winningPrize.name,
           image: winningPrize.image,
