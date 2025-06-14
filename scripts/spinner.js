@@ -42,9 +42,20 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
   const shuffled = [...prizes];
 
   for (let i = 0; i < 30; i++) {
-    let prize = isPreview || !winningPrize
-      ? shuffled[i % shuffled.length]
-      : (i === targetIndex ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)]);
+  let prize;
+if (isPreview || !winningPrize) {
+  prize = shuffled[i % shuffled.length];
+} else if (i === targetIndex) {
+  prize = winningPrize;
+} else if (i === targetIndex - 1 && Math.random() < 0.3) { // 30% chance of near-miss
+  const highValuePrize = prizeList.find(p => 
+    p.rarity?.toLowerCase().includes("ultra") || 
+    p.rarity?.toLowerCase().includes("legendary")
+  );
+  prize = highValuePrize || shuffled[Math.floor(Math.random() * shuffled.length)];
+} else {
+  prize = shuffled[Math.floor(Math.random() * shuffled.length)];
+}
 
     if (!prize || typeof prize !== 'object' || !prize.image || !prize.name) {
       prize = {
