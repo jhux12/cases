@@ -24,7 +24,6 @@
       <p class="text-gray-400 text-sm max-w-xl mx-auto">Browse and buy premium cards with your coins. All purchases go straight to your inventory.</p>
     </div>
 
-    <!-- Filter Bar -->
     <div class="bg-black/40 border border-white/10 p-4 rounded-lg mb-8 flex flex-wrap items-center gap-4">
       <input type="text" id="search-input" placeholder="Search by name..." class="p-2 rounded bg-gray-800 text-white w-full sm:w-48">
       <input type="number" id="min-price" placeholder="Min coins" class="p-2 rounded bg-gray-800 text-white w-full sm:w-32">
@@ -33,7 +32,7 @@
         <span class="text-sm text-white">Enough coins</span>
         <label class="inline-flex relative items-center cursor-pointer">
           <input type="checkbox" id="enough-coins" class="sr-only peer">
-          <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-pink-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-pink-600 transition-all"></div>
+          <div class="w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-pink-600 transition-all"></div>
           <div class="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full shadow transform peer-checked:translate-x-full transition-transform"></div>
         </label>
       </div>
@@ -46,11 +45,9 @@
       <button onclick="resetFilters()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white text-sm">Clear</button>
     </div>
 
-    <!-- Card Grid -->
     <div id="market-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-6"></div>
   </section>
 
-  <!-- Card Template -->
   <template id="market-card-template">
     <div class="bg-black/40 border border-white/10 rounded-xl p-4 text-white text-sm shadow-lg hover:shadow-pink-500/40 transition cursor-pointer group flex flex-col items-center relative">
       <div class="w-full h-40 flex items-center justify-center">
@@ -63,40 +60,50 @@
     </div>
   </template>
 
-<!-- Popup Modal -->
-<div id="purchase-popup" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
-  <div class="bg-gray-900 p-6 rounded-xl shadow-xl border border-pink-500 max-w-sm w-full text-center">
-    <h2 class="text-xl font-bold text-pink-400 mb-4">🎉 You bought a card!</h2>
-    <div class="relative mb-4 w-full flex justify-center">
-      <img id="popup-image" src="" alt="Card" class="max-h-40 rounded shadow-lg border border-white/10 glow-card">
+  <div id="purchase-popup" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
+    <div class="bg-gray-900 p-6 rounded-xl shadow-xl border border-pink-500 max-w-sm w-full text-center">
+      <h2 class="text-xl font-bold text-pink-400 mb-4">🎉 You bought a card!</h2>
+      <div class="relative mb-4 w-full flex justify-center">
+        <img id="popup-image" src="" alt="Card" class="max-h-40 rounded shadow-lg border border-white/10 glow-card">
+      </div>
+      <div class="text-white font-semibold" id="popup-name"></div>
+      <div class="text-yellow-300 font-bold" id="popup-value"></div>
+      <button onclick="document.getElementById('purchase-popup').classList.add('hidden'); location.reload();" class="mt-6 px-6 py-2 bg-pink-600 hover:bg-pink-700 rounded-full text-white text-sm font-bold">Close</button>
     </div>
-    <div class="text-white font-semibold" id="popup-name"></div>
-    <div class="text-yellow-300 font-bold" id="popup-value"></div>
-   <button onclick="document.getElementById('purchase-popup').classList.add('hidden'); location.reload();" class="mt-6 px-6 py-2 bg-pink-600 hover:bg-pink-700 rounded-full text-white text-sm font-bold">Close</button>
   </div>
-</div>
 
-  <!-- Core Script -->
+  <!-- New Item Detail Popup -->
+  <div id="item-popup" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
+    <div class="bg-gray-900 p-6 rounded-xl shadow-xl border border-white/10 max-w-sm w-full text-center relative">
+      <button onclick="document.getElementById('item-popup').classList.add('hidden')" class="absolute top-2 right-3 text-white text-lg">&times;</button>
+      <div class="relative mb-4 w-full flex justify-center">
+        <img id="item-popup-image" src="" alt="Card" class="max-h-40 rounded shadow-lg border border-white/10">
+      </div>
+      <div class="text-white font-semibold text-lg mb-1" id="item-popup-name"></div>
+      <div class="text-yellow-300 font-bold text-sm mb-4" id="item-popup-value"></div>
+      <button id="item-popup-buy" class="px-6 py-2 bg-pink-600 hover:bg-pink-700 rounded-full text-white text-sm font-bold">Buy</button>
+    </div>
+  </div>
+
   <script>
     let allMarketplaceItems = [];
 
-   firebase.auth().onAuthStateChanged(async (user) => {
-  let userBalance = 0;
+    firebase.auth().onAuthStateChanged(async (user) => {
+      let userBalance = 0;
 
-  if (user) {
-    const userRef = firebase.database().ref("users/" + user.uid);
-    const snapshot = await userRef.once("value");
-    const userData = snapshot.val();
-    userBalance = userData?.balance || 0;
-  }
+      if (user) {
+        const userRef = firebase.database().ref("users/" + user.uid);
+        const snapshot = await userRef.once("value");
+        const userData = snapshot.val();
+        userBalance = userData?.balance || 0;
+      }
 
-  const snap = await firebase.database().ref("marketplace").once("value");
-  const cards = snap.val() || {};
-  allMarketplaceItems = Object.entries(cards).map(([key, card]) => ({ ...card, id: key }));
+      const snap = await firebase.database().ref("marketplace").once("value");
+      const cards = snap.val() || {};
+      allMarketplaceItems = Object.entries(cards).map(([key, card]) => ({ ...card, id: key }));
 
-  applyFilters(userBalance);
-});
-
+      applyFilters(userBalance);
+    });
 
     function applyFilters(userBalance = 0) {
       const search = document.getElementById("search-input").value.toLowerCase();
@@ -105,14 +112,12 @@
       const enough = document.getElementById("enough-coins").checked;
       const sort = document.getElementById("sort-select").value;
 
-      let filtered = allMarketplaceItems.filter(card => {
-        return (
-          (!search || card.name.toLowerCase().includes(search)) &&
-          card.value >= min &&
-          card.value <= max &&
-          (!enough || card.value <= userBalance)
-        );
-      });
+      let filtered = allMarketplaceItems.filter(card => (
+        (!search || card.name.toLowerCase().includes(search)) &&
+        card.value >= min &&
+        card.value <= max &&
+        (!enough || card.value <= userBalance)
+      ));
 
       if (sort === "low") filtered.sort((a, b) => a.value - b.value);
       if (sort === "high") filtered.sort((a, b) => b.value - a.value);
@@ -140,7 +145,9 @@
         clone.querySelector(".name").textContent = card.name;
         clone.querySelector(".value").textContent = `${card.value.toLocaleString()} coins`;
         clone.querySelector(".rarity").textContent = `Rarity: ${card.rarity}`;
-        clone.querySelector(".buy-btn").addEventListener("click", async () => {
+
+        clone.querySelector(".buy-btn").addEventListener("click", async (e) => {
+          e.stopPropagation();
           if (userBalance < card.value) return alert("Not enough coins!");
           await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/balance").set(userBalance - card.value);
           await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/inventory").push({
@@ -156,12 +163,51 @@
           document.getElementById("popup-value").textContent = `${card.value.toLocaleString()} coins`;
           document.getElementById("purchase-popup").classList.remove("hidden");
         });
+
+        clone.querySelector(".group").addEventListener("click", () => {
+          document.getElementById("item-popup-image").src = card.image;
+          document.getElementById("item-popup-name").textContent = card.name;
+          document.getElementById("item-popup-value").textContent = `${card.value.toLocaleString()} coins`;
+          window.selectedCard = card;
+          document.getElementById("item-popup").classList.remove("hidden");
+        });
+
         grid.appendChild(clone);
       });
     }
+
+    document.getElementById("item-popup-buy").addEventListener("click", async () => {
+      const user = firebase.auth().currentUser;
+      if (!user || !window.selectedCard) return;
+
+      const userRef = firebase.database().ref("users/" + user.uid);
+      const snapshot = await userRef.once("value");
+      const userData = snapshot.val();
+      const userBalance = userData?.balance || 0;
+
+      if (userBalance < window.selectedCard.value) {
+        alert("Not enough coins!");
+        return;
+      }
+
+      await firebase.database().ref("users/" + user.uid + "/balance").set(userBalance - window.selectedCard.value);
+      await firebase.database().ref("users/" + user.uid + "/inventory").push({
+        name: window.selectedCard.name,
+        image: window.selectedCard.image,
+        value: window.selectedCard.value,
+        rarity: window.selectedCard.rarity,
+        fromMarketplace: true,
+        timestamp: Date.now()
+      });
+
+      document.getElementById("item-popup").classList.add("hidden");
+      document.getElementById("popup-image").src = window.selectedCard.image;
+      document.getElementById("popup-name").textContent = window.selectedCard.name;
+      document.getElementById("popup-value").textContent = `${window.selectedCard.value.toLocaleString()} coins`;
+      document.getElementById("purchase-popup").classList.remove("hidden");
+    });
   </script>
 
-  <!-- External Scripts -->
   <script src="scripts/topup.js"></script>
   <script src="scripts/header.js"></script>
   <script src="scripts/navbar.js"></script>
@@ -175,3 +221,4 @@
   </script>
 </body>
 </html>
+
