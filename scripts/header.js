@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <nav class="navbar fixed w-full z-50 py-3 px-4 flex items-center justify-between bg-gray-900 border-b border-gray-800" style="min-height: 72px;">
       <div class="flex items-center gap-4">
         <a href="index.html">
-          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(28).png?alt=media&token=61fab7cf-c6e5-4598-8865-bd95007d6961" class="h-10 sm:h-12">
+          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(29).png?alt=media&token=51dc030a-b05d-46ec-b1ab-c2fd1824d74e" class="h-10 sm:h-12">
         </a>
       </div>
       <div class="hidden sm:flex items-center gap-4 relative">
