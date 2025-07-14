@@ -63,9 +63,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!user) return;
     const db = firebase.database();
     const userRef = db.ref("users/" + user.uid);
-    const snapshot = await userRef.once("value");
-    const data = snapshot.val() || {};
-    const balance = data.balance || 0;
+    userRef.on("value", (snapshot) => {
+  const data = snapshot.val() || {};
+  const balance = data.balance || 0;
+
+  const balanceDesktop = document.getElementById("balance-amount");
+  const balanceMobile = document.getElementById("balance-amount-mobile");
+
+  if (balanceDesktop) balanceDesktop.innerText = parseInt(balance, 10).toLocaleString();
+  if (balanceMobile) balanceMobile.innerText = parseInt(balance, 10).toLocaleString();
+});
+
 
     const balanceDesktop = document.getElementById("balance-amount");
     const balanceMobile = document.getElementById("balance-amount-mobile");
