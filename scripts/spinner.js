@@ -1,5 +1,3 @@
-// spinner.js
-
 let spinnerPrizes = [];
 const targetIndex = 15;
 
@@ -32,8 +30,6 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
 
   if (isPreview) {
     spinnerWheel.classList.add("animate-scroll-preview");
-  } else {
-    spinnerWheel.classList.add("transition-transform", "duration-[8000ms]", "ease-[cubic-bezier(0.11, 0.56, 0.15, 1)]");
   }
 
   container.appendChild(spinnerWheel);
@@ -61,20 +57,19 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
     const borderColor = getRarityColor(rarity);
 
-const glowClass = `glow-${rarity}`;
-div.className = `min-w-[140px] h-[160px] mx-1 flex items-center justify-center rounded-xl bg-transparent shadow-md item border-2 ${glowClass}`;
-    div.style.filter = 'drop-shadow(0 0 2px white)';
+    const glowClass = `glow-${rarity}`;
+    div.className = `min-w-[140px] h-[160px] mx-1 flex items-center justify-center rounded-xl bg-transparent shadow-md item border-2 ${glowClass}`;
     div.style.borderColor = borderColor;
     div.setAttribute("data-index", i);
-div.innerHTML = `
-  <div class="flex flex-col items-center">
-    <img src="${prize.image}" class="h-[100px] object-contain drop-shadow-md rounded-xl" />
-    <div class="mt-1 text-xs text-white bg-black/50 px-2 py-0.5 rounded-sm flex items-center gap-1">
-      <span>${prize.value.toLocaleString()}</span>
-      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin" />
-    </div>
-  </div>
-`;
+    div.innerHTML = `
+      <div class="flex flex-col items-center">
+        <img src="${prize.image}" class="h-[100px] object-contain drop-shadow-md rounded-xl" />
+        <div class="mt-1 text-xs text-white bg-black/50 px-2 py-0.5 rounded-sm flex items-center gap-1">
+          <span>${prize.value.toLocaleString()}</span>
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin" />
+        </div>
+      </div>
+    `;
     spinnerWheel.appendChild(div);
   }
 }
@@ -96,11 +91,16 @@ export function spinToPrize(callback) {
   const randomOffset = Math.floor(Math.random() * (suspenseRange * 2 + 1)) - suspenseRange;
   const scrollOffset = cardCenter - containerCenter + randomOffset;
 
+  // Reset any previous transform
   spinnerWheel.style.transition = 'none';
-spinnerWheel.style.transform = 'translateX(0px)';
-void spinnerWheel.offsetWidth; // force reflow to apply reset before new transition
-  spinnerWheel.style.transition = 'transform 8s cubic-bezier(0.11, 0.56, 0.15, 1)';
-  spinnerWheel.style.transform = `translateX(-${scrollOffset}px)`;
+  spinnerWheel.style.transform = 'translateX(0)';
+  void spinnerWheel.offsetWidth; // Force reflow
+
+  // Now apply the spin
+  requestAnimationFrame(() => {
+    spinnerWheel.style.transition = 'transform 8s cubic-bezier(0.11, 0.56, 0.15, 1)';
+    spinnerWheel.style.transform = `translateX(-${scrollOffset}px)`;
+  });
 
   const rarityInfo = document.getElementById("rarity-info");
   if (rarityInfo) rarityInfo.classList.remove("hidden");
@@ -141,12 +141,12 @@ void spinnerWheel.offsetWidth; // force reflow to apply reset before new transit
   spinnerWheel.addEventListener("transitionend", () => {
     cancelAnimationFrame(animationFrame);
 
-    // Flash the near-miss card before final stop
-const nearMissCard = spinnerWheel.querySelector(`.item[data-index="${targetIndex - 1}"]`)
-  || spinnerWheel.querySelector(`.item[data-index="${targetIndex + 1}"]`);
-if (nearMissCard) {
-  nearMissCard.classList.add("near-miss-flash");
-}
+    // Flash the near-miss card
+    const nearMissCard = spinnerWheel.querySelector(`.item[data-index="${targetIndex - 1}"]`)
+      || spinnerWheel.querySelector(`.item[data-index="${targetIndex + 1}"]`);
+    if (nearMissCard) {
+      nearMissCard.classList.add("near-miss-flash");
+    }
 
     const prize = spinnerPrizes[targetIndex];
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
