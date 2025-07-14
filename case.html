@@ -366,7 +366,22 @@ function enablePrizePopups() {
       document.getElementById("prize-popup-value").textContent = value;
       document.getElementById("prize-popup-odds").textContent = odds;
 
-      document.getElementById("prize-popup").classList.remove("hidden");
+// Detect rarity from card class
+const classList = card.className;
+const rarityMatch = classList.match(/glow-(common|uncommon|rare|ultrarare|legendary)/);
+const rarityClass = rarityMatch ? rarityMatch[0] : "glow-common";
+
+// Apply to popup
+const popup = document.getElementById("prize-popup");
+popup.classList.remove("hidden");
+
+// Clear old glow classes
+popup.classList.remove(
+  "glow-common", "glow-uncommon", "glow-rare", "glow-ultrarare", "glow-legendary", "glow-animated"
+);
+
+// Add new glow
+popup.classList.add(rarityClass, "glow-animated");
     });
   });
 }
