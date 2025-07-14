@@ -477,38 +477,31 @@ document.getElementById("close-prize-popup").addEventListener("click", () => {
 <audio id="sound-ultrarare" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de"></audio>
 <audio id="sound-legendary" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"></audio>
 <!-- Winning Prize Popup -->
-<div id="win-popup" class="bg-gradient-to-br from-[#1f1f2e] to-[#111116] rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center relative border border-purple-700/40 animate-pop">
-  <div class="absolute top-3 right-3 text-gray-400 hover:text-white cursor-pointer text-xl transition" id="close-popup">&times;</div>
+<div id="win-popup" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden">
+  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center relative border border-white/10">
+    
+    <div class="absolute top-3 right-3 text-gray-400 hover:text-white cursor-pointer text-xl" id="close-popup">&times;</div>
 
-  <!-- Glowing Border Animation -->
-  <div class="absolute -inset-1 rounded-2xl bg-gradient-to-br from-pink-500 via-purple-500 to-yellow-400 opacity-20 blur-xl animate-glow z-0"></div>
+    <img id="popup-image" src="" class="w-40 h-40 object-contain mx-auto mb-4 rounded-xl shadow-md" />
 
-  <!-- Prize Image -->
-  <img id="popup-image" src="" class="relative z-10 w-40 h-40 object-contain mx-auto mb-4 rounded-xl shadow-xl border border-white/10" />
+    <div class="inline-block bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow mb-2" id="popup-name">Prize Name</div>
 
-  <!-- Prize Name -->
-  <div id="popup-name" class="relative z-10 inline-block bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow mb-3 tracking-wide uppercase">
-    Prize Name
-  </div>
+    <div class="inline-block bg-gray-700 text-white text-xs font-semibold px-4 py-1 rounded-full mb-4">
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 mr-1" />
+      <span id="popup-value">0</span>
+    </div>
 
-  <!-- Value -->
-  <div class="relative z-10 inline-flex items-center gap-1 bg-black/30 border border-white/10 text-yellow-300 px-4 py-1 rounded-full text-sm font-semibold mb-4 shadow-inner">
-    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-    <span id="popup-value">0</span>
-  </div>
-
-  <!-- Buttons -->
-  <div class="relative z-10 flex flex-col gap-3 mt-4">
-    <button id="sell-button" class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 hover:brightness-110 text-white font-extrabold text-sm shadow-lg shadow-red-800/30 transition-all duration-200">
-      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
-      Sell for <span id="sell-value">0</span> coins
-    </button>
-    <button id="keep-button" class="w-full flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 hover:brightness-110 text-white font-extrabold text-sm shadow-lg shadow-emerald-800/30 transition-all duration-200">
-      <i class="fas fa-box-open mr-2"></i> Add to Inventory
-    </button>
-  </div>
+    <div class="flex flex-col gap-3 mt-4">
+  <button id="sell-button" class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 hover:brightness-110 text-white font-extrabold text-sm shadow-lg shadow-red-800/30 transition-all duration-200">
+    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+    Sell for <span id="sell-value">0</span> coins
+  </button>
+  <button id="keep-button" class="w-full flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 hover:brightness-110 text-white font-extrabold text-sm shadow-lg shadow-emerald-800/30 transition-all duration-200">
+    <i class="fas fa-box-open mr-2"></i> Add to Inventory
+  </button>
 </div>
 
+  </div>
 </div>
     <!-- Prize Detail Popup -->
 <div id="prize-popup" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden">
