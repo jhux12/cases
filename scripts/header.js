@@ -63,41 +63,40 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!user) return;
     const db = firebase.database();
     const userRef = db.ref("users/" + user.uid);
-    const snapshot = await userRef.once("value");
-    const data = snapshot.val() || {};
-    const balance = data.balance || 0;
+    userRef.on("value", (snapshot) => {
+  const data = snapshot.val() || {};
+  const balance = data.balance || 0;
 
-    const balanceDesktop = document.getElementById("balance-amount");
-    const balanceMobile = document.getElementById("balance-amount-mobile");
-    const userBalanceDiv = document.getElementById("user-balance");
-    const usernameDisplay = document.getElementById("username-display");
-    const signinDesktop = document.getElementById("signin-desktop");
-    const logoutDesktop = document.getElementById("logout-desktop");
-    const mobileAuth = document.getElementById("mobile-auth-button");
-    const inventoryLink = document.getElementById("inventory-link");
+  const balanceDesktop = document.getElementById("balance-amount");
+  const balanceMobile = document.getElementById("balance-amount-mobile");
+  const userBalanceDiv = document.getElementById("user-balance");
+  const usernameDisplay = document.getElementById("username-display");
+  const signinDesktop = document.getElementById("signin-desktop");
+  const logoutDesktop = document.getElementById("logout-desktop");
+  const mobileAuth = document.getElementById("mobile-auth-button");
+  const inventoryLink = document.getElementById("inventory-link");
 
-    if (balanceDesktop) balanceDesktop.innerText = parseInt(balance, 10).toLocaleString();
-    if (balanceMobile) balanceMobile.innerText = parseInt(balance, 10).toLocaleString();
-    if (userBalanceDiv) userBalanceDiv.classList.remove("hidden");
-    if (usernameDisplay) usernameDisplay.innerText = user.displayName || data.username || user.email || "User";
-    if (signinDesktop) signinDesktop.classList.add("hidden");
-    if (logoutDesktop) logoutDesktop.classList.remove("hidden");
-    if (inventoryLink) inventoryLink.classList.remove("hidden");
+  if (balanceDesktop) balanceDesktop.innerText = parseInt(balance, 10).toLocaleString();
+  if (balanceMobile) balanceMobile.innerText = parseInt(balance, 10).toLocaleString();
+  if (userBalanceDiv) userBalanceDiv.classList.remove("hidden");
+  if (usernameDisplay) usernameDisplay.innerText = firebase.auth().currentUser.displayName || data.username || firebase.auth().currentUser.email || "User";
+  if (signinDesktop) signinDesktop.classList.add("hidden");
+  if (logoutDesktop) logoutDesktop.classList.remove("hidden");
+  if (inventoryLink) inventoryLink.classList.remove("hidden");
 
-    if (logoutDesktop) {
-      logoutDesktop.onclick = (e) => {
-        e.preventDefault();
-        firebase.auth().signOut().then(() => location.reload());
-      };
-    }
+  if (logoutDesktop) {
+    logoutDesktop.onclick = (e) => {
+      e.preventDefault();
+      firebase.auth().signOut().then(() => location.reload());
+    };
+  }
 
-    if (mobileAuth) {
-      mobileAuth.innerHTML = '<i class="fas fa-sign-out-alt mr-2"></i> Logout';
-      mobileAuth.href = "#";
-      mobileAuth.onclick = (e) => {
-        e.preventDefault();
-        firebase.auth().signOut().then(() => location.reload());
-      };
-    }
-  });
+  if (mobileAuth) {
+    mobileAuth.innerHTML = '<i class="fas fa-sign-out-alt mr-2"></i> Logout';
+    mobileAuth.href = "#";
+    mobileAuth.onclick = (e) => {
+      e.preventDefault();
+      firebase.auth().signOut().then(() => location.reload());
+    };
+  }
 });
