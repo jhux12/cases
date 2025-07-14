@@ -33,7 +33,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
   if (isPreview) {
     spinnerWheel.classList.add("animate-scroll-preview");
   } else {
-    spinnerWheel.classList.add("transition-transform", "duration-[4000ms]", "ease-[cubic-bezier(0.17,0.67,0.12,0.99)]");
+    spinnerWheel.classList.add("transition-transform", "duration-[8000ms]", "ease-[cubic-bezier(0.11, 0.56, 0.15, 1)]");
   }
 
   container.appendChild(spinnerWheel);
@@ -63,6 +63,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
 
 const glowClass = `glow-${rarity}`;
 div.className = `min-w-[140px] h-[160px] mx-1 flex items-center justify-center rounded-xl bg-transparent shadow-md item border-2 ${glowClass}`;
+    div.style.filter = 'drop-shadow(0 0 2px white)';
     div.style.borderColor = borderColor;
     div.setAttribute("data-index", i);
 div.innerHTML = `
@@ -95,7 +96,10 @@ export function spinToPrize(callback) {
   const randomOffset = Math.floor(Math.random() * (suspenseRange * 2 + 1)) - suspenseRange;
   const scrollOffset = cardCenter - containerCenter + randomOffset;
 
-  spinnerWheel.style.transition = 'transform 8s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+  spinnerWheel.style.transition = 'none';
+spinnerWheel.style.transform = 'translateX(0px)';
+void spinnerWheel.offsetWidth; // force reflow to apply reset before new transition
+  spinnerWheel.style.transition = 'transform 8s cubic-bezier(0.11, 0.56, 0.15, 1)';
   spinnerWheel.style.transform = `translateX(-${scrollOffset}px)`;
 
   const rarityInfo = document.getElementById("rarity-info");
