@@ -361,30 +361,26 @@ function enablePrizePopups() {
       const value = card.querySelector(".text-yellow-300")?.textContent.trim();
       const odds = card.querySelector(".bg-white\\/10")?.textContent.trim();
 
+      // ✅ Set image, name, value, odds
       document.getElementById("prize-popup-image").src = image;
       document.getElementById("prize-popup-name").textContent = name;
       document.getElementById("prize-popup-value").textContent = value;
       document.getElementById("prize-popup-odds").textContent = odds;
 
-// Detect rarity from card class
-const classList = card.className;
-const rarityMatch = classList.match(/glow-(common|uncommon|rare|ultrarare|legendary)/);
-const rarityClass = rarityMatch ? rarityMatch[0] : "glow-common";
+      // ✅ Apply glow effect based on card class
+      const popupCard = document.getElementById("prize-popup-card");
+      popupCard.className = "bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center relative border border-white/10"; // reset
+      const rarityClass = [...card.classList].find(cls => cls.startsWith("glow-"));
+      if (rarityClass) {
+        popupCard.classList.add(rarityClass);
+      }
 
-// Apply to popup
-const popup = document.getElementById("prize-popup");
-popup.classList.remove("hidden");
-
-// Clear old glow classes
-popup.classList.remove(
-  "glow-common", "glow-uncommon", "glow-rare", "glow-ultrarare", "glow-legendary", "glow-animated"
-);
-
-// Add new glow
-popup.classList.add(rarityClass, "glow-animated");
+      // ✅ Show popup
+      document.getElementById("prize-popup").classList.remove("hidden");
     });
   });
 }
+
   </script>
   <!-- Provably Fair Modal -->
 <div id="provably-fair-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
