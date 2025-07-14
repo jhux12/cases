@@ -491,15 +491,16 @@ document.getElementById("close-prize-popup").addEventListener("click", () => {
       <span id="popup-value">0</span>
     </div>
 
-    <div class="flex justify-center gap-3">
-      <button id="sell-button" class="px-4 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white font-bold text-sm flex items-center gap-2">
-        Sell for <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-        <span id="sell-value">0</span>
-      </button>
-      <button id="keep-button" class="px-4 py-2 rounded-full bg-green-600 hover:bg-green-700 text-white font-bold text-sm">
-        Add to Inventory
-      </button>
-    </div>
+    <div class="flex flex-col gap-3 mt-4">
+  <button id="sell-button" class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 hover:brightness-110 text-white font-extrabold text-sm shadow-lg shadow-red-800/30 transition-all duration-200">
+    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+    Sell for <span id="sell-value">0</span> coins
+  </button>
+  <button id="keep-button" class="w-full flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 hover:brightness-110 text-white font-extrabold text-sm shadow-lg shadow-emerald-800/30 transition-all duration-200">
+    <i class="fas fa-box-open mr-2"></i> Add to Inventory
+  </button>
+</div>
+
   </div>
 </div>
     <!-- Prize Detail Popup -->
