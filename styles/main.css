@@ -724,27 +724,24 @@ html {
   }
 }
 
-.glow-animated {
-  animation: pulseGlow 1.8s infinite;
-}
-
 .glow-common {
-  box-shadow: 0 0 25px #a1a1aa;
+  box-shadow: 0 0 12px 3px #a1a1aa;
+  border-radius: 0.75rem;
 }
-
 .glow-uncommon {
-  box-shadow: 0 0 25px #4ade80;
+  box-shadow: 0 0 14px 4px #4ade80;
+  border-radius: 0.75rem;
 }
-
 .glow-rare {
-  box-shadow: 0 0 25px #60a5fa;
+  box-shadow: 0 0 16px 4px #60a5fa;
+  border-radius: 0.75rem;
 }
-
 .glow-ultrarare {
-  box-shadow: 0 0 25px #c084fc;
+  box-shadow: 0 0 18px 5px #c084fc;
+  border-radius: 0.75rem;
 }
-
 .glow-legendary {
-  box-shadow: 0 0 35px #facc15;
+  box-shadow: 0 0 20px 6px #facc15;
+  border-radius: 0.75rem;
 }
 
