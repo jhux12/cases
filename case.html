@@ -94,11 +94,6 @@
     </span>
   </button>
 </div>
-<div class="flex justify-center mt-2">
-  <button id="test-spin-button" class="px-6 py-2 rounded-full bg-gradient-to-r from-gray-600 via-gray-800 to-black text-white font-bold shadow-inner hover:brightness-110 transition">
-    🎲 Test Spin (Free)
-  </button>
-</div>
 
 
 <!-- Provably Fair Display -->
@@ -256,26 +251,7 @@ enablePrizePopups();
 
 
 document.getElementById("open-case-button").addEventListener("click", async () => {
-document.getElementById("test-spin-button").addEventListener("click", () => {
-  // Choose a random prize
-  const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
 
-  // Fill spinner with 30 prizes and place the random prize at center
-  const spinnerPrizes = [];
-  for (let i = 0; i < 30; i++) {
-    const rand = prizeList[Math.floor(Math.random() * prizeList.length)];
-    spinnerPrizes.push(rand);
-  }
-  spinnerPrizes[15] = randomPrize;
-
-  renderSpinner(spinnerPrizes, randomPrize);
-  setTimeout(() => {
-    spinToPrize(() => {
-      playRaritySound(randomPrize.rarity);
-      showWinPopup(randomPrize); // Popup still shows, but doesn't save to Firebase
-    });
-  }, 150);
-});
   const btn = document.getElementById("open-case-button");
 btn.disabled = true;
 btn.classList.add("cursor-not-allowed", "opacity-60");
