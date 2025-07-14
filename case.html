@@ -370,10 +370,18 @@ function enablePrizePopups() {
       // ✅ Apply glow effect based on card class
       const popupCard = document.getElementById("prize-popup-card");
       popupCard.className = "bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center relative border border-white/10"; // reset
-      const rarityClass = [...card.classList].find(cls => cls.startsWith("glow-"));
-      if (rarityClass) {
-        popupCard.classList.add(rarityClass);
-      }
+      // Determine rarity from prize name or card class
+let rarity = "common"; // default
+
+if (card.classList.contains("glow-legendary")) rarity = "legendary";
+else if (card.classList.contains("glow-ultrarare")) rarity = "ultrarare";
+else if (card.classList.contains("glow-rare")) rarity = "rare";
+else if (card.classList.contains("glow-uncommon")) rarity = "uncommon";
+else if (card.classList.contains("glow-common")) rarity = "common";
+
+// Add corresponding glow class
+popupCard.classList.add(`glow-${rarity}`);
+
 
       // ✅ Show popup
       document.getElementById("prize-popup").classList.remove("hidden");
