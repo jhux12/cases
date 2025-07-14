@@ -232,8 +232,8 @@ renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
   const gradientClass = `card-gradient-${rarity}`;
 
   return `
-  <div class="prize-card relative rounded-2xl border border-white/10 p-3 text-white text-center shadow-md backdrop-blur-sm transition-all hover:scale-[1.03] ${gradientClass}">
-<img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 border border-white/10 glow-${rarity}" />
+  <div class="prize-card relative rounded-2xl border border-white/10 p-3 text-white text-center shadow-md backdrop-blur-sm transition-all hover:scale-[1.03] ${gradientClass} ${glowClass}">
+<img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-black/20 shadow-inner border border-white/10" style="border-radius: 1rem;" />
       <div class="font-bold text-sm clamp-2 mb-4">${prize.name}</div>
 
       <!-- Bottom overlay: coin left, odds right -->
@@ -361,34 +361,30 @@ function enablePrizePopups() {
       const value = card.querySelector(".text-yellow-300")?.textContent.trim();
       const odds = card.querySelector(".bg-white\\/10")?.textContent.trim();
 
-      // ✅ Set image, name, value, odds
       document.getElementById("prize-popup-image").src = image;
       document.getElementById("prize-popup-name").textContent = name;
       document.getElementById("prize-popup-value").textContent = value;
       document.getElementById("prize-popup-odds").textContent = odds;
 
-      // ✅ Apply glow effect based on card class
-      const popupCard = document.getElementById("prize-popup-card");
-      popupCard.className = "bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center relative border border-white/10"; // reset
-      // Determine rarity from prize name or card class
-let rarity = "common"; // default
+// Detect rarity from card class
+const classList = card.className;
+const rarityMatch = classList.match(/glow-(common|uncommon|rare|ultrarare|legendary)/);
+const rarityClass = rarityMatch ? rarityMatch[0] : "glow-common";
 
-if (card.classList.contains("glow-legendary")) rarity = "legendary";
-else if (card.classList.contains("glow-ultrarare")) rarity = "ultrarare";
-else if (card.classList.contains("glow-rare")) rarity = "rare";
-else if (card.classList.contains("glow-uncommon")) rarity = "uncommon";
-else if (card.classList.contains("glow-common")) rarity = "common";
+// Apply to popup
+const popup = document.getElementById("prize-popup");
+popup.classList.remove("hidden");
 
-// Add corresponding glow class
-popupCard.classList.add(`glow-${rarity}`);
+// Clear old glow classes
+popup.classList.remove(
+  "glow-common", "glow-uncommon", "glow-rare", "glow-ultrarare", "glow-legendary", "glow-animated"
+);
 
-
-      // ✅ Show popup
-      document.getElementById("prize-popup").classList.remove("hidden");
+// Add new glow
+popup.classList.add(rarityClass, "glow-animated");
     });
   });
 }
-
   </script>
   <!-- Provably Fair Modal -->
 <div id="provably-fair-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
