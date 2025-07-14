@@ -657,17 +657,6 @@ html {
   z-index: 1;
 }
 
-@keyframes pulse-glow {
-  0% {
-    box-shadow: 0 0 6px 2px #facc15aa, 0 0 12px 4px #facc15aa inset;
-  }
-  50% {
-    box-shadow: 0 0 12px 4px #fde047aa, 0 0 20px 6px #fde047aa inset;
-  }
-  100% {
-    box-shadow: 0 0 6px 2px #facc15aa, 0 0 12px 4px #facc15aa inset;
-  }
-}
 
 @keyframes rotate-light {
   0% {
