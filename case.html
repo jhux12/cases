@@ -178,6 +178,23 @@ document.addEventListener("click", () => {
     });
   }
 }
+function showToast(message, color = 'bg-red-600') {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+
+  toast.className = `fixed bottom-6 left-1/2 transform -translate-x-1/2 px-5 py-3 rounded-xl text-white font-bold text-sm z-[9999] shadow-lg transition-all duration-300 opacity-0 ${color}`;
+  toast.classList.remove("hidden");
+
+  // Trigger reflow to allow transition
+  void toast.offsetWidth;
+  toast.classList.add("opacity-100");
+
+  // Hide after 3s
+  setTimeout(() => {
+    toast.classList.remove("opacity-100");
+    setTimeout(() => toast.classList.add("hidden"), 300);
+  }, 3000);
+}
 
     document.addEventListener("DOMContentLoaded", () => {
       const refreshBtn = document.getElementById("refresh-balance");
@@ -272,7 +289,19 @@ btn.innerHTML = `
         const balance = parseFloat(userSnap.val()?.balance || 0);
         const price = parseFloat(caseData.price || 0);
 
-        if (balance < price) return alert("Not enough coins.");
+if (balance < price) {
+  showToast("Not enough coins!", "bg-red-600");
+  btn.disabled = false;
+  btn.classList.remove("cursor-not-allowed", "opacity-60");
+  btn.innerHTML = `
+    <span class="relative z-10 flex items-center gap-2">
+      Open for
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+      <span id="button-price">${formatCoins(caseData.price)}</span>
+    </span>
+  `;
+  return;
+}
 
         const fairSnap = await firebase.database().ref('users/' + user.uid + '/provablyFair').once("value");
         const fairData = fairSnap.val();
@@ -536,5 +565,7 @@ document.getElementById("close-prize-popup").addEventListener("click", () => {
   </div>
 </div>
     <audio id="sell-sound" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/coin-drops-and-spins-272429.mp3?alt=media&token=e867f5db-1646-4548-8403-6d1fce220c71"></audio>
+    <!-- Toast Notification -->
+<div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 px-5 py-3 rounded-xl text-white font-bold text-sm z-[9999] bg-red-600 shadow-lg hidden transition-all duration-300 opacity-0"></div>
 </body>
 </html>
