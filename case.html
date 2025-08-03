@@ -93,6 +93,9 @@
       <span id="button-price">...</span>
     </span>
   </button>
+  <button id="try-free-button" class="px-6 py-3 rounded-full bg-gray-700 text-white font-bold flex items-center justify-center shadow-lg transition-transform transform hover:scale-105 focus:outline-none">
+    Try for Free
+  </button>
 </div>
 
 
@@ -265,14 +268,7 @@ renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
   `;
 }).join("");
 enablePrizePopups();
-// Add Try for Free button dynamically so it isn't removed by other renders
-const actionButtons = document.getElementById("action-buttons");
-const freeBtn = document.createElement("button");
-freeBtn.id = "try-free-button";
-freeBtn.className = "px-6 py-3 rounded-full bg-gray-700 text-white font-bold flex items-center justify-center shadow-lg transition-transform transform hover:scale-105 focus:outline-none";
-freeBtn.textContent = "Try for Free";
-actionButtons.appendChild(freeBtn);
-
+const freeBtn = document.getElementById("try-free-button");
 freeBtn.addEventListener("click", () => {
   freeBtn.disabled = true;
   freeBtn.classList.add("cursor-not-allowed", "opacity-60");
