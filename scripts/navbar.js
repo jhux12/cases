@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
         userRef.once("value").then((snap) => {
           const data = snap.val() || {};
           const balance = data.balance || 0;
-          const formattedBalance = Number(balance).toLocaleString();
+          const formattedBalance = Number(balance).toLocaleString('en-US');
           const username = user.displayName || data.username || user.email;
 
           usernameEl.innerText = username;
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
       } else {
-        const zeroBalance = Number(0).toLocaleString();
+        const zeroBalance = Number(0).toLocaleString('en-US');
         usernameEl.innerText = "User";
         balanceEl.innerText = zeroBalance;
         if (balanceMobile) balanceMobile.innerText = zeroBalance;

@@ -29,7 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
       }
 
       // Show balances
-      const formattedBalance = Number(userData.balance || 0).toLocaleString();
+      const formattedBalance = Number(userData.balance || 0).toLocaleString('en-US');
       if (balanceAmount) balanceAmount.innerText = formattedBalance;
       if (balanceMobile) balanceMobile.innerText = formattedBalance;
       if (popupBalance) popupBalance.innerText = `${formattedBalance} coins`;
@@ -66,7 +66,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     } else {
       // Signed out state
-      const zeroBalance = Number(0).toLocaleString();
+      const zeroBalance = Number(0).toLocaleString('en-US');
       if (userBalanceWrapper) userBalanceWrapper.classList.add('hidden');
       if (balanceAmount) balanceAmount.innerText = zeroBalance;
       if (balanceMobile) balanceMobile.innerText = zeroBalance;
