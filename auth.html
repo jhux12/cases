@@ -132,6 +132,9 @@ registerForm.addEventListener('submit', e => {
       }).catch((error) => {
         alert("❌ " + error.message);
       });
+    })
+    .catch(error => {
+      alert("❌ " + error.message);
     });
 });
 
@@ -145,13 +148,15 @@ loginForm.addEventListener('submit', e => {
   auth.signInWithEmailAndPassword(email, password)
     .then(userCredential => {
       const user = userCredential.user;
-      if (user.emailVerified) {
-        alert('Login successful!');
-        window.location.href = 'index.html';
-      } else {
-        alert('Please verify your email before logging in.');
-        return auth.signOut();
-      }
+      return user.reload().then(() => {
+        if (user.emailVerified) {
+          alert('Login successful!');
+          window.location.href = 'index.html';
+        } else {
+          alert('Please verify your email before logging in.');
+          return auth.signOut();
+        }
+      });
     })
     .catch(error => {
       alert(error.message);
