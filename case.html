@@ -268,7 +268,16 @@ renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
   `;
 }).join("");
 enablePrizePopups();
-const freeBtn = document.getElementById("try-free-button");
+const actionButtons = document.getElementById("action-buttons");
+let freeBtn = document.getElementById("try-free-button");
+if (!freeBtn && actionButtons) {
+  freeBtn = document.createElement("button");
+  freeBtn.id = "try-free-button";
+  freeBtn.className = "px-6 py-3 rounded-full bg-gray-700 text-white font-bold flex items-center justify-center shadow-lg transition-transform transform hover:scale-105 focus:outline-none";
+  freeBtn.textContent = "Try for Free";
+  actionButtons.appendChild(freeBtn);
+}
+if (freeBtn) {
 freeBtn.addEventListener("click", () => {
   freeBtn.disabled = true;
   freeBtn.classList.add("cursor-not-allowed", "opacity-60");
@@ -293,6 +302,7 @@ freeBtn.addEventListener("click", () => {
     });
   }, 150);
 });
+}
 
 document.getElementById("open-case-button").addEventListener("click", async () => {
 
