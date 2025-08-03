@@ -11,7 +11,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const userBalanceWrapper = document.getElementById('user-balance');
     const usernameDisplay = document.getElementById('username-display');
 
-    if (user) {
+    if (user && user.emailVerified) {
       const userRef = firebase.database().ref('users/' + user.uid);
       const snapshot = await userRef.once('value');
       const userData = snapshot.val() || {};
@@ -64,6 +64,13 @@ window.addEventListener('DOMContentLoaded', () => {
       }
 
     } else {
+      if (user && !user.emailVerified) {
+        alert('Please verify your email to access your account.');
+        firebase.auth().signOut().then(() => {
+          window.location.href = 'auth.html';
+        });
+      }
+
       // Signed out state
       if (userBalanceWrapper) userBalanceWrapper.classList.add('hidden');
       if (balanceAmount) balanceAmount.innerText = '0';
