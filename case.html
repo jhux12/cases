@@ -85,13 +85,16 @@
     <div id="rarity-bar" class="h-full w-full bg-lime-500 transition-colors duration-300"></div>
   </div>
 </div>
-    <div class="flex justify-center mt-6">
+    <div class="flex justify-center mt-6 gap-4">
   <button id="open-case-button" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform transform hover:scale-105 animate-pulse focus:outline-none overflow-hidden">
         <span class="relative z-10 flex items-center gap-2">
       Open for
       <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
       <span id="button-price">...</span>
     </span>
+  </button>
+  <button id="try-free-button" class="px-6 py-3 rounded-full bg-gray-700 text-white font-bold flex items-center justify-center shadow-lg transition-transform transform hover:scale-105 focus:outline-none">
+    Try for Free
   </button>
 </div>
 
@@ -266,6 +269,32 @@ renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
 }).join("");
 enablePrizePopups();
 
+
+document.getElementById("try-free-button").addEventListener("click", () => {
+  const btn = document.getElementById("try-free-button");
+  btn.disabled = true;
+  btn.classList.add("cursor-not-allowed", "opacity-60");
+  btn.innerHTML = `<span class="relative z-10 flex items-center gap-2 animate-pulse">Spinning...</span>`;
+
+  const spinnerPrizes = [];
+  const winningPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
+  for (let i = 0; i < 30; i++) {
+    const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
+    spinnerPrizes.push(randomPrize);
+  }
+  spinnerPrizes[15] = winningPrize;
+
+  renderSpinner(spinnerPrizes, winningPrize);
+  setTimeout(() => {
+    spinToPrize(() => {
+      document.getElementById("win-popup").classList.add("hidden");
+      renderSpinner(prizeList.slice(0, 30), null, true);
+      btn.disabled = false;
+      btn.classList.remove("cursor-not-allowed", "opacity-60");
+      btn.textContent = "Try for Free";
+    });
+  }, 150);
+});
 
 document.getElementById("open-case-button").addEventListener("click", async () => {
 
