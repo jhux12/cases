@@ -65,6 +65,7 @@
     <p id="switch-text" class="mt-4 text-sm text-center">
       Don't have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Register</button>
     </p>
+    <p id="verify-message" class="mt-4 text-sm text-center text-yellow-300 hidden"></p>
   </div>
 
 <script>
@@ -111,29 +112,33 @@ registerForm.addEventListener('submit', e => {
 
   auth.createUserWithEmailAndPassword(email, password)
     .then(userCredential => {
-      const uid = userCredential.user.uid;
       const user = userCredential.user;
 
-user.updateProfile({
-  displayName: username
-}).then(() => {
-  return db.ref('users/' + user.uid).set({
-    name: name,
-    username: username,
-    email: email,
-    phone: phone,
-    balance: 0,
-    role: 'user'
-  });
-}).then(() => {
-  return user.reload(); // 🔁 Ensures displayName is up-to-date before redirect
-}).then(() => {
-  alert('Registration successful!');
-  window.location.href = 'index.html';
-}).catch((error) => {
-  alert("❌ " + error.message);
+      return user.updateProfile({
+        displayName: username
+      }).then(() => {
+        return db.ref('users/' + user.uid).set({
+          name: name,
+          username: username,
+          email: email,
+          phone: phone,
+          balance: 0,
+          role: 'user'
+        });
+      }).then(() => {
+        return user.sendEmailVerification();
+      }).then(() => {
+        return auth.signOut();
+      }).then(() => {
+        toggleForms();
+        const verifyMsg = document.getElementById('verify-message');
+        verifyMsg.textContent = 'Verification email sent! Please verify your email before logging in.';
+        verifyMsg.classList.remove('hidden');
+      });
+    })
+    .catch(error => {
+      alert("❌ " + error.message);
     });
-  });
 });
 
 
