@@ -30,12 +30,13 @@ document.addEventListener("DOMContentLoaded", () => {
         userRef.once("value").then((snap) => {
           const data = snap.val() || {};
           const balance = data.balance || 0;
+          const formattedBalance = Number(balance).toLocaleString();
           const username = user.displayName || data.username || user.email;
 
           usernameEl.innerText = username;
-          balanceEl.innerText = balance;
-          if (balanceMobile) balanceMobile.innerText = balance;
-          if (popupBalance) popupBalance.innerText = `${balance} coins`;
+          balanceEl.innerText = formattedBalance;
+          if (balanceMobile) balanceMobile.innerText = formattedBalance;
+          if (popupBalance) popupBalance.innerText = `${formattedBalance} coins`;
 
           if (logoutBtn) {
             logoutBtn.style.display = "block";
@@ -57,10 +58,11 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
       } else {
+        const zeroBalance = Number(0).toLocaleString();
         usernameEl.innerText = "User";
-        balanceEl.innerText = "0";
-        if (balanceMobile) balanceMobile.innerText = "0";
-        if (popupBalance) popupBalance.innerText = "0 coins";
+        balanceEl.innerText = zeroBalance;
+        if (balanceMobile) balanceMobile.innerText = zeroBalance;
+        if (popupBalance) popupBalance.innerText = `${zeroBalance} coins`;
 
         if (logoutBtn) logoutBtn.style.display = "none";
         if (signinBtn) signinBtn.style.display = "block";

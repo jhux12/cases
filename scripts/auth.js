@@ -29,9 +29,10 @@ window.addEventListener('DOMContentLoaded', () => {
       }
 
       // Show balances
-      if (balanceAmount) balanceAmount.innerText = userData.balance || 0;
-      if (balanceMobile) balanceMobile.innerText = userData.balance || 0;
-      if (popupBalance) popupBalance.innerText = `${userData.balance || 0} coins`;
+      const formattedBalance = Number(userData.balance || 0).toLocaleString();
+      if (balanceAmount) balanceAmount.innerText = formattedBalance;
+      if (balanceMobile) balanceMobile.innerText = formattedBalance;
+      if (popupBalance) popupBalance.innerText = `${formattedBalance} coins`;
       if (userBalanceWrapper) userBalanceWrapper.classList.remove('hidden');
 
       // Set username if it exists
@@ -65,8 +66,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
     } else {
       // Signed out state
+      const zeroBalance = Number(0).toLocaleString();
       if (userBalanceWrapper) userBalanceWrapper.classList.add('hidden');
-      if (balanceAmount) balanceAmount.innerText = '0';
+      if (balanceAmount) balanceAmount.innerText = zeroBalance;
+      if (balanceMobile) balanceMobile.innerText = zeroBalance;
+      if (popupBalance) popupBalance.innerText = `${zeroBalance} coins`;
       if (usernameDisplay) usernameDisplay.innerText = "User";
 
       if (inventoryLink) inventoryLink.classList.add('hidden');

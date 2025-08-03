@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     userRef.once('value').then(snapshot => {
       const data = snapshot.val();
 const balanceEl = document.getElementById('balance-amount');
-if (balanceEl) balanceEl.innerText = data.balance || 0;
+if (balanceEl) balanceEl.innerText = Number(data.balance || 0).toLocaleString();
       document.getElementById('username-display').innerText = user.displayName || user.email;
     });
 

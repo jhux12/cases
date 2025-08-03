@@ -111,11 +111,12 @@ firebase.auth().onAuthStateChanged(async (user) => {
 
               await userRef.update({ balance: newBalance });
 
-              document.getElementById("balance-amount").innerText = newBalance;
-              document.getElementById("balance-amount-mobile").innerText = newBalance;
+              const formattedBalance = Number(newBalance).toLocaleString();
+              document.getElementById("balance-amount").innerText = formattedBalance;
+              document.getElementById("balance-amount-mobile").innerText = formattedBalance;
 
               const popupBalance = document.getElementById("popup-balance");
-              if (popupBalance) popupBalance.innerText = `${newBalance} coins`;
+              if (popupBalance) popupBalance.innerText = `${formattedBalance} coins`;
 
               await change.doc.ref.update({ processed: true });
             }
