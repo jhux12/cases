@@ -54,7 +54,7 @@
       </div>
       <div>
         <label>Phone Number</label>
-        <input type="tel" id="register-phone" class="w-full p-2 rounded bg-gray-700" required />
+        <input type="tel" id="register-phone" class="w-full p-2 rounded bg-gray-700" required value="+1" />
       </div>
       <div>
         <label>Password</label>
@@ -97,10 +97,21 @@ const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-contain
 let confirmationResult, pendingPhone;
 
 function formatPhone(number) {
-  const cleaned = number.replace(/\s+/g, '');
-  const e164 = /^\+\d{10,15}$/;
-  return e164.test(cleaned) ? cleaned : null;
+  const digits = number.replace(/\D/g, '');
+  if (digits.length === 10) {
+    return '+1' + digits; // default to US country code
+  }
+  if (digits.length >= 11 && digits.length <= 15) {
+    return '+' + digits;
+  }
+  return null;
 }
+
+const phoneInput = document.getElementById('register-phone');
+phoneInput.addEventListener('input', e => {
+  const digits = e.target.value.replace(/\D/g, '');
+  e.target.value = '+' + digits;
+});
 
 const loginForm = document.getElementById('login-form');
 const registerForm = document.getElementById('register-form');
@@ -130,7 +141,7 @@ registerForm.addEventListener('submit', e => {
   const password = document.getElementById('register-password').value;
 
   if (!phone) {
-    alert('Please enter phone number in format +1234567890');
+    alert('Please enter a valid phone number.');
     return;
   }
 
