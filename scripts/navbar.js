@@ -31,11 +31,12 @@ document.addEventListener("DOMContentLoaded", () => {
           const data = snap.val() || {};
           const balance = data.balance || 0;
           const username = user.displayName || data.username || user.email;
+          const balanceFormatted = Number(balance).toLocaleString();
 
           usernameEl.innerText = username;
-          balanceEl.innerText = balance;
-          if (balanceMobile) balanceMobile.innerText = balance;
-          if (popupBalance) popupBalance.innerText = `${balance} coins`;
+          balanceEl.innerText = balanceFormatted;
+          if (balanceMobile) balanceMobile.innerText = balanceFormatted;
+          if (popupBalance) popupBalance.innerText = `${balanceFormatted} coins`;
 
           if (logoutBtn) {
             logoutBtn.style.display = "block";

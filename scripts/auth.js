@@ -29,9 +29,11 @@ window.addEventListener('DOMContentLoaded', () => {
       }
 
       // Show balances
-      if (balanceAmount) balanceAmount.innerText = userData.balance || 0;
-      if (balanceMobile) balanceMobile.innerText = userData.balance || 0;
-      if (popupBalance) popupBalance.innerText = `${userData.balance || 0} coins`;
+      const balance = userData.balance || 0;
+      const balanceFormatted = Number(balance).toLocaleString();
+      if (balanceAmount) balanceAmount.innerText = balanceFormatted;
+      if (balanceMobile) balanceMobile.innerText = balanceFormatted;
+      if (popupBalance) popupBalance.innerText = `${balanceFormatted} coins`;
       if (userBalanceWrapper) userBalanceWrapper.classList.remove('hidden');
 
       // Set username if it exists

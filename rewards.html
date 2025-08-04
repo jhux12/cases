@@ -71,6 +71,8 @@
   </main>
   <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-xl hidden z-50">✅ Bonus claimed! Coins added.</div>
 
+  <footer></footer>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
@@ -94,8 +96,14 @@
       const now = Date.now();
       const lastClaim = data.lastBonusClaim || 0;
       const delay = 24 * 60 * 60 * 1000;
-      const streak = data.streak || 0;
+      let streak = data.streak || 0;
       const balance = data.balance || 0;
+
+      // Reset streak if user hasn't claimed in over 48 hours
+      if (now - lastClaim > delay * 2) {
+        streak = 0;
+        await userRef.update({ streak: 0 });
+      }
 
       const rewards = [15, 20, 25, 30, 35, 40, 45];
       const grid = document.getElementById("streak-grid");
@@ -131,8 +139,9 @@
       }
 
       button.onclick = async () => {
-        if (Date.now() - lastClaim < delay) return;
-        const newStreak = streak >= 7 ? 1 : streak + 1;
+        const timeSinceLast = Date.now() - lastClaim;
+        if (timeSinceLast < delay) return;
+        const newStreak = timeSinceLast > delay * 2 ? 1 : streak >= 7 ? 1 : streak + 1;
         const bonus = 10 + 5 * newStreak;
         await userRef.update({
           balance: balance + bonus,
@@ -149,5 +158,6 @@
   </script>
   <script src="scripts/header.js"></script>
   <script src="scripts/navbar.js"></script>
+  <script src="scripts/footer.js"></script>
 </body>
 </html>
