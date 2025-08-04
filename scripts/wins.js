@@ -44,6 +44,10 @@ function displayLiveWins(prizes) {
         <div class="relative w-full max-w-[90px] h-[90px] md:max-w-[120px] md:h-[120px] mx-auto group overflow-hidden cursor-pointer">
           <img src="${prize.image}" class="prize-img absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-100 transition-opacity duration-300 pointer-events-none md:group-hover:opacity-0" />
           <img src="${prize.packImage}" class="pack-img absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-0 transition-opacity duration-300 pointer-events-none md:group-hover:opacity-100" />
+
+        <div class="relative w-full max-w-[90px] h-[90px] md:max-w-[120px] md:h-[120px] mx-auto group overflow-hidden">
+          <img src="${prize.image}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md transition-opacity duration-300 md:group-hover:opacity-0 pointer-events-none" />
+          <img src="${prize.packImage}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-0 transition-opacity duration-300 md:group-hover:opacity-100 pointer-events-none" />
         </div>
         <div class="text-sm text-white text-center leading-tight mt-2 truncate w-full max-w-[90px] md:max-w-[120px] mx-auto" title="${prize.name}">${prize.name}</div>
         <div class="text-xs text-gray-400 text-center italic">From: ${prize.caseName || 'Mystery Pack'}</div>
