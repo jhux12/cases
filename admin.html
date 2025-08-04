@@ -528,18 +528,25 @@ function cancelEdit() {
         resultsDiv.appendChild(div);
 
         const unboxList = document.getElementById(`unbox-${child.key}`);
-        firebase.database().ref(`wins/${child.key}`).once('value').then(winSnap => {
-          if (winSnap.exists()) {
-            unboxList.innerHTML = '';
-            winSnap.forEach(win => {
-              const winData = win.val();
-              const date = winData.timestamp ? new Date(winData.timestamp).toLocaleString() : '';
-              unboxList.innerHTML += `<li>${winData.name} (${winData.rarity || ''}) - $${winData.value || 0} <span class="text-xs text-gray-400 ml-2">${date}</span></li>`;
-            });
-          } else {
-            unboxList.innerHTML = '<li>No history found.</li>';
-          }
-        });
+        firebase.database()
+          .ref(`users/${child.key}/inventory`)
+          .once('value')
+          .then(invSnap => {
+            if (invSnap.exists()) {
+              const items = [];
+              invSnap.forEach(item => items.push(item.val()));
+              items
+                .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+                .forEach(winData => {
+                  const date = winData.timestamp
+                    ? new Date(winData.timestamp).toLocaleString()
+                    : '';
+                  unboxList.innerHTML += `<li>${winData.name} (${winData.rarity || ''}) - $${winData.value || 0} <span class="text-xs text-gray-400 ml-2">${date}</span></li>`;
+                });
+            } else {
+              unboxList.innerHTML = '<li>No history found.</li>';
+            }
+          });
       }
     });
 
