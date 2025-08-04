@@ -74,7 +74,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
   }
 }
 
-export function spinToPrize(callback) {
+export function spinToPrize(callback, showPopup = true) {
   const spinnerWheel = document.getElementById("spinner-wheel");
   if (!spinnerWheel) return;
 
@@ -167,11 +167,16 @@ export function spinToPrize(callback) {
       spinnerResultText.classList.remove("hidden");
     }
 
-    document.getElementById("popup-image").src = prize.image;
-    document.getElementById("popup-name").textContent = prize.name;
-    document.getElementById("popup-value").textContent = prize.value;
-    document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
-    document.getElementById("win-popup").classList.remove("hidden");
+    if (showPopup) {
+      document.getElementById("popup-image").src = prize.image;
+      document.getElementById("popup-name").textContent = prize.name;
+      document.getElementById("popup-value").textContent = prize.value;
+      document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
+      document.getElementById("win-popup").classList.remove("hidden");
+    } else {
+      const popup = document.getElementById("win-popup");
+      if (popup) popup.classList.add("hidden");
+    }
 
     if (targetCard) {
       const glowClass = `glow-${rarity}`;
