@@ -1,15 +1,18 @@
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-const bannedWords = ['badword1', 'badword2', 'badword3'];
+// Basic profanity list to filter common offensive terms
+const bannedWords = [
+  'fuck', 'fucking', 'fucker', 'shit', 'bitch', 'asshole', 'dick',
+  'bastard', 'cunt', 'piss', 'damn'
+];
 
 function sanitizeMessage(text) {
-  let sanitized = text;
-  bannedWords.forEach(word => {
-    const regex = new RegExp(`\\b${word}\\b`, 'gi');
-    sanitized = sanitized.replace(regex, '*'.repeat(word.length));
-  });
-  return sanitized;
+  const pattern = bannedWords
+    .map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
+  const regex = new RegExp(`\\b(${pattern})\\w*\\b`, 'gi');
+  return text.replace(regex, match => '*'.repeat(match.length));
 }
 
 const messagesEl = document.getElementById('chat-messages');
