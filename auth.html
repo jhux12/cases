@@ -111,29 +111,31 @@ registerForm.addEventListener('submit', e => {
 
   auth.createUserWithEmailAndPassword(email, password)
     .then(userCredential => {
-      const uid = userCredential.user.uid;
       const user = userCredential.user;
 
-user.updateProfile({
-  displayName: username
-}).then(() => {
-  return db.ref('users/' + user.uid).set({
-    name: name,
-    username: username,
-    email: email,
-    phone: phone,
-    balance: 0,
-    role: 'user'
-  });
-}).then(() => {
-  return user.reload(); // 🔁 Ensures displayName is up-to-date before redirect
-}).then(() => {
-  alert('Registration successful!');
-  window.location.href = 'index.html';
-}).catch((error) => {
-  alert("❌ " + error.message);
+      user.updateProfile({
+        displayName: username
+      }).then(() => {
+        return db.ref('users/' + user.uid).set({
+          name: name,
+          username: username,
+          email: email,
+          phone: phone,
+          balance: 0,
+          role: 'user'
+        });
+      }).then(() => {
+        return user.sendEmailVerification();
+      }).then(() => {
+        alert('Registration successful! Please verify your email before logging in.');
+        return auth.signOut();
+      }).catch((error) => {
+        alert("❌ " + error.message);
+      });
+    })
+    .catch(error => {
+      alert("❌ " + error.message);
     });
-  });
 });
 
 
@@ -144,9 +146,17 @@ loginForm.addEventListener('submit', e => {
   const password = document.getElementById('login-password').value;
 
   auth.signInWithEmailAndPassword(email, password)
-    .then(() => {
-      alert('Login successful!');
-      window.location.href = 'index.html';
+    .then(userCredential => {
+      const user = userCredential.user;
+      return user.reload().then(() => {
+        if (user.emailVerified) {
+          alert('Login successful!');
+          window.location.href = 'index.html';
+        } else {
+          alert('Please verify your email before logging in.');
+          return auth.signOut();
+        }
+      });
     })
     .catch(error => {
       alert(error.message);
