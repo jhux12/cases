@@ -1,6 +1,17 @@
 const db = firebase.firestore();
 const auth = firebase.auth();
 
+const bannedWords = ['badword1', 'badword2', 'badword3'];
+
+function sanitizeMessage(text) {
+  let sanitized = text;
+  bannedWords.forEach(word => {
+    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    sanitized = sanitized.replace(regex, '*'.repeat(word.length));
+  });
+  return sanitized;
+}
+
 const messagesEl = document.getElementById('chat-messages');
 const form = document.getElementById('chat-form');
 const input = document.getElementById('chat-input');
@@ -31,7 +42,7 @@ function addMessage(data) {
   author.textContent = data.username || 'Anon';
 
   const text = document.createElement('span');
-  text.textContent = data.message;
+  text.textContent = sanitizeMessage(data.message);
 
   wrapper.appendChild(author);
   wrapper.appendChild(text);
@@ -56,8 +67,9 @@ if (form) {
     e.preventDefault();
     const user = auth.currentUser;
     if (!user) return;
-    const message = input.value.trim();
+    let message = input.value.trim();
     if (!message) return;
+    message = sanitizeMessage(message);
     await db.collection('chat').add({
       uid: user.uid,
       username: user.displayName || user.email || 'User',
