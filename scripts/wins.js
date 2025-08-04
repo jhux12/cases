@@ -41,11 +41,12 @@
         prizeImg.classList.toggle('opacity-0', !showingPack);
       };
 
-      const prefersTouch = window.matchMedia('(hover: none)').matches;
+      const prefersTouch =
+        window.matchMedia('(hover: none)').matches || navigator.maxTouchPoints > 0;
 
-      if (prefersTouch) {
-        imgWrapper.addEventListener('click', toggle);
-      } else {
+      imgWrapper.addEventListener('click', toggle);
+
+      if (!prefersTouch) {
         imgWrapper.addEventListener('mouseenter', toggle);
         imgWrapper.addEventListener('mouseleave', toggle);
       }
