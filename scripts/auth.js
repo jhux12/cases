@@ -10,6 +10,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const popupBalance = document.getElementById('popup-balance');
     const userBalanceWrapper = document.getElementById('user-balance');
     const usernameDisplay = document.getElementById('username-display');
+    const chatInput = document.getElementById('chat-input');
+    const chatNotice = document.getElementById('chat-login-notice');
 
     if (user) {
       const userRef = firebase.database().ref('users/' + user.uid);
@@ -65,6 +67,9 @@ window.addEventListener('DOMContentLoaded', () => {
         };
       }
 
+      if (chatInput) chatInput.disabled = false;
+      if (chatNotice) chatNotice.classList.add('hidden');
+
     } else {
       // Signed out state
       if (userBalanceWrapper) userBalanceWrapper.classList.add('hidden');
@@ -80,6 +85,9 @@ window.addEventListener('DOMContentLoaded', () => {
         mobileAuthButton.href = "auth.html";
         mobileAuthButton.onclick = null;
       }
+
+      if (chatInput) chatInput.disabled = true;
+      if (chatNotice) chatNotice.classList.remove('hidden');
     }
   });
 });
