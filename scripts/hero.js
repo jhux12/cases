@@ -13,5 +13,15 @@ window.addEventListener('DOMContentLoaded', () => {
       paragraph.classList.remove('opacity-0');
     }, 600);
   }
+
+  const carousel = document.getElementById('hero-pack-carousel');
+  if (carousel && carousel.children.length > 1) {
+    let index = 0;
+    setInterval(() => {
+      const width = carousel.children[0].clientWidth;
+      index = (index + 1) % carousel.children.length;
+      carousel.style.transform = `translateX(-${index * width}px)`;
+    }, 2500);
+  }
 });
 
