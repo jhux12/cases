@@ -393,21 +393,24 @@ setTimeout(() => {
 
         renderSpinner(spinnerPrizes, demoPrize);
         setTimeout(() => {
-jfg75v-codex/fix-try-for-free-button-display-issue
           // Spin without showing the win popup in demo mode
-
- main
+          spinToPrize(() => {
+            btn.disabled = false;
+            btn.classList.remove("cursor-not-allowed", "opacity-60");
+              // Reset button text without using a template literal to avoid stray tokens
+              btn.innerHTML = '<span class="relative z-10">Try for Free</span>';
+            playRaritySound(demoPrize.rarity);
+            showToast(`You would have won ${demoPrize.name}!`, "bg-blue-600");
+          }, false);
           spinToPrize(() => {
             btn.disabled = false;
             btn.classList.remove("cursor-not-allowed", "opacity-60");
             btn.innerHTML = `<span class="relative z-10">Try for Free</span>`;
             playRaritySound(demoPrize.rarity);
             showToast(`You would have won ${demoPrize.name}!`, "bg-blue-600");
-jfg75v-codex/fix-try-for-free-button-display-issue
           }, false);
 
           });
- main
         }, 150);
       });
     });
