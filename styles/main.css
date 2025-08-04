@@ -368,14 +368,9 @@ body {
 #recent-wins-carousel {
   display: flex;
   overflow-x: auto;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-}
-#recent-wins-carousel {
-  display: flex;
-  overflow-x: hidden;
   white-space: nowrap;
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
 }
 #recent-wins-carousel::-webkit-scrollbar {
   display: none;
