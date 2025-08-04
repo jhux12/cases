@@ -24,6 +24,9 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
 
   container.innerHTML = "";
 
+  const borderEl = document.getElementById("spinner-border");
+  if (borderEl) borderEl.style.borderColor = "#1f2937";
+
   const spinnerWheel = document.createElement("div");
   spinnerWheel.id = "spinner-wheel";
   spinnerWheel.className = "flex h-full items-center";
@@ -102,9 +105,6 @@ export function spinToPrize(callback, showPopup = true) {
     spinnerWheel.style.transform = `translateX(-${scrollOffset}px)`;
   });
 
-  const rarityInfo = document.getElementById("rarity-info");
-  if (rarityInfo) rarityInfo.classList.remove("hidden");
-
   let animationFrame;
 
   function trackCenterPrize() {
@@ -129,8 +129,8 @@ export function spinToPrize(callback, showPopup = true) {
       const rarity = (prize?.rarity || "common").toLowerCase().replace(/\s+/g, '');
       const color = getRarityColor(rarity);
 
-      const bar = document.getElementById("rarity-bar");
-      if (bar) bar.style.backgroundColor = color;
+      const borderEl = document.getElementById("spinner-border");
+      if (borderEl) borderEl.style.borderColor = color;
     }
 
     animationFrame = requestAnimationFrame(trackCenterPrize);
