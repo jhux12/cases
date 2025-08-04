@@ -15,7 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = snapshot.val();
       const balanceEl = document.getElementById('balance-amount');
       if (balanceEl) balanceEl.innerText = Number(data.balance || 0).toLocaleString();
-      document.getElementById('username-display').innerText = user.displayName || user.email;
+
+      const usernameEl = document.getElementById('username-display');
+      if (usernameEl) usernameEl.innerText = user.displayName || user.email;
     });
 
     const inventoryRef = db.ref('users/' + user.uid + '/inventory');
