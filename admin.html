@@ -82,6 +82,9 @@
               <input type="number" id="case-price" class="w-full p-2 rounded">
             </div>
             <div>
+              <label class="inline-flex items-center"><input type="checkbox" id="case-free" class="mr-2"> Free Case (price set to 0)</label>
+            </div>
+            <div>
   <label>Case Tag (e.g. 🔥 Hot, 🆕 New):</label>
   <input type="text" id="case-tag" class="w-full p-2 rounded" placeholder="Optional badge">
 </div>
@@ -231,7 +234,7 @@
             <div class="flex justify-between items-center">
               <div>
                 <p class="font-bold text-lg">${data.name}</p>
-                <p class="text-sm text-gray-400">$${data.price}</p>
+                <p class="text-sm text-gray-400">${data.isFree ? 'Free' : '$' + data.price}</p>
               </div>
               <div class="flex gap-2">
                 <button onclick="editCase('${child.key}')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Edit</button>
@@ -352,6 +355,7 @@ function adminReply(event, caseId) {
         document.getElementById('case-image').value = data.image;
         previewImage(data.image);
         document.getElementById('case-price').value = data.price;
+        document.getElementById('case-free').checked = !!data.isFree;
         document.getElementById('case-tag').value = data.tag || '';
         document.getElementById('case-spice').value = data.spiceLevel || '';
         prizesSection.innerHTML = '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
@@ -386,7 +390,8 @@ function adminReply(event, caseId) {
       const id = document.getElementById('case-id').value || db.ref('cases').push().key;
       const name = document.getElementById('case-name').value;
       const image = document.getElementById('case-image').value;
-      const price = parseFloat(document.getElementById('case-price').value) || 0;
+      const isFree = document.getElementById('case-free').checked;
+      const price = isFree ? 0 : parseFloat(document.getElementById('case-price').value) || 0;
       const tag = document.getElementById('case-tag').value.trim();
       const spiceLevel = document.getElementById('case-spice').value.trim();
       const prizesElements = prizesSection.querySelectorAll('div.prize-block');
@@ -400,10 +405,11 @@ function adminReply(event, caseId) {
           odds: parseFloat(div.querySelector('.prize-odds').value) || 0
         };
       });
-     db.ref('cases/' + id).set({ name, image, price, tag, spiceLevel, prizes }).then(() => {
+     db.ref('cases/' + id).set({ name, image, price, tag, spiceLevel, isFree, prizes }).then(() => {
         caseForm.reset();
         previewImage('');
        document.getElementById('case-tag').value = '';
+       document.getElementById('case-free').checked = false;
         prizesSection.innerHTML = '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
         document.getElementById('form-title').innerText = 'Add / Edit Case';
         cancelEditBtn.classList.add('hidden');
@@ -411,14 +417,15 @@ function adminReply(event, caseId) {
       });
     }
 
-    function cancelEdit() {
-      caseForm.reset();
-      previewImage('');
-      document.getElementById('case-tag').value = '';
-      prizesSection.innerHTML = '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
-      document.getElementById('form-title').innerText = 'Add / Edit Case';
-      cancelEditBtn.classList.add('hidden');
-    }
+function cancelEdit() {
+  caseForm.reset();
+  previewImage('');
+  document.getElementById('case-tag').value = '';
+  document.getElementById('case-free').checked = false;
+  prizesSection.innerHTML = '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
+  document.getElementById('form-title').innerText = 'Add / Edit Case';
+  cancelEditBtn.classList.add('hidden');
+}
 
     caseForm.addEventListener('submit', saveCase);
     cancelEditBtn.addEventListener('click', cancelEdit);

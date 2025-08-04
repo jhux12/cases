@@ -123,7 +123,8 @@ user.updateProfile({
     email: email,
     phone: phone,
     balance: 0,
-    role: 'user'
+    role: 'user',
+    freeCaseOpened: false
   });
 }).then(() => {
   return user.reload(); // 🔁 Ensures displayName is up-to-date before redirect
