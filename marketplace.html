@@ -150,10 +150,6 @@
             timestamp: Date.now()
           };
           await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/inventory").push(cardData);
-          await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/pulls").push(cardData);
-          const pullHistory = JSON.parse(localStorage.getItem('pullHistory') || '[]');
-          pullHistory.push(cardData);
-          localStorage.setItem('pullHistory', JSON.stringify(pullHistory));
           document.getElementById("popup-image").src = card.image;
           document.getElementById("popup-name").textContent = card.name;
           document.getElementById("popup-value").textContent = `${card.value.toLocaleString()} coins`;
@@ -196,10 +192,6 @@
         timestamp: Date.now()
       };
       await firebase.database().ref("users/" + user.uid + "/inventory").push(cardData);
-      await firebase.database().ref("users/" + user.uid + "/pulls").push(cardData);
-      const pullHistory = JSON.parse(localStorage.getItem('pullHistory') || '[]');
-      pullHistory.push(cardData);
-      localStorage.setItem('pullHistory', JSON.stringify(pullHistory));
 
       document.getElementById("item-popup").classList.add("hidden");
       document.getElementById("popup-image").src = window.selectedCard.image;

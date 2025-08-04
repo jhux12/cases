@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderItems(currentItems);
       }
 
-      loadShowcase(user.uid);
     });
 
     const ordersRef = db.ref('shipments').orderByChild('userId').equalTo(user.uid);
@@ -127,47 +126,6 @@ function renderItems(items) {
   });
 }
 
-function loadShowcase(uid) {
-  const pullsRef = firebase.database().ref('users/' + uid + '/pulls');
-  pullsRef.on('value', snap => {
-    const pulls = [];
-    snap.forEach(child => pulls.push(child.val()));
-    if (pulls.length) {
-      localStorage.setItem('pullHistory', JSON.stringify(pulls));
-      const topThree = [...pulls]
-        .sort((a, b) => (b.value || 0) - (a.value || 0))
-        .slice(0, 3);
-      renderShowcase(topThree);
-    } else {
-      const localPulls = JSON.parse(localStorage.getItem('pullHistory') || '[]');
-      const source = localPulls.length ? localPulls : currentItems;
-      const topThree = [...source]
-        .sort((a, b) => (b.value || 0) - (a.value || 0))
-        .slice(0, 3);
-      renderShowcase(topThree);
-    }
-  });
-}
-
-function renderShowcase(items) {
-  const container = document.getElementById('showcase-container');
-  if (!container) return;
-  container.innerHTML = '';
-
-  if (items.length === 0) {
-    container.innerHTML = '<p class="text-center text-gray-400 col-span-full">No pulls to showcase yet.</p>';
-    return;
-  }
-
-  items.forEach(item => {
-    container.innerHTML += `
-      <div class="item-card rounded-lg p-6 text-center transform hover:scale-105 transition">
-        <img src="${item.image}" class="mx-auto mb-4 h-32 object-contain rounded shadow-lg" />
-        <h2 class="font-bold text-xl text-pink-400">${item.name}</h2>
-        <p class="text-sm text-gray-300 mt-1">Value: ${item.value || 0} coins</p>
-      </div>`;
-  });
-}
 
 function sellBack(key, value) {
   const user = firebase.auth().currentUser;
