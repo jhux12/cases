@@ -77,6 +77,11 @@
       <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded">Register</button>
     </form>
 
+    <div id="register-verify" class="hidden mt-4 space-y-2">
+      <input type="text" id="register-verification-code" placeholder="Enter verification code" class="w-full p-2 rounded bg-gray-700" />
+      <button type="button" onclick="verifyRegisterCode()" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Confirm Phone</button>
+    </div>
+
     <p id="switch-text" class="mt-4 text-sm text-center">
       Don't have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Register</button>
     </p>
@@ -98,6 +103,12 @@ const auth = firebase.auth();
 const db = firebase.database();
 const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
 let confirmationResult;
+
+function formatPhone(number) {
+  const cleaned = number.replace(/\s+/g, '');
+  const e164 = /^\+\d{10,15}$/;
+  return e164.test(cleaned) ? cleaned : null;
+}
 
 const loginForm = document.getElementById('login-form');
 const registerForm = document.getElementById('register-form');
@@ -123,35 +134,39 @@ registerForm.addEventListener('submit', e => {
   const name = document.getElementById('register-name').value;
   const username = document.getElementById('register-username').value;
   const email = document.getElementById('register-email').value;
-  const phone = document.getElementById('register-phone').value;
+  const phone = formatPhone(document.getElementById('register-phone').value);
   const password = document.getElementById('register-password').value;
+
+  if (!phone) {
+    alert('Please enter phone number in format +1234567890');
+    return;
+  }
 
   auth.createUserWithEmailAndPassword(email, password)
     .then(userCredential => {
-      const uid = userCredential.user.uid;
       const user = userCredential.user;
-
-user.updateProfile({
-  displayName: username
-}).then(() => {
-  return db.ref('users/' + user.uid).set({
-    name: name,
-    username: username,
-    email: email,
-    phone: phone,
-    balance: 0,
-    role: 'user',
-    freeCaseOpened: false
-  });
-}).then(() => {
-  return user.reload(); // 🔁 Ensures displayName is up-to-date before redirect
-}).then(() => {
-  alert('Registration successful!');
-  window.location.href = 'index.html';
-}).catch((error) => {
-  alert("❌ " + error.message);
+      return user.updateProfile({ displayName: username })
+        .then(() => db.ref('users/' + user.uid).set({
+          name: name,
+          username: username,
+          email: email,
+          phone: phone,
+          balance: 0,
+          role: 'user',
+          freeCaseOpened: false
+        }))
+        .then(() => user.reload());
+    })
+    .then(() => auth.currentUser.linkWithPhoneNumber(phone, recaptchaVerifier))
+    .then(result => {
+      confirmationResult = result;
+      registerForm.classList.add('hidden');
+      document.getElementById('register-verify').classList.remove('hidden');
+      alert('Verification code sent to your phone.');
+    })
+    .catch(error => {
+      alert('❌ ' + error.message);
     });
-  });
 });
 
 
@@ -187,7 +202,11 @@ function forgotPassword() {
 }
 
 function sendVerificationCode() {
-  const phoneNumber = document.getElementById('phone-number').value;
+  const phoneNumber = formatPhone(document.getElementById('phone-number').value);
+  if (!phoneNumber) {
+    alert('Please enter phone number in format +1234567890');
+    return;
+  }
   auth.signInWithPhoneNumber(phoneNumber, recaptchaVerifier)
     .then(result => {
       confirmationResult = result;
@@ -204,6 +223,18 @@ function verifyCode() {
   confirmationResult.confirm(code)
     .then(() => {
       alert('Login successful!');
+      window.location.href = 'index.html';
+    })
+    .catch(error => {
+      alert(error.message);
+    });
+}
+
+function verifyRegisterCode() {
+  const code = document.getElementById('register-verification-code').value;
+  confirmationResult.confirm(code)
+    .then(() => {
+      alert('Registration successful!');
       window.location.href = 'index.html';
     })
     .catch(error => {
