@@ -54,7 +54,7 @@
       </div>
       <div>
         <label>Phone Number</label>
-        <input type="tel" id="register-phone" class="w-full p-2 rounded bg-gray-700" required />
+        <input type="tel" id="register-phone" class="w-full p-2 rounded bg-gray-700" required value="+1" />
       </div>
       <div>
         <label>Password</label>
@@ -62,6 +62,17 @@
       </div>
       <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded">Register</button>
     </form>
+
+    <div id="register-send" class="hidden mt-4 space-y-4">
+      <div id="recaptcha-container"></div>
+      <p>Verify your phone number to complete registration.</p>
+      <button type="button" onclick="sendRegisterCode()" class="w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Send Code</button>
+    </div>
+
+    <div id="register-verify" class="hidden mt-4 space-y-2">
+      <input type="text" id="register-verification-code" placeholder="Enter verification code" class="w-full p-2 rounded bg-gray-700" />
+      <button type="button" onclick="verifyRegisterCode()" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Confirm Phone</button>
+    </div>
 
     <p id="switch-text" class="mt-4 text-sm text-center">
       Don't have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Register</button>
@@ -82,21 +93,53 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
+const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
+let confirmationResult, pendingPhone;
+
+function formatPhone(number) {
+  const digits = number.replace(/\D/g, '');
+  if (digits.length === 10) {
+    return '+1' + digits; // assume US if 10 digits
+  }
+  if (digits.length >= 11 && digits[0] !== '0') {
+    return '+' + digits; // keep provided country code
+  }
+  return null; // invalid
+}
+
+const phoneInput = document.getElementById('register-phone');
+function enforcePrefix() {
+  const digits = phoneInput.value.replace(/\D/g, '');
+  phoneInput.value = digits ? '+' + digits : '+1';
+}
+enforcePrefix();
+phoneInput.addEventListener('input', enforcePrefix);
+phoneInput.addEventListener('focus', enforcePrefix);
+phoneInput.addEventListener('keydown', e => {
+  if (e.key === 'Backspace' && phoneInput.selectionStart <= 1) {
+    e.preventDefault();
+  }
+});
+phoneInput.addEventListener('blur', () => {
+  const formatted = formatPhone(phoneInput.value);
+  phoneInput.value = formatted || '+1';
+});
 
 const loginForm = document.getElementById('login-form');
 const registerForm = document.getElementById('register-form');
 const formTitle = document.getElementById('form-title');
 const switchText = document.getElementById('switch-text');
+const logoHTML = '<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(29).png?alt=media&token=51dc030a-b05d-46ec-b1ab-c2fd1824d74e" alt="Logo" style="height: 60px;">';
 
 function toggleForms() {
   loginForm.classList.toggle('hidden');
   registerForm.classList.toggle('hidden');
 
   if (loginForm.classList.contains('hidden')) {
-    formTitle.innerHTML = '<https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(29).png?alt=media&token=51dc030a-b05d-46ec-b1ab-c2fd1824d74e" alt="Logo" style="height: 60px;">';
+    formTitle.innerHTML = logoHTML;
     switchText.innerHTML = 'Already have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Login</button>';
   } else {
-    formTitle.innerHTML = '<https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(29).png?alt=media&token=51dc030a-b05d-46ec-b1ab-c2fd1824d74e" alt="Logo" style="height: 60px;">';
+    formTitle.innerHTML = logoHTML;
     switchText.innerHTML = 'Don\'t have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Register</button>';
   }
 }
@@ -107,35 +150,37 @@ registerForm.addEventListener('submit', e => {
   const name = document.getElementById('register-name').value;
   const username = document.getElementById('register-username').value;
   const email = document.getElementById('register-email').value;
-  const phone = document.getElementById('register-phone').value;
+  const phone = formatPhone(document.getElementById('register-phone').value);
   const password = document.getElementById('register-password').value;
+
+  if (!phone) {
+    alert('Please enter a valid phone number.');
+    return;
+  }
 
   auth.createUserWithEmailAndPassword(email, password)
     .then(userCredential => {
-      const uid = userCredential.user.uid;
       const user = userCredential.user;
-
-user.updateProfile({
-  displayName: username
-}).then(() => {
-  return db.ref('users/' + user.uid).set({
-    name: name,
-    username: username,
-    email: email,
-    phone: phone,
-    balance: 0,
-    role: 'user',
-    freeCaseOpened: false
-  });
-}).then(() => {
-  return user.reload(); // 🔁 Ensures displayName is up-to-date before redirect
-}).then(() => {
-  alert('Registration successful!');
-  window.location.href = 'index.html';
-}).catch((error) => {
-  alert("❌ " + error.message);
+      return user.updateProfile({ displayName: username })
+        .then(() => db.ref('users/' + user.uid).set({
+          name: name,
+          username: username,
+          email: email,
+          phone: phone,
+          balance: 0,
+          role: 'user',
+          freeCaseOpened: false
+        }))
+        .then(() => user.reload());
+    })
+    .then(() => {
+      pendingPhone = phone;
+      registerForm.classList.add('hidden');
+      document.getElementById('register-send').classList.remove('hidden');
+    })
+    .catch(error => {
+      alert('❌ ' + error.message);
     });
-  });
 });
 
 
@@ -167,6 +212,36 @@ function forgotPassword() {
     })
     .catch(error => {
          alert("❌ " + error.message);
+    });
+}
+
+function verifyRegisterCode() {
+  const code = document.getElementById('register-verification-code').value;
+  confirmationResult.confirm(code)
+    .then(() => {
+      alert('Registration successful!');
+      window.location.href = 'index.html';
+    })
+    .catch(error => {
+      alert(error.message);
+    });
+}
+
+function sendRegisterCode() {
+  const phone = pendingPhone;
+  if (!formatPhone(phone || '')) {
+    alert('Please enter a valid phone number.');
+    return;
+  }
+  auth.currentUser.linkWithPhoneNumber(phone, recaptchaVerifier)
+    .then(result => {
+      confirmationResult = result;
+      document.getElementById('register-send').classList.add('hidden');
+      document.getElementById('register-verify').classList.remove('hidden');
+      alert('Verification code sent to your phone.');
+    })
+    .catch(error => {
+      alert('❌ ' + error.message);
     });
 }
 </script>
