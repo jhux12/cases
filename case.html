@@ -50,6 +50,7 @@
 .glow-rare      { box-shadow: 0 0 30px #60a5fa; }
 .glow-ultrarare { box-shadow: 0 0 30px #c084fc; }
 .glow-legendary { box-shadow: 0 0 40px #facc15; }
+.rarity-badge { font-size: 0.65rem; letter-spacing: 0.05em; }
 </style>
 
 </head>
@@ -267,21 +268,31 @@ renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
   const rarity = (prize.rarity || "common").toLowerCase().replace(/\s+/g, '');
   const glowClass = `glow-${rarity}`;
   const gradientClass = `card-gradient-${rarity}`;
+  const badgeClass = {
+    common: 'bg-zinc-600/80 text-white',
+    uncommon: 'bg-emerald-500/80 text-white',
+    rare: 'bg-blue-500/80 text-white',
+    ultrarare: 'bg-purple-500/80 text-white',
+    legendary: 'bg-yellow-400/90 text-black'
+  }[rarity] || 'bg-zinc-600/80 text-white';
 
   return `
-  <div class="prize-card relative rounded-2xl border border-white/10 p-3 text-white text-center shadow-md backdrop-blur-sm transition-all hover:scale-[1.03] ${gradientClass} ${glowClass}">
-<img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-black/20 shadow-inner border border-white/10" style="border-radius: 1rem;" />
-      <div class="font-bold text-sm clamp-2 mb-4">${prize.name}</div>
-
-      <!-- Bottom overlay: coin left, odds right -->
-      <div class="absolute bottom-2 left-2 flex items-center gap-1 text-yellow-300 font-bold text-xs">
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-        ${formatCoins(prize.value || 0)}
-      </div>
-      <div class="absolute bottom-2 right-2 text-white/70 bg-white/10 px-2 py-[2px] text-xs rounded-full">
-        ${(prize.odds || 0).toFixed(1)}%
+  <div class="prize-card group relative overflow-hidden rounded-2xl border border-white/10 bg-gray-800/60 text-white shadow-md transition-all duration-300 hover:scale-[1.03] hover:shadow-lg ${gradientClass} ${glowClass}">
+    <div class="rarity-badge absolute top-2 left-2 px-2 py-1 rounded-full uppercase font-bold ${badgeClass}">${prize.rarity || ''}</div>
+    <div class="p-3 flex flex-col items-center gap-3">
+      <img src="${prize.image}" class="w-full h-[120px] object-contain bg-black/20 p-2 rounded-lg shadow-inner border border-white/10" />
+      <div class="font-bold text-sm text-center clamp-2">${prize.name}</div>
+      <div class="flex w-full items-center justify-between text-xs mt-1">
+        <div class="flex items-center gap-1 text-yellow-300 font-bold">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
+          ${formatCoins(prize.value || 0)}
+        </div>
+        <div class="bg-white/10 text-white/70 px-2 py-[2px] rounded-full font-semibold">
+          ${(prize.odds || 0).toFixed(1)}%
+        </div>
       </div>
     </div>
+  </div>
   `;
 }).join("");
 enablePrizePopups();
