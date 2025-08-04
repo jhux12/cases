@@ -394,6 +394,7 @@ setTimeout(() => {
 
         renderSpinner(spinnerPrizes, demoPrize);
         setTimeout(() => {
+          // spin without win popup for demo mode
           spinToPrize(() => {
             btn.disabled = false;
             btn.classList.remove("cursor-not-allowed", "opacity-60");
