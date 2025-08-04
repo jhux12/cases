@@ -1,12 +1,26 @@
-const params = new URLSearchParams(window.location.search);
-const caseId = params.get('id');
-
 const db = firebase.firestore();
 const auth = firebase.auth();
 
 const messagesEl = document.getElementById('chat-messages');
 const form = document.getElementById('chat-form');
 const input = document.getElementById('chat-input');
+const toggleBtn = document.getElementById('chat-toggle');
+const widget = document.getElementById('chat-widget');
+const closeBtn = document.getElementById('chat-close');
+
+if (toggleBtn && widget) {
+  toggleBtn.addEventListener('click', () => {
+    widget.classList.remove('hidden');
+    toggleBtn.classList.add('hidden');
+  });
+}
+
+if (closeBtn && widget) {
+  closeBtn.addEventListener('click', () => {
+    widget.classList.add('hidden');
+    toggleBtn.classList.remove('hidden');
+  });
+}
 
 function addMessage(data) {
   const wrapper = document.createElement('div');
@@ -25,8 +39,8 @@ function addMessage(data) {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
-if (caseId) {
-  db.collection('cases').doc(caseId).collection('chat')
+if (messagesEl) {
+  db.collection('chat')
     .orderBy('timestamp')
     .onSnapshot(snapshot => {
       snapshot.docChanges().forEach(change => {
@@ -44,7 +58,7 @@ if (form) {
     if (!user) return;
     const message = input.value.trim();
     if (!message) return;
-    await db.collection('cases').doc(caseId).collection('chat').add({
+    await db.collection('chat').add({
       uid: user.uid,
       username: user.displayName || user.email || 'User',
       message,
