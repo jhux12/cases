@@ -85,13 +85,16 @@
     <div id="rarity-bar" class="h-full w-full bg-lime-500 transition-colors duration-300"></div>
   </div>
 </div>
-    <div class="flex justify-center mt-6">
+    <div class="flex justify-center gap-4 mt-6">
   <button id="open-case-button" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform transform hover:scale-105 animate-pulse focus:outline-none overflow-hidden">
         <span class="relative z-10 flex items-center gap-2">
       Open for
       <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
       <span id="button-price">...</span>
     </span>
+  </button>
+  <button id="try-free-button" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-green-400 via-teal-500 to-blue-500 text-white font-extrabold shadow-lg transition-transform transform hover:scale-105 focus:outline-none overflow-hidden">
+    <span class="relative z-10">Try for Free</span>
   </button>
 </div>
 
@@ -366,6 +369,39 @@ setTimeout(() => {
         });
         await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
         updateUserBalance();
+      });
+      document.getElementById("try-free-button").addEventListener("click", () => {
+        const btn = document.getElementById("try-free-button");
+        btn.disabled = true;
+        btn.classList.add("cursor-not-allowed", "opacity-60");
+        btn.innerHTML = `
+          <span class="relative z-10 flex items-center gap-2 animate-pulse">
+            <svg class="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+            Spinning...
+          </span>
+        `;
+
+        const demoPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
+        const spinnerPrizes = [];
+        for (let i = 0; i < 30; i++) {
+          const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
+          spinnerPrizes.push(randomPrize);
+        }
+        spinnerPrizes[15] = demoPrize;
+
+        renderSpinner(spinnerPrizes, demoPrize);
+        setTimeout(() => {
+          spinToPrize(() => {
+            btn.disabled = false;
+            btn.classList.remove("cursor-not-allowed", "opacity-60");
+            btn.innerHTML = `<span class="relative z-10">Try for Free</span>`;
+            playRaritySound(demoPrize.rarity);
+            showToast(`You would have won ${demoPrize.name}!`, "bg-blue-600");
+          });
+        }, 150);
       });
     });
   document.getElementById("pf-info").addEventListener("click", async () => {
