@@ -52,6 +52,7 @@
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('support')">Support Forms</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('users')">Users</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('marketplace')">Marketplace</a>
+      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('quests')">Quests</a>
     </div>
   </nav>
 
@@ -142,6 +143,37 @@
 
 </section>
 
+<section id="quests-section" class="hidden">
+  <h1 class="text-3xl font-bold mb-6">Weekly Quests</h1>
+  <form id="quest-config-form" class="space-y-4 max-w-xl bg-gray-800 p-6 rounded-lg">
+    <div>
+      <label class="block mb-1">Open Packs Goal:</label>
+      <input type="number" id="openPacks-goal" class="w-full p-2 rounded" />
+    </div>
+    <div>
+      <label class="block mb-1">Open Packs Reward:</label>
+      <input type="number" id="openPacks-reward" class="w-full p-2 rounded" />
+    </div>
+    <div>
+      <label class="block mb-1">Spend Coins Goal:</label>
+      <input type="number" id="spendCoins-goal" class="w-full p-2 rounded" />
+    </div>
+    <div>
+      <label class="block mb-1">Spend Coins Reward:</label>
+      <input type="number" id="spendCoins-reward" class="w-full p-2 rounded" />
+    </div>
+    <div>
+      <label class="block mb-1">Rare Pull Goal:</label>
+      <input type="number" id="pullRare-goal" class="w-full p-2 rounded" />
+    </div>
+    <div>
+      <label class="block mb-1">Rare Pull Reward:</label>
+      <input type="number" id="pullRare-reward" class="w-full p-2 rounded" />
+    </div>
+    <button type="submit" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded">Save</button>
+  </form>
+</section>
+
 
     <!-- Shipment Management Section -->
     <section id="shipments-section" class="hidden">
@@ -180,7 +212,7 @@
     }
 
     function showSection(id) {
-  const sections = ['cases', 'shipments', 'support', 'users'];
+  const sections = ['cases', 'shipments', 'support', 'users', 'marketplace', 'quests'];
   sections.forEach(section => {
     document.getElementById(section + '-section').classList.add('hidden');
   });
@@ -516,7 +548,8 @@ firebase.auth().onAuthStateChanged(user => {
   loadCases();
   loadShipments();
   loadSupportForms();
-  loadMarketplaceItems(); // 👈 Add this line
+  loadMarketplaceItems();
+  loadQuestConfig();
 });
 
 
@@ -590,6 +623,38 @@ function deleteMarketplaceItem(key) {
     });
   }
 }
+
+function loadQuestConfig() {
+  const ref = firebase.database().ref('questConfig');
+  ref.once('value').then(snap => {
+    const cfg = snap.val() || {};
+    document.getElementById('openPacks-goal').value = cfg.openPacks?.goal || 0;
+    document.getElementById('openPacks-reward').value = cfg.openPacks?.reward || 0;
+    document.getElementById('spendCoins-goal').value = cfg.spendCoins?.goal || 0;
+    document.getElementById('spendCoins-reward').value = cfg.spendCoins?.reward || 0;
+    document.getElementById('pullRare-goal').value = cfg.pullRare?.goal || 0;
+    document.getElementById('pullRare-reward').value = cfg.pullRare?.reward || 0;
+  });
+}
+
+document.getElementById('quest-config-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const config = {
+    openPacks: {
+      goal: parseInt(document.getElementById('openPacks-goal').value) || 0,
+      reward: parseInt(document.getElementById('openPacks-reward').value) || 0
+    },
+    spendCoins: {
+      goal: parseInt(document.getElementById('spendCoins-goal').value) || 0,
+      reward: parseInt(document.getElementById('spendCoins-reward').value) || 0
+    },
+    pullRare: {
+      goal: parseInt(document.getElementById('pullRare-goal').value) || 0,
+      reward: parseInt(document.getElementById('pullRare-reward').value) || 0
+    }
+  };
+  firebase.database().ref('questConfig').set(config).then(() => showToast('✅ Quest config saved'));
+});
 
   </script>
 
