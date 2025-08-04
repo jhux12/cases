@@ -20,8 +20,8 @@
     };
     firebase.initializeApp(firebaseConfig);
     const allowedAdmins = [
-  "jhuxf12@outlook.com", // 
-];
+      "jhuxf12@outlook.com" // Add more admin emails as needed
+    ];
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -461,6 +461,12 @@ function cancelEdit() {
 
     caseForm.addEventListener('submit', saveCase);
     cancelEditBtn.addEventListener('click', cancelEdit);
+    document.getElementById('user-search').addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchUsers();
+      }
+    });
 
     function searchUsers() {
   const query = document.getElementById('user-search').value.trim().toLowerCase();
@@ -478,7 +484,6 @@ function cancelEdit() {
       const email = (user.email || '').toLowerCase();
       const username = (user.username || '').toLowerCase();
       const uid = child.key.toLowerCase();
-      console.log('Checking user:', { email, username });
 
       if (
         email === query ||
@@ -498,7 +503,7 @@ function cancelEdit() {
             <label class="block">Username:<input type="text" id="username-${child.key}" value="${user.username || ''}" class="p-1 rounded w-full"></label>
             <label class="block">Email:<input type="text" id="email-${child.key}" value="${user.email || ''}" class="p-1 rounded w-full"></label>
             <label class="block">Phone:<input type="text" id="phone-${child.key}" value="${user.phone || ''}" class="p-1 rounded w-full"></label>
-            <label class="block">Balance:<input type="number" id="balance-${child.key}" value="${user.balance || 0}" class="p-1 rounded w-full"></label>
+            <label class="block">Balance:<input type="number" step="any" id="balance-${child.key}" value="${user.balance || 0}" class="p-1 rounded w-full"></label>
             <label class="block">Role:
               <select id="role-${child.key}" class="p-1 rounded w-full">
                 <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
