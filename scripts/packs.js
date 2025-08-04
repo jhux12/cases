@@ -49,7 +49,7 @@ const pepperHTML = getPepperHTML(c.spiceLevel);
         ${pepperHTML}
         <img src="${packImg}" id="${imgId}" class="case-card-img mb-2 transition-all duration-300">
         <h3 class="mt-2 font-semibold text-white">${c.name}</h3>
-        <a href="case.html?id=${c.id}" class="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded glow-button enhanced-glow flex justify-center items-center gap-2 text-white font-semibold">
+        <a href="case.html?id=${c.id}" class="mt-2 w-full py-2 bg-pink-600 bg-gradient-to-r from-purple-600 to-pink-500 rounded glow-button enhanced-glow flex justify-center items-center gap-2 text-white font-semibold">
     Open for ${priceLabel}
     ${priceIcon}
   </a>
