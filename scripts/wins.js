@@ -35,23 +35,53 @@ function displayLiveWins(prizes) {
     }
 
     card.className = `
-      min-w-[160px] bg-[#12121b] p-3 rounded-xl border ${glowClass}
+      min-w-[120px] md:min-w-[160px] bg-[#12121b] p-3 rounded-xl border ${glowClass}
       text-center flex-shrink-0 mx-2 transform transition duration-200 hover:scale-105
     `;
 
     if (prize.packImage) {
       card.innerHTML = `
-        <div class="relative w-full max-w-[120px] h-[120px] mx-auto group">
-          <img src="${prize.image}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md transition-opacity duration-300 group-hover:opacity-0 pointer-events-none" />
-          <img src="${prize.packImage}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
+        <div class="relative w-[90px] h-[90px] md:w-[120px] md:h-[120px] mx-auto group overflow-hidden cursor-pointer">
+          <img
+            src="${prize.image}"
+            class="prize-img w-full h-full object-contain rounded-md shadow-md transition-opacity duration-300 pointer-events-none md:group-hover:opacity-0"
+          />
+          <img
+            src="${prize.packImage}"
+            class="pack-img absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-0 hidden transition-opacity duration-300 pointer-events-none md:group-hover:opacity-100 md:group-hover:block"
+          />
         </div>
-        <div class="text-sm text-white text-center leading-tight mt-2 truncate w-full max-w-[120px] mx-auto" title="${prize.name}">${prize.name}</div>
+        <div class="text-sm text-white text-center leading-tight mt-2 truncate w-[90px] md:w-[120px] mx-auto" title="${prize.name}">${prize.name}</div>
         <div class="text-xs text-gray-400 text-center italic">From: ${prize.caseName || 'Mystery Pack'}</div>
       `;
+
+      const imgContainer = card.querySelector('.group');
+      const prizeImg = imgContainer.querySelector('.prize-img');
+      const packImg = imgContainer.querySelector('.pack-img');
+
+      const toggleImages = (e) => {
+        prizeImg.classList.toggle('hidden');
+        packImg.classList.toggle('hidden');
+        prizeImg.classList.toggle('opacity-0');
+        packImg.classList.toggle('opacity-0');
+      };
+
+      imgContainer.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'touch') {
+          e.preventDefault();
+          toggleImages(e);
+        }
+      }, { passive: false });
+
+      imgContainer.addEventListener('click', (e) => {
+        if (e.pointerType !== 'touch') {
+          toggleImages(e);
+        }
+      });
     } else {
       card.innerHTML = `
-        <img src="${prize.image}" class="w-full max-w-[120px] h-[120px] object-contain mx-auto rounded-md shadow-md mb-2" />
-        <div class="text-sm text-white text-center leading-tight truncate w-full max-w-[120px] mx-auto mt-2" title="${prize.name}">${prize.name}</div>
+        <img src="${prize.image}" class="w-[90px] h-[90px] md:w-[120px] md:h-[120px] object-contain mx-auto rounded-md shadow-md mb-2" />
+        <div class="text-sm text-white text-center leading-tight truncate w-[90px] md:w-[120px] mx-auto mt-2" title="${prize.name}">${prize.name}</div>
         <div class="text-xs text-gray-400 text-center italic">From: ${prize.caseName || 'Mystery Pack'}</div>
       `;
     }
