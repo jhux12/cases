@@ -368,6 +368,9 @@ setTimeout(() => {
         };
         await firebase.database().ref('users/' + user.uid + '/inventory').push(prizeData);
         await firebase.database().ref('users/' + user.uid + '/pulls').push(prizeData);
+        const pullHistory = JSON.parse(localStorage.getItem('pullHistory') || '[]');
+        pullHistory.push(prizeData);
+        localStorage.setItem('pullHistory', JSON.stringify(pullHistory));
         await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
         updateUserBalance();
       });

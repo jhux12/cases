@@ -127,12 +127,23 @@ function renderItems(items) {
 
 function loadShowcase(uid) {
   const pullsRef = firebase.database().ref('users/' + uid + '/pulls');
-  pullsRef.once('value').then(snap => {
+  pullsRef.on('value', snap => {
     const pulls = [];
     snap.forEach(child => pulls.push(child.val()));
-    const source = pulls.length ? pulls : currentItems;
-    const topThree = [...source].sort((a, b) => (b.value || 0) - (a.value || 0)).slice(0, 3);
-    renderShowcase(topThree);
+    if (pulls.length) {
+      localStorage.setItem('pullHistory', JSON.stringify(pulls));
+      const topThree = [...pulls]
+        .sort((a, b) => (b.value || 0) - (a.value || 0))
+        .slice(0, 3);
+      renderShowcase(topThree);
+    } else {
+      const localPulls = JSON.parse(localStorage.getItem('pullHistory') || '[]');
+      const source = localPulls.length ? localPulls : currentItems;
+      const topThree = [...source]
+        .sort((a, b) => (b.value || 0) - (a.value || 0))
+        .slice(0, 3);
+      renderShowcase(topThree);
+    }
   });
 }
 
