@@ -22,7 +22,11 @@ function renderCases(caseList) {
   const casesContainer = document.getElementById("cases-container");
   casesContainer.innerHTML = "";
 
-  caseList.forEach(c => {
+  const freeCases = caseList.filter(c => c.isFree);
+  const paidCases = caseList.filter(c => !c.isFree);
+  const orderedCases = [...freeCases, ...paidCases];
+
+  orderedCases.forEach(c => {
     const tagHTML = c.tag
       ? `<div class="absolute top-2 left-2 bg-pink-600 text-white text-xs px-2 py-1 rounded-full font-bold z-10">${c.tag}</div>`
       : "";
@@ -104,19 +108,4 @@ function loadCases() {
 
 window.addEventListener("DOMContentLoaded", () => {
   loadCases();
-
-  // Toggle filter panel for mobile
-  const filterToggle = document.getElementById("filter-toggle");
-  const filterPanel = document.getElementById("filter-panel");
-
-  if (filterToggle && filterPanel) {
-    let isVisible = false;
-    filterPanel.style.display = "none";
-
-    filterToggle.addEventListener("click", () => {
-      isVisible = !isVisible;
-      filterPanel.style.display = isVisible ? "flex" : "none";
-      filterToggle.textContent = isVisible ? "Hide Filters" : "Show Filters";
-    });
-  }
 });
