@@ -94,10 +94,31 @@ waitForElement("#topup-button", () => {
   waitForElement("#dropdown-toggle", () => {
     const dropdownToggle = document.getElementById("dropdown-toggle");
     const userDropdown = document.getElementById("user-dropdown");
+    const openDropdown = () => {
+      userDropdown.classList.remove("hidden", "fade-out");
+      userDropdown.classList.add("fade-in");
+    };
+
+    const closeDropdown = () => {
+      userDropdown.classList.remove("fade-in");
+      userDropdown.classList.add("fade-out");
+      userDropdown.addEventListener(
+        "animationend",
+        () => {
+          userDropdown.classList.add("hidden");
+          userDropdown.classList.remove("fade-out");
+        },
+        { once: true }
+      );
+    };
 
     dropdownToggle.addEventListener("click", (e) => {
       e.stopPropagation();
-      userDropdown.classList.toggle("hidden");
+      if (userDropdown.classList.contains("hidden")) {
+        openDropdown();
+      } else {
+        closeDropdown();
+      }
     });
 
     document.addEventListener("click", (e) => {
@@ -106,7 +127,7 @@ waitForElement("#topup-button", () => {
         !userDropdown.contains(e.target) &&
         !dropdownToggle.contains(e.target)
       ) {
-        userDropdown.classList.add("hidden");
+        closeDropdown();
       }
     });
   });
@@ -115,10 +136,44 @@ waitForElement("#topup-button", () => {
   waitForElement("#menu-toggle", () => {
     const menuToggle = document.getElementById("menu-toggle");
     const mobileDropdown = document.getElementById("mobile-dropdown");
+    const menuIcon = menuToggle.querySelector("i");
+    menuToggle.classList.add("transition-transform", "duration-200");
+
+    const openMenu = () => {
+      mobileDropdown.classList.remove("hidden", "fade-out");
+      mobileDropdown.classList.add("fade-in");
+      menuToggle.classList.add("rotate-90");
+      if (menuIcon) {
+        menuIcon.classList.remove("fa-bars");
+        menuIcon.classList.add("fa-times");
+      }
+    };
+
+    const closeMenu = () => {
+      mobileDropdown.classList.remove("fade-in");
+      mobileDropdown.classList.add("fade-out");
+      mobileDropdown.addEventListener(
+        "animationend",
+        () => {
+          mobileDropdown.classList.add("hidden");
+          mobileDropdown.classList.remove("fade-out");
+        },
+        { once: true }
+      );
+      menuToggle.classList.remove("rotate-90");
+      if (menuIcon) {
+        menuIcon.classList.remove("fa-times");
+        menuIcon.classList.add("fa-bars");
+      }
+    };
 
     menuToggle.addEventListener("click", (e) => {
       e.stopPropagation();
-      mobileDropdown.classList.toggle("hidden");
+      if (mobileDropdown.classList.contains("hidden")) {
+        openMenu();
+      } else {
+        closeMenu();
+      }
     });
 
     document.addEventListener("click", (event) => {
@@ -127,7 +182,7 @@ waitForElement("#topup-button", () => {
         !mobileDropdown.contains(event.target) &&
         !menuToggle.contains(event.target)
       ) {
-        mobileDropdown.classList.add("hidden");
+        closeMenu();
       }
     });
   });

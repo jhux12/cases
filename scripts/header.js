@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!user) return;
     const db = firebase.database();
     const userRef = db.ref("users/" + user.uid);
+    let prevBalance = null;
 
     userRef.on("value", (snapshot) => {
       const data = snapshot.val() || {};
@@ -76,9 +77,25 @@ document.addEventListener("DOMContentLoaded", () => {
       const mobileAuth = document.getElementById("mobile-auth-button");
       const inventoryLink = document.getElementById("inventory-link");
 
-      if (balanceDesktop) balanceDesktop.innerText = parseInt(balance, 10).toLocaleString();
-      if (balanceMobile) balanceMobile.innerText = parseInt(balance, 10).toLocaleString();
+      const formatted = parseInt(balance, 10).toLocaleString();
+      if (balanceDesktop) balanceDesktop.innerText = formatted;
+      if (balanceMobile) balanceMobile.innerText = formatted;
       if (userBalanceDiv) userBalanceDiv.classList.remove("hidden");
+
+      if (prevBalance !== balance) {
+        const userBalanceMobileDiv = document.getElementById("user-balance-mobile");
+        [userBalanceDiv, userBalanceMobileDiv].forEach((el) => {
+          if (el) {
+            el.classList.add("pulse-balance");
+            el.addEventListener(
+              "animationend",
+              () => el.classList.remove("pulse-balance"),
+              { once: true }
+            );
+          }
+        });
+        prevBalance = balance;
+      }
       if (usernameDisplay) usernameDisplay.innerText = user.displayName || data.username || user.email || "User";
       if (signinDesktop) signinDesktop.classList.add("hidden");
       if (logoutDesktop) logoutDesktop.classList.remove("hidden");
