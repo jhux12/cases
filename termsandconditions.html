@@ -101,7 +101,7 @@
     const data = snapshot.val() || {};
     const balance = data.balance || 0;
 
-    document.getElementById('balance-amount').innerText = balance;
+    document.getElementById('balance-amount').innerText = Number(balance).toLocaleString('en-US');
     document.getElementById('user-balance').classList.remove('hidden');
     document.getElementById('username-display').innerText = data.username || user.displayName || user.email || 'User';
     document.getElementById('signin-desktop').classList.add('hidden');

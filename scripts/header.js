@@ -76,8 +76,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const mobileAuth = document.getElementById("mobile-auth-button");
       const inventoryLink = document.getElementById("inventory-link");
 
-      if (balanceDesktop) balanceDesktop.innerText = parseInt(balance, 10).toLocaleString();
-      if (balanceMobile) balanceMobile.innerText = parseInt(balance, 10).toLocaleString();
+      if (balanceDesktop) balanceDesktop.innerText = parseInt(balance, 10).toLocaleString('en-US');
+      if (balanceMobile) balanceMobile.innerText = parseInt(balance, 10).toLocaleString('en-US');
       if (userBalanceDiv) userBalanceDiv.classList.remove("hidden");
       if (usernameDisplay) usernameDisplay.innerText = user.displayName || data.username || user.email || "User";
       if (signinDesktop) signinDesktop.classList.add("hidden");
