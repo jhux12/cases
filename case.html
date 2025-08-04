@@ -223,6 +223,7 @@ function showToast(message, color = 'bg-red-600') {
       }
 
       const caseData = snap.val();
+      const isFreeCase = !!caseData.isFree;
       const spiceMap = {
   easy: { label: "Easy 🌶️", color: "text-green-400" },
   medium: { label: "Medium 🌶️🌶️", color: "text-orange-400" },
@@ -237,7 +238,12 @@ const spiceHTML = spiceData
   : "";
 
 document.getElementById("case-name").innerHTML = `${caseData.name} ${spiceHTML}`;
-document.getElementById("button-price").textContent = formatCoins(caseData.price);
+const openBtn = document.getElementById("open-case-button");
+if (isFreeCase) {
+  openBtn.innerHTML = '<span class="relative z-10">Open for Free</span>';
+} else {
+  document.getElementById("button-price").textContent = formatCoins(caseData.price);
+}
 
 const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
   const rarityDiff = (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
@@ -289,10 +295,19 @@ btn.innerHTML = `
         if (!user) return alert("Please sign in to open cases.");
 
         const userSnap = await firebase.database().ref('users/' + user.uid).once("value");
-        const balance = parseFloat(userSnap.val()?.balance || 0);
+        const userData = userSnap.val() || {};
+        const balance = parseFloat(userData.balance || 0);
         const price = parseFloat(caseData.price || 0);
 
-if (balance < price) {
+if (isFreeCase && userData.freeCaseOpened) {
+  showToast("Free case already opened!", "bg-red-600");
+  btn.disabled = false;
+  btn.classList.remove("cursor-not-allowed", "opacity-60");
+  btn.innerHTML = '<span class="relative z-10">Open for Free</span>';
+  return;
+}
+
+if (!isFreeCase && balance < price) {
   showToast("Not enough coins!", "bg-red-600");
   btn.disabled = false;
   btn.classList.remove("cursor-not-allowed", "opacity-60");
@@ -343,14 +358,14 @@ setTimeout(() => {
     const btn = document.getElementById("open-case-button");
     btn.disabled = false;
     btn.classList.remove("cursor-not-allowed", "opacity-60");
-    btn.innerHTML = `
-      <div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50 z-0 animate-spin-slow"></div>
+    btn.innerHTML = isFreeCase
+      ? '<span class="relative z-10">Open for Free</span>'
+      : `<div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50 z-0 animate-spin-slow"></div>
       <span class="relative z-10 flex items-center gap-2">
         Open for
         <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
         <span id="button-price">${formatCoins(caseData.price)}</span>
-      </span>
-    `;
+      </span>`;
 
     playRaritySound(winningPrize.rarity);
   });
@@ -358,7 +373,9 @@ setTimeout(() => {
 
 
 
-        await firebase.database().ref('users/' + user.uid + '/balance').set(balance - price);
+        if (!isFreeCase) {
+          await firebase.database().ref('users/' + user.uid + '/balance').set(balance - price);
+        }
         await firebase.database().ref('users/' + user.uid + '/inventory').push({
           name: winningPrize.name,
           image: winningPrize.image,
@@ -366,6 +383,9 @@ setTimeout(() => {
           value: winningPrize.value,
           timestamp: Date.now()
         });
+        if (isFreeCase) {
+          await firebase.database().ref('users/' + user.uid + '/freeCaseOpened').set(true);
+        }
         await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
         updateUserBalance();
       });

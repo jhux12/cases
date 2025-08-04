@@ -22,13 +22,19 @@ function renderCases(caseList) {
   const casesContainer = document.getElementById("cases-container");
   casesContainer.innerHTML = "";
 
-  caseList.forEach(c => {
+  const freeCases = caseList.filter(c => c.isFree);
+  const paidCases = caseList.filter(c => !c.isFree);
+  const orderedCases = [...freeCases, ...paidCases];
+
+  orderedCases.forEach(c => {
     const tagHTML = c.tag
       ? `<div class="absolute top-2 left-2 bg-pink-600 text-white text-xs px-2 py-1 rounded-full font-bold z-10">${c.tag}</div>`
       : "";
 const pepperHTML = getPepperHTML(c.spiceLevel);
 
     const price = parseFloat(c.price) || 0;
+    const priceLabel = c.isFree ? "Free" : price.toLocaleString();
+    const priceIcon = c.isFree ? "" : '<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">';
 
     const prizes = Object.values(c.prizes || {});
     const topPrize = prizes.sort((a, b) => (b.value || 0) - (a.value || 0))[0];
@@ -44,9 +50,9 @@ const pepperHTML = getPepperHTML(c.spiceLevel);
         <img src="${packImg}" id="${imgId}" class="case-card-img mb-2 transition-all duration-300">
         <h3 class="mt-2 font-semibold text-white">${c.name}</h3>
         <a href="case.html?id=${c.id}" class="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded glow-button enhanced-glow flex justify-center items-center gap-2 text-white font-semibold">
-  Open for ${price.toLocaleString()}
-  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">
-</a>
+    Open for ${priceLabel}
+    ${priceIcon}
+  </a>
       </div>`;
 
     // Add hover effect after rendering
@@ -70,44 +76,36 @@ const pepperHTML = getPepperHTML(c.spiceLevel);
 }
 
 function loadCases() {
-  const dbRef = firebase.database().ref("cases");
+  firebase.auth().onAuthStateChanged(user => {
+    const dbRef = firebase.database().ref("cases");
+    const freeRef = user
+      ? firebase.database().ref(`users/${user.uid}/freeCaseOpened`).once("value")
+      : Promise.resolve({ val: () => true });
 
-  dbRef.once("value").then(snapshot => {
-    const data = snapshot.val();
-    allCases = [];
+    Promise.all([dbRef.once("value"), freeRef]).then(([snapshot, freeSnap]) => {
+      const data = snapshot.val() || {};
+      const hasOpenedFree = user ? !!freeSnap.val() : true;
+      allCases = [];
 
-    for (const [id, caseData] of Object.entries(data)) {
-      allCases.push({
-        id,
-        ...caseData
-      });
-    }
+      for (const [id, caseData] of Object.entries(data)) {
+        if (caseData.isFree && (hasOpenedFree || !user)) continue;
+        allCases.push({
+          id,
+          ...caseData
+        });
+      }
 
-    renderCases(allCases); // default render
+      renderCases(allCases); // default render
 
-    const getUserBalance = () => {
-      return parseFloat(document.getElementById("balance-amount")?.innerText.replace(/,/g, "")) || 0;
-    };
+      const getUserBalance = () => {
+        return parseFloat(document.getElementById("balance-amount")?.innerText.replace(/,/g, "")) || 0;
+      };
 
-    setupFilters(allCases, renderCases, getUserBalance);
+      setupFilters(allCases, renderCases, getUserBalance);
+    });
   });
 }
 
 window.addEventListener("DOMContentLoaded", () => {
   loadCases();
-
-  // Toggle filter panel for mobile
-  const filterToggle = document.getElementById("filter-toggle");
-  const filterPanel = document.getElementById("filter-panel");
-
-  if (filterToggle && filterPanel) {
-    let isVisible = false;
-    filterPanel.style.display = "none";
-
-    filterToggle.addEventListener("click", () => {
-      isVisible = !isVisible;
-      filterPanel.style.display = isVisible ? "flex" : "none";
-      filterToggle.textContent = isVisible ? "Hide Filters" : "Show Filters";
-    });
-  }
 });
