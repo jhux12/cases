@@ -141,14 +141,16 @@
           e.stopPropagation();
           if (userBalance < card.value) return alert("Not enough coins!");
           await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/balance").set(userBalance - card.value);
-          await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/inventory").push({
+          const cardData = {
             name: card.name,
             image: card.image,
             value: card.value,
             rarity: card.rarity,
             fromMarketplace: true,
             timestamp: Date.now()
-          });
+          };
+          await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/inventory").push(cardData);
+          await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/pulls").push(cardData);
           document.getElementById("popup-image").src = card.image;
           document.getElementById("popup-name").textContent = card.name;
           document.getElementById("popup-value").textContent = `${card.value.toLocaleString()} coins`;
@@ -182,14 +184,16 @@
       }
 
       await firebase.database().ref("users/" + user.uid + "/balance").set(userBalance - window.selectedCard.value);
-      await firebase.database().ref("users/" + user.uid + "/inventory").push({
+      const cardData = {
         name: window.selectedCard.name,
         image: window.selectedCard.image,
         value: window.selectedCard.value,
         rarity: window.selectedCard.rarity,
         fromMarketplace: true,
         timestamp: Date.now()
-      });
+      };
+      await firebase.database().ref("users/" + user.uid + "/inventory").push(cardData);
+      await firebase.database().ref("users/" + user.uid + "/pulls").push(cardData);
 
       document.getElementById("item-popup").classList.add("hidden");
       document.getElementById("popup-image").src = window.selectedCard.image;

@@ -359,13 +359,15 @@ setTimeout(() => {
 
 
         await firebase.database().ref('users/' + user.uid + '/balance').set(balance - price);
-        await firebase.database().ref('users/' + user.uid + '/inventory').push({
+        const prizeData = {
           name: winningPrize.name,
           image: winningPrize.image,
           rarity: winningPrize.rarity,
           value: winningPrize.value,
           timestamp: Date.now()
-        });
+        };
+        await firebase.database().ref('users/' + user.uid + '/inventory').push(prizeData);
+        await firebase.database().ref('users/' + user.uid + '/pulls').push(prizeData);
         await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
         updateUserBalance();
       });

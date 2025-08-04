@@ -20,24 +20,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const inventoryRef = db.ref('users/' + user.uid + '/inventory');
     inventoryRef.once('value').then(snap => {
+      currentItems = [];
       if (!snap.exists()) {
         document.getElementById('inventory-container').innerHTML = "<p>You have no items yet.</p>";
-        return;
+      } else {
+        snap.forEach(child => {
+          const item = child.val();
+          item.key = child.key;
+          item.id = child.key;
+          if (!item.requested) currentItems.push(item);
+        });
+
+        sortItems('rarity');
+        renderItems(currentItems);
       }
 
-      currentItems = [];
-      snap.forEach(child => {
-        const item = child.val();
-        item.key = child.key;
-        item.id = child.key;
-        if (!item.requested) currentItems.push(item);
-      });
-
-      sortItems('rarity');
-      renderItems(currentItems);
-
-      const topThree = [...currentItems].sort((a, b) => (b.value || 0) - (a.value || 0)).slice(0, 3);
-      renderShowcase(topThree);
+      loadShowcase(user.uid);
     });
 
     const ordersRef = db.ref('shipments').orderByChild('userId').equalTo(user.uid);
@@ -124,6 +122,17 @@ function renderItems(items) {
           <button onclick="shipItem('${item.key}')" ${item.shipped || item.requested ? 'disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full"' : 'class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full"'}>Ship</button>
         </div>
       </div>`;
+  });
+}
+
+function loadShowcase(uid) {
+  const pullsRef = firebase.database().ref('users/' + uid + '/pulls');
+  pullsRef.once('value').then(snap => {
+    const pulls = [];
+    snap.forEach(child => pulls.push(child.val()));
+    const source = pulls.length ? pulls : currentItems;
+    const topThree = [...source].sort((a, b) => (b.value || 0) - (a.value || 0)).slice(0, 3);
+    renderShowcase(topThree);
   });
 }
 
