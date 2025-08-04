@@ -93,8 +93,11 @@
     const snapshot = await userRef.once('value');
     const data = snapshot.val() || {};
     const balance = data.balance || 0;
+    const balanceFormatted = Number(balance).toLocaleString();
 
-    document.getElementById('balance-amount').innerText = balance;
+    document.getElementById('balance-amount').innerText = balanceFormatted;
+    const balanceMobile = document.getElementById('balance-amount-mobile');
+    if (balanceMobile) balanceMobile.innerText = balanceFormatted;
     document.getElementById('user-balance').classList.remove('hidden');
     document.getElementById('username-display').innerText = data.username || user.displayName || user.email || 'User';
     document.getElementById('signin-desktop').classList.add('hidden');
