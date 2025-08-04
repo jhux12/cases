@@ -28,23 +28,23 @@
       z-index: 50;
     }
 
-    .inventory-hero {
+    .orders-hero {
       background: linear-gradient(to right, rgba(76,29,149,0.6), rgba(190,24,93,0.6));
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 1.5rem;
       padding: 2rem;
-      margin: 120px 1.5rem 2rem;
+      margin: 2rem 1.5rem;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       text-align: center;
     }
 
-    .inventory-hero h1 {
+    .orders-hero h1 {
       font-size: 2.5rem;
       font-weight: 800;
       color: #fff;
     }
 
-    .inventory-hero p {
+    .orders-hero p {
       color: #cbd5e1;
       margin-top: 0.5rem;
       font-size: 1.125rem;
@@ -52,6 +52,8 @@
 
     .item-card {
       background-color: #1f1f2b;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.75rem;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       box-shadow: 0 4px 14px rgba(0,0,0,0.3);
     }
@@ -95,8 +97,9 @@
 <!-- Profile Tabs -->
 <div class="w-full flex justify-center mt-6">
   <div class="flex space-x-4 bg-gray-800 p-2 rounded-xl shadow-md">
-<button onclick="showTab('inventory-section')" data-tab="inventory" class="tab-button px-4 py-2 text-white bg-pink-600 rounded-full">Inventory</button>
-<button onclick="showTab('profile-section')" data-tab="profile" class="tab-button px-4 py-2 text-white hover:bg-pink-600 rounded-full">Profile</button>
+    <button onclick="showTab('inventory-section')" data-tab="inventory" class="tab-button px-4 py-2 text-white bg-pink-600 rounded-full">Inventory</button>
+    <button onclick="showTab('orders-section')" data-tab="orders" class="tab-button px-4 py-2 text-white hover:bg-pink-600 rounded-full">Orders</button>
+    <button onclick="showTab('profile-section')" data-tab="profile" class="tab-button px-4 py-2 text-white hover:bg-pink-600 rounded-full">Profile</button>
   </div>
 </div>
 <div id="inventory-section" class="tab-content">
@@ -126,12 +129,6 @@
 
     <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
 
-<section class="inventory-hero">
-  <h1><i class="fas fa-truck mr-2"></i>Your Recent Orders</h1>
-  <p>Below are your previous shipment requests and their current status.</p>
-</section>
-    <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
-
     <!-- Ship Popup -->
     <div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
       <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
@@ -151,7 +148,14 @@
     </div>
   </main>
 </div>
-  <!-- Profile Section -->
+<div id="orders-section" class="tab-content hidden p-6">
+  <section class="orders-hero">
+    <h1><i class="fas fa-truck mr-2"></i>Your Recent Orders</h1>
+    <p>Below are your previous shipment requests and their current status.</p>
+  </section>
+  <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+</div>
+<!-- Profile Section -->
 <div id="profile-section" class="tab-content hidden px-6 py-8">
   <div class="max-w-lg mx-auto bg-gray-900 rounded-2xl p-6 shadow-lg">
     <h2 class="text-xl font-bold mb-4 text-white">Your Profile</h2>
@@ -223,41 +227,34 @@
   </script>
   <script>
     function showTab(tabId) {
-  // Hide all tabs
-  document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden"));
+      // Hide all tabs
+      document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden"));
 
-  // Show selected tab
-  document.getElementById(tabId).classList.remove("hidden");
+      // Show selected tab
+      document.getElementById(tabId).classList.remove("hidden");
 
-  // Reset all buttons
-  document.querySelectorAll(".tab-button").forEach(btn => {
-    btn.classList.remove("bg-pink-600");
-    btn.classList.add("hover:bg-pink-600");
-  });
+      // Reset all buttons
+      document.querySelectorAll(".tab-button").forEach(btn => {
+        btn.classList.remove("bg-pink-600");
+        btn.classList.add("hover:bg-pink-600");
+      });
 
-  // Highlight clicked button
-  const clickedButton = [...document.querySelectorAll(".tab-button")].find(btn =>
-    btn.getAttribute("onclick").includes(tabId)
-  );
-  if (clickedButton) {
-    clickedButton.classList.add("bg-pink-600");
-    clickedButton.classList.remove("hover:bg-pink-600");
-  }
-}
+      // Highlight clicked button
+      const clickedButton = [...document.querySelectorAll(".tab-button")].find(btn =>
+        btn.getAttribute("onclick").includes(tabId)
+      );
+      if (clickedButton) {
+        clickedButton.classList.add("bg-pink-600");
+        clickedButton.classList.remove("hover:bg-pink-600");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => showTab('inventory-section'));
   </script>
-<script>
-function showTab(tabId) {
-  document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden"));
-  document.getElementById(tabId).classList.remove("hidden");
 
-  document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("bg-pink-600"));
-  event.target.classList.add("bg-pink-600");
-}
-
-
-// Load profile data
-// Load profile data
-firebase.auth().onAuthStateChanged(user => {
+  <script>
+  // Load profile data
+  firebase.auth().onAuthStateChanged(user => {
   if (user) {
     const uid = user.uid;
     const userRef = firebase.database().ref('users/' + uid);
