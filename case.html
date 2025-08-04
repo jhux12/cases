@@ -74,17 +74,12 @@
     <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" alt="coin" />
   </div>
 </div>
-    <div class="my-8 border border-white/10 rounded-lg bg-black/20">
+    <div id="spinner-border" class="my-8 border-4 border-gray-800 rounded-lg bg-black/20 transition-colors duration-300">
       <div class="relative h-[200px] overflow-hidden">
         <div id="center-line" class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
         <div id="spinner-container" class="w-full h-full"></div>
       </div>
     </div>
-    <div id="rarity-info" class="hidden w-full mt-2">
-  <div id="rarity-indicator" class="h-[6px] w-full rounded-full bg-gray-800 overflow-hidden border border-white/20">
-    <div id="rarity-bar" class="h-full w-full bg-lime-500 transition-colors duration-300"></div>
-  </div>
-</div>
     <div class="flex justify-center gap-4 mt-6">
   <button id="open-case-button" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform transform hover:scale-105 animate-pulse focus:outline-none overflow-hidden">
         <span class="relative z-10 flex items-center gap-2">
@@ -121,9 +116,22 @@
  <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 text-sm"></div>
 </div>
   </section>
+  <button id="mute-toggle" aria-label="Toggle sound" class="fixed bottom-4 left-4 z-50 p-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg hover:scale-110 transition-transform">
+    <i id="mute-icon" class="fas fa-volume-up"></i>
+  </button>
   <!-- Main logic -->
 <script type="module">
 import { renderSpinner, spinToPrize } from './scripts/spinner.js';
+let isMuted = false;
+function applyMuteState() {
+  document.querySelectorAll('audio').forEach(a => { a.muted = isMuted; });
+}
+document.getElementById('mute-toggle').addEventListener('click', () => {
+  isMuted = !isMuted;
+  applyMuteState();
+  const icon = document.getElementById('mute-icon');
+  if (icon) icon.className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+});
 document.addEventListener("click", () => {
   const unlockAudio = (id) => {
     const audio = document.getElementById(id);
@@ -133,6 +141,7 @@ document.addEventListener("click", () => {
         audio.pause();
         audio.currentTime = 0;
         audio.muted = false;
+        applyMuteState();
       }).catch(() => {});
     }
   };
