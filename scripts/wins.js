@@ -2,12 +2,10 @@ function displayLiveWins(prizes) {
   const carousel = document.getElementById("recent-wins-carousel");
   if (!carousel) return;
 
-  carousel.innerHTML = '';
+  carousel.innerHTML = "";
 
-  // Shuffle and clone prizes to simulate looping
-  const shuffled = [...prizes].sort(() => Math.random() - 0.5);
-  const selected = shuffled.slice(0, 10);
-
+  // Shuffle prizes and duplicate to allow seamless looping
+  const selected = [...prizes].sort(() => Math.random() - 0.5).slice(0, 10);
   const loopPrizes = [...selected, ...selected];
 
   loopPrizes.forEach(prize => {
@@ -16,7 +14,6 @@ function displayLiveWins(prizes) {
     // Glow effect based on rarity
     let glowClass = "";
     const rarity = prize.rarity?.toLowerCase();
-
     switch (rarity) {
       case "legendary":
         glowClass = "shadow-[0_0_20px_4px_rgba(255,215,0,0.5)] border-yellow-400";
@@ -34,25 +31,31 @@ function displayLiveWins(prizes) {
         glowClass = "shadow-[0_0_6px_1px_rgba(255,255,255,0.1)] border-gray-700";
     }
 
-    card.className = `
-      min-w-[160px] bg-[#12121b] p-3 rounded-xl border ${glowClass}
-      text-center flex-shrink-0 mx-2 transform transition duration-200 hover:scale-105
-    `;
+    card.className = `min-w-[96px] md:min-w-[140px] bg-[#12121b] p-3 rounded-xl border ${glowClass} text-center flex-shrink-0 mx-2`;
 
     if (prize.packImage) {
       card.innerHTML = `
-        <div class="relative w-full max-w-[120px] h-[120px] mx-auto group">
-          <img src="${prize.image}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md transition-opacity duration-300 group-hover:opacity-0 pointer-events-none" />
-          <img src="${prize.packImage}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
+        <div class="group relative w-[80px] h-[80px] md:w-[120px] md:h-[120px] mx-auto overflow-hidden cursor-pointer">
+          <img src="${prize.image}" class="prize-img absolute inset-0 w-full h-full object-contain rounded-md shadow-md transition-opacity duration-300 group-hover:opacity-0" />
+          <img src="${prize.packImage}" class="pack-img absolute inset-0 w-full h-full object-contain rounded-md shadow-md transition-opacity duration-300 opacity-0 group-hover:opacity-100" />
         </div>
-        <div class="text-sm text-white text-center leading-tight mt-2 truncate w-full max-w-[120px] mx-auto" title="${prize.name}">${prize.name}</div>
-        <div class="text-xs text-gray-400 text-center italic">From: ${prize.caseName || 'Mystery Pack'}</div>
+        <div class="text-sm text-white mt-2 truncate w-[80px] md:w-[120px] mx-auto" title="${prize.name}">${prize.name}</div>
+        <div class="text-xs text-gray-400 italic">From: ${prize.caseName || 'Mystery Pack'}</div>
       `;
+
+      const imgWrap = card.querySelector('.group');
+      const prizeImg = imgWrap.querySelector('.prize-img');
+      const packImg = imgWrap.querySelector('.pack-img');
+
+      imgWrap.addEventListener('click', () => {
+        prizeImg.classList.toggle('opacity-0');
+        packImg.classList.toggle('opacity-0');
+      });
     } else {
       card.innerHTML = `
-        <img src="${prize.image}" class="w-full max-w-[120px] h-[120px] object-contain mx-auto rounded-md shadow-md mb-2" />
-        <div class="text-sm text-white text-center leading-tight truncate w-full max-w-[120px] mx-auto mt-2" title="${prize.name}">${prize.name}</div>
-        <div class="text-xs text-gray-400 text-center italic">From: ${prize.caseName || 'Mystery Pack'}</div>
+        <img src="${prize.image}" class="w-[80px] h-[80px] md:w-[120px] md:h-[120px] object-contain mx-auto rounded-md shadow-md" />
+        <div class="text-sm text-white mt-2 truncate w-[80px] md:w-[120px] mx-auto" title="${prize.name}">${prize.name}</div>
+        <div class="text-xs text-gray-400 italic">From: ${prize.caseName || 'Mystery Pack'}</div>
       `;
     }
 
@@ -69,20 +72,14 @@ function fetchHighTierPrizes() {
     if (!cases) return;
 
     const highTier = [];
-
-    Object.entries(cases).forEach(([caseKey, caseDetails]) => {
+    Object.values(cases).forEach(caseDetails => {
       const packImage = caseDetails.image;
       const caseName = caseDetails.name || "Mystery Pack";
       const prizes = caseDetails.prizes || [];
-
       prizes.forEach(prize => {
         const rarity = prize.rarity?.toLowerCase();
         if (rarity === "ultra rare" || rarity === "legendary") {
-          highTier.push({
-            ...prize,
-            packImage: packImage || "",
-            caseName: caseName,
-          });
+          highTier.push({ ...prize, packImage: packImage || "", caseName });
         }
       });
     });
@@ -97,26 +94,20 @@ function startInfiniteCarouselScroll(containerId, speed = 0.2) {
 
   let isPaused = false;
 
-  function scrollStep() {
+  function step() {
     if (!isPaused) {
       container.scrollLeft += speed;
       if (container.scrollLeft >= container.scrollWidth - container.clientWidth) {
-  container.scrollLeft = 0;
-}
+        container.scrollLeft = 0;
+      }
     }
-    requestAnimationFrame(scrollStep);
+    requestAnimationFrame(step);
   }
 
-  container.addEventListener("mouseenter", () => {
-    isPaused = true;
-  });
+  container.addEventListener("mouseenter", () => { isPaused = true; });
+  container.addEventListener("mouseleave", () => { isPaused = false; });
 
-  container.addEventListener("mouseleave", () => {
-    isPaused = false;
-  });
-
-  requestAnimationFrame(scrollStep);
+  requestAnimationFrame(step);
 }
 
 document.addEventListener("DOMContentLoaded", fetchHighTierPrizes);
-
