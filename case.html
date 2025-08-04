@@ -122,6 +122,7 @@
   <!-- Main logic -->
 <script type="module">
 import { renderSpinner, spinToPrize } from './scripts/spinner.js';
+import { updateMilestones } from './scripts/quests.js';
 let isMuted = false;
 function applyMuteState() {
   document.querySelectorAll('audio').forEach(a => { a.muted = isMuted; });
@@ -398,6 +399,7 @@ setTimeout(() => {
           value: winningPrize.value,
           timestamp: Date.now()
         });
+        await updateMilestones(user.uid, winningPrize.value);
         if (isFreeCase) {
           await firebase.database().ref('users/' + user.uid + '/freeCaseOpened').set(true);
         }

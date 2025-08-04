@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <a href="rewards.html" class="flex items-center gap-1 text-yellow-400 font-semibold hover:text-yellow-300 transition">
           <i class="fas fa-gift"></i> Rewards
         </a>
+        <a href="leaderboard.html" class="flex items-center gap-1 text-blue-400 font-semibold hover:text-blue-300 transition">
+          <i class="fas fa-trophy"></i> Leaderboard
+        </a>
         <a href="marketplace.html" class="flex items-center gap-1 text-pink-400 font-semibold hover:text-pink-300 transition">
           <i class="fas fa-store"></i> Marketplace
         </a>
@@ -53,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <a href="how-it-works.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm"><i class="fas fa-question-circle mr-2"></i> How It Works</a>
       <a href="rewards.html" class="block px-4 py-2 hover:bg-gray-700 text-yellow-400 text-sm"><i class="fas fa-gift mr-2"></i> Rewards</a>
       <a href="marketplace.html" class="block px-4 py-2 hover:bg-gray-700 text-pink-400 text-sm"><i class="fas fa-store mr-2"></i> Marketplace</a>
+      <a href="leaderboard.html" class="block px-4 py-2 hover:bg-gray-700 text-blue-400 text-sm"><i class="fas fa-trophy mr-2"></i> Leaderboard</a>
       <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 hover:bg-gray-700 text-red-400 text-sm"><i class="fas fa-sign-in-alt mr-2"></i> Sign In</a>
     </div>
   `; // <-- closing backtick and semicolon!

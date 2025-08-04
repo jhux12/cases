@@ -134,3 +134,34 @@ export async function renderWeeklyQuests(containerId = "quest-container") {
   });
 }
 
+// Track long-term milestones and award badges stored in Firestore.
+// Called whenever a pack is opened to update stats used by the leaderboard.
+export async function updateMilestones(uid, prizeValue = 0) {
+  if (!uid) return;
+  const fs = firebase.firestore();
+  const docRef = fs.collection('leaderboard').doc(uid);
+
+  await fs.runTransaction(async (tx) => {
+    const doc = await tx.get(docRef);
+    const data = doc.exists ? doc.data() : {};
+    const packsOpened = (data.packsOpened || 0) + 1;
+    const cardValue = (data.cardValue || 0) + (prizeValue || 0);
+    let badges = data.badges || [];
+
+    const newBadges = [];
+    if (packsOpened >= 10 && !badges.includes('10 Packs')) newBadges.push('10 Packs');
+    if (packsOpened >= 50 && !badges.includes('50 Packs')) newBadges.push('50 Packs');
+    if (cardValue >= 1000 && !badges.includes('1k Value')) newBadges.push('1k Value');
+    if (cardValue >= 5000 && !badges.includes('5k Value')) newBadges.push('5k Value');
+
+    if (newBadges.length) badges = [...badges, ...newBadges];
+
+    tx.set(docRef, {
+      username: firebase.auth().currentUser?.displayName || firebase.auth().currentUser?.email || 'Anonymous',
+      packsOpened,
+      cardValue,
+      badges,
+    }, { merge: true });
+  });
+}
+

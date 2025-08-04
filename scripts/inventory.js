@@ -18,6 +18,21 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('username-display').innerText = user.displayName || user.email;
     });
 
+    // Load badges from Firestore
+    firebase.firestore().collection('leaderboard').doc(user.uid).get().then(doc => {
+      const badgeData = doc.data() || {};
+      const badges = badgeData.badges || [];
+      const container = document.getElementById('badge-container');
+      if (!container) return;
+      if (badges.length === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-400">No badges yet.</p>';
+      } else {
+        container.innerHTML = badges
+          .map(b => `<span class="bg-purple-600 text-white text-xs px-2 py-1 rounded-full">${b}</span>`)
+          .join(' ');
+      }
+    });
+
     const inventoryRef = db.ref('users/' + user.uid + '/inventory');
     inventoryRef.once('value').then(snap => {
       if (!snap.exists()) {
