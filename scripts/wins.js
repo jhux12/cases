@@ -42,6 +42,7 @@ function displayLiveWins(prizes) {
     if (prize.packImage) {
       card.innerHTML = `
         <div class="relative w-full max-w-[90px] h-[90px] md:max-w-[120px] md:h-[120px] mx-auto group overflow-hidden cursor-pointer">
+
           <img
             src="${prize.image}"
             class="prize-img absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-100 transition-opacity duration-300 pointer-events-none md:group-hover:opacity-0"
@@ -50,6 +51,14 @@ function displayLiveWins(prizes) {
             src="${prize.packImage}"
             class="pack-img absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-0 transition-opacity duration-300 pointer-events-none md:group-hover:opacity-100"
           />
+
+          <img src="${prize.image}" class="prize-img absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-100 transition-opacity duration-300 pointer-events-none md:group-hover:opacity-0" />
+          <img src="${prize.packImage}" class="pack-img absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-0 transition-opacity duration-300 pointer-events-none md:group-hover:opacity-100" />
+
+        <div class="relative w-full max-w-[90px] h-[90px] md:max-w-[120px] md:h-[120px] mx-auto group overflow-hidden">
+          <img src="${prize.image}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md transition-opacity duration-300 md:group-hover:opacity-0 pointer-events-none" />
+          <img src="${prize.packImage}" class="absolute inset-0 w-full h-full object-contain rounded-md shadow-md opacity-0 transition-opacity duration-300 md:group-hover:opacity-100 pointer-events-none" />
+ main
         </div>
         <div class="text-sm text-white text-center leading-tight mt-2 truncate w-full max-w-[90px] md:max-w-[120px] mx-auto" title="${prize.name}">${prize.name}</div>
         <div class="text-xs text-gray-400 text-center italic">From: ${prize.caseName || 'Mystery Pack'}</div>
@@ -58,9 +67,11 @@ function displayLiveWins(prizes) {
       const imgContainer = card.querySelector('.group');
       const prizeImg = imgContainer.querySelector('.prize-img');
       const packImg = imgContainer.querySelector('.pack-img');
-
       const toggleImages = (e) => {
         e.preventDefault();
+
+      imgContainer.addEventListener('click', () => {
+ main
         prizeImg.classList.toggle('opacity-0');
         prizeImg.classList.toggle('opacity-100');
         packImg.classList.toggle('opacity-0');
@@ -69,6 +80,9 @@ function displayLiveWins(prizes) {
 
       imgContainer.addEventListener('click', toggleImages);
       imgContainer.addEventListener('touchstart', toggleImages);
+
+      });
+ main
     } else {
       card.innerHTML = `
         <img src="${prize.image}" class="w-full max-w-[90px] h-[90px] md:max-w-[120px] md:h-[120px] object-contain mx-auto rounded-md shadow-md mb-2" />
