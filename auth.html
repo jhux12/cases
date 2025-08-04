@@ -38,20 +38,6 @@
       <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">Login</button>
     </form>
 
-    <!-- Phone Authentication -->
-    <div id="phone-auth" class="mt-8 space-y-4">
-      <div id="recaptcha-container"></div>
-      <div>
-        <label>Phone Number</label>
-        <input type="tel" id="phone-number" class="w-full p-2 rounded bg-gray-700" />
-      </div>
-      <button type="button" onclick="sendVerificationCode()" class="w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Send Code</button>
-      <div id="verify-code" class="hidden space-y-2">
-        <input type="text" id="verification-code" placeholder="Enter verification code" class="w-full p-2 rounded bg-gray-700" />
-        <button type="button" onclick="verifyCode()" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Verify & Login</button>
-      </div>
-    </div>
-
     <!-- Register Form -->
     <form id="register-form" class="space-y-4 hidden">
       <div>
@@ -76,6 +62,12 @@
       </div>
       <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded">Register</button>
     </form>
+
+    <div id="register-send" class="hidden mt-4 space-y-4">
+      <div id="recaptcha-container"></div>
+      <p>Verify your phone number to complete registration.</p>
+      <button type="button" onclick="sendRegisterCode()" class="w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Send Code</button>
+    </div>
 
     <div id="register-verify" class="hidden mt-4 space-y-2">
       <input type="text" id="register-verification-code" placeholder="Enter verification code" class="w-full p-2 rounded bg-gray-700" />
@@ -102,7 +94,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
-let confirmationResult;
+let confirmationResult, pendingPhone;
 
 function formatPhone(number) {
   const cleaned = number.replace(/\s+/g, '');
@@ -157,12 +149,10 @@ registerForm.addEventListener('submit', e => {
         }))
         .then(() => user.reload());
     })
-    .then(() => auth.currentUser.linkWithPhoneNumber(phone, recaptchaVerifier))
-    .then(result => {
-      confirmationResult = result;
+    .then(() => {
+      pendingPhone = phone;
       registerForm.classList.add('hidden');
-      document.getElementById('register-verify').classList.remove('hidden');
-      alert('Verification code sent to your phone.');
+      document.getElementById('register-send').classList.remove('hidden');
     })
     .catch(error => {
       alert('❌ ' + error.message);
@@ -201,35 +191,6 @@ function forgotPassword() {
     });
 }
 
-function sendVerificationCode() {
-  const phoneNumber = formatPhone(document.getElementById('phone-number').value);
-  if (!phoneNumber) {
-    alert('Please enter phone number in format +1234567890');
-    return;
-  }
-  auth.signInWithPhoneNumber(phoneNumber, recaptchaVerifier)
-    .then(result => {
-      confirmationResult = result;
-      document.getElementById('verify-code').classList.remove('hidden');
-      alert('Verification code sent!');
-    })
-    .catch(error => {
-      alert(error.message);
-    });
-}
-
-function verifyCode() {
-  const code = document.getElementById('verification-code').value;
-  confirmationResult.confirm(code)
-    .then(() => {
-      alert('Login successful!');
-      window.location.href = 'index.html';
-    })
-    .catch(error => {
-      alert(error.message);
-    });
-}
-
 function verifyRegisterCode() {
   const code = document.getElementById('register-verification-code').value;
   confirmationResult.confirm(code)
@@ -239,6 +200,19 @@ function verifyRegisterCode() {
     })
     .catch(error => {
       alert(error.message);
+    });
+}
+
+function sendRegisterCode() {
+  auth.currentUser.linkWithPhoneNumber(pendingPhone, recaptchaVerifier)
+    .then(result => {
+      confirmationResult = result;
+      document.getElementById('register-send').classList.add('hidden');
+      document.getElementById('register-verify').classList.remove('hidden');
+      alert('Verification code sent to your phone.');
+    })
+    .catch(error => {
+      alert('❌ ' + error.message);
     });
 }
 </script>
