@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <a href="marketplace.html" class="flex items-center gap-1 text-pink-400 font-semibold hover:text-pink-300 transition">
           <i class="fas fa-store"></i> Marketplace
         </a>
+        <button id="theme-toggle" class="text-white font-semibold hover:text-gray-300 transition">Theme</button>
         <div id="user-balance" class="flex items-center gap-1 bg-gray-800 text-white px-3 py-1 rounded-full text-sm hidden">
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
           <span id="balance-amount">0</span>
@@ -51,11 +52,21 @@ document.addEventListener("DOMContentLoaded", () => {
       <a href="index.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm"><i class="fas fa-cube mr-2"></i> Open Packs</a>
       <a id="inventory-link" href="inventory.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm hidden"><i class="fas fa-box-open mr-2"></i> Inventory</a>
       <a href="how-it-works.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm"><i class="fas fa-question-circle mr-2"></i> How It Works</a>
+      <button id="theme-toggle-mobile" class="block w-full text-left px-4 py-2 hover:bg-gray-700 text-white text-sm">Theme</button>
       <a href="rewards.html" class="block px-4 py-2 hover:bg-gray-700 text-yellow-400 text-sm"><i class="fas fa-gift mr-2"></i> Rewards</a>
       <a href="marketplace.html" class="block px-4 py-2 hover:bg-gray-700 text-pink-400 text-sm"><i class="fas fa-store mr-2"></i> Marketplace</a>
       <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 hover:bg-gray-700 text-red-400 text-sm"><i class="fas fa-sign-in-alt mr-2"></i> Sign In</a>
     </div>
   `; // <-- closing backtick and semicolon!
+
+  const themeButtons = [document.getElementById("theme-toggle"), document.getElementById("theme-toggle-mobile")];
+  themeButtons.forEach((btn) => {
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme");
+      document.documentElement.setAttribute("data-theme", current === "light" ? "dark" : "light");
+    });
+  });
 
   // Firebase auth logic
   firebase.auth().onAuthStateChanged(async (user) => {
