@@ -67,8 +67,9 @@
   <body class="bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white">
       <canvas id="particle-canvas"></canvas>
       <header></header>
-<section id="case-content" class="pt-32 pb-10 px-4 max-w-5xl mx-auto">
-  <div id="case-container" class="relative bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 p-6 shadow-xl backdrop-blur-md">
+<section id="case-content" class="relative pt-32 pb-10 px-4 max-w-5xl mx-auto">
+  <img id="case-pack-image" class="absolute -top-24 left-1/2 transform -translate-x-1/2 w-64 opacity-20 z-0 pointer-events-none" alt="Case Pack" />
+  <div id="case-container" class="relative z-10 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 p-6 shadow-xl backdrop-blur-md">
    <div class="absolute top-4 left-4 z-10 flex items-center gap-2">
   <!-- Back Button -->
   <a href="index.html" class="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow-md border border-white/10 backdrop-blur-sm hover:scale-105 transition">
@@ -246,6 +247,11 @@ function showToast(message, color = 'bg-red-600') {
       }
 
       const caseData = snap.val();
+      const packImgEl = document.getElementById("case-pack-image");
+      if (packImgEl && caseData.image) {
+        packImgEl.src = caseData.image;
+        packImgEl.alt = `${caseData.name} pack`;
+      }
       const isFreeCase = !!caseData.isFree;
       const spiceMap = {
   easy: { label: "Easy 🌶️", color: "text-green-400" },
