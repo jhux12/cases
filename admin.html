@@ -178,14 +178,16 @@
 
 <section id="milestones-section" class="hidden">
   <h1 class="text-3xl font-bold mb-6">Milestones</h1>
-  <form id="milestone-config-form" class="space-y-4 max-w-xl bg-gray-800 p-6 rounded-lg">
+  <form id="milestone-config-form" class="space-y-6 max-w-xl bg-gray-800 p-6 rounded-lg">
     <div>
-      <label class="block mb-1">Badge Config (JSON Array)</label>
-      <textarea id="badge-config" class="w-full p-2 rounded h-32"></textarea>
+      <h2 class="text-2xl mb-4">Badges</h2>
+      <div id="badge-list" class="space-y-4"></div>
+      <button type="button" onclick="addBadge()" class="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">+ Add Badge</button>
     </div>
     <div>
-      <label class="block mb-1">Level Requirements (JSON Array of pack thresholds)</label>
-      <textarea id="level-config" class="w-full p-2 rounded h-32"></textarea>
+      <h2 class="text-2xl mb-4">Level Requirements</h2>
+      <div id="level-list" class="space-y-4"></div>
+      <button type="button" onclick="addLevel()" class="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">+ Add Level</button>
     </div>
     <button type="submit" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded">Save</button>
   </form>
@@ -765,21 +767,59 @@ document.getElementById('quest-config-form').addEventListener('submit', e => {
   firebase.database().ref('questConfig').set(config).then(() => showToast('✅ Quest config saved'));
 });
 
+function addBadge(badge = {}) {
+  const div = document.createElement('div');
+  div.className = 'flex gap-2 items-center';
+  div.innerHTML = `
+    <input type="text" placeholder="Badge Name" class="badge-name w-full p-2 rounded" value="${badge.name || ''}">
+    <input type="number" placeholder="Pack Threshold" class="badge-threshold w-32 p-2 rounded" value="${badge.threshold || ''}">
+    <button type="button" class="text-red-400 hover:text-red-600" onclick="this.parentElement.remove()">Remove</button>
+  `;
+  document.getElementById('badge-list').appendChild(div);
+}
+
+function addLevel(value = '') {
+  const div = document.createElement('div');
+  div.className = 'flex gap-2 items-center';
+  div.innerHTML = `
+    <input type="number" placeholder="Pack Threshold" class="level-value w-full p-2 rounded" value="${value}">
+    <button type="button" class="text-red-400 hover:text-red-600" onclick="this.parentElement.remove()">Remove</button>
+  `;
+  document.getElementById('level-list').appendChild(div);
+}
+
 function loadMilestoneConfig() {
   const ref = firebase.database().ref('milestoneConfig');
   ref.once('value').then(snap => {
     const cfg = snap.val() || {};
-    document.getElementById('badge-config').value = JSON.stringify(cfg.badges || [], null, 2);
-    document.getElementById('level-config').value = JSON.stringify(cfg.levels || [], null, 2);
+    const badges = cfg.badges || [];
+    const levels = cfg.levels || [];
+    if (badges.length) {
+      badges.forEach(b => addBadge(b));
+    } else {
+      addBadge();
+    }
+    if (levels.length) {
+      levels.forEach(l => addLevel(l));
+    } else {
+      addLevel();
+    }
   });
 }
 
 document.getElementById('milestone-config-form').addEventListener('submit', e => {
   e.preventDefault();
-  let badges = [];
-  let levels = [];
-  try { badges = JSON.parse(document.getElementById('badge-config').value || '[]'); } catch (err) {}
-  try { levels = JSON.parse(document.getElementById('level-config').value || '[]'); } catch (err) {}
+  const badges = [];
+  document.querySelectorAll('#badge-list > div').forEach(div => {
+    const name = div.querySelector('.badge-name').value.trim();
+    const threshold = parseInt(div.querySelector('.badge-threshold').value) || 0;
+    if (name) badges.push({ name, threshold });
+  });
+  const levels = [];
+  document.querySelectorAll('#level-list .level-value').forEach(input => {
+    const val = parseInt(input.value);
+    if (!isNaN(val)) levels.push(val);
+  });
   firebase.database().ref('milestoneConfig').set({ badges, levels }).then(() => showToast('✅ Milestone config saved'));
 });
 
