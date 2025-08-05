@@ -73,7 +73,7 @@
           </div>
         </div>
         <div class="flex flex-col items-center">
-          <div id="spinner-border" class="glass rounded-2xl p-6 w-72 sm:w-80 md:w-96">
+          <div id="spinner-border" class="glass rounded-2xl p-6 w-full max-w-xs sm:max-w-sm md:max-w-md">
             <div class="relative h-48 sm:h-56 w-full overflow-hidden rounded-xl">
               <div id="center-line" class="absolute top-0 bottom-0 w-1 left-1/2 -translate-x-1/2 bg-gradient-to-b from-purple-500 to-pink-500 z-10"></div>
               <div id="spinner-container" class="w-full h-full"></div>
@@ -108,18 +108,18 @@
       if (!images.length || !floatingContainer) return;
 
       const positions = [
-        { style: 'top:10%; left:5%;', delay: '0s', size: 'w-32' },
-        { style: 'top:60%; left:10%;', delay: '2s', size: 'w-40' },
-        { style: 'top:20%; right:8%;', delay: '4s', size: 'w-36' },
-        { style: 'bottom:5%; right:15%;', delay: '6s', size: 'w-32' },
-        { style: 'top:40%; right:35%;', delay: '1s', size: 'w-28' },
-        { style: 'bottom:20%; left:40%;', delay: '3s', size: 'w-24' }
+        { style: 'top:10%; left:5%;', delay: '0s', size: 'w-20 sm:w-32' },
+        { style: 'top:60%; left:10%;', delay: '2s', size: 'w-24 sm:w-40' },
+        { style: 'top:20%; right:8%;', delay: '4s', size: 'w-24 sm:w-36' },
+        { style: 'bottom:5%; right:15%;', delay: '6s', size: 'w-20 sm:w-32' },
+        { style: 'top:40%; right:35%;', delay: '1s', size: 'w-20 sm:w-28' },
+        { style: 'bottom:20%; left:40%;', delay: '3s', size: 'w-16 sm:w-24' }
       ];
 
       positions.forEach((pos, i) => {
         const img = document.createElement('img');
         img.src = images[i % images.length];
-        img.className = `floating-pack absolute ${pos.size} opacity-40`;
+        img.className = `floating-pack absolute ${pos.size} opacity-40 h-auto object-contain`;
         img.style.cssText = `${pos.style} animation-delay:${pos.delay};`;
         img.alt = `Pack ${i + 1}`;
         floatingContainer.appendChild(img);
