@@ -71,22 +71,13 @@
   <img class="case-pack-image absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-64 opacity-20 z-0 pointer-events-none -rotate-12" alt="Case Pack" />
   <img class="case-pack-image absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 w-64 opacity-20 z-0 pointer-events-none rotate-12" alt="Case Pack" />
   <div id="case-container" class="relative z-10 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 p-6 shadow-xl backdrop-blur-md">
-   <div class="absolute top-4 left-4 z-10 flex items-center gap-2">
-  <!-- Back Button -->
-  <a href="index.html" class="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow-md border border-white/10 backdrop-blur-sm hover:scale-105 transition">
+   <div class="absolute top-4 left-4 z-10 flex items-center gap-3">
+  <a href="index.html" class="text-white text-xl hover:text-gray-300">
     <i class="fas fa-arrow-left"></i>
   </a>
-
-  <!-- Case Name Display -->
-  <div class="inline-block bg-gray-900 text-white text-sm font-bold px-4 py-2 rounded-full shadow-md border border-white/10 backdrop-blur-sm">
-    <h2 id="case-name" class="mb-0">Loading...</h2>
-    <div id="case-spice" class="text-xs mt-1 text-gray-300"></div>
-  </div>
-</div>
-    <div class="absolute top-4 right-4 z-10">
-  <div class="inline-block bg-gray-900 text-white text-sm font-bold px-4 py-2 rounded-full shadow-md border border-white/10 backdrop-blur-sm flex items-center gap-2">
-    <span id="balance-value" class="text-yellow-400">...</span>
-    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" alt="coin" />
+  <div>
+    <h2 id="case-name" class="text-lg font-semibold leading-none">Loading...</h2>
+    <div id="case-spice" class="text-xs text-gray-400 mt-1"></div>
   </div>
 </div>
     <div id="spinner-border" class="my-8 border-4 border-gray-800 rounded-lg bg-black/20 transition-colors duration-300">
@@ -170,20 +161,6 @@ document.addEventListener("click", () => {
       return num.toLocaleString();
     };
 
-    const updateUserBalance = () => {
-      const user = firebase.auth().currentUser;
-      const el = document.getElementById("balance-value");
-      if (!user || !el) return;
-
-      firebase.database().ref("users/" + user.uid).once("value").then((snap) => {
-        const balance = snap.val()?.balance || 0;
-        el.textContent = `${parseFloat(balance).toLocaleString()} coins`;
-      }).catch((error) => {
-        el.textContent = "error";
-        console.error(error);
-      });
-    };
-
     const rarityOrder = { legendary: 5, "ultra rare": 4, rare: 3, uncommon: 2, common: 1 };
 
   function playRaritySound(rarity) {
@@ -223,16 +200,6 @@ function showToast(message, color = 'bg-red-600') {
     setTimeout(() => toast.classList.add("hidden"), 300);
   }, 3000);
 }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const refreshBtn = document.getElementById("refresh-balance");
-      if (refreshBtn) refreshBtn.addEventListener("click", updateUserBalance);
-    });
-
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) updateUserBalance();
-      else document.getElementById("user-balance").textContent = "Balance: Sign in required";
-    });
 
     const urlParams = new URLSearchParams(window.location.search);
     const caseId = urlParams.get("id");
@@ -445,7 +412,6 @@ setTimeout(() => {
         }
         await firebase.database().ref('users/' + user.uid + '/weeklyQuests').update(questUpdates);
         await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
-        updateUserBalance();
       });
       document.getElementById("try-free-button").addEventListener("click", () => {
         const btn = document.getElementById("try-free-button");
@@ -590,9 +556,6 @@ document.addEventListener("DOMContentLoaded", () => {
       balanceRef.set(newBalance);
 const sellSound = document.getElementById("sell-sound");
 if (sellSound) sellSound.play();
-      // ✅ Update UI immediately
-      const balanceEl = document.getElementById("balance-value");
-      if (balanceEl) balanceEl.textContent = `${newBalance.toLocaleString()} coins`;
     });
 
     // Step 2: Remove item from inventory
