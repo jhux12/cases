@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome | Packly.gg</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body class="bg-gray-900 text-white font-poppins">
+  <header></header>
+  <main class="min-h-screen flex flex-col items-center justify-center text-center p-6 gap-12">
+    <section class="w-full max-w-2xl">
+      <h1 class="text-4xl font-extrabold mb-6">Experience the Thrill</h1>
+      <div id="spinner-demo" class="mb-8">
+        <div id="spinner-border" class="border-4 border-gray-700 rounded-lg">
+          <div class="relative h-40 overflow-hidden">
+            <div id="center-line" class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
+            <div id="spinner-container" class="w-full h-full"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="flex flex-col items-center">
+      <img src="https://cdn-icons-png.flaticon.com/512/5966/5966817.png" alt="Free Pack" class="w-40 h-40 mb-4 animate-bounce" />
+      <p class="text-lg mb-4">Sign up today and receive a <span class="text-yellow-400 font-semibold">free pack</span>!</p>
+      <a href="auth.html" class="px-8 py-3 bg-yellow-400 text-black rounded-full font-semibold hover:bg-yellow-300 transition">Sign Up</a>
+    </section>
+  </main>
+  <script src="scripts/header.js"></script>
+  <script type="module">
+    import { renderSpinner } from './scripts/spinner.js';
+    const demoPrizes = [
+      { name: 'Legendary', image: 'https://cdn-icons-png.flaticon.com/512/3448/3448478.png', value: 2000, rarity: 'Legendary' },
+      { name: 'Rare', image: 'https://cdn-icons-png.flaticon.com/512/3448/3448463.png', value: 500, rarity: 'Rare' },
+      { name: 'Uncommon', image: 'https://cdn-icons-png.flaticon.com/512/3448/3448474.png', value: 150, rarity: 'Uncommon' },
+      { name: 'Common', image: 'https://cdn-icons-png.flaticon.com/512/3448/3448483.png', value: 50, rarity: 'Common' }
+    ];
+    renderSpinner(demoPrizes, null, true);
+  </script>
+</body>
+</html>
