@@ -94,6 +94,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
+recaptchaVerifier.render();
 let confirmationResult, pendingPhone;
 
 function formatPhone(number) {
@@ -233,7 +234,8 @@ function sendRegisterCode() {
     alert('Please enter a valid phone number.');
     return;
   }
-  auth.currentUser.linkWithPhoneNumber(phone, recaptchaVerifier)
+  recaptchaVerifier.verify()
+    .then(() => auth.currentUser.linkWithPhoneNumber(phone, recaptchaVerifier))
     .then(result => {
       confirmationResult = result;
       document.getElementById('register-send').classList.add('hidden');
