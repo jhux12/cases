@@ -51,6 +51,23 @@
 .glow-ultrarare { box-shadow: 0 0 30px #c084fc; }
 .glow-legendary { box-shadow: 0 0 40px #facc15; }
 </style>
+<style>
+@keyframes popupZoom {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.popup-animate {
+  animation: popupZoom 0.3s ease-out;
+}
+
+@keyframes glowPulse {
+  from { box-shadow: 0 0 15px currentColor; }
+  to { box-shadow: 0 0 35px currentColor; }
+}
+.glow-animated {
+  animation: glowPulse 1.5s ease-in-out infinite alternate;
+}
+</style>
   <style>
   #particle-canvas {
     position: fixed;
@@ -128,7 +145,7 @@
     </div>
     <p class="mt-2 text-sm text-gray-300">Each case contains a mix of prizes with different rarities and values.</p>
   </div>
- <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 text-sm"></div>
+ <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-6 sm:gap-8 text-sm"></div>
 </div>
   </section>
   <button id="mute-toggle" aria-label="Toggle sound" class="fixed bottom-4 left-4 z-50 p-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg hover:scale-110 transition-transform">
@@ -289,19 +306,19 @@ renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
   const gradientClass = `card-gradient-${rarity}`;
 
   return `
-  <div class="prize-card relative rounded-2xl border border-white/10 p-3 text-white text-center shadow-md backdrop-blur-sm transition-all hover:scale-[1.03] ${gradientClass} ${glowClass}">
-<img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-black/20 shadow-inner border border-white/10" style="border-radius: 1rem;" />
-      <div class="font-bold text-sm clamp-2 mb-4">${prize.name}</div>
-
-      <!-- Bottom overlay: coin left, odds right -->
-      <div class="absolute bottom-2 left-2 flex items-center gap-1 text-yellow-300 font-bold text-xs">
+  <div class="prize-card group relative rounded-xl border border-white/10 p-4 text-white text-center shadow-lg backdrop-blur-sm transition-transform hover:-translate-y-1 hover:shadow-xl ${gradientClass} ${glowClass}">
+    <img src="${prize.image}" class="w-full h-28 object-contain mx-auto mb-3 rounded-lg bg-black/20" />
+    <div class="font-bold text-sm mb-2 truncate group-hover:whitespace-normal">${prize.name}</div>
+    <div class="flex items-center justify-between text-xs mt-3">
+      <div class="flex items-center gap-1 text-yellow-300 font-bold">
         <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
         ${formatCoins(prize.value || 0)}
       </div>
-      <div class="absolute bottom-2 right-2 text-white/70 bg-white/10 px-2 py-[2px] text-xs rounded-full">
+      <div class="bg-white/10 text-white/80 px-2 py-[2px] rounded-full">
         ${(prize.odds || 0).toFixed(1)}%
       </div>
     </div>
+  </div>
   `;
 }).join("");
 enablePrizePopups();
@@ -527,13 +544,18 @@ const rarityClass = rarityMatch ? rarityMatch[0] : "glow-common";
 const popup = document.getElementById("prize-popup");
 popup.classList.remove("hidden");
 
+const popupCard = document.getElementById("prize-popup-card");
+popupCard.classList.remove("popup-animate");
+void popupCard.offsetWidth;
+popupCard.classList.add("popup-animate");
+
 // Clear old glow classes
-popup.classList.remove(
+popupCard.classList.remove(
   "glow-common", "glow-uncommon", "glow-rare", "glow-ultrarare", "glow-legendary", "glow-animated"
 );
 
 // Add new glow
-popup.classList.add(rarityClass, "glow-animated");
+popupCard.classList.add(rarityClass, "glow-animated");
     });
   });
 }
@@ -616,26 +638,10 @@ if (sellSound) sellSound.play();
 });
   // Enable popup on existing prizes
 window.addEventListener("load", () => {
-document.querySelectorAll("#prizes-grid .prize-card").forEach(card => {
-  card.addEventListener("click", () => {
-    const image = card.querySelector("img")?.src;
-    const name = card.querySelector(".font-bold.text-sm")?.textContent.trim() || "Unknown";
-    const value = card.querySelector(".text-yellow-300")?.textContent.trim();
-    const odds = card.querySelector(".bg-white\\/10")?.textContent.trim();
-
-    document.getElementById("prize-popup-image").src = image;
-    document.getElementById("prize-popup-name").textContent = name || "Unknown";
-    document.getElementById("prize-popup-value").textContent = value;
-    document.getElementById("prize-popup-odds").textContent = odds.replace('chance', '').trim();
-
-    document.getElementById("prize-popup").classList.remove("hidden");
+  enablePrizePopups();
+  document.getElementById("close-prize-popup").addEventListener("click", () => {
+    document.getElementById("prize-popup").classList.add("hidden");
   });
-});
-
-// Close popup
-document.getElementById("close-prize-popup").addEventListener("click", () => {
-  document.getElementById("prize-popup").classList.add("hidden");
-});
 });
 </script>
 
@@ -671,11 +677,11 @@ document.getElementById("close-prize-popup").addEventListener("click", () => {
   </div>
 </div>
     <!-- Prize Detail Popup -->
-<div id="prize-popup" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden">
-  <div id="prize-popup-card" class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center relative border border-white/10">
+<div id="prize-popup" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+  <div id="prize-popup-card" class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 w-96 max-w-full shadow-2xl text-center relative border border-white/10">
     <div class="absolute top-3 right-3 text-gray-400 hover:text-white cursor-pointer text-xl" id="close-prize-popup">&times;</div>
-    <img id="prize-popup-image" src="" class="w-40 h-40 object-contain mx-auto mb-4 rounded-xl shadow-md" />
-    <div id="prize-popup-name" class="inline-block bg-pink-600 text-white px-3 py-1 rounded-full text-sm font-semibold mb-4 shadow-inner"></div>
+    <img id="prize-popup-image" src="" class="w-48 h-48 object-contain mx-auto mb-4 rounded-xl shadow-md" />
+    <div id="prize-popup-name" class="inline-block bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white px-4 py-1 rounded-full text-sm font-bold mb-4 shadow"></div>
     <div class="flex justify-center gap-4">
       <div class="inline-flex items-center gap-1 bg-yellow-500/10 text-yellow-300 px-3 py-1 rounded-full text-sm font-semibold shadow-inner">
         <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
