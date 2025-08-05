@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'self' https://www.google.com https://www.gstatic.com;" />
   <title>Packly.gg | Login & Register</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -72,11 +71,6 @@
     </div>
 
     <div id="register-verify" class="hidden mt-4 space-y-2">
-      <input type="text" id="register-verification-code" placeholder="Enter verification code" class="w-full p-2 rounded bg-gray-700" />
-      <button type="button" onclick="verifyRegisterCode()" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Confirm Phone</button>
-      <button type="button" onclick="sendRegisterCode()" class="w-full bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded">Resend Code</button>
-      <p class="text-sm text-center text-gray-400">A verification code may take up to a minute to arrive.</p>
-
       <input type="text" id="register-verification-code" placeholder="Enter verification code" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500" />
       <button type="button" onclick="verifyRegisterCode()" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition-colors">Confirm Phone</button>
     </div>
@@ -100,11 +94,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
-if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-  // Allow local development without a valid reCAPTCHA domain
-  auth.settings.appVerificationDisabledForTesting = true;
-}
-
 const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
 let confirmationResult, pendingPhone;
 
@@ -181,8 +170,7 @@ registerForm.addEventListener('submit', e => {
           phone: phone,
           balance: 0,
           role: 'user',
-          freeCaseOpened: false,
-          phoneVerified: false
+          freeCaseOpened: false
         }))
         .then(() => user.reload());
     })
@@ -203,18 +191,6 @@ loginForm.addEventListener('submit', e => {
   const email = document.getElementById('login-email').value;
   const password = document.getElementById('login-password').value;
 
-  auth.signInWithEmailAndPassword(email, password)
-    .then(async (userCredential) => {
-      const user = userCredential.user;
-      const snapshot = await db.ref('users/' + user.uid).once('value');
-      const userData = snapshot.val();
-      if (userData && userData.phoneVerified) {
-        alert('Login successful!');
-        window.location.href = 'index.html';
-      } else {
-        alert('Please verify your phone number before logging in.');
-        await auth.signOut();
-      }
   const remember = document.getElementById('remember-me').checked;
   const persistence = remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
 
@@ -247,9 +223,7 @@ function forgotPassword() {
 function verifyRegisterCode() {
   const code = document.getElementById('register-verification-code').value;
   confirmationResult.confirm(code)
-    .then(async () => {
-      const uid = auth.currentUser.uid;
-      await db.ref('users/' + uid).update({ phoneVerified: true });
+    .then(() => {
       alert('Registration successful!');
       window.location.href = 'index.html';
     })
@@ -264,23 +238,16 @@ function sendRegisterCode() {
     alert('Please enter a valid phone number.');
     return;
   }
-  recaptchaVerifier.render().then(widgetId => {
-    grecaptcha.reset(widgetId);
-    return auth.currentUser.linkWithPhoneNumber(phone, recaptchaVerifier);
-  })
-  .then(result => {
-    confirmationResult = result;
-    document.getElementById('register-send').classList.add('hidden');
-    document.getElementById('register-verify').classList.remove('hidden');
-    alert('Verification code sent. It may take a minute to arrive.');
-  })
-  .catch(error => {
-    if (error.code === 'auth/captcha-check-failed') {
-      alert('❌ reCAPTCHA failed. Ensure this domain is whitelisted in your Firebase Authentication settings.');
-    } else {
+  auth.currentUser.linkWithPhoneNumber(phone, recaptchaVerifier)
+    .then(result => {
+      confirmationResult = result;
+      document.getElementById('register-send').classList.add('hidden');
+      document.getElementById('register-verify').classList.remove('hidden');
+      alert('Verification code sent to your phone.');
+    })
+    .catch(error => {
       alert('❌ ' + error.message);
-    }
-  });
+    });
 }
 </script>
 
