@@ -17,8 +17,8 @@
       margin: 0;
       padding: 0;
       font-family: 'Poppins', sans-serif;
-      background-color: #0f0f12;
-      color: white;
+      background: linear-gradient(to bottom right, #0f0f12, #1a1625);
+      color: #fff;
     }
 
     header {
@@ -29,37 +29,23 @@
       z-index: 50;
     }
 
-    .inventory-hero {
-      background: linear-gradient(to right, rgba(76,29,149,0.6), rgba(190,24,93,0.6));
+    .panel {
+      background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 1.5rem;
-      padding: 2rem;
-      margin: 120px 1.5rem 2rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      text-align: center;
-    }
-
-    .inventory-hero h1 {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: #fff;
-    }
-
-    .inventory-hero p {
-      color: #cbd5e1;
-      margin-top: 0.5rem;
-      font-size: 1.125rem;
+      backdrop-filter: blur(6px);
+      border-radius: 1rem;
     }
 
     .item-card {
-      background-color: #1f1f2b;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(6px);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
     }
 
     .item-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
     }
 
     .btn {
@@ -82,66 +68,65 @@
   <!-- Dynamic Header -->
   <header></header>
 
-<!-- Hero -->
-<section class="mt-20 px-4">
-  <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl shadow-lg p-6 text-center max-w-2xl mx-auto">
-    <h1 class="text-3xl font-bold text-pink-400 mb-2 flex items-center justify-center">
-      <i class="fas fa-box-open mr-2"></i> Your Vault, Your Control
-    </h1>
-    <p class="text-sm text-gray-300">Ship out your pulls or sell them back for coins — manage your inventory with ease.</p>
-  </div>
-</section>
-
+  <!-- Hero -->
+  <section class="pt-24 pb-12 px-4 text-center">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-4xl md:text-5xl font-extrabold mb-2 bg-gradient-to-r from-fuchsia-400 to-pink-600 bg-clip-text text-transparent flex items-center justify-center">
+        <i class="fas fa-box-open mr-2"></i>Inventory
+      </h1>
+      <p class="mt-2 text-gray-300">Ship out your pulls or sell them back for coins — manage your inventory with ease.</p>
+    </div>
+  </section>
 
   <!-- Inventory -->
-  <main class="p-6 mt-6">
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-      <div class="flex items-center gap-3 text-sm">
-        <label><input type="checkbox" id="select-all-checkbox" class="mr-1"> Select All</label>
-        <label for="sort-select">Sort by:</label>
-        <select id="sort-select" class="text-black rounded px-3 py-1">
-          <option value="rarity">Rarity</option>
-          <option value="value">Value</option>
-          <option value="name">Name</option>
-        </select>
+  <main class="max-w-6xl mx-auto px-4 pb-16">
+    <div class="panel flex flex-col md:flex-row justify-between items-center gap-4 p-4 mb-8">
+      <div class="flex flex-wrap items-center gap-4 text-sm">
+        <label class="flex items-center gap-2"><input type="checkbox" id="select-all-checkbox" class="accent-pink-500">Select All</label>
+        <div class="flex items-center gap-2">
+          <label for="sort-select">Sort by:</label>
+          <select id="sort-select" class="text-black rounded px-3 py-1">
+            <option value="rarity">Rarity</option>
+            <option value="value">Value</option>
+            <option value="name">Name</option>
+          </select>
+        </div>
       </div>
-      <div class="flex gap-3 items-center">
+      <div class="flex flex-col sm:flex-row items-center gap-3">
         <span id="selected-total" class="text-sm text-gray-300">Total: 0 coins</span>
-      <button onclick="sellSelected()" class="px-6 py-2 rounded-full font-semibold bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 transition btn">
-  Sell Selected
-      </button>
-<button onclick="shipSelected()" class="px-6 py-2 rounded-full font-semibold bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 transition btn">
-  Ship Selected
-</button>
+        <button onclick="sellSelected()" class="px-5 py-2 rounded-full font-semibold bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 transition btn">Sell Selected</button>
+        <button onclick="shipSelected()" class="px-5 py-2 rounded-full font-semibold bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 transition btn">Ship Selected</button>
       </div>
     </div>
 
     <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
 
-<section class="inventory-hero">
-  <h1><i class="fas fa-truck mr-2"></i>Your Recent Orders</h1>
-  <p>Below are your previous shipment requests and their current status.</p>
-</section>
-    <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+    <section class="mt-16">
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold mb-2 bg-gradient-to-r from-fuchsia-400 to-pink-600 bg-clip-text text-transparent flex items-center justify-center"><i class="fas fa-truck mr-2"></i>Your Recent Orders</h2>
+        <p class="text-sm text-gray-400">Below are your previous shipment requests and their current status.</p>
+      </div>
+      <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+    </section>
+  </main>
 
-    <!-- Ship Popup -->
-    <div id="shipment-popup" class="fixed inset-0 bg-black bg-opacity-80 hidden flex justify-center items-center z-50">
-      <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
-        <h2 class="text-xl font-bold mb-4">Enter Shipping Info</h2>
-        <input id="ship-username" type="text" placeholder="Username" class="w-full mb-2 px-4 py-2 rounded bg-gray-700 text-gray-400 cursor-not-allowed" disabled />
-        <input id="ship-name" type="text" placeholder="Full Name" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-        <input id="ship-address" type="text" placeholder="Address" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-        <input id="ship-city" type="text" placeholder="City" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-        <input id="ship-zip" type="text" placeholder="Zip Code" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
-        <input id="ship-phone" type="text" placeholder="Phone Number" class="w-full mb-4 px-4 py-2 rounded bg-gray-700" />
-        <p id="shipment-cost" class="text-sm text-pink-300 mb-4"></p>
-        <div class="flex justify-end gap-3">
-          <button onclick="closeShipmentPopup()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded btn">Cancel</button>
-          <button onclick="submitShipmentRequest()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded btn">Confirm</button>
-        </div>
+  <!-- Ship Popup -->
+  <div id="shipment-popup" class="fixed inset-0 bg-black/70 hidden justify-center items-center z-50">
+    <div class="panel w-full max-w-md p-6">
+      <h2 class="text-xl font-bold mb-4">Enter Shipping Info</h2>
+      <input id="ship-username" type="text" placeholder="Username" class="w-full mb-2 px-4 py-2 rounded bg-gray-700 text-gray-400 cursor-not-allowed" disabled />
+      <input id="ship-name" type="text" placeholder="Full Name" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+      <input id="ship-address" type="text" placeholder="Address" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+      <input id="ship-city" type="text" placeholder="City" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+      <input id="ship-zip" type="text" placeholder="Zip Code" class="w-full mb-2 px-4 py-2 rounded bg-gray-700" />
+      <input id="ship-phone" type="text" placeholder="Phone Number" class="w-full mb-4 px-4 py-2 rounded bg-gray-700" />
+      <p id="shipment-cost" class="text-sm text-pink-300 mb-4"></p>
+      <div class="flex justify-end gap-3">
+        <button onclick="closeShipmentPopup()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-full btn">Cancel</button>
+        <button onclick="submitShipmentRequest()" class="px-4 py-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 btn">Confirm</button>
       </div>
     </div>
-  </main>
+  </div>
 
   <!-- Dynamic Footer -->
   <footer></footer>
@@ -176,7 +161,5 @@
       });
   </script>
 
-
 </body>
 </html>
-
