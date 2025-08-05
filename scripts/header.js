@@ -42,14 +42,16 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
       <div class="sm:hidden">
-        <button id="menu-toggle" class="text-white text-2xl">
-          <i class="fas fa-bars"></i>
+        <button id="menu-toggle" class="flex items-center gap-1 bg-gray-800 text-white px-3 py-1 rounded-full text-sm">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
+          <span id="balance-amount-mobile">0</span>
+          <span>coins</span>
         </button>
       </div>
     </nav>
     <div id="mobile-dropdown" class="hidden mt-2 bg-gray-800 border border-gray-700 rounded-lg w-48 py-2 fixed right-4 top-[72px] z-[9999] shadow-lg sm:hidden">
       <div id="user-balance-mobile" class="flex items-center justify-between px-4 py-2 text-sm text-white border-b border-gray-700">
-        <span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 mr-1"> <span id="balance-amount-mobile">0</span> coins</span>
+        <span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 mr-1"> <span id="balance-amount-mobile-dropdown">0</span> coins</span>
         <button id="topup-button-mobile" class="text-green-400 text-lg font-bold hover:text-green-500">+</button>
       </div>
       <a href="index.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm"><i class="fas fa-cube mr-2"></i> Open Packs</a>
@@ -76,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const balanceDesktop = document.getElementById("balance-amount");
       const balanceMobile = document.getElementById("balance-amount-mobile");
+      const balanceDropdown = document.getElementById("balance-amount-mobile-dropdown");
       const userBalanceDiv = document.getElementById("user-balance");
       const usernameDisplay = document.getElementById("username-display");
       const signinDesktop = document.getElementById("signin-desktop");
@@ -87,6 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const formatted = parseInt(balance, 10).toLocaleString();
       if (balanceDesktop) balanceDesktop.innerText = formatted;
       if (balanceMobile) balanceMobile.innerText = formatted;
+      if (balanceDropdown) balanceDropdown.innerText = formatted;
       if (userBalanceDiv) userBalanceDiv.classList.remove("hidden");
 
       if (prevBalance !== balance) {

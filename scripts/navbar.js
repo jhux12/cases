@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const usernameEl = document.getElementById("username-display");
       const balanceEl = document.getElementById("balance-amount");
       const balanceMobile = document.getElementById("balance-amount-mobile");
+      const balanceDropdown = document.getElementById("balance-amount-mobile-dropdown");
       const popupBalance = document.getElementById("popup-balance");
       const mobileAuthBtn = document.getElementById("mobile-auth-button");
       const logoutBtn = document.getElementById("logout-desktop");
@@ -36,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
           usernameEl.innerText = username;
           balanceEl.innerText = balanceFormatted;
           if (balanceMobile) balanceMobile.innerText = balanceFormatted;
+          if (balanceDropdown) balanceDropdown.innerText = balanceFormatted;
           if (popupBalance) popupBalance.innerText = `${balanceFormatted} coins`;
 
           if (logoutBtn) {
@@ -61,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
         usernameEl.innerText = "User";
         balanceEl.innerText = "0";
         if (balanceMobile) balanceMobile.innerText = "0";
+        if (balanceDropdown) balanceDropdown.innerText = "0";
         if (popupBalance) popupBalance.innerText = "0 coins";
 
         if (logoutBtn) logoutBtn.style.display = "none";
@@ -136,17 +139,10 @@ waitForElement("#topup-button", () => {
   waitForElement("#menu-toggle", () => {
     const menuToggle = document.getElementById("menu-toggle");
     const mobileDropdown = document.getElementById("mobile-dropdown");
-    const menuIcon = menuToggle.querySelector("i");
-    menuToggle.classList.add("transition-transform", "duration-200");
 
     const openMenu = () => {
       mobileDropdown.classList.remove("hidden", "fade-out");
       mobileDropdown.classList.add("fade-in");
-      menuToggle.classList.add("rotate-90");
-      if (menuIcon) {
-        menuIcon.classList.remove("fa-bars");
-        menuIcon.classList.add("fa-times");
-      }
     };
 
     const closeMenu = () => {
@@ -160,11 +156,6 @@ waitForElement("#topup-button", () => {
         },
         { once: true }
       );
-      menuToggle.classList.remove("rotate-90");
-      if (menuIcon) {
-        menuIcon.classList.remove("fa-times");
-        menuIcon.classList.add("fa-bars");
-      }
     };
 
     menuToggle.addEventListener("click", (e) => {

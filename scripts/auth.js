@@ -7,6 +7,7 @@ window.addEventListener('DOMContentLoaded', () => {
   firebase.auth().onAuthStateChanged(async (user) => {
     const balanceAmount = document.getElementById('balance-amount');
     const balanceMobile = document.getElementById('balance-amount-mobile');
+    const balanceDropdown = document.getElementById('balance-amount-mobile-dropdown');
     const popupBalance = document.getElementById('popup-balance');
     const userBalanceWrapper = document.getElementById('user-balance');
     const usernameDisplay = document.getElementById('username-display');
@@ -33,6 +34,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const balanceFormatted = Number(balance).toLocaleString();
       if (balanceAmount) balanceAmount.innerText = balanceFormatted;
       if (balanceMobile) balanceMobile.innerText = balanceFormatted;
+      if (balanceDropdown) balanceDropdown.innerText = balanceFormatted;
       if (popupBalance) popupBalance.innerText = `${balanceFormatted} coins`;
       if (userBalanceWrapper) userBalanceWrapper.classList.remove('hidden');
 
@@ -69,6 +71,7 @@ window.addEventListener('DOMContentLoaded', () => {
       // Signed out state
       if (userBalanceWrapper) userBalanceWrapper.classList.add('hidden');
       if (balanceAmount) balanceAmount.innerText = '0';
+      if (balanceDropdown) balanceDropdown.innerText = '0';
       if (usernameDisplay) usernameDisplay.innerText = "User";
 
       if (inventoryLink) inventoryLink.classList.add('hidden');
