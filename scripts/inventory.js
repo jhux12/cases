@@ -150,7 +150,12 @@ function sellBack(key, value) {
   userRef.once('value').then(snap => {
     const balance = snap.val().balance || 0;
     userRef.update({ balance: balance + refund }).then(() => {
-      itemRef.remove().then(() => {
+      itemRef.once('value').then(itemSnap => {
+        const itemData = itemSnap.val();
+        if (itemData) {
+          firebase.database().ref(`users/${user.uid}/unboxHistory`).push(itemData);
+        }
+        itemRef.remove().then(() => {
   const sellQuestRef = firebase.database().ref(`users/${user.uid}/quests/sell-card`);
   sellQuestRef.transaction(current => {
     if (!current) {
@@ -173,7 +178,8 @@ function sellBack(key, value) {
     }
     window.location.reload(); // only after transaction completes
   });
-});
+        });
+      });
 
 
     });
@@ -196,6 +202,16 @@ function sellSelected() {
     userRef.update({ balance: balance + total });
 
     selectedItems.forEach(key => {
+      const item = currentItems.find(i => i.key === key);
+      if (item) {
+        firebase.database().ref(`users/${user.uid}/unboxHistory`).push({
+          name: item.name,
+          image: item.image,
+          rarity: item.rarity,
+          value: item.value,
+          timestamp: item.timestamp || Date.now()
+        });
+      }
       firebase.database().ref(`users/${user.uid}/inventory/${key}`).remove();
     });
 

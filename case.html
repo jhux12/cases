@@ -393,13 +393,15 @@ setTimeout(() => {
         if (!isFreeCase) {
           await firebase.database().ref('users/' + user.uid + '/balance').set(balance - price);
         }
-        await firebase.database().ref('users/' + user.uid + '/inventory').push({
+        const unboxData = {
           name: winningPrize.name,
           image: winningPrize.image,
           rarity: winningPrize.rarity,
           value: winningPrize.value,
           timestamp: Date.now()
-        });
+        };
+        await firebase.database().ref('users/' + user.uid + '/inventory').push(unboxData);
+        await firebase.database().ref('users/' + user.uid + '/unboxHistory').push(unboxData);
         await updateMilestones(user.uid, winningPrize.value);
         if (isFreeCase) {
           await firebase.database().ref('users/' + user.uid + '/freeCaseOpened').set(true);
