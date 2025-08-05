@@ -495,9 +495,9 @@ function cancelEdit() {
       ) {
         found = true;
         const div = document.createElement('div');
-        div.className = 'p-4 bg-gray-800 rounded';
+        div.className = 'p-4 bg-gray-800 rounded-lg shadow mb-4';
         div.innerHTML = `
-          <p class="mb-2"><strong>User ID:</strong> ${child.key}</p>
+          <h3 class="text-lg font-bold mb-2">${user.username || user.email || 'User'} <span class="text-xs text-gray-400">(${child.key})</span></h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
             <label class="block">Name:<input type="text" id="name-${child.key}" value="${user.name || ''}" class="p-1 rounded w-full"></label>
             <label class="block">Username:<input type="text" id="username-${child.key}" value="${user.username || ''}" class="p-1 rounded w-full"></label>
@@ -522,8 +522,23 @@ function cancelEdit() {
             <button onclick="sendPasswordReset('${user.email || ''}')" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded">Reset Password</button>
             <button onclick="deleteUser('${child.key}')" class="px-2 py-1 bg-red-600 hover:bg-red-700 rounded">Delete</button>
           </div>
-          <p><strong>Unbox History:</strong></p>
-          <ul id="unbox-${child.key}" class="text-sm text-gray-300 list-disc ml-4 mb-2">Loading...</ul>
+          <p class="font-semibold mt-4">Unbox History:</p>
+          <div class="overflow-x-auto mb-2">
+            <table class="min-w-full text-xs text-gray-300">
+              <thead class="bg-gray-700">
+                <tr>
+                  <th class="px-2 py-1 text-left">Item</th>
+                  <th class="px-2 py-1 text-left">Rarity</th>
+                  <th class="px-2 py-1 text-left">Value</th>
+                  <th class="px-2 py-1 text-left">Status</th>
+                  <th class="px-2 py-1 text-left">Unbox Balance</th>
+                  <th class="px-2 py-1 text-left">Sale Balance</th>
+                  <th class="px-2 py-1 text-left">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="unbox-${child.key}"><tr><td colspan="7" class="px-2 py-1">Loading...</td></tr></tbody>
+            </table>
+          </div>
         `;
         resultsDiv.appendChild(div);
 
@@ -535,28 +550,36 @@ function cancelEdit() {
           const itemMap = new Map();
           if (histSnap.exists()) {
             histSnap.forEach(item => {
-              const data = item.val();
-              itemMap.set(data.timestamp || item.key, data);
+              itemMap.set(item.key, item.val());
             });
           }
           if (invSnap.exists()) {
             invSnap.forEach(item => {
-              const data = item.val();
-              itemMap.set(data.timestamp || item.key, data);
+              if (!itemMap.has(item.key)) itemMap.set(item.key, item.val());
             });
           }
           const items = Array.from(itemMap.values());
           if (items.length) {
+            unboxList.innerHTML = '';
             items
               .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
               .forEach(winData => {
-                const date = winData.timestamp
-                  ? new Date(winData.timestamp).toLocaleString()
-                  : '';
-                unboxList.innerHTML += `<li>${winData.name} (${winData.rarity || ''}) - $${winData.value || 0} <span class="text-xs text-gray-400 ml-2">${date}</span></li>`;
+                const date = winData.timestamp ? new Date(winData.timestamp).toLocaleString() : '';
+                const status = winData.sold ? 'Sold' : 'Owned';
+                const unboxBal = `${winData.balanceBefore ?? '-'}→${winData.balanceAfter ?? '-'}`;
+                const saleBal = winData.sold ? `${winData.saleBalanceBefore ?? '-'}→${winData.saleBalanceAfter ?? '-'}` : '-';
+                unboxList.innerHTML += `<tr>
+                  <td class="px-2 py-1">${winData.name}</td>
+                  <td class="px-2 py-1">${winData.rarity || ''}</td>
+                  <td class="px-2 py-1">$${winData.value || 0}</td>
+                  <td class="px-2 py-1">${status}</td>
+                  <td class="px-2 py-1">${unboxBal}</td>
+                  <td class="px-2 py-1">${saleBal}</td>
+                  <td class="px-2 py-1 text-xs">${date}</td>
+                </tr>`;
               });
           } else {
-            unboxList.innerHTML = '<li>No history found.</li>';
+            unboxList.innerHTML = '<tr><td colspan="7" class="px-2 py-1">No history found.</td></tr>';
           }
         });
       }
