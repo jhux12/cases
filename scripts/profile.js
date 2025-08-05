@@ -3,55 +3,122 @@
 document.addEventListener('DOMContentLoaded', () => {
   firebase.auth().onAuthStateChanged(user => {
     if (!user) return (window.location.href = 'auth.html');
-    const uid = user.uid;
-
-    const userRef = firebase.database().ref('users/' + uid);
-    userRef.once('value').then(snap => {
-      const data = snap.val() || {};
-      document.getElementById('email').value = user.email;
-      const usernameInput = document.getElementById('username-input');
-      if (usernameInput && data.username) usernameInput.value = data.username;
-      const initials = user.email ? user.email.substring(0,2).toUpperCase() : '??';
-      document.getElementById('profile-pic').textContent = initials;
-    });
-
-    firebase.firestore().collection('leaderboard').doc(uid).get().then(async doc => {
-      const data = doc.data() || {};
-      const badges = data.badges || [];
-      const badgeContainer = document.getElementById('badge-container');
-      if (badges.length === 0) {
-        badgeContainer.innerHTML = '<p class="text-sm text-gray-400">No badges yet.</p>';
-      } else {
-        badgeContainer.innerHTML = badges.map(b => `<span class="bg-purple-600 text-white text-xs px-2 py-1 rounded-full">${b}</span>`).join(' ');
-      }
-
-      const levelSnap = await firebase.database().ref('milestoneConfig/levels').once('value');
-      const thresholds = levelSnap.val() || [];
-      const level = determineLevel(data.packsOpened || 0, thresholds);
-      document.getElementById('level-number').innerText = level;
-      document.getElementById('total-won').innerText = (data.cardValue || 0).toLocaleString();
-    });
-  
-    firebase.database().ref('users/' + uid + '/unboxHistory').once('value').then(snap => {
-      let totalSpent = 0;
-      let rarest = null;
-      snap.forEach(child => {
-        const d = child.val();
-        totalSpent += Math.max(0, (d.balanceBefore || 0) - (d.balanceAfter || 0));
-        if (!rarest || (d.value || 0) > (rarest.value || 0)) {
-          rarest = d;
-        }
-      });
-      document.getElementById('total-spent').innerText = totalSpent.toLocaleString();
-      const rareEl = document.getElementById('rarest-pull');
-      if (rarest) {
-        rareEl.innerHTML = `<img src="${rarest.image}" class="h-16 mx-auto mb-2"><p>${rarest.name} (${rarest.rarity})</p>`;
-      } else {
-        rareEl.textContent = 'No pulls yet.';
-      }
-    });
+    const currentUid = user.uid;
+    const params = new URLSearchParams(window.location.search);
+    const targetUid = params.get('uid') || currentUid;
+    loadProfile(targetUid, currentUid);
+    setupSearch();
   });
 });
+
+async function loadProfile(uid, currentUid) {
+  const isOwn = uid === currentUid;
+  const userRef = firebase.database().ref('users/' + uid);
+  const userSnap = await userRef.once('value');
+  const userData = userSnap.val() || {};
+  const username = userData.username || 'Anonymous';
+  const usernameInput = document.getElementById('username-input');
+  if (usernameInput) {
+    usernameInput.value = username;
+    if (!isOwn) usernameInput.disabled = true;
+  }
+  const titleEl = document.getElementById('profile-title');
+  if (titleEl) titleEl.innerText = isOwn ? 'Your Profile' : `${username}'s Profile`;
+
+  if (isOwn) {
+    document.getElementById('email').value = firebase.auth().currentUser.email;
+  } else {
+    document.getElementById('email').parentElement.classList.add('hidden');
+  }
+
+  const initialsSource = isOwn ? firebase.auth().currentUser.email : username;
+  const initials = initialsSource ? initialsSource.substring(0, 2).toUpperCase() : '??';
+  document.getElementById('profile-pic').textContent = initials;
+
+  const doc = await firebase.firestore().collection('leaderboard').doc(uid).get();
+  const data = doc.data() || {};
+  const packsOpened = data.packsOpened || 0;
+  const cardValue = data.cardValue || 0;
+
+  const badgeSnap = await firebase.database().ref('milestoneConfig/badges').once('value');
+  const badgeCfg = badgeSnap.val() || [];
+  let currentBadge = null;
+  if (Array.isArray(badgeCfg)) {
+    badgeCfg.forEach(b => {
+      const threshold = b.threshold || 0;
+      const type = b.type || 'packs';
+      if ((type === 'packs' && packsOpened >= threshold) || (type === 'value' && cardValue >= threshold)) {
+        if (!currentBadge || threshold > (currentBadge.threshold || 0)) currentBadge = b;
+      }
+    });
+  }
+  const badgeContainer = document.getElementById('badge-container');
+  if (currentBadge) {
+    const color = currentBadge.color || '#9333ea';
+    badgeContainer.innerHTML = `<span class="text-white text-xs px-2 py-1 rounded-full" style="background-color:${color}">${currentBadge.name}</span>`;
+  } else {
+    badgeContainer.innerHTML = '<p class="text-sm text-gray-400">No badge yet.</p>';
+  }
+
+  const levelSnap = await firebase.database().ref('milestoneConfig/levels').once('value');
+  const thresholds = levelSnap.val() || [];
+  const level = determineLevel(packsOpened, thresholds);
+  document.getElementById('level-number').innerText = level;
+  document.getElementById('total-won').innerText = cardValue.toLocaleString();
+
+  const historySnap = await firebase.database().ref('users/' + uid + '/unboxHistory').once('value');
+  let totalSpent = 0;
+  let rarest = null;
+  historySnap.forEach(child => {
+    const d = child.val();
+    totalSpent += Math.max(0, (d.balanceBefore || 0) - (d.balanceAfter || 0));
+    if (!rarest || (d.value || 0) > (rarest.value || 0)) {
+      rarest = d;
+    }
+  });
+  document.getElementById('total-spent').innerText = totalSpent.toLocaleString();
+  const rareEl = document.getElementById('rarest-pull');
+  if (rarest) {
+    rareEl.innerHTML = `<img src="${rarest.image}" class="h-16 mx-auto mb-2"><p>${rarest.name} (${rarest.rarity})</p>`;
+  } else {
+    rareEl.textContent = 'No pulls yet.';
+  }
+
+  if (!isOwn) {
+    document.querySelector('button[onclick="updateProfile()"]').classList.add('hidden');
+    document.getElementById('current-password').parentElement.classList.add('hidden');
+    document.getElementById('new-password').parentElement.classList.add('hidden');
+    document.querySelector('button[onclick="changePassword()"]').classList.add('hidden');
+  }
+}
+
+function setupSearch() {
+  const searchInput = document.getElementById('user-search');
+  if (!searchInput) return;
+  searchInput.addEventListener('input', async e => {
+    const q = e.target.value.trim();
+    const list = document.getElementById('user-list');
+    if (!list) return;
+    if (!q) {
+      list.innerHTML = '';
+      return;
+    }
+    const snap = await firebase.firestore().collection('leaderboard')
+      .orderBy('username')
+      .startAt(q)
+      .endAt(q + '\uf8ff')
+      .limit(5)
+      .get();
+    list.innerHTML = '';
+    snap.forEach(doc => {
+      const li = document.createElement('li');
+      li.className = 'p-2 hover:bg-gray-700 cursor-pointer';
+      li.textContent = doc.data().username || 'Anonymous';
+      li.onclick = () => { window.location.href = `profile.html?uid=${doc.id}`; };
+      list.appendChild(li);
+    });
+  });
+}
 
 function updateProfile() {
   const user = firebase.auth().currentUser;

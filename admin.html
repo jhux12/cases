@@ -773,6 +773,7 @@ function addBadge(badge = {}) {
   div.innerHTML = `
     <input type="text" placeholder="Badge Name" class="badge-name w-full p-2 rounded" value="${badge.name || ''}">
     <input type="number" placeholder="Pack Threshold" class="badge-threshold w-32 p-2 rounded" value="${badge.threshold || ''}">
+    <input type="color" class="badge-color w-16 h-10 rounded" value="${badge.color || '#9333ea'}">
     <button type="button" class="text-red-400 hover:text-red-600" onclick="this.parentElement.remove()">Remove</button>
   `;
   document.getElementById('badge-list').appendChild(div);
@@ -813,7 +814,8 @@ document.getElementById('milestone-config-form').addEventListener('submit', e =>
   document.querySelectorAll('#badge-list > div').forEach(div => {
     const name = div.querySelector('.badge-name').value.trim();
     const threshold = parseInt(div.querySelector('.badge-threshold').value) || 0;
-    if (name) badges.push({ name, threshold });
+    const color = div.querySelector('.badge-color').value || '#9333ea';
+    if (name) badges.push({ name, threshold, color });
   });
   const levels = [];
   document.querySelectorAll('#level-list .level-value').forEach(input => {
