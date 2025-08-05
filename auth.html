@@ -96,6 +96,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
+if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+  // Allow local development without a valid reCAPTCHA domain
+  auth.settings.appVerificationDisabledForTesting = true;
+}
+
 const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
 let confirmationResult, pendingPhone;
 
@@ -258,7 +263,11 @@ function sendRegisterCode() {
     alert('Verification code sent. It may take a minute to arrive.');
   })
   .catch(error => {
-    alert('❌ ' + error.message);
+    if (error.code === 'auth/captcha-check-failed') {
+      alert('❌ reCAPTCHA failed. Ensure this domain is whitelisted in your Firebase Authentication settings.');
+    } else {
+      alert('❌ ' + error.message);
+    }
   });
 }
 </script>
