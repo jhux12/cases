@@ -20,8 +20,8 @@
     };
     firebase.initializeApp(firebaseConfig);
     const allowedAdmins = [
-  "jhuxf12@outlook.com", // 
-];
+      "jhuxf12@outlook.com" // Add more admin emails as needed
+    ];
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -188,7 +188,7 @@
     <section id="users-section" class="hidden">
   <h1 class="text-3xl font-bold mb-6">User Management</h1>
   <div class="mb-4 flex gap-4">
-    <input type="text" id="user-search" placeholder="Search by email or username" class="w-full p-2 rounded">
+    <input type="text" id="user-search" placeholder="Search by email, username, or ID" class="w-full p-2 rounded">
     <button onclick="searchUsers()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Search</button>
   </div>
   <div id="user-results" class="space-y-4"></div>
@@ -461,6 +461,12 @@ function cancelEdit() {
 
     caseForm.addEventListener('submit', saveCase);
     cancelEditBtn.addEventListener('click', cancelEdit);
+    document.getElementById('user-search').addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchUsers();
+      }
+    });
 
     function searchUsers() {
   const query = document.getElementById('user-search').value.trim().toLowerCase();
@@ -477,38 +483,103 @@ function cancelEdit() {
       const user = child.val();
       const email = (user.email || '').toLowerCase();
       const username = (user.username || '').toLowerCase();
-      console.log('Checking user:', { email, username });
+      const uid = child.key.toLowerCase();
 
-  if (email === query || username === query || email.includes(query) || username.includes(query)) {
+      if (
+        email === query ||
+        username === query ||
+        uid === query ||
+        email.includes(query) ||
+        username.includes(query) ||
+        uid.includes(query)
+      ) {
         found = true;
         const div = document.createElement('div');
-        div.className = 'p-4 bg-gray-800 rounded';
+        div.className = 'p-4 bg-gray-800 rounded-lg shadow mb-4';
         div.innerHTML = `
-          <p><strong>User ID:</strong> ${child.key}</p>
-          <p><strong>Email:</strong> ${user.email || 'N/A'}</p>
-          <p><strong>Username:</strong> ${user.username || 'N/A'}</p>
-          <p><strong>Balance:</strong> ${user.balance || 0}</p>
-          <p><strong>Unbox History:</strong></p>
-          <ul id="unbox-${child.key}" class="text-sm text-gray-300 list-disc ml-4 mb-2">Loading...</ul>
-          <div class="flex gap-2">
-            <input type="number" placeholder="New Balance" id="balance-${child.key}" class="p-1 rounded w-24">
-            <button onclick="updateUserBalance('${child.key}')" class="px-2 py-1 bg-green-600 hover:bg-green-700 rounded">Update</button>
+          <h3 class="text-lg font-bold mb-2">${user.username || user.email || 'User'} <span class="text-xs text-gray-400">(${child.key})</span></h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+            <label class="block">Name:<input type="text" id="name-${child.key}" value="${user.name || ''}" class="p-1 rounded w-full"></label>
+            <label class="block">Username:<input type="text" id="username-${child.key}" value="${user.username || ''}" class="p-1 rounded w-full"></label>
+            <label class="block">Email:<input type="text" id="email-${child.key}" value="${user.email || ''}" class="p-1 rounded w-full"></label>
+            <label class="block">Phone:<input type="text" id="phone-${child.key}" value="${user.phone || ''}" class="p-1 rounded w-full"></label>
+            <label class="block">Balance:<input type="number" step="any" id="balance-${child.key}" value="${user.balance || 0}" class="p-1 rounded w-full"></label>
+            <label class="block">Role:
+              <select id="role-${child.key}" class="p-1 rounded w-full">
+                <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
+                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+              </select>
+            </label>
+            <label class="block">Free Case Opened:
+              <select id="free-${child.key}" class="p-1 rounded w-full">
+                <option value="false" ${!user.freeCaseOpened ? 'selected' : ''}>No</option>
+                <option value="true" ${user.freeCaseOpened ? 'selected' : ''}>Yes</option>
+              </select>
+            </label>
+          </div>
+          <div class="flex gap-2 mb-4">
+            <button onclick="saveUser('${child.key}')" class="px-2 py-1 bg-green-600 hover:bg-green-700 rounded">Save</button>
+            <button onclick="sendPasswordReset('${user.email || ''}')" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded">Reset Password</button>
+            <button onclick="deleteUser('${child.key}')" class="px-2 py-1 bg-red-600 hover:bg-red-700 rounded">Delete</button>
+          </div>
+          <p class="font-semibold mt-4">Unbox History:</p>
+          <div class="overflow-x-auto mb-2">
+            <table class="min-w-full text-xs text-gray-300">
+              <thead class="bg-gray-700">
+                <tr>
+                  <th class="px-2 py-1 text-left">Item</th>
+                  <th class="px-2 py-1 text-left">Rarity</th>
+                  <th class="px-2 py-1 text-left">Value</th>
+                  <th class="px-2 py-1 text-left">Status</th>
+                  <th class="px-2 py-1 text-left">Unbox Balance</th>
+                  <th class="px-2 py-1 text-left">Sale Balance</th>
+                  <th class="px-2 py-1 text-left">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="unbox-${child.key}"><tr><td colspan="7" class="px-2 py-1">Loading...</td></tr></tbody>
+            </table>
           </div>
         `;
         resultsDiv.appendChild(div);
 
-        // Load unbox history
         const unboxList = document.getElementById(`unbox-${child.key}`);
-        firebase.database().ref(`wins/${child.key}`).once('value').then(winSnap => {
-          if (winSnap.exists()) {
-            unboxList.innerHTML = '';
-            winSnap.forEach(win => {
-              const winData = win.val();
-const date = winData.timestamp ? new Date(winData.timestamp).toLocaleString() : '';
-unboxList.innerHTML += `<li>${winData.name} (${winData.rarity || ''}) - $${winData.value || 0} <span class="text-xs text-gray-400 ml-2">${date}</span></li>`;
+        Promise.all([
+          firebase.database().ref(`users/${child.key}/unboxHistory`).once('value'),
+          firebase.database().ref(`users/${child.key}/inventory`).once('value')
+        ]).then(([histSnap, invSnap]) => {
+          const itemMap = new Map();
+          if (histSnap.exists()) {
+            histSnap.forEach(item => {
+              itemMap.set(item.key, item.val());
             });
+          }
+          if (invSnap.exists()) {
+            invSnap.forEach(item => {
+              if (!itemMap.has(item.key)) itemMap.set(item.key, item.val());
+            });
+          }
+          const items = Array.from(itemMap.values());
+          if (items.length) {
+            unboxList.innerHTML = '';
+            items
+              .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+              .forEach(winData => {
+                const date = winData.timestamp ? new Date(winData.timestamp).toLocaleString() : '';
+                const status = winData.sold ? 'Sold' : 'Owned';
+                const unboxBal = `${winData.balanceBefore ?? '-'}→${winData.balanceAfter ?? '-'}`;
+                const saleBal = winData.sold ? `${winData.saleBalanceBefore ?? '-'}→${winData.saleBalanceAfter ?? '-'}` : '-';
+                unboxList.innerHTML += `<tr>
+                  <td class="px-2 py-1">${winData.name}</td>
+                  <td class="px-2 py-1">${winData.rarity || ''}</td>
+                  <td class="px-2 py-1">$${winData.value || 0}</td>
+                  <td class="px-2 py-1">${status}</td>
+                  <td class="px-2 py-1">${unboxBal}</td>
+                  <td class="px-2 py-1">${saleBal}</td>
+                  <td class="px-2 py-1 text-xs">${date}</td>
+                </tr>`;
+              });
           } else {
-            unboxList.innerHTML = '<li>No history found.</li>';
+            unboxList.innerHTML = '<tr><td colspan="7" class="px-2 py-1">No history found.</td></tr>';
           }
         });
       }
@@ -518,18 +589,38 @@ unboxList.innerHTML += `<li>${winData.name} (${winData.rarity || ''}) - $${winDa
   });
 }
 
-function updateUserBalance(uid) {
-  const input = document.getElementById(`balance-${uid}`);
-  const newBalance = parseFloat(input.value);
-  if (isNaN(newBalance)) {
-    alert("Enter a valid number");
+function saveUser(uid) {
+  const updates = {
+    name: document.getElementById(`name-${uid}`).value.trim(),
+    username: document.getElementById(`username-${uid}`).value.trim(),
+    email: document.getElementById(`email-${uid}`).value.trim(),
+    phone: document.getElementById(`phone-${uid}`).value.trim(),
+    balance: parseFloat(document.getElementById(`balance-${uid}`).value) || 0,
+    role: document.getElementById(`role-${uid}`).value,
+    freeCaseOpened: document.getElementById(`free-${uid}`).value === 'true'
+  };
+
+  firebase.database().ref(`users/${uid}`).update(updates).then(() => {
+    showToast('✅ User updated');
+  });
+}
+
+function deleteUser(uid) {
+  if (!confirm('Are you sure you want to delete this user?')) return;
+  firebase.database().ref(`users/${uid}`).remove().then(() => {
+    showToast('🗑️ User deleted');
+    searchUsers();
+  });
+}
+
+function sendPasswordReset(email) {
+  if (!email) {
+    alert('User has no email to reset.');
     return;
   }
-
-  firebase.database().ref(`users/${uid}/balance`).set(newBalance).then(() => {
-    showToast('✅ Balance updated');
-    input.value = '';
-  });
+  firebase.auth().sendPasswordResetEmail(email).then(() => {
+    showToast('✅ Reset email sent');
+  }).catch(err => alert(err.message));
 }
 firebase.auth().onAuthStateChanged(user => {
   if (!user) {

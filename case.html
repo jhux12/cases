@@ -390,16 +390,25 @@ setTimeout(() => {
 
 
 
+        const balanceBefore = balance;
+        let balanceAfter = balance;
         if (!isFreeCase) {
-          await firebase.database().ref('users/' + user.uid + '/balance').set(balance - price);
+          balanceAfter = balance - price;
+          await firebase.database().ref('users/' + user.uid + '/balance').set(balanceAfter);
         }
-        await firebase.database().ref('users/' + user.uid + '/inventory').push({
+        const unboxData = {
           name: winningPrize.name,
           image: winningPrize.image,
           rarity: winningPrize.rarity,
           value: winningPrize.value,
-          timestamp: Date.now()
-        });
+          timestamp: Date.now(),
+          sold: false,
+          balanceBefore,
+          balanceAfter
+        };
+        const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
+        await invRef.set(unboxData);
+        await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
         await updateMilestones(user.uid, winningPrize.value);
         if (isFreeCase) {
           await firebase.database().ref('users/' + user.uid + '/freeCaseOpened').set(true);

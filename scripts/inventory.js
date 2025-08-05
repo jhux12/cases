@@ -148,9 +148,28 @@ function sellBack(key, value) {
   const itemRef = firebase.database().ref(`users/${user.uid}/inventory/${key}`);
 
   userRef.once('value').then(snap => {
-    const balance = snap.val().balance || 0;
-    userRef.update({ balance: balance + refund }).then(() => {
-      itemRef.remove().then(() => {
+    const balanceBefore = snap.val().balance || 0;
+    const balanceAfter = balanceBefore + refund;
+    userRef.update({ balance: balanceAfter }).then(() => {
+      itemRef.once('value').then(itemSnap => {
+        const itemData = itemSnap.val();
+        if (itemData) {
+          const historyRef = firebase.database().ref(`users/${user.uid}/unboxHistory/${key}`);
+          historyRef.once('value').then(histSnap => {
+            const updateData = {
+              sold: true,
+              saleBalanceBefore: balanceBefore,
+              saleBalanceAfter: balanceAfter,
+              soldTimestamp: Date.now()
+            };
+            if (histSnap.exists()) historyRef.update(updateData);
+            else {
+              const { key: _k, id: _i, ...base } = itemData;
+              historyRef.set({ ...base, ...updateData });
+            }
+          });
+        }
+        itemRef.remove().then(() => {
   const sellQuestRef = firebase.database().ref(`users/${user.uid}/quests/sell-card`);
   sellQuestRef.transaction(current => {
     if (!current) {
@@ -173,7 +192,8 @@ function sellBack(key, value) {
     }
     window.location.reload(); // only after transaction completes
   });
-});
+        });
+      });
 
 
     });
@@ -192,15 +212,50 @@ function sellSelected() {
 
   const userRef = firebase.database().ref('users/' + user.uid);
   userRef.once('value').then(snap => {
-    const balance = snap.val().balance || 0;
-    userRef.update({ balance: balance + total });
+    let currentBalance = snap.val().balance || 0;
 
     selectedItems.forEach(key => {
-      firebase.database().ref(`users/${user.uid}/inventory/${key}`).remove();
+      const item = currentItems.find(i => i.key === key);
+      if (item) {
+        const refund = Math.floor((item.value || 0) * 0.8);
+        const before = currentBalance;
+        currentBalance += refund;
+        const historyRef = firebase.database().ref(`users/${user.uid}/unboxHistory/${key}`);
+        historyRef.once('value').then(histSnap => {
+          const updateData = {
+            sold: true,
+            saleBalanceBefore: before,
+            saleBalanceAfter: currentBalance,
+            soldTimestamp: Date.now()
+          };
+          if (histSnap.exists()) historyRef.update(updateData);
+          else {
+            const { key: _k, id: _i, ...base } = item;
+            historyRef.set({ ...base, ...updateData });
+          }
+        });
+        firebase.database().ref(`users/${user.uid}/inventory/${key}`).remove();
+
+        const sellQuestRef = firebase.database().ref(`users/${user.uid}/quests/sell-card`);
+        sellQuestRef.transaction(current => {
+          if (!current) {
+            return { progress: 1, completed: false, claimed: false };
+          }
+          const progress = typeof current.progress === 'number' ? current.progress : 0;
+          const updated = progress + 1;
+          return {
+            ...current,
+            progress: updated,
+            completed: current.completed || updated >= 1
+          };
+        });
+      }
     });
 
-    alert(`Sold selected items for ${total} coins.`);
-    window.location.reload();
+    userRef.update({ balance: currentBalance }).then(() => {
+      alert(`Sold selected items for ${total} coins.`);
+      window.location.reload();
+    });
   });
 }
 
