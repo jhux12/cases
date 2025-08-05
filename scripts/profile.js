@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const targetUid = params.get('uid') || currentUid;
     loadProfile(targetUid, currentUid);
     setupSearch();
+    loadTopUsers();
   });
 });
 
@@ -98,11 +99,17 @@ function setupSearch() {
   searchInput.addEventListener('input', async e => {
     const q = e.target.value.trim();
     const list = document.getElementById('user-list');
+    const topTitle = document.getElementById('top-users-title');
+    const topList = document.getElementById('top-users');
     if (!list) return;
     if (!q) {
       list.innerHTML = '';
+      if (topTitle) topTitle.classList.remove('hidden');
+      if (topList) topList.classList.remove('hidden');
       return;
     }
+    if (topTitle) topTitle.classList.add('hidden');
+    if (topList) topList.classList.add('hidden');
     const snap = await firebase.firestore().collection('leaderboard')
       .orderBy('username')
       .startAt(q)
@@ -117,6 +124,24 @@ function setupSearch() {
       li.onclick = () => { window.location.href = `profile.html?uid=${doc.id}`; };
       list.appendChild(li);
     });
+  });
+}
+
+async function loadTopUsers() {
+  const list = document.getElementById('top-users');
+  if (!list) return;
+  const snap = await firebase.firestore().collection('leaderboard')
+    .orderBy('cardValue', 'desc')
+    .limit(5)
+    .get();
+  list.innerHTML = '';
+  snap.forEach(doc => {
+    const li = document.createElement('li');
+    li.className = 'p-2 hover:bg-gray-700 cursor-pointer flex justify-between';
+    const data = doc.data();
+    li.innerHTML = `<span>${data.username || 'Anonymous'}</span><span>${(data.cardValue || 0).toLocaleString()}</span>`;
+    li.onclick = () => { window.location.href = `profile.html?uid=${doc.id}`; };
+    list.appendChild(li);
   });
 }
 
