@@ -161,6 +161,9 @@ export async function updateMilestones(uid, prizeValue = 0) {
   if (!uid) return;
   const fs = firebase.firestore();
   const docRef = fs.collection('leaderboard').doc(uid);
+  // Fetch badge configuration allowing dynamic thresholds and names.
+  const configSnap = await firebase.database().ref('milestoneConfig/badges').once('value');
+  const badgeConfig = configSnap.val() || [];
 
   await fs.runTransaction(async (tx) => {
     const doc = await tx.get(docRef);
@@ -170,10 +173,20 @@ export async function updateMilestones(uid, prizeValue = 0) {
     let badges = data.badges || [];
 
     const newBadges = [];
-    if (packsOpened >= 10 && !badges.includes('10 Packs')) newBadges.push('10 Packs');
-    if (packsOpened >= 50 && !badges.includes('50 Packs')) newBadges.push('50 Packs');
-    if (cardValue >= 1000 && !badges.includes('1k Value')) newBadges.push('1k Value');
-    if (cardValue >= 5000 && !badges.includes('5k Value')) newBadges.push('5k Value');
+    if (Array.isArray(badgeConfig) && badgeConfig.length) {
+      badgeConfig.forEach(b => {
+        const threshold = b.threshold || 0;
+        const name = b.name || '';
+        if (!name || badges.includes(name)) return;
+        if (b.type === 'packs' && packsOpened >= threshold) newBadges.push(name);
+        if (b.type === 'value' && cardValue >= threshold) newBadges.push(name);
+      });
+    } else {
+      if (packsOpened >= 10 && !badges.includes('10 Packs')) newBadges.push('10 Packs');
+      if (packsOpened >= 50 && !badges.includes('50 Packs')) newBadges.push('50 Packs');
+      if (cardValue >= 1000 && !badges.includes('1k Value')) newBadges.push('1k Value');
+      if (cardValue >= 5000 && !badges.includes('5k Value')) newBadges.push('5k Value');
+    }
 
     if (newBadges.length) badges = [...badges, ...newBadges];
 

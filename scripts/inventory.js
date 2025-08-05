@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const balanceEl = document.getElementById('balance-amount');
       if (balanceEl) balanceEl.innerText = Number(data.balance || 0).toLocaleString();
       document.getElementById('username-display').innerText = user.displayName || user.email;
+      const shipUsernameInput = document.getElementById('ship-username');
+      if (shipUsernameInput && data.username) shipUsernameInput.value = data.username;
     });
 
     // Load badges from Firestore
