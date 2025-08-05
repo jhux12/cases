@@ -32,6 +32,7 @@
     #spinner-border {
       border: 4px solid rgba(255, 255, 255, 0.15);
       border-radius: 1rem;
+      box-shadow: 0 0 25px rgba(236, 72, 153, 0.4);
     }
 
     .pack-bounce {
@@ -50,32 +51,48 @@
     .floating-pack {
       animation: drift 10s ease-in-out infinite;
     }
+
+    .star {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: twinkle 3s infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.4); }
+    }
   </style>
 </head>
 <body class="text-white font-poppins overflow-x-hidden">
-  <header></header>
+  <a href="index.html" class="absolute top-6 left-6 z-20"><img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(28).png?alt=media&token=61fab7cf-c6e5-4598-8865-bd95007d6961" alt="Packly.gg logo" class="h-12 drop-shadow-[0_0_10px_rgba(236,72,153,0.7)]"></a>
+  <div id="stars" class="pointer-events-none fixed inset-0 -z-20"></div>
   <div id="floating-packs" class="pointer-events-none fixed inset-0 overflow-hidden -z-10"></div>
-  <main class="pt-24">
+  <main>
     <section class="relative z-10 min-h-screen flex items-center justify-center px-6">
       <div class="max-w-6xl w-full flex flex-col md:flex-row items-center justify-between gap-16">
         <div class="flex flex-col items-center md:items-start text-center md:text-left space-y-6">
           <h1 class="text-5xl md:text-6xl font-bold leading-tight"><span class="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">Experience the Thrill</span></h1>
           <p class="text-lg text-gray-300 max-w-md">Preview the spinner and claim your complimentary pack when you sign up.</p>
-          <a href="auth.html" class="px-8 py-4 rounded-full text-lg font-semibold bg-gradient-to-r from-yellow-400 to-pink-500 text-black shadow-lg shadow-pink-500/30 hover:scale-105 transition">Sign Up Free</a>
+          <div class="flex items-center gap-4">
+            <a href="auth.html" class="px-8 py-4 rounded-full text-lg font-semibold bg-gradient-to-r from-yellow-400 to-pink-500 text-black shadow-lg shadow-pink-500/30 hover:scale-105 transition">Sign Up Free</a>
+            <img id="free-pack" alt="Free Pack" class="w-24 h-24 pack-bounce" />
+          </div>
         </div>
-        <div class="flex flex-col items-center gap-6">
-          <div id="spinner-border" class="glass rounded-2xl p-4 w-80">
-            <div class="relative h-48 w-full overflow-hidden rounded-xl">
+        <div class="flex flex-col items-center">
+          <div id="spinner-border" class="glass rounded-2xl p-6 w-96">
+            <div class="relative h-56 w-full overflow-hidden rounded-xl">
               <div id="center-line" class="absolute top-0 bottom-0 w-1 left-1/2 -translate-x-1/2 bg-gradient-to-b from-purple-500 to-pink-500 z-10"></div>
               <div id="spinner-container" class="w-full h-full"></div>
             </div>
           </div>
-          <img id="free-pack" alt="Free Pack" class="w-32 h-32 pack-bounce" />
         </div>
       </div>
     </section>
   </main>
-  <script src="scripts/header.js"></script>
   <script type="module">
     import { renderSpinner } from './scripts/spinner.js';
     import { fetchPackImages } from './scripts/packs.js';
@@ -86,6 +103,15 @@
       { name: 'Mewtwo', image: 'https://images.pokemontcg.io/base1/10_hires.png', value: 1600, rarity: 'Ultra Rare' }
     ];
     renderSpinner(demoPrizes, null, true);
+    const starContainer = document.getElementById('stars');
+    for (let i = 0; i < 40; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.animationDelay = Math.random() * 3 + 's';
+      starContainer.appendChild(star);
+    }
 
     fetchPackImages().then(images => {
       const freePack = document.getElementById('free-pack');
@@ -98,7 +124,9 @@
         { style: 'top:10%; left:5%;', delay: '0s', size: 'w-32' },
         { style: 'top:60%; left:10%;', delay: '2s', size: 'w-40' },
         { style: 'top:20%; right:8%;', delay: '4s', size: 'w-36' },
-        { style: 'bottom:5%; right:15%;', delay: '6s', size: 'w-32' }
+        { style: 'bottom:5%; right:15%;', delay: '6s', size: 'w-32' },
+        { style: 'top:40%; right:35%;', delay: '1s', size: 'w-28' },
+        { style: 'bottom:20%; left:40%;', delay: '3s', size: 'w-24' }
       ];
 
       positions.forEach((pos, i) => {
