@@ -63,19 +63,38 @@ async function loadProfile(uid, currentUid) {
 
   const levelSnap = await firebase.database().ref('milestoneConfig/levels').once('value');
   const thresholds = levelSnap.val() || [];
-  const level = determineLevel(packsOpened, thresholds);
-  document.getElementById('level-number').innerText = level;
+  const levelInfo = determineLevel(packsOpened, thresholds);
+  document.getElementById('level-number').innerText = levelInfo.level;
+  document.getElementById('packs-opened').innerText = packsOpened.toLocaleString();
   document.getElementById('total-won').innerText = cardValue.toLocaleString();
+  const progressEl = document.getElementById('level-progress');
+  const progressText = document.getElementById('progress-text');
+  if (progressEl) {
+    let pct = 100;
+    if (levelInfo.nextThreshold > levelInfo.prevThreshold) {
+      pct = ((packsOpened - levelInfo.prevThreshold) / (levelInfo.nextThreshold - levelInfo.prevThreshold)) * 100;
+      if (progressText) {
+        const remaining = levelInfo.nextThreshold - packsOpened;
+        progressText.textContent = `${remaining} packs to next level`;
+      }
+    } else if (progressText) {
+      progressText.textContent = 'Max level achieved';
+    }
+    progressEl.style.width = pct + '%';
+  }
 
   const historySnap = await firebase.database().ref('users/' + uid + '/unboxHistory').once('value');
   let totalSpent = 0;
   let rarest = null;
+  const pulls = [];
   historySnap.forEach(child => {
     const d = child.val();
     totalSpent += Math.max(0, (d.balanceBefore || 0) - (d.balanceAfter || 0));
     if (!rarest || (d.value || 0) > (rarest.value || 0)) {
       rarest = d;
     }
+    d._time = d.time || d.timestamp || child.key;
+    pulls.push(d);
   });
   document.getElementById('total-spent').innerText = totalSpent.toLocaleString();
   const rareEl = document.getElementById('rarest-pull');
@@ -83,6 +102,17 @@ async function loadProfile(uid, currentUid) {
     rareEl.innerHTML = `<img src="${rarest.image}" class="h-16 mx-auto mb-2"><p>${rarest.name} (${rarest.rarity})</p>`;
   } else {
     rareEl.textContent = 'No pulls yet.';
+  }
+  const recentList = document.getElementById('recent-pulls');
+  if (recentList) {
+    pulls.sort((a, b) => (b._time || 0) - (a._time || 0));
+    recentList.innerHTML = '';
+    pulls.slice(0, 5).forEach(p => {
+      const li = document.createElement('li');
+      li.className = 'p-2 flex items-center gap-2 hover:bg-gray-700';
+      li.innerHTML = `<img src="${p.image}" class="h-10 w-10 object-cover rounded"><div><p class="text-sm">${p.name || 'Unknown'}</p><p class="text-xs text-gray-400">${(p.value || 0).toLocaleString()}</p></div>`;
+      recentList.appendChild(li);
+    });
   }
 
   if (!isOwn) {
@@ -160,13 +190,24 @@ function updateProfile() {
 
 function determineLevel(packs, thresholds) {
   if (!Array.isArray(thresholds) || thresholds.length === 0) {
-    return Math.floor(packs / 10) + 1;
+    const level = Math.floor(packs / 10) + 1;
+    const prev = (level - 1) * 10;
+    const next = level * 10;
+    return { level, prevThreshold: prev, nextThreshold: next };
   }
   let lvl = 1;
+  let prev = 0;
+  let next = null;
   thresholds.forEach((t, idx) => {
-    if (packs >= t) lvl = idx + 1;
+    if (packs >= t) {
+      lvl = idx + 1;
+      prev = t;
+    } else if (next === null) {
+      next = t;
+    }
   });
-  return lvl;
+  if (next === null) next = prev;
+  return { level: lvl, prevThreshold: prev, nextThreshold: next };
 }
 
 function changePassword() {
