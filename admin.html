@@ -54,6 +54,7 @@
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('marketplace')">Marketplace</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('quests')">Quests</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('milestones')">Milestones</a>
+      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('tower')">Tower</a>
     </div>
   </nav>
 
@@ -194,6 +195,22 @@
 </section>
 
 
+<section id="tower-section" class="hidden">
+  <h1 class="text-3xl font-bold mb-6">Tower Settings</h1>
+  <form id="tower-config-form" class="space-y-4 max-w-xl bg-gray-800 p-6 rounded-lg">
+    <div>
+      <label class="block mb-1">Re-entry Token Cost (coins):</label>
+      <input type="number" id="reentry-cost" class="w-full p-2 rounded" />
+    </div>
+    <div>
+      <label class="block mb-1">Daily Attempt Limit:</label>
+      <input type="number" id="daily-limit" class="w-full p-2 rounded" />
+    </div>
+    <button type="submit" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded">Save</button>
+  </form>
+</section>
+
+
     <!-- Shipment Management Section -->
     <section id="shipments-section" class="hidden">
       <h1 class="text-3xl font-bold mb-6">Manage Shipments</h1>
@@ -231,7 +248,7 @@
     }
 
   function showSection(id) {
-  const sections = ['cases', 'shipments', 'support', 'users', 'marketplace', 'quests', 'milestones'];
+  const sections = ['cases', 'shipments', 'support', 'users', 'marketplace', 'quests', 'milestones', 'tower'];
   sections.forEach(section => {
     document.getElementById(section + '-section').classList.add('hidden');
   });
@@ -661,6 +678,7 @@ firebase.auth().onAuthStateChanged(user => {
   loadMarketplaceItems();
   loadQuestConfig();
   loadMilestoneConfig();
+  loadTowerConfig();
 });
 
 
@@ -823,6 +841,24 @@ document.getElementById('milestone-config-form').addEventListener('submit', e =>
     if (!isNaN(val)) levels.push(val);
   });
   firebase.database().ref('milestoneConfig').set({ badges, levels }).then(() => showToast('✅ Milestone config saved'));
+});
+
+function loadTowerConfig() {
+  const ref = firebase.database().ref('towerConfig');
+  ref.once('value').then(snap => {
+    const cfg = snap.val() || {};
+    document.getElementById('reentry-cost').value = cfg.reentryCost || 0;
+    document.getElementById('daily-limit').value = cfg.dailyLimit || 1;
+  });
+}
+
+document.getElementById('tower-config-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const config = {
+    reentryCost: parseInt(document.getElementById('reentry-cost').value) || 0,
+    dailyLimit: parseInt(document.getElementById('daily-limit').value) || 1
+  };
+  firebase.database().ref('towerConfig').set(config).then(() => showToast('✅ Tower config saved'));
 });
 
   </script>

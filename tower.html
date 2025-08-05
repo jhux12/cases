@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrimePull.gg | Tower</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white font-[Poppins]">
+  <header></header>
+  <main class="pt-24 flex flex-col items-center p-4">
+    <h1 class="text-3xl font-bold mb-4">Tower of Packs</h1>
+    <div id="tower" class="relative w-full max-w-xs border border-gray-700 rounded-lg overflow-hidden">
+      <!-- Floors inserted here -->
+    </div>
+    <div id="controls" class="mt-6 flex gap-2">
+      <button id="open-btn" class="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700">Open Pack</button>
+      <button id="climb-btn" class="px-4 py-2 bg-green-600 rounded hover:bg-green-700" disabled>Climb</button>
+      <button id="cashout-btn" class="px-4 py-2 bg-yellow-500 rounded hover:bg-yellow-600" disabled>Cash Out</button>
+    </div>
+    <div id="status" class="mt-4 text-center min-h-[2rem]"></div>
+  </main>
+  <script src="scripts/header.js"></script>
+  <script src="scripts/tower.js"></script>
+</body>
+</html>
