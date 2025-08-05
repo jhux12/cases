@@ -65,13 +65,25 @@
     /* Item preview popup */
     #item-popup {
       background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
     }
 
     #popup-item-image {
       max-width: 90vw;
       max-height: 80vh;
-      cursor: grab;
-      touch-action: none;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 25px rgba(236,72,153,0.5), 0 0 50px rgba(236,72,153,0.3);
+    }
+
+    .popup-card {}
+
+    .popup-card.animate {
+      animation: popIn 0.3s ease;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
 
     .shimmer {
@@ -167,8 +179,8 @@
   </div>
 
   <!-- Item Preview Popup -->
-  <div id="item-popup" class="fixed inset-0 hidden items-center justify-center z-50">
-    <div class="relative">
+  <div id="item-popup" class="fixed inset-0 hidden flex items-center justify-center z-50">
+    <div class="popup-card relative">
       <img id="popup-item-image" class="shimmer rounded-lg" src="" alt="Item preview" />
       <button id="close-item-popup" class="absolute -top-4 -right-4 w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center">&times;</button>
     </div>
