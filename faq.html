@@ -100,7 +100,9 @@
 
     document.getElementById('balance-amount').innerText = balanceFormatted;
     const balanceMobile = document.getElementById('balance-amount-mobile');
+    const balanceDropdown = document.getElementById('balance-amount-mobile-dropdown');
     if (balanceMobile) balanceMobile.innerText = balanceFormatted;
+    if (balanceDropdown) balanceDropdown.innerText = balanceFormatted;
     document.getElementById('user-balance').classList.remove('hidden');
     document.getElementById('username-display').innerText = data.username || user.displayName || user.email || 'User';
     document.getElementById('signin-desktop').classList.add('hidden');
