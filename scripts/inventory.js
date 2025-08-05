@@ -5,6 +5,10 @@ const selectedItems = new Set();
 let currentItems = [];
 
 document.addEventListener('DOMContentLoaded', () => {
+  const itemPopup = document.getElementById('item-popup');
+  document.getElementById('close-item-popup')?.addEventListener('click', closeItemPopup);
+  itemPopup?.addEventListener('click', e => { if (e.target === itemPopup) closeItemPopup(); });
+
   firebase.auth().onAuthStateChanged(user => {
     if (!user) return (window.location.href = "auth.html");
 
@@ -126,7 +130,7 @@ function renderItems(items) {
     container.innerHTML += `
       <div class="item-card rounded-lg p-4 text-center">
         <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-2" ${item.shipped || item.requested ? 'disabled' : ''} />
-        <img src="${item.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
+        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}')" class="mx-auto mb-3 h-24 object-contain rounded shadow cursor-pointer" />
         <h2 class="font-bold text-lg text-pink-300">${item.name}</h2>
         <p class="text-sm text-gray-400 mb-2">Rarity: ${item.rarity}</p>
         <p class="text-sm text-gray-400">Value: ${item.value || 0} coins</p>
@@ -326,4 +330,23 @@ function submitShipmentRequest() {
     closeShipmentPopup();
     window.location.reload();
   });
+}
+
+function showItemPopup(encodedSrc) {
+  const src = decodeURIComponent(encodedSrc);
+  const img = document.getElementById('popup-item-image');
+  if (!img) return;
+  img.src = src;
+  const popup = document.getElementById('item-popup');
+  const card = popup?.querySelector('.popup-card');
+  popup?.classList.remove('hidden');
+  if (card) {
+    card.classList.remove('animate');
+    void card.offsetWidth;
+    card.classList.add('animate');
+  }
+}
+
+function closeItemPopup() {
+  document.getElementById('item-popup')?.classList.add('hidden');
 }
