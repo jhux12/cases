@@ -5,6 +5,12 @@ const selectedItems = new Set();
 let currentItems = [];
 
 document.addEventListener('DOMContentLoaded', () => {
+  const itemPopup = document.getElementById('item-popup');
+  const popupImage = document.getElementById('popup-item-image');
+  document.getElementById('close-item-popup')?.addEventListener('click', closeItemPopup);
+  itemPopup?.addEventListener('click', e => { if (e.target === itemPopup) closeItemPopup(); });
+  popupImage?.addEventListener('pointerdown', startDrag);
+
   firebase.auth().onAuthStateChanged(user => {
     if (!user) return (window.location.href = "auth.html");
 
@@ -126,7 +132,7 @@ function renderItems(items) {
     container.innerHTML += `
       <div class="item-card rounded-lg p-4 text-center">
         <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-2" ${item.shipped || item.requested ? 'disabled' : ''} />
-        <img src="${item.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
+        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}')" class="mx-auto mb-3 h-24 object-contain rounded shadow cursor-pointer" />
         <h2 class="font-bold text-lg text-pink-300">${item.name}</h2>
         <p class="text-sm text-gray-400 mb-2">Rarity: ${item.rarity}</p>
         <p class="text-sm text-gray-400">Value: ${item.value || 0} coins</p>
@@ -326,4 +332,50 @@ function submitShipmentRequest() {
     closeShipmentPopup();
     window.location.reload();
   });
+}
+
+function showItemPopup(encodedSrc) {
+  const src = decodeURIComponent(encodedSrc);
+  const img = document.getElementById('popup-item-image');
+  if (!img) return;
+  img.src = src;
+  img.style.transform = 'translate(0, 0)';
+  dragState.x = 0;
+  dragState.y = 0;
+  document.getElementById('item-popup')?.classList.remove('hidden');
+}
+
+function closeItemPopup() {
+  document.getElementById('item-popup')?.classList.add('hidden');
+}
+
+const dragState = { active: false, x: 0, y: 0, pointerX: 0, pointerY: 0 };
+
+function startDrag(e) {
+  e.preventDefault();
+  dragState.active = true;
+  dragState.pointerX = e.clientX;
+  dragState.pointerY = e.clientY;
+  e.target.setPointerCapture(e.pointerId);
+  e.target.style.cursor = 'grabbing';
+  e.target.addEventListener('pointermove', dragMove);
+  e.target.addEventListener('pointerup', endDrag);
+  e.target.addEventListener('pointercancel', endDrag);
+}
+
+function dragMove(e) {
+  if (!dragState.active) return;
+  dragState.x += e.clientX - dragState.pointerX;
+  dragState.y += e.clientY - dragState.pointerY;
+  dragState.pointerX = e.clientX;
+  dragState.pointerY = e.clientY;
+  e.target.style.transform = `translate(${dragState.x}px, ${dragState.y}px)`;
+}
+
+function endDrag(e) {
+  dragState.active = false;
+  e.target.style.cursor = 'grab';
+  e.target.removeEventListener('pointermove', dragMove);
+  e.target.removeEventListener('pointerup', endDrag);
+  e.target.removeEventListener('pointercancel', endDrag);
 }

@@ -61,6 +61,44 @@
       background-color: white;
       color: black;
     }
+
+    /* Item preview popup */
+    #item-popup {
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    #popup-item-image {
+      max-width: 90vw;
+      max-height: 80vh;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shimmer::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(
+        120deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.4) 50%,
+        rgba(255,255,255,0) 100%
+      );
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
   </style>
 </head>
 <body class="min-h-screen">
@@ -125,6 +163,14 @@
         <button onclick="closeShipmentPopup()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-full btn">Cancel</button>
         <button onclick="submitShipmentRequest()" class="px-4 py-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 btn">Confirm</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Item Preview Popup -->
+  <div id="item-popup" class="fixed inset-0 hidden items-center justify-center z-50">
+    <div class="relative">
+      <img id="popup-item-image" class="shimmer rounded-lg" src="" alt="Item preview" />
+      <button id="close-item-popup" class="absolute -top-4 -right-4 w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center">&times;</button>
     </div>
   </div>
 
