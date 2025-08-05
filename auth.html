@@ -73,6 +73,8 @@
     <div id="register-verify" class="hidden mt-4 space-y-2">
       <input type="text" id="register-verification-code" placeholder="Enter verification code" class="w-full p-2 rounded bg-gray-700" />
       <button type="button" onclick="verifyRegisterCode()" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Confirm Phone</button>
+      <button type="button" onclick="sendRegisterCode()" class="w-full bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded">Resend Code</button>
+      <p class="text-sm text-center text-gray-400">A verification code may take up to a minute to arrive.</p>
     </div>
 
     <p id="switch-text" class="mt-4 text-sm text-center">
@@ -245,16 +247,19 @@ function sendRegisterCode() {
     alert('Please enter a valid phone number.');
     return;
   }
-  auth.currentUser.linkWithPhoneNumber(phone, recaptchaVerifier)
-    .then(result => {
-      confirmationResult = result;
-      document.getElementById('register-send').classList.add('hidden');
-      document.getElementById('register-verify').classList.remove('hidden');
-      alert('Verification code sent to your phone.');
-    })
-    .catch(error => {
-      alert('❌ ' + error.message);
-    });
+  recaptchaVerifier.render().then(widgetId => {
+    grecaptcha.reset(widgetId);
+    return auth.currentUser.linkWithPhoneNumber(phone, recaptchaVerifier);
+  })
+  .then(result => {
+    confirmationResult = result;
+    document.getElementById('register-send').classList.add('hidden');
+    document.getElementById('register-verify').classList.remove('hidden');
+    alert('Verification code sent. It may take a minute to arrive.');
+  })
+  .catch(error => {
+    alert('❌ ' + error.message);
+  });
 }
 </script>
 
