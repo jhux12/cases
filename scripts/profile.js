@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('profile-pic').textContent = initials;
     });
 
-    firebase.firestore().collection('leaderboard').doc(uid).get().then(doc => {
+    firebase.firestore().collection('leaderboard').doc(uid).get().then(async doc => {
       const data = doc.data() || {};
       const badges = data.badges || [];
       const badgeContainer = document.getElementById('badge-container');
@@ -24,11 +24,14 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         badgeContainer.innerHTML = badges.map(b => `<span class="bg-purple-600 text-white text-xs px-2 py-1 rounded-full">${b}</span>`).join(' ');
       }
-      const level = Math.floor((data.packsOpened || 0) / 10) + 1;
+
+      const levelSnap = await firebase.database().ref('milestoneConfig/levels').once('value');
+      const thresholds = levelSnap.val() || [];
+      const level = determineLevel(data.packsOpened || 0, thresholds);
       document.getElementById('level-number').innerText = level;
       document.getElementById('total-won').innerText = (data.cardValue || 0).toLocaleString();
     });
-
+  
     firebase.database().ref('users/' + uid + '/unboxHistory').once('value').then(snap => {
       let totalSpent = 0;
       let rarest = null;
@@ -61,6 +64,17 @@ function updateProfile() {
       location.reload();
     })
     .catch(err => alert('❌ Error: ' + err.message));
+}
+
+function determineLevel(packs, thresholds) {
+  if (!Array.isArray(thresholds) || thresholds.length === 0) {
+    return Math.floor(packs / 10) + 1;
+  }
+  let lvl = 1;
+  thresholds.forEach((t, idx) => {
+    if (packs >= t) lvl = idx + 1;
+  });
+  return lvl;
 }
 
 function changePassword() {

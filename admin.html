@@ -53,6 +53,7 @@
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('users')">Users</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('marketplace')">Marketplace</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('quests')">Quests</a>
+      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('milestones')">Milestones</a>
     </div>
   </nav>
 
@@ -175,6 +176,22 @@
 </section>
 
 
+<section id="milestones-section" class="hidden">
+  <h1 class="text-3xl font-bold mb-6">Milestones</h1>
+  <form id="milestone-config-form" class="space-y-4 max-w-xl bg-gray-800 p-6 rounded-lg">
+    <div>
+      <label class="block mb-1">Badge Config (JSON Array)</label>
+      <textarea id="badge-config" class="w-full p-2 rounded h-32"></textarea>
+    </div>
+    <div>
+      <label class="block mb-1">Level Requirements (JSON Array of pack thresholds)</label>
+      <textarea id="level-config" class="w-full p-2 rounded h-32"></textarea>
+    </div>
+    <button type="submit" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded">Save</button>
+  </form>
+</section>
+
+
     <!-- Shipment Management Section -->
     <section id="shipments-section" class="hidden">
       <h1 class="text-3xl font-bold mb-6">Manage Shipments</h1>
@@ -211,8 +228,8 @@
       setTimeout(() => { toast.style.display = 'none'; }, 3000);
     }
 
-    function showSection(id) {
-  const sections = ['cases', 'shipments', 'support', 'users', 'marketplace', 'quests'];
+  function showSection(id) {
+  const sections = ['cases', 'shipments', 'support', 'users', 'marketplace', 'quests', 'milestones'];
   sections.forEach(section => {
     document.getElementById(section + '-section').classList.add('hidden');
   });
@@ -641,6 +658,7 @@ firebase.auth().onAuthStateChanged(user => {
   loadSupportForms();
   loadMarketplaceItems();
   loadQuestConfig();
+  loadMilestoneConfig();
 });
 
 
@@ -745,6 +763,24 @@ document.getElementById('quest-config-form').addEventListener('submit', e => {
     }
   };
   firebase.database().ref('questConfig').set(config).then(() => showToast('✅ Quest config saved'));
+});
+
+function loadMilestoneConfig() {
+  const ref = firebase.database().ref('milestoneConfig');
+  ref.once('value').then(snap => {
+    const cfg = snap.val() || {};
+    document.getElementById('badge-config').value = JSON.stringify(cfg.badges || [], null, 2);
+    document.getElementById('level-config').value = JSON.stringify(cfg.levels || [], null, 2);
+  });
+}
+
+document.getElementById('milestone-config-form').addEventListener('submit', e => {
+  e.preventDefault();
+  let badges = [];
+  let levels = [];
+  try { badges = JSON.parse(document.getElementById('badge-config').value || '[]'); } catch (err) {}
+  try { levels = JSON.parse(document.getElementById('level-config').value || '[]'); } catch (err) {}
+  firebase.database().ref('milestoneConfig').set({ badges, levels }).then(() => showToast('✅ Milestone config saved'));
 });
 
   </script>
