@@ -16,6 +16,12 @@ window.addEventListener('DOMContentLoaded', () => {
       const snapshot = await userRef.once('value');
       const userData = snapshot.val() || {};
 
+      if (!userData.phoneVerified) {
+        await firebase.auth().signOut();
+        window.location.href = 'auth.html';
+        return;
+      }
+
       // ✅ Setup Provably Fair if missing
       if (!userData.provablyFair) {
         const serverSeed = generateRandomString(64);
