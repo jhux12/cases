@@ -461,7 +461,20 @@ setTimeout(() => {
           </span>
         `;
 
-        const demoPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
+        const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
+        const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+        const rand = Math.random() * totalOdds;
+
+        let cumulative = 0;
+        let demoPrize = prizes[prizes.length - 1];
+        for (let p of prizes) {
+          cumulative += p.odds || 0;
+          if (rand < cumulative) {
+            demoPrize = p;
+            break;
+          }
+        }
+
         const spinnerPrizes = [];
         for (let i = 0; i < 30; i++) {
           const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
@@ -475,20 +488,10 @@ setTimeout(() => {
           spinToPrize(() => {
             btn.disabled = false;
             btn.classList.remove("cursor-not-allowed", "opacity-60");
-              // Reset button text without using a template literal to avoid stray tokens
-              btn.innerHTML = '<span class="relative z-10">Try for Free</span>';
+            btn.innerHTML = '<span class="relative z-10">Try for Free</span>';
             playRaritySound(demoPrize.rarity);
             showToast(`You would have won ${demoPrize.name}!`, "bg-blue-600");
           }, false);
-          spinToPrize(() => {
-            btn.disabled = false;
-            btn.classList.remove("cursor-not-allowed", "opacity-60");
-            btn.innerHTML = `<span class="relative z-10">Try for Free</span>`;
-            playRaritySound(demoPrize.rarity);
-            showToast(`You would have won ${demoPrize.name}!`, "bg-blue-600");
-          }, false);
-
-          });
         }, 150);
       });
   document.getElementById("pf-info").addEventListener("click", async () => {
@@ -503,6 +506,7 @@ setTimeout(() => {
   document.getElementById("pf-nonce").textContent = fairData?.nonce ?? "Not found";
 
   document.getElementById("provably-fair-modal").classList.remove("hidden");
+});
 });
 function enablePrizePopups() {
   const cards = document.querySelectorAll(".prize-card");
