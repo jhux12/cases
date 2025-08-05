@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg hidden z-50">
             <a href="index.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-cube mr-2"></i> Open Packs</a>
             <a href="inventory.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-box-open mr-2"></i> Inventory</a>
+            <a href="profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-user mr-2"></i> Profile</a>
             <a href="how-it-works.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-question-circle mr-2"></i> How It Works</a>
             <a id="signin-desktop" href="auth.html" class="block px-4 py-2 text-sm text-green-400 hover:bg-gray-700"><i class="fas fa-sign-in-alt mr-2"></i> Sign In</a>
             <a id="logout-desktop" href="#" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
@@ -53,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
       <a href="index.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm"><i class="fas fa-cube mr-2"></i> Open Packs</a>
       <a id="inventory-link" href="inventory.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm hidden"><i class="fas fa-box-open mr-2"></i> Inventory</a>
+      <a id="profile-link" href="profile.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm hidden"><i class="fas fa-user mr-2"></i> Profile</a>
       <a href="how-it-works.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm"><i class="fas fa-question-circle mr-2"></i> How It Works</a>
       <a href="rewards.html" class="block px-4 py-2 hover:bg-gray-700 text-yellow-400 text-sm"><i class="fas fa-gift mr-2"></i> Rewards</a>
       <a href="marketplace.html" class="block px-4 py-2 hover:bg-gray-700 text-pink-400 text-sm"><i class="fas fa-store mr-2"></i> Marketplace</a>
@@ -80,6 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const logoutDesktop = document.getElementById("logout-desktop");
       const mobileAuth = document.getElementById("mobile-auth-button");
       const inventoryLink = document.getElementById("inventory-link");
+      const profileLink = document.getElementById("profile-link");
 
       const formatted = parseInt(balance, 10).toLocaleString();
       if (balanceDesktop) balanceDesktop.innerText = formatted;
@@ -104,6 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (signinDesktop) signinDesktop.classList.add("hidden");
       if (logoutDesktop) logoutDesktop.classList.remove("hidden");
       if (inventoryLink) inventoryLink.classList.remove("hidden");
+      if (profileLink) profileLink.classList.remove("hidden");
 
       if (logoutDesktop) {
         logoutDesktop.onclick = (e) => {

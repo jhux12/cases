@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile | Packly.gg</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #0f0f12;
+      color: white;
+    }
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 50;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <header></header>
+
+  <section class="mt-20 px-4">
+    <div class="max-w-lg mx-auto bg-gray-900 rounded-2xl p-6 shadow-lg">
+      <h2 class="text-xl font-bold mb-4 text-white text-center">Your Profile</h2>
+      <div class="mb-6 text-center">
+        <div id="profile-pic" class="w-24 h-24 rounded-full bg-pink-600 text-white text-3xl font-bold flex items-center justify-center mx-auto border-4 border-pink-600 shadow-lg"></div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-center">
+        <div class="bg-gray-800 p-4 rounded-lg">
+          <p class="text-sm text-gray-400">Level</p>
+          <p id="level-number" class="text-2xl font-bold">1</p>
+        </div>
+        <div class="bg-gray-800 p-4 rounded-lg">
+          <p class="text-sm text-gray-400">Total Spent</p>
+          <p id="total-spent" class="text-2xl font-bold">0</p>
+        </div>
+        <div class="bg-gray-800 p-4 rounded-lg">
+          <p class="text-sm text-gray-400">Total Won</p>
+          <p id="total-won" class="text-2xl font-bold">0</p>
+        </div>
+        <div class="bg-gray-800 p-4 rounded-lg">
+          <p class="text-sm text-gray-400">Rarest Pull</p>
+          <div id="rarest-pull" class="text-sm text-gray-300"></div>
+        </div>
+      </div>
+
+      <div id="badge-container" class="flex flex-wrap justify-center gap-2 mb-6"></div>
+
+      <div class="mb-4 text-center">
+        <label class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+        <input id="username-input" type="text" class="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-600 text-center" />
+      </div>
+
+      <button onclick="updateProfile()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition mb-4">
+        Save Changes
+      </button>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+        <input id="email" type="text" class="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-600" disabled />
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-300 mb-1">Current Password</label>
+        <input id="current-password" type="password" placeholder="Enter current password" class="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-600" />
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-300 mb-1">New Password</label>
+        <input id="new-password" type="password" placeholder="Enter new password" class="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-600" />
+      </div>
+
+      <button onclick="changePassword()" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-full transition">
+        Change Password
+      </button>
+    </div>
+  </section>
+
+  <footer></footer>
+
+  <!-- Firebase Config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+      authDomain: "cases-e5b4e.firebaseapp.com",
+      databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+      projectId: "cases-e5b4e",
+      storageBucket: "cases-e5b4e.appspot.com",
+      messagingSenderId: "22502548396",
+      appId: "1:22502548396:web:aac335672c21f07524d009"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <!-- Scripts -->
+  <script src="scripts/header.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/footer.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="scripts/topup.js"></script>
+  <script src="scripts/profile.js"></script>
+</body>
+</html>
+

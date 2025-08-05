@@ -93,17 +93,8 @@
 </section>
 
 
-<!-- Profile Tabs -->
-<div class="w-full flex justify-center mt-6">
-  <div class="flex space-x-4 bg-gray-800 p-2 rounded-xl shadow-md">
-<button onclick="showTab('inventory-section')" data-tab="inventory" class="tab-button px-4 py-2 text-white bg-pink-600 rounded-full">Inventory</button>
-<button onclick="showTab('profile-section')" data-tab="profile" class="tab-button px-4 py-2 text-white hover:bg-pink-600 rounded-full">Profile</button>
-  </div>
-</div>
-<div id="inventory-section" class="tab-content">
-
   <!-- Inventory -->
-  <main class="p-6">
+  <main class="p-6 mt-6">
     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
       <div class="flex items-center gap-3 text-sm">
         <label><input type="checkbox" id="select-all-checkbox" class="mr-1"> Select All</label>
@@ -151,45 +142,6 @@
       </div>
     </div>
   </main>
-</div>
-  <!-- Profile Section -->
-<div id="profile-section" class="tab-content hidden px-6 py-8">
-  <div class="max-w-lg mx-auto bg-gray-900 rounded-2xl p-6 shadow-lg">
-    <h2 class="text-xl font-bold mb-4 text-white">Your Profile</h2>
-    <div class="mb-6 text-center">
-<div id="profile-pic" class="w-24 h-24 rounded-full bg-pink-600 text-white text-3xl font-bold flex items-center justify-center mx-auto border-4 border-pink-600 shadow-lg"></div>
-</div>
-<div id="badge-container" class="flex flex-wrap justify-center gap-2 mb-6"></div>
-
-<div class="mb-4 text-center">
-  <label class="block text-sm font-medium text-gray-300 mb-1">Username</label>
-  <input id="username-input" type="text" class="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-600 text-center" />
-</div>
-
-<button onclick="updateProfile()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition">
-  Save Changes
-</button>
-
-
-    <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-300 mb-1">Email</label>
-      <input id="email" type="text" class="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-600" disabled />
-    </div>
-
-    <div class="mb-4">
-  <label class="block text-sm font-medium text-gray-300 mb-1">Current Password</label>
-  <input id="current-password" type="password" placeholder="Enter current password" class="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-600" />
-</div>
-    <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-300 mb-1">New Password</label>
-      <input id="new-password" type="password" placeholder="Enter new password" class="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-600" />
-    </div>
-
-    <button onclick="changePassword()" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-full transition">
-      Change Password
-    </button>
-  </div>
-</div>
 
   <!-- Dynamic Footer -->
   <footer></footer>
@@ -223,123 +175,6 @@
         document.getElementById("topup-popup-container").innerHTML = html;
       });
   </script>
-  <script>
-    function showTab(tabId) {
-  // Hide all tabs
-  document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden"));
-
-  // Show selected tab
-  document.getElementById(tabId).classList.remove("hidden");
-
-  // Reset all buttons
-  document.querySelectorAll(".tab-button").forEach(btn => {
-    btn.classList.remove("bg-pink-600");
-    btn.classList.add("hover:bg-pink-600");
-  });
-
-  // Highlight clicked button
-  const clickedButton = [...document.querySelectorAll(".tab-button")].find(btn =>
-    btn.getAttribute("onclick").includes(tabId)
-  );
-  if (clickedButton) {
-    clickedButton.classList.add("bg-pink-600");
-    clickedButton.classList.remove("hover:bg-pink-600");
-  }
-}
-  </script>
-<script>
-function showTab(tabId) {
-  document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden"));
-  document.getElementById(tabId).classList.remove("hidden");
-
-  document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("bg-pink-600"));
-  event.target.classList.add("bg-pink-600");
-}
-
-
-// Load profile data
-// Load profile data
-firebase.auth().onAuthStateChanged(user => {
-  if (user) {
-    const uid = user.uid;
-    const userRef = firebase.database().ref('users/' + uid);
-
-    userRef.once('value').then(snapshot => {
-      const userData = snapshot.val();
-
-      // Set email
-      document.getElementById("email").value = user.email;
-
-      // Set profile username input
-      if (userData.username) {
-        document.getElementById("username-input").value = userData.username;
-      }
-
-      // Set profile pic initials
-      const emailInitials = user.email ? user.email.substring(0, 2).toUpperCase() : "??";
-      document.getElementById("profile-pic").textContent = emailInitials;
-
-      // Set shipment popup username (if exists)
-      const shipUsernameInput = document.getElementById("ship-username");
-      if (shipUsernameInput && userData.username) {
-        shipUsernameInput.value = userData.username;
-      }
-    });
-  }
-});
-
-
-// Password update function
-function changePassword() {
-  const currentPassword = document.getElementById("current-password").value;
-  const newPassword = document.getElementById("new-password").value;
-  const user = firebase.auth().currentUser;
-
-  if (!currentPassword || !newPassword) {
-    alert("Please fill out both password fields.");
-    return;
-  }
-
-  const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
-
-  user.reauthenticateWithCredential(credential)
-    .then(() => {
-      return user.updatePassword(newPassword);
-    })
-    .then(() => {
-      alert("✅ Password updated successfully.");
-      document.getElementById("current-password").value = "";
-      document.getElementById("new-password").value = "";
-    })
-    .catch(error => {
-      alert("❌ " + error.message);
-    });
-}
-</script>
-<script>
-function updateProfile() {
-  const user = firebase.auth().currentUser;
-  if (!user) return;
-
-  const newUsername = document.getElementById("username-input").value;
-
-  // 1. Update display name (auth)
-  user.updateProfile({ displayName: newUsername })
-    .then(() => {
-      // 2. Update Realtime Database
-      return firebase.database().ref('users/' + user.uid).update({
-        username: newUsername
-      });
-    })
-    .then(() => {
-      alert("✅ Username updated!");
-      location.reload(); // Refresh so you see the updated username
-    })
-    .catch(err => {
-      alert("❌ Error: " + err.message);
-    });
-}
-</script>
 
 
 </body>
