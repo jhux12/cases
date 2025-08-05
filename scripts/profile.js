@@ -32,12 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
     firebase.database().ref('users/' + uid + '/unboxHistory').once('value').then(snap => {
       let totalSpent = 0;
       let rarest = null;
-      const order = ['common','uncommon','rare','ultra rare','legendary'];
       snap.forEach(child => {
         const d = child.val();
         totalSpent += Math.max(0, (d.balanceBefore || 0) - (d.balanceAfter || 0));
-        const rarityIndex = order.indexOf((d.rarity || '').toLowerCase());
-        if (!rarest || rarityIndex > order.indexOf((rarest.rarity || '').toLowerCase())) {
+        if (!rarest || (d.value || 0) > (rarest.value || 0)) {
           rarest = d;
         }
       });
