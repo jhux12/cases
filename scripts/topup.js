@@ -113,7 +113,10 @@ firebase.auth().onAuthStateChanged(async (user) => {
 
               const formattedBalance = newBalance.toLocaleString();
               document.getElementById("balance-amount").innerText = formattedBalance;
-              document.getElementById("balance-amount-mobile").innerText = formattedBalance;
+              const mobileBalance = document.getElementById("balance-amount-mobile");
+              const mobileDropdownBalance = document.getElementById("balance-amount-mobile-dropdown");
+              if (mobileBalance) mobileBalance.innerText = formattedBalance;
+              if (mobileDropdownBalance) mobileDropdownBalance.innerText = formattedBalance;
 
               const popupBalance = document.getElementById("popup-balance");
               if (popupBalance) popupBalance.innerText = `${formattedBalance} coins`;
