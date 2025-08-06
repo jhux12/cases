@@ -216,6 +216,22 @@ body {
   transform: translate(-50%, -50%) scale(1);
 }
 
+@keyframes mobile-float {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -55%) scale(1);
+  }
+}
+
+@media (max-width: 768px) {
+  /* floating animation for hero pack on mobile */
+  .hero-pack-img.active {
+    animation: mobile-float 6s ease-in-out infinite;
+  }
+}
+
 .flip-card {
   perspective: 1000px;
 }
