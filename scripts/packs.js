@@ -90,6 +90,7 @@ function loadCases() {
       }
 
       renderCases(allCases); // default render
+      document.dispatchEvent(new CustomEvent('casesLoaded', { detail: allCases }));
 
       const getUserBalance = () => {
         return parseFloat(document.getElementById("balance-amount")?.innerText.replace(/,/g, "")) || 0;
