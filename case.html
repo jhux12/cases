@@ -376,6 +376,16 @@ setTimeout(() => {
           balanceAfter = balance - price;
           await firebase.database().ref('users/' + user.uid + '/balance').set(balanceAfter);
         }
+        const milestoneRes = await updateMilestones(user.uid, winningPrize.value);
+        if (milestoneRes.leveledUp && milestoneRes.reward) {
+          balanceAfter += milestoneRes.reward;
+          await firebase.database().ref('users/' + user.uid + '/balance').set(balanceAfter);
+          const toast = document.createElement('div');
+          toast.className = 'fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-xl z-[9999] flex items-center gap-2';
+          toast.innerHTML = `You've reached level ${milestoneRes.level}! <span class="flex items-center">+${milestoneRes.reward}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 ml-1"/></span>`;
+          document.body.appendChild(toast);
+          setTimeout(() => toast.remove(), 3000);
+        }
         const unboxData = {
           name: winningPrize.name,
           image: winningPrize.image,
@@ -389,7 +399,6 @@ setTimeout(() => {
         const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
         await invRef.set(unboxData);
         await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
-        await updateMilestones(user.uid, winningPrize.value);
         if (isFreeCase) {
           await firebase.database().ref('users/' + user.uid + '/freeCaseOpened').set(true);
         }

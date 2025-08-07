@@ -158,17 +158,23 @@ export async function renderWeeklyQuests(containerId = "quest-container") {
 // Track long-term milestones and award badges stored in Firestore.
 // Called whenever a pack is opened to update stats used by the leaderboard.
 export async function updateMilestones(uid, prizeValue = 0) {
-  if (!uid) return;
+  if (!uid) return { leveledUp: false };
   const fs = firebase.firestore();
   const docRef = fs.collection('leaderboard').doc(uid);
-  // Fetch badge configuration allowing dynamic thresholds and names.
-  const configSnap = await firebase.database().ref('milestoneConfig/badges').once('value');
-  const badgeConfig = configSnap.val() || [];
+  // Fetch configuration for badges and levels.
+  const [badgeSnap, levelSnap] = await Promise.all([
+    firebase.database().ref('milestoneConfig/badges').once('value'),
+    firebase.database().ref('milestoneConfig/levels').once('value')
+  ]);
+  const badgeConfig = badgeSnap.val() || [];
+  const levelConfig = levelSnap.val() || [];
+  let levelResult = { leveledUp: false };
 
   await fs.runTransaction(async (tx) => {
     const doc = await tx.get(docRef);
     const data = doc.exists ? doc.data() : {};
-    const packsOpened = (data.packsOpened || 0) + 1;
+    const prevPacks = data.packsOpened || 0;
+    const packsOpened = prevPacks + 1;
     const cardValue = (data.cardValue || 0) + (prizeValue || 0);
     let badges = data.badges || [];
 
@@ -188,6 +194,14 @@ export async function updateMilestones(uid, prizeValue = 0) {
       if (cardValue >= 5000 && !badges.includes('5k Value')) newBadges.push('5k Value');
     }
 
+    const prevLevelInfo = determineLevel(prevPacks, levelConfig);
+    const newLevelInfo = determineLevel(packsOpened, levelConfig);
+    if (newLevelInfo.level > prevLevelInfo.level) {
+      const cfg = Array.isArray(levelConfig) ? levelConfig[newLevelInfo.level - 1] : null;
+      const reward = typeof cfg === 'object' ? cfg.reward || 0 : 0;
+      levelResult = { leveledUp: true, level: newLevelInfo.level, reward };
+    }
+
     if (newBadges.length) badges = [...badges, ...newBadges];
 
     tx.set(docRef, {
@@ -197,5 +211,30 @@ export async function updateMilestones(uid, prizeValue = 0) {
       badges,
     }, { merge: true });
   });
+
+  return levelResult;
+}
+
+function determineLevel(packs, levels) {
+  if (!Array.isArray(levels) || levels.length === 0) {
+    const level = Math.floor(packs / 10) + 1;
+    const prev = (level - 1) * 10;
+    const next = level * 10;
+    return { level, prevThreshold: prev, nextThreshold: next };
+  }
+  let lvl = 1;
+  let prev = 0;
+  let next = null;
+  levels.forEach((entry, idx) => {
+    const t = typeof entry === 'object' ? entry.threshold : entry;
+    if (packs >= t) {
+      lvl = idx + 1;
+      prev = t;
+    } else if (next === null) {
+      next = t;
+    }
+  });
+  if (next === null) next = prev;
+  return { level: lvl, prevThreshold: prev, nextThreshold: next };
 }
 

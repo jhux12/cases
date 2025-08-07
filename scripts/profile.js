@@ -188,8 +188,8 @@ function updateProfile() {
     .catch(err => alert('❌ Error: ' + err.message));
 }
 
-function determineLevel(packs, thresholds) {
-  if (!Array.isArray(thresholds) || thresholds.length === 0) {
+function determineLevel(packs, levels) {
+  if (!Array.isArray(levels) || levels.length === 0) {
     const level = Math.floor(packs / 10) + 1;
     const prev = (level - 1) * 10;
     const next = level * 10;
@@ -198,7 +198,8 @@ function determineLevel(packs, thresholds) {
   let lvl = 1;
   let prev = 0;
   let next = null;
-  thresholds.forEach((t, idx) => {
+  levels.forEach((entry, idx) => {
+    const t = typeof entry === 'object' ? entry.threshold : entry;
     if (packs >= t) {
       lvl = idx + 1;
       prev = t;
