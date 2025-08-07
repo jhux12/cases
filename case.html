@@ -54,7 +54,10 @@
       <span class="hidden sm:inline text-base">Back</span>
     </a>
     <div>
-      <h2 id="case-name" class="text-lg font-semibold leading-none">Loading...</h2>
+      <div class="flex items-center gap-2">
+        <h2 id="case-name" class="text-lg font-semibold leading-none">Loading...</h2>
+        <img id="case-image" class="w-10 h-10 object-contain" alt="" />
+      </div>
       <div id="case-spice" class="text-xs text-gray-400 mt-1"></div>
     </div>
   </div>
@@ -198,6 +201,11 @@ function showToast(message, color = 'bg-red-600') {
           img.src = caseData.image;
           img.alt = `${caseData.name} pack`;
         });
+        const inlineImg = document.getElementById('case-image');
+        if (inlineImg) {
+          inlineImg.src = caseData.image;
+          inlineImg.alt = `${caseData.name} pack`;
+        }
       }
       const isFreeCase = !!caseData.isFree;
       const spiceMap = {
