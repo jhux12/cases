@@ -19,13 +19,13 @@ document.addEventListener("DOMContentLoaded", () => {
         <a href="marketplace.html" class="flex items-center gap-1 text-pink-400 font-semibold hover:text-pink-300 transition">
           <i class="fas fa-store"></i> Marketplace
         </a>
-        <div id="user-balance" class="hidden items-center gap-2">
+        <div id="user-balance" class="hidden flex items-center gap-2">
           <div class="flex items-center gap-1 bg-gray-800 text-white px-3 py-1 rounded-full text-sm">
             <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
             <span id="balance-amount">0</span>
             <span>coins</span>
           </div>
-          <button id="topup-button" class="flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white">
+          <button id="topup-button" class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800 text-yellow-400 hover:text-yellow-300">
             <i class="fas fa-wallet"></i>
           </button>
         </div>
@@ -46,13 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
       <div class="sm:hidden flex items-center gap-2">
-        <div id="user-balance-mobile-header" class="hidden items-center gap-2">
+        <div id="user-balance-mobile-header" class="hidden flex items-center gap-2">
           <div class="flex items-center bg-gray-800 text-white px-3 py-1 rounded-full text-sm">
             <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
             <span id="balance-amount-mobile">0</span>
             <span>coins</span>
           </div>
-          <button id="topup-button-mobile-header" class="flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white">
+          <button id="topup-button-mobile-header" class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800 text-yellow-400 hover:text-yellow-300">
             <i class="fas fa-wallet"></i>
           </button>
         </div>
@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <span id="drawer-balance-amount">0</span>
               <span>coins</span>
             </div>
-            <button id="topup-button-mobile-drawer" class="text-green-400 hover:text-green-300">
+            <button id="topup-button-mobile-drawer" class="text-yellow-400 hover:text-yellow-300">
               <i class="fas fa-wallet text-xl"></i>
             </button>
           </div>

@@ -19,7 +19,17 @@ async function loadTopupPopup() {
     closeBtn.onclick = () => popup.classList.add("hidden");
   }
 
-  const openPopup = () => popup?.classList.remove("hidden");
+  const openPopup = () => {
+    if (popup) popup.classList.remove("hidden");
+    const mobileDrawer = document.getElementById("mobile-drawer");
+    const drawerOverlay = document.getElementById("drawer-overlay");
+    if (mobileDrawer && !mobileDrawer.classList.contains("-translate-x-full")) {
+      mobileDrawer.classList.add("-translate-x-full");
+    }
+    if (drawerOverlay && !drawerOverlay.classList.contains("hidden")) {
+      drawerOverlay.classList.add("hidden");
+    }
+  };
   if (topupDesktop) topupDesktop.onclick = openPopup;
   if (topupMobileHeader) topupMobileHeader.onclick = openPopup;
   if (topupMobileDrawer) topupMobileDrawer.onclick = openPopup;
