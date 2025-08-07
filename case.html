@@ -46,8 +46,6 @@
       <canvas id="particle-canvas"></canvas>
       <header></header>
 <section id="case-content" class="relative pt-32 pb-10 px-4">
-  <img class="case-pack-image absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-64 opacity-20 z-0 pointer-events-none -rotate-12" alt="Case Pack" />
-  <img class="case-pack-image absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 w-64 opacity-20 z-0 pointer-events-none rotate-12" alt="Case Pack" />
   <div class="relative z-10 mb-6">
     <div class="flex items-center justify-between px-4 py-2 bg-black/40 backdrop-blur-md rounded-full shadow-lg">
       <a href="index.html" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 text-white hover:scale-110 transition-transform" aria-label="Back to packs">
@@ -94,16 +92,20 @@
 
 
 
-  <div class="bg-black/30 backdrop-blur-md rounded-2xl shadow-md border border-white/10 p-6 hover:shadow-purple-500/20 transition-all duration-300 mt-10">
-  <div class="text-center mb-6">
-    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 shadow-md">
-      <img src="https://cdn-icons-png.flaticon.com/128/5172/5172637.png" alt="Rewards Icon" class="w-5 h-5" />
-      <span class="text-sm font-bold uppercase tracking-wider text-white">Rewards Table</span>
+    <div class="bg-black/30 backdrop-blur-md rounded-2xl shadow-md border border-white/10 p-6 hover:shadow-purple-500/20 transition-all duration-300 mt-10 relative">
+      <img class="case-pack-image absolute -top-10 left-0 -translate-x-1/2 w-64 opacity-20 z-0 pointer-events-none -rotate-12" alt="Case Pack" />
+      <img class="case-pack-image absolute -top-10 right-0 translate-x-1/2 w-64 opacity-20 z-0 pointer-events-none rotate-12" alt="Case Pack" />
+    <div class="relative z-10">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 shadow-md">
+          <img src="https://cdn-icons-png.flaticon.com/128/5172/5172637.png" alt="Rewards Icon" class="w-5 h-5" />
+          <span class="text-sm font-bold uppercase tracking-wider text-white">Rewards Table</span>
+        </div>
+        <p class="mt-2 text-sm text-gray-300">Each case contains a mix of prizes with different rarities and values.</p>
+      </div>
+      <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 text-sm"></div>
     </div>
-    <p class="mt-2 text-sm text-gray-300">Each case contains a mix of prizes with different rarities and values.</p>
   </div>
- <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 text-sm"></div>
-</div>
   </section>
   <!-- Main logic -->
 <script type="module">
