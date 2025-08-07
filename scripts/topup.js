@@ -12,7 +12,8 @@ async function loadTopupPopup() {
   const popup = document.getElementById("topup-popup");
   const closeBtn = document.getElementById("close-topup");
   const topupDesktop = document.getElementById("topup-button");
-  const topupMobile = document.getElementById("topup-button-mobile");
+  const topupMobileHeader = document.getElementById("topup-button-mobile-header");
+  const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
 
   if (popup && closeBtn) {
     closeBtn.onclick = () => popup.classList.add("hidden");
@@ -20,7 +21,8 @@ async function loadTopupPopup() {
 
   const openPopup = () => popup?.classList.remove("hidden");
   if (topupDesktop) topupDesktop.onclick = openPopup;
-  if (topupMobile) topupMobile.onclick = openPopup;
+  if (topupMobileHeader) topupMobileHeader.onclick = openPopup;
+  if (topupMobileDrawer) topupMobileDrawer.onclick = openPopup;
 
   // Attach loading feedback to all buy buttons
   document.querySelectorAll("#topup-popup form").forEach(form => {
