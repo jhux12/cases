@@ -198,22 +198,35 @@ body {
   animation: pulse-balance 0.4s ease;
 }
 
-/* Hero pack cross-fade animation */
-.hero-pack-img {
+/* Floating pack images in hero */
+#floating-packs {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.9);
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  opacity: 0;
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  inset: 0;
+  pointer-events: none;
 }
 
-.hero-pack-img.active {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+.floating-pack {
+  position: absolute;
+  width: 80px;
+  height: auto;
+  opacity: 0.9;
+  transform: translate(-50%, -50%);
+  animation: hero-float 6s ease-in-out infinite;
+}
+
+@media (min-width: 768px) {
+  .floating-pack {
+    width: 120px;
+  }
+}
+
+@keyframes hero-float {
+  0%, 100% {
+    transform: translate(-50%, -50%) translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-15px) rotate(5deg);
+  }
 }
 
 .flip-card {
