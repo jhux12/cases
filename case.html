@@ -48,15 +48,15 @@
 <section id="case-content" class="relative pt-32 pb-10 px-4">
   <img class="case-pack-image absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-64 opacity-20 z-0 pointer-events-none -rotate-12" alt="Case Pack" />
   <img class="case-pack-image absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 w-64 opacity-20 z-0 pointer-events-none rotate-12" alt="Case Pack" />
-  <div class="relative z-10 flex items-center gap-3 mb-6">
-    <a href="index.html" class="flex items-center text-white text-xl hover:text-gray-300 gap-2" aria-label="Back to packs">
-      <i class="fas fa-arrow-left"></i>
-      <span class="hidden sm:inline text-base">Back</span>
-    </a>
-    <div>
-      <h2 id="case-name" class="text-lg font-semibold leading-none">Loading...</h2>
-      <div id="case-spice" class="text-xs text-gray-400 mt-1"></div>
+  <div class="relative z-10 mb-6">
+    <div class="flex items-center justify-between px-4 py-2 bg-black/40 backdrop-blur-md rounded-full shadow-lg">
+      <a href="index.html" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 text-white hover:scale-110 transition-transform" aria-label="Back to packs">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <h2 id="case-name" class="flex-1 text-center text-xl sm:text-2xl font-bold mx-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 bg-clip-text text-transparent leading-none">Loading...</h2>
+      <img id="case-image" class="w-12 h-12 sm:w-16 sm:h-16 object-contain rounded-full bg-black/40 p-2 border border-white/20 shadow-md transition-transform hover:rotate-6 hover:scale-105" alt="" />
     </div>
+    <div id="case-spice" class="text-center text-xs mt-2"></div>
   </div>
     <div id="spinner-border" class="my-8 border-4 border-gray-800 rounded-lg bg-black/20 transition-colors duration-300">
       <div class="relative h-[200px] overflow-hidden">
@@ -184,11 +184,13 @@ function showToast(message, color = 'bg-red-600') {
 
     if (!caseId) {
       document.getElementById("case-name").innerText = "Case not found.";
+      document.getElementById("case-spice").innerHTML = "";
     }
 
     firebase.database().ref("cases/" + caseId).once("value").then((snap) => {
       if (!snap.exists()) {
         document.getElementById("case-name").innerText = "Case not found.";
+        document.getElementById("case-spice").innerHTML = "";
         return;
       }
 
@@ -198,6 +200,11 @@ function showToast(message, color = 'bg-red-600') {
           img.src = caseData.image;
           img.alt = `${caseData.name} pack`;
         });
+        const inlineImg = document.getElementById('case-image');
+        if (inlineImg) {
+          inlineImg.src = caseData.image;
+          inlineImg.alt = `${caseData.name} pack`;
+        }
       }
       const isFreeCase = !!caseData.isFree;
       const spiceMap = {
@@ -210,10 +217,11 @@ const spice = caseData.spice?.toLowerCase();
 const spiceData = spiceMap[spice];
 
 const spiceHTML = spiceData
-  ? `<span class="ml-2 ${spiceData.color} text-xs font-semibold bg-black/40 px-2 py-1 rounded-full">${spiceData.label}</span>`
+  ? `<span class="${spiceData.color} text-xs font-semibold bg-black/40 px-2 py-1 rounded-full">${spiceData.label}</span>`
   : "";
 
-document.getElementById("case-name").innerHTML = `${caseData.name} ${spiceHTML}`;
+document.getElementById("case-name").textContent = caseData.name;
+document.getElementById("case-spice").innerHTML = spiceHTML;
 const openBtn = document.getElementById("open-case-button");
 if (isFreeCase) {
   openBtn.innerHTML = '<span class="relative z-10">Open for Free</span>';
