@@ -12,15 +12,27 @@ async function loadTopupPopup() {
   const popup = document.getElementById("topup-popup");
   const closeBtn = document.getElementById("close-topup");
   const topupDesktop = document.getElementById("topup-button");
-  const topupMobile = document.getElementById("topup-button-mobile");
+  const topupMobileHeader = document.getElementById("topup-button-mobile-header");
+  const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
 
   if (popup && closeBtn) {
     closeBtn.onclick = () => popup.classList.add("hidden");
   }
 
-  const openPopup = () => popup?.classList.remove("hidden");
+  const openPopup = () => {
+    if (popup) popup.classList.remove("hidden");
+    const mobileDrawer = document.getElementById("mobile-drawer");
+    const drawerOverlay = document.getElementById("drawer-overlay");
+    if (mobileDrawer && !mobileDrawer.classList.contains("-translate-x-full")) {
+      mobileDrawer.classList.add("-translate-x-full");
+    }
+    if (drawerOverlay && !drawerOverlay.classList.contains("hidden")) {
+      drawerOverlay.classList.add("hidden");
+    }
+  };
   if (topupDesktop) topupDesktop.onclick = openPopup;
-  if (topupMobile) topupMobile.onclick = openPopup;
+  if (topupMobileHeader) topupMobileHeader.onclick = openPopup;
+  if (topupMobileDrawer) topupMobileDrawer.onclick = openPopup;
 
   // Attach loading feedback to all buy buttons
   document.querySelectorAll("#topup-popup form").forEach(form => {
