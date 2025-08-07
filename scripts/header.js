@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div id="drawer-overlay" class="fixed inset-0 bg-black/50 hidden z-40 sm:hidden"></div>
       <aside id="mobile-drawer" class="fixed top-0 left-0 h-full w-64 bg-gray-900 border-r border-gray-800 transform -translate-x-full transition-transform duration-300 z-[100] sm:hidden">
         <div class="p-4 h-full overflow-y-auto pb-24 space-y-4">
-          <div
+        <div
             id="drawer-user-info"
             class="hidden flex flex-col items-center text-center text-white space-y-1 pb-4 border-b border-gray-800"
           >
@@ -71,6 +71,13 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="flex items-center gap-2 text-xs">
               <div id="drawer-badge" class="px-2 py-0.5 rounded-full bg-purple-600"></div>
               <span class="text-gray-400">Lvl <span id="drawer-level"></span></span>
+            </div>
+            <div class="w-full mt-2 px-4">
+              <div class="relative w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div id="drawer-xp-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-pink-500 via-yellow-400 to-purple-500 rounded-full transition-all duration-300" style="width:0%"></div>
+              </div>
+              <div id="drawer-progress-text" class="text-[10px] text-gray-400 mt-1"></div>
+              <div id="drawer-next-reward" class="text-[10px] text-yellow-400"></div>
             </div>
           </div>
           <div id="drawer-balance-section" class="flex items-center justify-between text-white">
@@ -156,6 +163,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const drawerBadge = document.getElementById("drawer-badge");
     const drawerUsername = document.getElementById("drawer-username");
     const drawerLevel = document.getElementById("drawer-level");
+    const drawerXpBar = document.getElementById("drawer-xp-bar");
+    const drawerProgressText = document.getElementById("drawer-progress-text");
+    const drawerNextReward = document.getElementById("drawer-next-reward");
 
     if (!user) {
       if (authButtonsMobileHeader) authButtonsMobileHeader.classList.remove("hidden");
@@ -261,8 +271,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
-    const thresholds = levelSnap.val() || [];
-    const levelInfo = determineLevel(packsOpened, thresholds);
+    const levelConfig = levelSnap.val() || [];
+    const levelInfo = determineLevel(packsOpened, levelConfig);
     if (drawerLevel) drawerLevel.innerText = levelInfo.level;
     if (drawerBadge) {
       if (currentBadge) {
@@ -272,6 +282,33 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         drawerBadge.classList.add("hidden");
       }
+    }
+
+    if (drawerXpBar) {
+      let pct = 100;
+      if (levelInfo.nextThreshold > levelInfo.prevThreshold) {
+        pct =
+          ((packsOpened - levelInfo.prevThreshold) /
+            (levelInfo.nextThreshold - levelInfo.prevThreshold)) * 100;
+        const remaining = levelInfo.nextThreshold - packsOpened;
+        if (drawerProgressText)
+          drawerProgressText.textContent = `${remaining} packs to next level`;
+        const nextCfg = Array.isArray(levelConfig)
+          ? levelConfig[levelInfo.level]
+          : null;
+        const reward =
+          typeof nextCfg === "object" ? nextCfg.reward || 0 : 0;
+        if (drawerNextReward && nextCfg) {
+          drawerNextReward.textContent = `Reward: +${reward.toLocaleString()} coins`;
+        } else if (drawerNextReward) {
+          drawerNextReward.textContent = "";
+        }
+      } else {
+        if (drawerProgressText)
+          drawerProgressText.textContent = "Max level achieved";
+        if (drawerNextReward) drawerNextReward.textContent = "";
+      }
+      drawerXpBar.style.width = pct + "%";
     }
   });
 
