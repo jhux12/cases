@@ -21,36 +21,14 @@
 
   <!-- Optional styles -->
   <link rel="stylesheet" href="styles/main.css">
-  <style>
-.card-gradient-common {
-  background: linear-gradient(180deg, rgba(63, 63, 70, 0.7), rgba(82, 82, 91, 0.7));
-}
-.card-gradient-uncommon {
-  background: linear-gradient(180deg, rgba(20, 83, 45, 0.7), rgba(34, 197, 94, 0.7));
-}
-.card-gradient-rare {
-  background: linear-gradient(180deg, rgba(30, 64, 175, 0.7), rgba(59, 130, 246, 0.7));
-}
-.card-gradient-ultrarare {
-  background: linear-gradient(180deg, rgba(107, 33, 168, 0.7), rgba(168, 85, 247, 0.7));
-}
-.card-gradient-legendary {
-  background: linear-gradient(180deg, rgba(133, 77, 14, 0.7), rgba(250, 204, 21, 0.7));
-}
-.clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-</style>
-<style>
-.glow-common    { box-shadow: 0 0 30px #a1a1aa; }
-.glow-uncommon  { box-shadow: 0 0 30px #4ade80; }
-.glow-rare      { box-shadow: 0 0 30px #60a5fa; }
-.glow-ultrarare { box-shadow: 0 0 30px #c084fc; }
-.glow-legendary { box-shadow: 0 0 40px #facc15; }
-</style>
+    <style>
+    .clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    </style>
   <style>
   #particle-canvas {
     position: fixed;
@@ -250,25 +228,30 @@ const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
 });
 
 renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
+      const rarityColors = {
+        common: "#a1a1aa",
+        uncommon: "#4ade80",
+        rare: "#60a5fa",
+        ultrarare: "#c084fc",
+        legendary: "#facc15"
+      };
       document.getElementById("prizes-grid").innerHTML = prizeList.map(prize => {
   const rarity = (prize.rarity || "common").toLowerCase().replace(/\s+/g, '');
-  const glowClass = `glow-${rarity}`;
-  const gradientClass = `card-gradient-${rarity}`;
+  const color = rarityColors[rarity] || "#a1a1aa";
 
   return `
-  <div class="prize-card relative rounded-2xl border border-white/10 p-3 text-white text-center shadow-md backdrop-blur-sm transition-all hover:scale-[1.03] ${gradientClass} ${glowClass}">
-<img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-black/20 shadow-inner border border-white/10" style="border-radius: 1rem;" />
-      <div class="font-bold text-sm clamp-2 mb-4">${prize.name}</div>
+  <div class="prize-card relative rounded-xl p-4 bg-gray-800 border-2 text-white text-center shadow-sm cursor-pointer transition-transform duration-200 hover:scale-105" data-rarity="${rarity}" style="border-color:${color}">
+    <img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-black/20 rounded-lg" />
+    <div class="prize-name font-semibold text-sm clamp-2 mb-8">${prize.name}</div>
 
-      <!-- Bottom overlay: coin left, odds right -->
-      <div class="absolute bottom-2 left-2 flex items-center gap-1 text-yellow-300 font-bold text-xs">
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-        ${formatCoins(prize.value || 0)}
-      </div>
-      <div class="absolute bottom-2 right-2 text-white/70 bg-white/10 px-2 py-[2px] text-xs rounded-full">
-        ${(prize.odds || 0).toFixed(1)}%
-      </div>
+    <div class="absolute bottom-2 left-2 flex items-center gap-1 text-yellow-300 font-medium text-xs">
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
+      ${formatCoins(prize.value || 0)}
     </div>
+    <div class="absolute bottom-2 right-2 text-white/70 bg-black/40 px-2 py-[2px] text-xs rounded-full">
+      ${(prize.odds || 0).toFixed(1)}%
+    </div>
+  </div>
   `;
 }).join("");
 enablePrizePopups();
@@ -476,36 +459,27 @@ setTimeout(() => {
 });
 function enablePrizePopups() {
   const cards = document.querySelectorAll(".prize-card");
-  cards.forEach(card => {
-    card.addEventListener("click", () => {
-      const image = card.querySelector("img")?.src;
-      const name = card.querySelector(".font-bold")?.textContent.trim();
-      const value = card.querySelector(".text-yellow-300")?.textContent.trim();
-      const odds = card.querySelector(".bg-white\\/10")?.textContent.trim();
+    cards.forEach(card => {
+      card.addEventListener("click", () => {
+        const image = card.querySelector("img")?.src;
+        const name = card.querySelector(".prize-name")?.textContent.trim();
+        const value = card.querySelector(".text-yellow-300")?.textContent.trim();
+        const odds = card.querySelector(".bg-black\\/40")?.textContent.trim();
 
-      document.getElementById("prize-popup-image").src = image;
-      document.getElementById("prize-popup-name").textContent = name;
-      document.getElementById("prize-popup-value").textContent = value;
-      document.getElementById("prize-popup-odds").textContent = odds;
+        document.getElementById("prize-popup-image").src = image;
+        document.getElementById("prize-popup-name").textContent = name;
+        document.getElementById("prize-popup-value").textContent = value;
+        document.getElementById("prize-popup-odds").textContent = odds;
 
-// Detect rarity from card class
-const classList = card.className;
-const rarityMatch = classList.match(/glow-(common|uncommon|rare|ultrarare|legendary)/);
-const rarityClass = rarityMatch ? rarityMatch[0] : "glow-common";
-
-// Apply to popup
-const popup = document.getElementById("prize-popup");
-popup.classList.remove("hidden");
-
-// Clear old glow classes
-popup.classList.remove(
-  "glow-common", "glow-uncommon", "glow-rare", "glow-ultrarare", "glow-legendary", "glow-animated"
-);
-
-// Add new glow
-popup.classList.add(rarityClass, "glow-animated");
+        const rarity = card.dataset.rarity || "common";
+        const popup = document.getElementById("prize-popup");
+        popup.classList.remove("hidden");
+        popup.classList.remove(
+          "glow-common", "glow-uncommon", "glow-rare", "glow-ultrarare", "glow-legendary", "glow-animated"
+        );
+        popup.classList.add(`glow-${rarity}`, "glow-animated");
+      });
     });
-  });
 }
   </script>
   <!-- Provably Fair Modal -->
@@ -542,69 +516,48 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("win-popup").classList.add("hidden");
   });
 
- sellBtn.addEventListener("click", () => {
-  const sellAmount = parseInt(document.getElementById("sell-value").textContent);
-  const user = firebase.auth().currentUser;
-  if (user) {
-    const balanceRef = firebase.database().ref("users/" + user.uid + "/balance");
+  sellBtn.addEventListener("click", () => {
+    const sellAmount = parseInt(document.getElementById("sell-value").textContent);
+    const user = firebase.auth().currentUser;
+    if (user) {
+      const balanceRef = firebase.database().ref("users/" + user.uid + "/balance");
 
-    // Step 1: Add coins
-    balanceRef.once("value").then(snap => {
-      const currentBalance = snap.val() || 0;
-      const newBalance = currentBalance + sellAmount;
+      balanceRef.once("value").then(snap => {
+        const currentBalance = snap.val() || 0;
+        const newBalance = currentBalance + sellAmount;
 
-      balanceRef.set(newBalance);
-const sellSound = document.getElementById("sell-sound");
-if (sellSound) sellSound.play();
-    });
+        balanceRef.set(newBalance);
+        const sellSound = document.getElementById("sell-sound");
+        if (sellSound) sellSound.play();
+      });
 
-    // Step 2: Remove item from inventory
-    const name = document.getElementById("popup-name").textContent;
-    const value = parseInt(document.getElementById("popup-value").textContent);
+      const name = document.getElementById("popup-name").textContent;
+      const value = parseInt(document.getElementById("popup-value").textContent);
 
-    const inventoryRef = firebase.database().ref("users/" + user.uid + "/inventory");
-    inventoryRef.once("value").then(snapshot => {
-      const inventory = snapshot.val();
-      if (inventory) {
-        const keys = Object.keys(inventory);
-        for (let key of keys) {
-          const item = inventory[key];
-          if (item.name === name && item.value === value) {
-            firebase.database().ref("users/" + user.uid + "/inventory/" + key).remove();
-            break;
+      const inventoryRef = firebase.database().ref("users/" + user.uid + "/inventory");
+      inventoryRef.once("value").then(snapshot => {
+        const inventory = snapshot.val();
+        if (inventory) {
+          const keys = Object.keys(inventory);
+          for (let key of keys) {
+            const item = inventory[key];
+            if (item.name === name && item.value === value) {
+              firebase.database().ref("users/" + user.uid + "/inventory/" + key).remove();
+              break;
+            }
           }
         }
-      }
-    });
-  }
+      });
+    }
 
-  document.getElementById("win-popup").classList.add("hidden");
-});
-});
-  // Enable popup on existing prizes
-window.addEventListener("load", () => {
-document.querySelectorAll("#prizes-grid .prize-card").forEach(card => {
-  card.addEventListener("click", () => {
-    const image = card.querySelector("img")?.src;
-    const name = card.querySelector(".font-bold.text-sm")?.textContent.trim() || "Unknown";
-    const value = card.querySelector(".text-yellow-300")?.textContent.trim();
-    const odds = card.querySelector(".bg-white\\/10")?.textContent.trim();
+    document.getElementById("win-popup").classList.add("hidden");
+  });
 
-    document.getElementById("prize-popup-image").src = image;
-    document.getElementById("prize-popup-name").textContent = name || "Unknown";
-    document.getElementById("prize-popup-value").textContent = value;
-    document.getElementById("prize-popup-odds").textContent = odds.replace('chance', '').trim();
-
-    document.getElementById("prize-popup").classList.remove("hidden");
+  document.getElementById("close-prize-popup").addEventListener("click", () => {
+    document.getElementById("prize-popup").classList.add("hidden");
   });
 });
-
-// Close popup
-document.getElementById("close-prize-popup").addEventListener("click", () => {
-  document.getElementById("prize-popup").classList.add("hidden");
-});
-});
-</script>
+    </script>
 
 <audio id="sound-common" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5"></audio>
 <audio id="sound-rare" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8"></audio>
