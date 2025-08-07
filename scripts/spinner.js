@@ -96,13 +96,15 @@ export function spinToPrize(callback, showPopup = true) {
 
   // Reset any previous transform
   spinnerWheel.style.transition = 'none';
-  spinnerWheel.style.transform = 'translateX(0)';
+  spinnerWheel.style.transform = 'translate3d(0,0,0)';
   void spinnerWheel.offsetWidth; // Force reflow
 
   // Now apply the spin
   requestAnimationFrame(() => {
-    spinnerWheel.style.transition = 'transform 8s cubic-bezier(0.11, 0.56, 0.15, 1)';
-    spinnerWheel.style.transform = `translateX(-${scrollOffset}px)`;
+    // Longer, ultra-smooth spin
+    spinnerWheel.style.willChange = 'transform';
+    spinnerWheel.style.transition = 'transform 10s cubic-bezier(0.22, 1, 0.36, 1)';
+    spinnerWheel.style.transform = `translate3d(-${scrollOffset}px,0,0)`;
   });
 
   let animationFrame;
