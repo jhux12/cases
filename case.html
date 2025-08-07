@@ -45,19 +45,19 @@
   <body class="bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white overflow-x-hidden">
       <canvas id="particle-canvas"></canvas>
       <header></header>
-<section id="case-content" class="relative pt-32 pb-10 px-4 max-w-5xl mx-auto">
+<section id="case-content" class="relative pt-32 pb-10 px-4">
   <img class="case-pack-image absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-64 opacity-20 z-0 pointer-events-none -rotate-12" alt="Case Pack" />
   <img class="case-pack-image absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 w-64 opacity-20 z-0 pointer-events-none rotate-12" alt="Case Pack" />
-  <div id="case-container" class="relative z-10 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 p-6 shadow-xl backdrop-blur-md">
-   <div class="absolute top-4 left-4 z-10 flex items-center gap-3">
-  <a href="index.html" class="text-white text-xl hover:text-gray-300">
-    <i class="fas fa-arrow-left"></i>
-  </a>
-  <div>
-    <h2 id="case-name" class="text-lg font-semibold leading-none">Loading...</h2>
-    <div id="case-spice" class="text-xs text-gray-400 mt-1"></div>
+  <div class="relative z-10 flex items-center gap-3 mb-6">
+    <a href="index.html" class="flex items-center text-white text-xl hover:text-gray-300 gap-2" aria-label="Back to packs">
+      <i class="fas fa-arrow-left"></i>
+      <span class="hidden sm:inline text-base">Back</span>
+    </a>
+    <div>
+      <h2 id="case-name" class="text-lg font-semibold leading-none">Loading...</h2>
+      <div id="case-spice" class="text-xs text-gray-400 mt-1"></div>
+    </div>
   </div>
-</div>
     <div id="spinner-border" class="my-8 border-4 border-gray-800 rounded-lg bg-black/20 transition-colors duration-300">
       <div class="relative h-[200px] overflow-hidden">
         <div id="center-line" class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
@@ -89,7 +89,7 @@
 
 
 
-    <div class="bg-black/30 backdrop-blur-md rounded-2xl shadow-md border border-white/10 p-6 hover:shadow-purple-500/20 transition-all duration-300 mt-10">
+  <div class="bg-black/30 backdrop-blur-md rounded-2xl shadow-md border border-white/10 p-6 hover:shadow-purple-500/20 transition-all duration-300 mt-10">
   <div class="text-center mb-6">
     <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 shadow-md">
       <img src="https://cdn-icons-png.flaticon.com/128/5172/5172637.png" alt="Rewards Icon" class="w-5 h-5" />
