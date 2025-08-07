@@ -63,6 +63,13 @@ document.addEventListener("DOMContentLoaded", () => {
       <div id="drawer-overlay" class="fixed inset-0 bg-black/50 hidden z-40 sm:hidden"></div>
       <aside id="mobile-drawer" class="fixed top-0 left-0 h-full w-64 bg-gray-900 border-r border-gray-800 transform -translate-x-full transition-transform duration-300 z-[100] sm:hidden">
         <div class="p-4 h-full overflow-y-auto pb-24 space-y-4">
+          <div id="drawer-user-info" class="hidden items-center gap-3 text-white">
+            <div id="drawer-badge" class="text-xs px-2 py-1 rounded-full bg-purple-600"></div>
+            <div class="flex flex-col leading-tight">
+              <span id="drawer-username" class="font-semibold"></span>
+              <span class="text-xs text-gray-400">Lvl <span id="drawer-level"></span></span>
+            </div>
+          </div>
           <div id="drawer-balance-section" class="flex items-center justify-between text-white">
             <div class="flex items-center gap-2">
               <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
@@ -134,6 +141,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const drawerProfileLink = document.getElementById("drawer-profile-link");
     const drawerLogout = document.getElementById("drawer-logout");
     const inventoryLink = document.getElementById("inventory-link");
+    const drawerUserInfo = document.getElementById("drawer-user-info");
+    const drawerBadge = document.getElementById("drawer-badge");
+    const drawerUsername = document.getElementById("drawer-username");
+    const drawerLevel = document.getElementById("drawer-level");
 
     if (!user) {
       if (authButtonsMobileHeader) authButtonsMobileHeader.classList.remove("hidden");
@@ -144,6 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (drawerProfileLink) drawerProfileLink.classList.add("hidden");
       if (drawerLogout) drawerLogout.classList.add("hidden");
       if (inventoryLink) inventoryLink.classList.add("hidden");
+      if (drawerUserInfo) drawerUserInfo.classList.add("hidden");
       return;
     }
 
@@ -155,11 +167,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (drawerProfileLink) drawerProfileLink.classList.remove("hidden");
     if (drawerLogout) drawerLogout.classList.remove("hidden");
     if (inventoryLink) inventoryLink.classList.remove("hidden");
+    if (drawerUserInfo) drawerUserInfo.classList.remove("hidden");
 
     const db = firebase.database();
     const userRef = db.ref("users/" + user.uid);
-    let prevBalance = null;
 
+    // Load username and balance continuously
+    let prevBalance = null;
     userRef.on("value", (snapshot) => {
       const data = snapshot.val() || {};
       const balance = data.balance || 0;
@@ -192,10 +206,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         prevBalance = balance;
       }
-      if (usernameDisplay) usernameDisplay.innerText = user.displayName || data.username || user.email || "User";
+      const uname = user.displayName || data.username || user.email || "User";
+      if (usernameDisplay) usernameDisplay.innerText = uname;
+      if (drawerUsername) drawerUsername.innerText = uname;
       if (signinDesktop) signinDesktop.classList.add("hidden");
       if (logoutDesktop) logoutDesktop.classList.remove("hidden");
-
       if (logoutDesktop) {
         logoutDesktop.onclick = (e) => {
           e.preventDefault();
@@ -209,6 +224,66 @@ document.addEventListener("DOMContentLoaded", () => {
         };
       }
     });
+
+    // Load level and badge info
+    const [lbDoc, badgeSnap, levelSnap] = await Promise.all([
+      firebase.firestore().collection("leaderboard").doc(user.uid).get(),
+      db.ref("milestoneConfig/badges").once("value"),
+      db.ref("milestoneConfig/levels").once("value"),
+    ]);
+    const lbData = lbDoc.data() || {};
+    const packsOpened = lbData.packsOpened || 0;
+    const cardValue = lbData.cardValue || 0;
+    const badgeCfg = badgeSnap.val() || [];
+    let currentBadge = null;
+    if (Array.isArray(badgeCfg)) {
+      badgeCfg.forEach((b) => {
+        const threshold = b.threshold || 0;
+        const type = b.type || "packs";
+        if (
+          (type === "packs" && packsOpened >= threshold) ||
+          (type === "value" && cardValue >= threshold)
+        ) {
+          if (!currentBadge || threshold > (currentBadge.threshold || 0)) {
+            currentBadge = b;
+          }
+        }
+      });
+    }
+    const thresholds = levelSnap.val() || [];
+    const levelInfo = determineLevel(packsOpened, thresholds);
+    if (drawerLevel) drawerLevel.innerText = levelInfo.level;
+    if (drawerBadge) {
+      if (currentBadge) {
+        drawerBadge.innerText = currentBadge.name;
+        drawerBadge.style.backgroundColor = currentBadge.color || "#9333ea";
+        drawerBadge.classList.remove("hidden");
+      } else {
+        drawerBadge.classList.add("hidden");
+      }
+    }
   });
+
+  function determineLevel(packs, thresholds) {
+    if (!Array.isArray(thresholds) || thresholds.length === 0) {
+      const level = Math.floor(packs / 10) + 1;
+      const prev = (level - 1) * 10;
+      const next = level * 10;
+      return { level, prevThreshold: prev, nextThreshold: next };
+    }
+    let lvl = 1;
+    let prev = 0;
+    let next = null;
+    thresholds.forEach((t, idx) => {
+      if (packs >= t) {
+        lvl = idx + 1;
+        prev = t;
+      } else if (next === null) {
+        next = t;
+      }
+    });
+    if (next === null) next = prev;
+    return { level: lvl, prevThreshold: prev, nextThreshold: next };
+  }
 });
 
