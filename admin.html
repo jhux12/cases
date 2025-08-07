@@ -779,11 +779,14 @@ function addBadge(badge = {}) {
   document.getElementById('badge-list').appendChild(div);
 }
 
-function addLevel(value = '') {
+function addLevel(level = {}) {
   const div = document.createElement('div');
   div.className = 'flex gap-2 items-center';
+  const threshold = typeof level === 'object' ? (level.threshold || '') : level;
+  const reward = typeof level === 'object' ? (level.reward || 0) : 0;
   div.innerHTML = `
-    <input type="number" placeholder="Pack Threshold" class="level-value w-full p-2 rounded" value="${value}">
+    <input type="number" placeholder="Pack Threshold" class="level-threshold w-full p-2 rounded" value="${threshold}">
+    <input type="number" placeholder="Coin Reward" class="level-reward w-full p-2 rounded" value="${reward}">
     <button type="button" class="text-red-400 hover:text-red-600" onclick="this.parentElement.remove()">Remove</button>
   `;
   document.getElementById('level-list').appendChild(div);
@@ -801,7 +804,10 @@ function loadMilestoneConfig() {
       addBadge();
     }
     if (levels.length) {
-      levels.forEach(l => addLevel(l));
+      levels.forEach(l => {
+        if (typeof l === 'object') addLevel(l);
+        else addLevel({ threshold: l, reward: 0 });
+      });
     } else {
       addLevel();
     }
@@ -818,9 +824,10 @@ document.getElementById('milestone-config-form').addEventListener('submit', e =>
     if (name) badges.push({ name, threshold, color });
   });
   const levels = [];
-  document.querySelectorAll('#level-list .level-value').forEach(input => {
-    const val = parseInt(input.value);
-    if (!isNaN(val)) levels.push(val);
+  document.querySelectorAll('#level-list > div').forEach(div => {
+    const threshold = parseInt(div.querySelector('.level-threshold').value);
+    const reward = parseInt(div.querySelector('.level-reward').value) || 0;
+    if (!isNaN(threshold)) levels.push({ threshold, reward });
   });
   firebase.database().ref('milestoneConfig').set({ badges, levels }).then(() => showToast('✅ Milestone config saved'));
 });
