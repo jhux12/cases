@@ -63,11 +63,14 @@ document.addEventListener("DOMContentLoaded", () => {
       <div id="drawer-overlay" class="fixed inset-0 bg-black/50 hidden z-40 sm:hidden"></div>
       <aside id="mobile-drawer" class="fixed top-0 left-0 h-full w-64 bg-gray-900 border-r border-gray-800 transform -translate-x-full transition-transform duration-300 z-[100] sm:hidden">
         <div class="p-4 h-full overflow-y-auto pb-24 space-y-4">
-          <div id="drawer-user-info" class="hidden items-center gap-3 text-white">
-            <div id="drawer-badge" class="text-xs px-2 py-1 rounded-full bg-purple-600"></div>
-            <div class="flex flex-col leading-tight">
-              <span id="drawer-username" class="font-semibold"></span>
-              <span class="text-xs text-gray-400">Lvl <span id="drawer-level"></span></span>
+          <div
+            id="drawer-user-info"
+            class="hidden flex flex-col items-center text-center text-white space-y-1 pb-4 border-b border-gray-800"
+          >
+            <span id="drawer-username" class="font-semibold"></span>
+            <div class="flex items-center gap-2 text-xs">
+              <div id="drawer-badge" class="px-2 py-0.5 rounded-full bg-purple-600"></div>
+              <span class="text-gray-400">Lvl <span id="drawer-level"></span></span>
             </div>
           </div>
           <div id="drawer-balance-section" class="flex items-center justify-between text-white">
