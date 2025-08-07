@@ -47,7 +47,10 @@ async function loadTopupPopup() {
   });
 }
 
-loadTopupPopup();
+// Ensure the top-up popup is initialized after the full page, including the
+// header component, has loaded. This avoids race conditions where the popup
+// tries to bind to wallet buttons before they exist in the DOM.
+window.addEventListener("load", loadTopupPopup);
 
 // Stripe redirect with loading indicator
 function redirectToCheckout(event, priceId, button) {
