@@ -216,6 +216,31 @@ body {
   transform: translate(-50%, -50%) scale(1);
 }
 
+/* Floating pack images for mobile hero */
+.floating-pack {
+  display: none;
+}
+
+@keyframes hero-float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-15px) scale(1.05);
+  }
+}
+
+@media (max-width: 768px) {
+  .floating-pack {
+    display: block;
+    position: absolute;
+    width: 80px;
+    height: auto;
+    opacity: 0.8;
+    animation: hero-float 6s ease-in-out infinite;
+  }
+}
+
 .flip-card {
   perspective: 1000px;
 }

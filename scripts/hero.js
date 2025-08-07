@@ -23,6 +23,10 @@ window.addEventListener('DOMContentLoaded', () => {
       carousel.appendChild(clone);
     });
 
+    if (window.innerWidth < 768) {
+      addFloatingPacks(packImgs);
+    }
+
     startCarousel();
   }
 
@@ -36,6 +40,18 @@ window.addEventListener('DOMContentLoaded', () => {
       index = (index + 1) % slides.length;
       slides[index].classList.add('active');
     }, 3000);
+  }
+
+  function addFloatingPacks(packImgs) {
+    Array.from(packImgs).slice(0, 3).forEach((img, i) => {
+      const clone = document.createElement('img');
+      clone.src = img.src;
+      clone.alt = img.alt || 'Pack';
+      clone.className = 'floating-pack';
+      clone.style.left = `${20 + i * 30}%`;
+      clone.style.animationDelay = `${i * 1.5}s`;
+      carousel.appendChild(clone);
+    });
   }
 
   if (casesContainer) {
