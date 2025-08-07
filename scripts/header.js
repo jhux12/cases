@@ -125,6 +125,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const mobileDrawer = document.getElementById("mobile-drawer");
   const drawerOverlay = document.getElementById("drawer-overlay");
 
+  // Prevent drawer animation on initial load
+  if (mobileDrawer) {
+    mobileDrawer.style.transition = "none";
+    requestAnimationFrame(() => {
+      mobileDrawer.style.transition = "";
+    });
+  }
+
   if (drawerMenuButton && mobileDrawer && drawerOverlay) {
     const toggleDrawer = () => {
       mobileDrawer.classList.toggle("-translate-x-full");
