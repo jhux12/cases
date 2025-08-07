@@ -482,12 +482,13 @@ function enablePrizePopups() {
         document.getElementById("prize-popup-odds").textContent = odds;
 
         const rarity = card.dataset.rarity || "common";
-        const popup = document.getElementById("prize-popup");
-        popup.classList.remove("hidden");
-        popup.classList.remove(
+        const overlay = document.getElementById("prize-popup");
+        const popupCard = document.getElementById("prize-popup-card");
+        overlay.classList.remove("hidden");
+        popupCard.classList.remove(
           "glow-common", "glow-uncommon", "glow-rare", "glow-ultrarare", "glow-legendary", "glow-animated"
         );
-        popup.classList.add(`glow-${rarity}`, "glow-animated");
+        popupCard.classList.add(`glow-${rarity}`, "glow-animated");
       });
     });
 }
@@ -601,17 +602,17 @@ document.addEventListener("DOMContentLoaded", () => {
   </div>
 </div>
     <!-- Prize Detail Popup -->
-<div id="prize-popup" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden">
-  <div id="prize-popup-card" class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center relative border border-white/10">
-    <div class="absolute top-3 right-3 text-gray-400 hover:text-white cursor-pointer text-xl" id="close-prize-popup">&times;</div>
-    <img id="prize-popup-image" src="" class="w-40 h-40 object-contain mx-auto mb-4 rounded-xl shadow-md" />
-    <div id="prize-popup-name" class="inline-block bg-pink-600 text-white px-3 py-1 rounded-full text-sm font-semibold mb-4 shadow-inner"></div>
-    <div class="flex justify-center gap-4">
-      <div class="inline-flex items-center gap-1 bg-yellow-500/10 text-yellow-300 px-3 py-1 rounded-full text-sm font-semibold shadow-inner">
+<div id="prize-popup" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center">
+  <div id="prize-popup-card" class="bg-gray-900 p-6 rounded-xl w-full max-w-sm text-center relative">
+    <button id="close-prize-popup" class="absolute top-3 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
+    <img id="prize-popup-image" src="" alt="Prize" class="w-48 h-48 object-contain mx-auto mb-4" />
+    <h3 id="prize-popup-name" class="text-lg font-semibold mb-4"></h3>
+    <div class="flex items-center justify-center gap-6 text-sm">
+      <div class="flex items-center gap-1 text-yellow-300">
         <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
         <span id="prize-popup-value">0</span>
       </div>
-      <div class="bg-white/10 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-inner">
+      <div class="text-gray-300">
         <span id="prize-popup-odds">0%</span> chance
       </div>
     </div>
