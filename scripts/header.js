@@ -114,9 +114,9 @@ document.addEventListener("DOMContentLoaded", () => {
           <i class="fas fa-box-open text-lg"></i>
           <span>Inventory</span>
         </a>
-        <a href="how-it-works.html" class="flex flex-col items-center text-xs text-white">
-          <i class="fas fa-question-circle text-lg"></i>
-          <span>How It Works</span>
+        <a href="index.html" class="flex flex-col items-center text-xs text-white">
+          <i class="fas fa-cube text-lg"></i>
+          <span>Open Packs</span>
         </a>
         <a href="rewards.html" class="flex flex-col items-center text-xs text-yellow-400">
           <i class="fas fa-gift text-lg"></i>
