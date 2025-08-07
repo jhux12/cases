@@ -198,46 +198,34 @@ body {
   animation: pulse-balance 0.4s ease;
 }
 
-/* Hero pack cross-fade animation */
-.hero-pack-img {
+/* Floating pack images in hero */
+#floating-packs {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.9);
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  opacity: 0;
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  inset: 0;
+  pointer-events: none;
 }
 
-.hero-pack-img.active {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-/* Floating pack images for mobile hero */
 .floating-pack {
-  display: none;
+  position: absolute;
+  width: 80px;
+  height: auto;
+  opacity: 0.9;
+  transform: translate(-50%, -50%);
+  animation: hero-float 6s ease-in-out infinite;
+}
+
+@media (min-width: 768px) {
+  .floating-pack {
+    width: 120px;
+  }
 }
 
 @keyframes hero-float {
   0%, 100% {
-    transform: translateY(0) scale(1);
+    transform: translate(-50%, -50%) translateY(0) rotate(0deg);
   }
   50% {
-    transform: translateY(-15px) scale(1.05);
-  }
-}
-
-@media (max-width: 768px) {
-  .floating-pack {
-    display: block;
-    position: absolute;
-    width: 80px;
-    height: auto;
-    opacity: 0.8;
-    animation: hero-float 6s ease-in-out infinite;
+    transform: translate(-50%, -50%) translateY(-15px) rotate(5deg);
   }
 }
 
