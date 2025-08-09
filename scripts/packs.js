@@ -1,5 +1,11 @@
 import { setupFilters } from './filters.js';
 
+export async function fetchPackImages() {
+  const snapshot = await firebase.database().ref("cases").once("value");
+  const data = snapshot.val() || {};
+  return Object.values(data).map(c => c.image);
+}
+
 let allCases = [];
 function getPepperHTML(spiceLevel) {
   const map = {
@@ -101,5 +107,7 @@ function loadCases() {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  loadCases();
+  if (document.getElementById("cases-container")) {
+    loadCases();
+  }
 });
