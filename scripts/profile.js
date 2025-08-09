@@ -129,17 +129,11 @@ function setupSearch() {
   searchInput.addEventListener('input', async e => {
     const q = e.target.value.trim();
     const list = document.getElementById('user-list');
-    const topTitle = document.getElementById('top-users-title');
-    const topList = document.getElementById('top-users');
     if (!list) return;
     if (!q) {
       list.innerHTML = '';
-      if (topTitle) topTitle.classList.remove('hidden');
-      if (topList) topList.classList.remove('hidden');
       return;
     }
-    if (topTitle) topTitle.classList.add('hidden');
-    if (topList) topList.classList.add('hidden');
     const snap = await firebase.firestore().collection('leaderboard')
       .orderBy('username')
       .startAt(q)
@@ -158,20 +152,23 @@ function setupSearch() {
 }
 
 async function loadTopUsers() {
-  const list = document.getElementById('top-users');
-  if (!list) return;
+  const container = document.getElementById('top-users');
+  if (!container) return;
   const snap = await firebase.firestore().collection('leaderboard')
     .orderBy('cardValue', 'desc')
-    .limit(5)
+    .limit(3)
     .get();
-  list.innerHTML = '';
+  container.innerHTML = '';
+  let rank = 0;
   snap.forEach(doc => {
-    const li = document.createElement('li');
-    li.className = 'p-2 hover:bg-gray-700 cursor-pointer flex justify-between';
+    rank++;
+    const card = document.createElement('div');
+    card.className = 'bg-gradient-to-br from-purple-700/40 to-pink-700/40 backdrop-blur-md p-4 rounded-xl border border-purple-500/30 shadow-lg text-center cursor-pointer hover:scale-105 transition';
     const data = doc.data();
-    li.innerHTML = `<span>${data.username || 'Anonymous'}</span><span>${(data.cardValue || 0).toLocaleString()}</span>`;
-    li.onclick = () => { window.location.href = `profile.html?uid=${doc.id}`; };
-    list.appendChild(li);
+    const initials = (data.username || 'Anonymous').substring(0,2).toUpperCase();
+    card.innerHTML = `<p class="text-pink-300 font-bold">#${rank}</p><div class="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold">${initials}</div><p class="font-semibold">${data.username || 'Anonymous'}</p><p class="text-sm text-gray-300">${(data.cardValue || 0).toLocaleString()}</p>`;
+    card.onclick = () => { window.location.href = 'profile.html?uid=' + doc.id; };
+    container.appendChild(card);
   });
 }
 
