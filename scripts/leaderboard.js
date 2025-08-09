@@ -3,6 +3,7 @@
 
 document.addEventListener('DOMContentLoaded', async () => {
   const tbody = document.getElementById('leaderboard-body');
+  const topContainer = document.getElementById('top-three');
   const timerEl = document.getElementById('reset-timer');
   if (!tbody) return;
 
@@ -80,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setInterval(update, 60 * 1000); // update every minute
   }
 
-  // Render leaderboard rows
+  // Render leaderboard
   async function loadLeaderboard() {
     const snap = await fs
       .collection('leaderboard')
@@ -92,19 +93,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     snap.forEach((doc) => {
       const data = doc.data();
       const wins = data.wins || 0;
-      let rowStyle = 'border-b border-gray-700';
-      if (rank === 1) rowStyle += ' bg-yellow-900 bg-opacity-40';
-      else if (rank === 2) rowStyle += ' bg-gray-800';
-      else if (rank === 3) rowStyle += ' bg-orange-900 bg-opacity-40';
 
-      tbody.innerHTML += `
-        <tr class="${rowStyle}">
-          <td class="py-2 px-2 text-center">${rank++}</td>
-          <td class="py-2 px-2">${data.username || 'Anonymous'}</td>
-          <td class="py-2 px-2 text-center">${data.packsOpened || 0}</td>
-          <td class="py-2 px-2 text-center">${(data.cardValue || 0).toLocaleString()}</td>
-          <td class="py-2 px-2 text-center">${wins} Win${wins === 1 ? '' : 's'}</td>
-        </tr>`;
+      if (rank <= 3 && topContainer) {
+        const medal = ['🥇', '🥈', '🥉'][rank - 1];
+        const colors = [
+          'from-yellow-300 to-yellow-500',
+          'from-gray-300 to-gray-500',
+          'from-orange-300 to-orange-500',
+        ];
+        topContainer.innerHTML += `
+          <div class="flex flex-col items-center p-6 rounded-xl bg-gradient-to-br ${colors[rank - 1]} text-gray-900 font-semibold shadow-lg transform hover:scale-105 transition">
+            <div class="text-4xl">${medal}</div>
+            <div class="text-xl mt-2">${data.username || 'Anonymous'}</div>
+            <div class="text-sm mt-1">Value: ${(data.cardValue || 0).toLocaleString()}</div>
+            <div class="text-sm">Packs: ${data.packsOpened || 0}</div>
+          </div>`;
+      } else {
+        tbody.innerHTML += `
+          <tr class="border-b border-gray-700 hover:bg-gray-700/40 transition">
+            <td class="py-2 px-4 text-center">${rank}</td>
+            <td class="py-2 px-4">${data.username || 'Anonymous'}</td>
+            <td class="py-2 px-4 text-center">${data.packsOpened || 0}</td>
+            <td class="py-2 px-4 text-center">${(data.cardValue || 0).toLocaleString()}</td>
+            <td class="py-2 px-4 text-center">${wins} Win${wins === 1 ? '' : 's'}</td>
+          </tr>`;
+      }
+      rank++;
     });
   }
 
@@ -112,4 +126,3 @@ document.addEventListener('DOMContentLoaded', async () => {
   startTimer(nextReset);
   loadLeaderboard();
 });
-
