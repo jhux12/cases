@@ -3,11 +3,65 @@
 let shipmentSelection = [];
 const selectedItems = new Set();
 let currentItems = [];
+let addressAutocomplete;
+
+function initAddressAutocomplete() {
+  const addressInput = document.getElementById('ship-address');
+  if (!addressInput || !window.google || !google.maps?.places) return;
+
+  // Recreate autocomplete each time to avoid hidden-element glitches
+  if (addressAutocomplete) {
+    google.maps.event.clearInstanceListeners(addressInput);
+  }
+
+  addressAutocomplete = new google.maps.places.Autocomplete(addressInput, { types: ['address'] });
+  addressAutocomplete.addListener('place_changed', () => {
+    const place = addressAutocomplete.getPlace();
+    let street = '', city = '', zip = '';
+    place.address_components?.forEach(component => {
+      const types = component.types;
+      if (types.includes('street_number')) street = component.long_name + ' ' + street;
+      if (types.includes('route')) street += component.long_name;
+      if (types.includes('locality')) city = component.long_name;
+      if (types.includes('postal_town') && !city) city = component.long_name;
+      if (types.includes('postal_code')) zip = component.long_name;
+    });
+    if (street) addressInput.value = street;
+    const cityInput = document.getElementById('ship-city');
+    if (cityInput && city) cityInput.value = city;
+    const zipInput = document.getElementById('ship-zip');
+    if (zipInput && zip) zipInput.value = zip;
+    setTimeout(() => addressInput.focus(), 0);
+  });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const itemPopup = document.getElementById('item-popup');
   document.getElementById('close-item-popup')?.addEventListener('click', closeItemPopup);
   itemPopup?.addEventListener('click', e => { if (e.target === itemPopup) closeItemPopup(); });
+
+  const inventoryTab = document.getElementById('inventory-tab');
+  const ordersTab = document.getElementById('orders-tab');
+  const inventorySection = document.getElementById('inventory-section');
+  const ordersSection = document.getElementById('orders-section');
+
+  inventoryTab?.addEventListener('click', () => {
+    inventoryTab.classList.add('bg-gradient-to-r','from-fuchsia-500','via-pink-500','to-amber-400');
+    inventoryTab.classList.remove('bg-white/20');
+    ordersTab.classList.remove('bg-gradient-to-r','from-fuchsia-500','via-pink-500','to-amber-400');
+    ordersTab.classList.add('bg-white/20');
+    ordersSection.classList.add('hidden');
+    inventorySection.classList.remove('hidden');
+  });
+
+  ordersTab?.addEventListener('click', () => {
+    ordersTab.classList.add('bg-gradient-to-r','from-fuchsia-500','via-pink-500','to-amber-400');
+    ordersTab.classList.remove('bg-white/20');
+    inventoryTab.classList.remove('bg-gradient-to-r','from-fuchsia-500','via-pink-500','to-amber-400');
+    inventoryTab.classList.add('bg-white/20');
+    inventorySection.classList.add('hidden');
+    ordersSection.classList.remove('hidden');
+  });
 
   firebase.auth().onAuthStateChanged(user => {
     if (!user) return (window.location.href = "auth.html");
@@ -65,11 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
       snap.forEach(order => {
         const data = order.val();
         container.innerHTML += `
-          <div class="item-card rounded-lg p-4 text-center">
-            <img src="${data.image}" class="mx-auto mb-3 h-24 object-contain rounded shadow" />
-            <h2 class="font-bold text-lg text-pink-300">${data.name}</h2>
-            <p class="text-sm text-gray-400 mb-2">Status: ${data.status}</p>
-            <p class="text-sm text-gray-400">Shipping Info: ${data.shippingInfo?.name}</p>
+          <div class="item-card rounded-2xl p-6 text-center">
+            <img src="${data.image}" class="mx-auto mb-4 h-24 object-contain rounded shadow-lg" />
+            <h2 class="font-bold text-xl text-yellow-300">${data.name}</h2>
+            <p class="text-sm text-pink-200 mb-1">Status: ${data.status}</p>
+            <p class="text-sm text-pink-200">Shipping Info: ${data.shippingInfo?.name}</p>
           </div>`;
       });
     });
@@ -128,18 +182,18 @@ function renderItems(items) {
     const refund = Math.floor((item.value || 0) * 0.8);
     const checked = selectedItems.has(item.key) ? 'checked' : '';
     container.innerHTML += `
-      <div class="item-card rounded-lg p-4 text-center">
-        <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-2" ${item.shipped || item.requested ? 'disabled' : ''} />
-        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}')" class="mx-auto mb-3 h-24 object-contain rounded shadow cursor-pointer" />
-        <h2 class="font-bold text-lg text-pink-300">${item.name}</h2>
-        <p class="text-sm text-gray-400 mb-2">Rarity: ${item.rarity}</p>
-        <p class="text-sm text-gray-400">Value: ${item.value || 0} coins</p>
-        <div class="flex justify-center gap-2">
-          <button onclick="sellBack('${item.key}', ${item.value || 0})" ${item.shipped || item.requested ? 'disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full flex items-center space-x-1"' : 'class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-full flex items-center space-x-1"'}>
+      <div class="item-card rounded-2xl p-6 text-center">
+        <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-3 accent-pink-500" ${item.shipped || item.requested ? 'disabled' : ''} />
+        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}')" class="mx-auto mb-4 h-28 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
+        <h2 class="font-bold text-xl text-yellow-300">${item.name}</h2>
+        <p class="text-sm text-pink-200 mb-1">Rarity: ${item.rarity}</p>
+        <p class="text-sm text-pink-200 mb-3">Value: ${item.value || 0} coins</p>
+        <div class="flex justify-center gap-3">
+          <button onclick="sellBack('${item.key}', ${item.value || 0})" ${item.shipped || item.requested ? 'disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full flex items-center space-x-1"' : 'class="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 hover:from-pink-600 hover:to-red-500 rounded-full flex items-center space-x-1"'}>
             <span>Sell for ${refund}</span>
             <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
           </button>
-          <button onclick="shipItem('${item.key}')" ${item.shipped || item.requested ? 'disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full"' : 'class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full"'}>Ship</button>
+          <button onclick="shipItem('${item.key}')" ${item.shipped || item.requested ? 'disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full"' : 'class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-emerald-600 hover:to-green-500 rounded-full"'}>Ship</button>
         </div>
       </div>`;
   });
@@ -276,7 +330,12 @@ function shipSelected() {
 
   const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
   document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelection.length} item(s) will cost ${cost} coins.`;
-  document.getElementById('shipment-popup').classList.remove('hidden');
+  const popup = document.getElementById('shipment-popup');
+  popup.classList.remove('hidden');
+  setTimeout(() => {
+    initAddressAutocomplete();
+    document.getElementById('ship-address')?.focus();
+  }, 100);
 }
 
 function shipItem(key) {
@@ -285,7 +344,12 @@ function shipItem(key) {
   shipmentSelection = [item];
   const cost = 500;
   document.getElementById('shipment-cost').innerText = `Shipping 1 item will cost ${cost} coins.`;
-  document.getElementById('shipment-popup').classList.remove('hidden');
+  const popup = document.getElementById('shipment-popup');
+  popup.classList.remove('hidden');
+  setTimeout(() => {
+    initAddressAutocomplete();
+    document.getElementById('ship-address')?.focus();
+  }, 100);
 }
 
 function closeShipmentPopup() {
@@ -298,6 +362,7 @@ function submitShipmentRequest() {
 
   const name = document.getElementById('ship-name').value.trim();
   const address = document.getElementById('ship-address').value.trim();
+  const address2 = document.getElementById('ship-address2').value.trim();
   const city = document.getElementById('ship-city').value.trim();
   const zip = document.getElementById('ship-zip').value.trim();
   const phone = document.getElementById('ship-phone').value.trim();
@@ -320,7 +385,7 @@ function submitShipmentRequest() {
         itemId: item.id,
         name: item.name,
         image: item.image,
-        shippingInfo: { name, address, city, zip, phone },
+        shippingInfo: { name, address, address2, city, zip, phone },
         status: 'Requested',
         timestamp: Date.now()
       });
