@@ -11,14 +11,27 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       padding: 0;
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(to bottom right, #0f0f12, #1a1625);
+      background: linear-gradient(135deg, #3b0764, #9333ea, #ec4899);
+      background-size: 300% 300%;
+      animation: gradientMove 15s ease infinite;
       color: #fff;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Fredoka One', cursive;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     header {
@@ -30,36 +43,56 @@
     }
 
     .panel {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      backdrop-filter: blur(6px);
-      border-radius: 1rem;
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      border-radius: 1.5rem;
     }
 
     .item-card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      backdrop-filter: blur(6px);
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .item-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      transform: translateY(-6px) rotate(1deg);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     }
 
     .btn {
       font-weight: 600;
-      transition: all 0.3s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .btn:hover {
       transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
     }
 
     select {
       background-color: white;
       color: black;
+    }
+
+    /* Background blobs */
+    .animate-blob {
+      animation: blob 8s infinite;
+    }
+
+    .animation-delay-2000 {
+      animation-delay: 2s;
+    }
+
+    .animation-delay-4000 {
+      animation-delay: 4s;
+    }
+
+    @keyframes blob {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(30px,-50px) scale(1.1); }
+      66% { transform: translate(-20px,20px) scale(0.9); }
     }
 
     /* Item preview popup */
@@ -119,22 +152,26 @@
   <header></header>
 
   <!-- Hero -->
-  <section class="pt-24 pb-12 px-4 text-center">
-    <div class="max-w-4xl mx-auto">
-      <h1 class="text-4xl md:text-5xl font-extrabold mb-2 bg-gradient-to-r from-fuchsia-400 to-pink-600 bg-clip-text text-transparent flex items-center justify-center">
-        <i class="fas fa-box-open mr-2"></i>Inventory
+  <section class="pt-32 pb-20 px-4 text-center relative overflow-hidden">
+    <div class="absolute -top-10 -left-10 w-52 h-52 bg-pink-500 rounded-full mix-blend-screen filter blur-3xl opacity-70 animate-blob"></div>
+    <div class="absolute -bottom-16 -right-16 w-64 h-64 bg-purple-600 rounded-full mix-blend-screen filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+    <div class="absolute top-1/2 left-1/2 w-40 h-40 bg-yellow-400 rounded-full mix-blend-screen filter blur-3xl opacity-60 animate-blob animation-delay-4000"></div>
+    <div class="max-w-4xl mx-auto relative">
+      <h1 class="text-5xl md:text-6xl mb-4 flex items-center justify-center gap-3">
+        <i class="fas fa-box-open text-yellow-300 animate-bounce"></i>
+        <span class="bg-gradient-to-r from-yellow-300 via-pink-500 to-purple-500 bg-clip-text text-transparent">Inventory</span>
       </h1>
-      <p class="mt-2 text-gray-300">Ship out your pulls or sell them back for coins — manage your inventory with ease.</p>
+      <p class="mt-4 text-pink-200 text-lg">Ship out your pulls or sell them back for coins — manage your inventory with flair.</p>
     </div>
   </section>
 
   <!-- Inventory -->
-  <main class="max-w-6xl mx-auto px-4 pb-16">
-    <div class="panel flex flex-col md:flex-row justify-between items-center gap-4 p-4 mb-8">
+  <main class="max-w-6xl mx-auto px-4 pb-24">
+    <div class="panel flex flex-col md:flex-row justify-between items-center gap-4 p-6 mb-12">
       <div class="flex flex-wrap items-center gap-4 text-sm">
         <label class="flex items-center gap-2"><input type="checkbox" id="select-all-checkbox" class="accent-pink-500">Select All</label>
         <div class="flex items-center gap-2">
-          <label for="sort-select">Sort by:</label>
+          <label for="sort-select" class="whitespace-nowrap">Sort by:</label>
           <select id="sort-select" class="text-black rounded px-3 py-1">
             <option value="rarity">Rarity</option>
             <option value="value">Value</option>
@@ -143,18 +180,18 @@
         </div>
       </div>
       <div class="flex flex-col sm:flex-row items-center gap-3">
-        <span id="selected-total" class="text-sm text-gray-300">Total: 0 coins</span>
-        <button onclick="sellSelected()" class="px-5 py-2 rounded-full font-semibold bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 transition btn">Sell Selected</button>
-        <button onclick="shipSelected()" class="px-5 py-2 rounded-full font-semibold bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 transition btn">Ship Selected</button>
+        <span id="selected-total" class="text-sm text-gray-200">Total: 0 coins</span>
+        <button onclick="sellSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 hover:from-amber-400 hover:via-pink-500 hover:to-fuchsia-500 transition btn">Sell Selected</button>
+        <button onclick="shipSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 hover:from-amber-400 hover:via-pink-500 hover:to-fuchsia-500 transition btn">Ship Selected</button>
       </div>
     </div>
 
-    <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+    <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
 
     <section class="mt-16">
       <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold mb-2 bg-gradient-to-r from-fuchsia-400 to-pink-600 bg-clip-text text-transparent flex items-center justify-center"><i class="fas fa-truck mr-2"></i>Your Recent Orders</h2>
-        <p class="text-sm text-gray-400">Below are your previous shipment requests and their current status.</p>
+        <h2 class="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-300 via-pink-500 to-purple-500 bg-clip-text text-transparent flex items-center justify-center"><i class="fas fa-truck mr-2"></i>Your Recent Orders</h2>
+        <p class="text-sm text-pink-200">Below are your previous shipment requests and their current status.</p>
       </div>
       <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
     </section>
