@@ -96,7 +96,7 @@ const db = firebase.database();
 window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
   size: 'invisible'
 });
-let confirmationResult = null;
+let verificationId = null;
 
 function formatPhoneNumber(input) {
   const trimmed = input.trim();
@@ -115,10 +115,10 @@ document.getElementById('send-code').addEventListener('click', () => {
     alert('Please enter a valid phone number with country code.');
     return;
   }
-  const appVerifier = window.recaptchaVerifier;
-  auth.signInWithPhoneNumber(phoneNumber, appVerifier)
-    .then(result => {
-      confirmationResult = result;
+  const provider = new firebase.auth.PhoneAuthProvider();
+  provider.verifyPhoneNumber(phoneNumber, window.recaptchaVerifier)
+    .then(id => {
+      verificationId = id;
       document.getElementById('phone-verification').classList.remove('hidden');
       alert('Verification code sent!');
     })
@@ -149,7 +149,7 @@ function toggleForms() {
 // Register
 registerForm.addEventListener('submit', async e => {
   e.preventDefault();
-  if (!confirmationResult) {
+  if (!verificationId) {
     alert('Please verify your phone number first.');
     return;
   }
@@ -162,7 +162,7 @@ registerForm.addEventListener('submit', async e => {
 
   try {
     const phoneCredential = firebase.auth.PhoneAuthProvider.credential(
-      confirmationResult.verificationId,
+      verificationId,
       code
     );
 
@@ -188,11 +188,14 @@ registerForm.addEventListener('submit', async e => {
       throw linkError;
     }
   } catch (error) {
-    if (error.code === 'auth/account-exists-with-different-credential' ||
-        error.code === 'auth/email-already-in-use') {
+    if (error.code === 'auth/email-already-in-use' ||
+        error.code === 'auth/account-exists-with-different-credential') {
       const methods = await auth.fetchSignInMethodsForEmail(email);
       const method = methods[0] === 'password' ? 'that password' : methods[0];
       alert(`An account already exists with this email. Please sign in using ${method}.`);
+    } else if (error.code === 'auth/credential-already-in-use' ||
+               error.code === 'auth/phone-number-already-exists') {
+      alert('This phone number is already associated with another account.');
     } else {
       alert('❌ ' + error.message);
     }
