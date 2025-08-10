@@ -532,6 +532,23 @@ document.getElementById("open-case-button").addEventListener("click", async () =
       }
     }
 
+    const unboxData = {
+      name: winningPrize.name,
+      image: winningPrize.image,
+      rarity: winningPrize.rarity,
+      value: winningPrize.value,
+      timestamp: Date.now(),
+      sold: false
+    };
+    const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
+    await invRef.set(unboxData);
+    await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
+    const levelResult = await updateMilestones(user.uid, winningPrize.value);
+    if (levelResult.leveledUp) {
+      await firebase.database().ref('users/' + user.uid + '/balance').transaction(b => (b || 0) + (levelResult.reward || 0));
+    }
+    winnings[s] = { ...winningPrize, key: invRef.key, levelResult };
+
     const spinnerPrizes = [];
     for (let i = 0; i < 30; i++) {
       const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
@@ -543,24 +560,10 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     setTimeout(() => {
       spinToPrize(async () => {
         playRaritySound(winningPrize.rarity);
-        const unboxData = {
-          name: winningPrize.name,
-          image: winningPrize.image,
-          rarity: winningPrize.rarity,
-          value: winningPrize.value,
-          timestamp: Date.now(),
-          sold: false
-        };
-        const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
-        await invRef.set(unboxData);
-        await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
-        const levelResult = await updateMilestones(user.uid, winningPrize.value);
-        if (levelResult.leveledUp) {
-          await firebase.database().ref('users/' + user.uid + '/balance').transaction(b => (b || 0) + (levelResult.reward || 0));
-          showToast(`Level ${levelResult.level}! +${formatCoins(levelResult.reward)} coins`, 'bg-green-600');
+        const lr = winnings[s].levelResult;
+        if (lr.leveledUp) {
+          showToast(`Level ${lr.level}! +${formatCoins(lr.reward)} coins`, 'bg-green-600');
         }
-        winnings[s] = { ...winningPrize, key: invRef.key };
-
         completed++;
         if (completed === spinCount) {
           if (isFreeCase) {
