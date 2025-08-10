@@ -3,33 +3,25 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!header) return;
 
   header.innerHTML = `
-    <nav class="navbar fixed w-full z-50 py-3 px-4 flex items-center justify-between bg-gray-900 border-b border-gray-800" style="min-height: 72px;">
+    <nav class="navbar crazy-nav fixed w-full z-50 py-3 px-6 flex items-center justify-between" style="min-height: 72px;">
       <div class="flex items-center gap-4">
-        <a href="index.html">
+        <a href="index.html" class="nav-link logo-link">
           <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(29).png?alt=media&token=51dc030a-b05d-46ec-b1ab-c2fd1824d74e" class="h-10 sm:h-12">
         </a>
       </div>
-      <div class="hidden sm:flex items-center gap-4 relative">
-        <a href="rewards.html" class="flex items-center gap-1 text-yellow-400 font-semibold hover:text-yellow-300 transition">
-          <i class="fas fa-gift"></i> Rewards
-        </a>
-        <a href="leaderboard.html" class="flex items-center gap-1 text-blue-400 font-semibold hover:text-blue-300 transition">
-          <i class="fas fa-trophy"></i> Leaderboard
-        </a>
-        <a href="marketplace.html" class="flex items-center gap-1 text-pink-400 font-semibold hover:text-pink-300 transition">
-          <i class="fas fa-store"></i> Marketplace
-        </a>
-        <div id="user-balance" class="hidden flex items-center bg-gray-800 rounded-full overflow-hidden text-sm">
+      <div class="hidden sm:flex items-center gap-6 relative">
+        <a href="rewards.html" class="nav-link text-yellow-400"><i class="fas fa-gift"></i><span>Rewards</span></a>
+        <a href="leaderboard.html" class="nav-link text-blue-400"><i class="fas fa-trophy"></i><span>Leaderboard</span></a>
+        <a href="marketplace.html" class="nav-link text-pink-400"><i class="fas fa-store"></i><span>Marketplace</span></a>
+        <div id="user-balance" class="hidden flex items-center neon-balance rounded-full overflow-hidden text-sm">
           <div class="flex items-center gap-1 px-3 py-1">
             <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
             <span id="balance-amount">0</span>
           </div>
-          <button id="topup-button" class="px-3 py-1 bg-gray-700 text-yellow-400 hover:text-yellow-300 border-l border-gray-700 flex items-center">
-            <i class="fas fa-wallet"></i>
-          </button>
+          <button id="topup-button" class="px-3 py-1 border-l flex items-center"><i class="fas fa-wallet"></i></button>
         </div>
         <div class="relative">
-          <button id="dropdown-toggle" class="flex items-center space-x-2 text-white focus:outline-none">
+          <button id="dropdown-toggle" class="nav-link flex items-center space-x-2 text-white">
             <i class="fas fa-user-circle text-xl"></i>
             <span id="username-display">User</span>
             <i class="fas fa-chevron-down text-xs"></i>
@@ -45,21 +37,19 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
       <div class="sm:hidden flex items-center gap-2">
-        <div id="user-balance-mobile-header" class="hidden flex items-center bg-gray-800 rounded-full overflow-hidden text-sm">
+        <div id="user-balance-mobile-header" class="hidden flex items-center neon-balance rounded-full overflow-hidden text-sm">
           <div class="flex items-center gap-1 px-3 py-1">
             <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
             <span id="balance-amount-mobile">0</span>
           </div>
-          <button id="topup-button-mobile-header" class="px-3 py-1 bg-gray-700 text-yellow-400 hover:text-yellow-300 border-l border-gray-700 flex items-center">
-            <i class="fas fa-wallet"></i>
-          </button>
+          <button id="topup-button-mobile-header" class="px-3 py-1 border-l flex items-center"><i class="fas fa-wallet"></i></button>
         </div>
         <div id="auth-buttons-mobile-header" class="hidden items-center gap-2">
           <a id="signin-mobile-header" href="auth.html" class="px-3 py-1 rounded bg-green-600 text-white text-sm">Sign In</a>
           <a id="register-mobile-header" href="auth.html?register=true" class="px-3 py-1 rounded bg-blue-600 text-white text-sm">Register</a>
         </div>
       </div>
-      </nav>
+    </nav>
       <div id="drawer-overlay" class="fixed inset-0 bg-black/50 hidden z-40 sm:hidden"></div>
       <aside id="mobile-drawer" class="fixed top-0 left-0 h-full w-64 bg-gray-900 border-r border-gray-800 transform -translate-x-full transition-transform duration-300 z-[100] sm:hidden">
         <div class="p-4 h-full overflow-y-auto pb-24 space-y-4">
@@ -105,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </nav>
         </div>
       </aside>
-      <nav id="mobile-bottom-nav" class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 flex justify-around py-2 sm:hidden z-50">
+      <nav id="mobile-bottom-nav" class="crazy-bottom-nav fixed bottom-0 left-0 right-0 flex justify-around py-2 sm:hidden z-50">
         <button id="drawer-menu-button" type="button" class="flex flex-col items-center text-xs text-white">
           <i class="fas fa-bars text-lg"></i>
           <span>Menu</span>
