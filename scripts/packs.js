@@ -36,13 +36,15 @@ function renderCases(caseList) {
 
     const imgId = `img-${c.id}`;
 
+    const openLink = `case.html?id=${c.id}`;
+
     casesContainer.innerHTML += `
       <div class="relative p-3 sm:p-4 bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition">
         ${tagHTML}
         ${pepperHTML}
         <img src="${packImg}" id="${imgId}" class="case-card-img mb-2 transition-all duration-300">
         <h3 class="mt-2 font-semibold text-white text-sm sm:text-base">${c.name}</h3>
-        <a href="case.html?id=${c.id}" class="open-button glow-button text-xs sm:text-sm whitespace-nowrap">
+        <a href="${openLink}" class="open-button glow-button text-xs sm:text-sm whitespace-nowrap">
     Open for ${priceLabel}
     ${priceIcon}
   </a>
