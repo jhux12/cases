@@ -985,8 +985,8 @@ html {
 }
 
 .spin-viewport {
-  mask-image: linear-gradient(90deg, transparent 0%, white 14%, white 86%, transparent 100%);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, white 14%, white 86%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, white 8%, white 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, white 8%, white 92%, transparent 100%);
 }
 .spin-track {
   will-change: transform;

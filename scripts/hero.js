@@ -43,8 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function centerTargetIndex(idx) {
-    const viewport = track.parentElement.getBoundingClientRect();
-    const heroCenterX = viewport.width / 2;
+    const viewport = track.parentElement;
+    const heroCenterX = viewport.clientWidth / 2; // account for padding
     const tileCenterX = idx * TILE_W + CARD_W / 2;
     return heroCenterX - tileCenterX;
   }
@@ -65,8 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
     speed = baseSpeed * 8;
     await new Promise(r => setTimeout(r, 600));
 
-    const targetOffset = centerTargetIndex(idx);
+    let targetOffset = centerTargetIndex(idx);
     const startOffset = offset;
+    while (targetOffset > startOffset) {
+      targetOffset -= trackPx; // ensure forward (leftward) motion
+    }
     const delta = startOffset - targetOffset;
     const duration = 1600;
     const start = performance.now();
@@ -86,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tiles.forEach(tile => tile.classList.remove('glow'));
         tiles[idx % tiles.length].classList.add('glow');
         offset = targetOffset;
+        if (offset < -trackPx) offset += trackPx;
         setTimeout(() => {
           speed = baseSpeed;
           demoLock = false;
@@ -117,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchPrizes().then(prizes => {
     if (!prizes.length) return;
     buildTrack(prizes.slice(0, 12));
-    offset = -Math.random() * trackPx;
+    offset = 0; // start track consistently
     speed = baseSpeed;
     requestAnimationFrame(loop);
     setTimeout(demoOpen, 1000);
