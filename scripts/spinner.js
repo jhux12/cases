@@ -114,19 +114,29 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
   let closeCallDir = 0;
 
   // Randomly apply a "close call" overshoot so the wheel appears to almost
-  // stop on an adjacent prize before settling on the winner. About one third
-  // of spins will overshoot in a random direction.
-  const closeCallChance = 0.33;
+  // stop on an adjacent prize before settling on the winner. Bias the
+  // overshoot toward a rare neighbour if one exists to make the near miss
+  // feel more dramatic.
+  const closeCallChance = 0.5; // roughly half the spins
+  const adjacent = [
+    { dir: -1, prize: spinnerPrizesMap[id][targetIndex - 1] },
+    { dir: 1, prize: spinnerPrizesMap[id][targetIndex + 1] }
+  ];
   if (Math.random() < closeCallChance) {
-    closeCallDir = Math.random() < 0.5 ? -1 : 1;
-    const overshoot = 20 + Math.random() * 40; // 20-60px
+    const rareAdjacent = adjacent.filter(a => {
+      const r = (a.prize?.rarity || 'common').toLowerCase().replace(/\s+/g, '');
+      return ['rare', 'ultrarare', 'legendary'].includes(r);
+    });
+    const chosen = (rareAdjacent.length ? rareAdjacent : adjacent)[Math.floor(Math.random() * (rareAdjacent.length ? rareAdjacent.length : adjacent.length))];
+    closeCallDir = chosen.dir;
+    const overshoot = 25 + Math.random() * 35; // 25-60px
     targetOffset = finalOffset + closeCallDir * overshoot;
   }
 
-  const spinDuration = 6 + Math.random() * 2; // 6-8 seconds for variety
+  const spinDuration = 4 + Math.random() * 2; // 4-6 seconds for a snappier feel
   requestAnimationFrame(() => {
     spinnerWheel.style.willChange = 'transform';
-    spinnerWheel.style.transition = `transform ${spinDuration}s cubic-bezier(0.25, 1, 0.5, 1)`;
+    spinnerWheel.style.transition = `transform ${spinDuration}s cubic-bezier(0.33, 1, 0.68, 1)`;
     spinnerWheel.style.transform = `translate3d(-${targetOffset}px,0,0)`;
   });
 
@@ -176,7 +186,7 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
 
       closeCallDir = 0; // prevent looping
       requestAnimationFrame(() => {
-        spinnerWheel.style.transition = 'transform 0.6s ease-out';
+        spinnerWheel.style.transition = 'transform 0.4s ease-out';
         spinnerWheel.style.transform = `translate3d(-${finalOffset}px,0,0)`;
       });
       return;
