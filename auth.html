@@ -54,9 +54,21 @@
         <input type="email" id="register-email" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500" required />
       </div>
       <div>
+        <label class="text-sm">Phone Number</label>
+        <div class="flex">
+          <input type="tel" id="register-phone" placeholder="+1234567890" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500" required />
+          <button type="button" id="send-code" class="ml-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">Send Code</button>
+        </div>
+      </div>
+      <div id="phone-verification" class="hidden">
+        <label class="text-sm">Verification Code</label>
+        <input type="text" id="verification-code" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="123456" />
+      </div>
+      <div>
         <label class="text-sm">Password</label>
         <input type="password" id="register-password" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500" required />
       </div>
+      <div id="recaptcha-container"></div>
       <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded transition-colors">Register</button>
     </form>
 
@@ -80,6 +92,26 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+// Setup invisible reCAPTCHA for phone auth
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+  size: 'invisible'
+});
+let confirmationResult = null;
+
+document.getElementById('send-code').addEventListener('click', () => {
+  const phoneNumber = document.getElementById('register-phone').value;
+  const appVerifier = window.recaptchaVerifier;
+  auth.signInWithPhoneNumber(phoneNumber, appVerifier)
+    .then(result => {
+      confirmationResult = result;
+      document.getElementById('phone-verification').classList.remove('hidden');
+      alert('Verification code sent!');
+    })
+    .catch(error => {
+      alert('❌ ' + error.message);
+    });
+});
+
 const loginForm = document.getElementById('login-form');
 const registerForm = document.getElementById('register-form');
 const formTitle = document.getElementById('form-title');
@@ -102,19 +134,27 @@ function toggleForms() {
 // Register
 registerForm.addEventListener('submit', e => {
   e.preventDefault();
+  if (!confirmationResult) {
+    alert('Please verify your phone number first.');
+    return;
+  }
   const name = document.getElementById('register-name').value;
   const username = document.getElementById('register-username').value;
   const email = document.getElementById('register-email').value;
   const password = document.getElementById('register-password').value;
+  const code = document.getElementById('verification-code').value;
 
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      const user = userCredential.user;
-      return user.updateProfile({ displayName: username })
-        .then(() => db.ref('users/' + user.uid).set({
+  confirmationResult.confirm(code)
+    .then(result => {
+      const phoneUser = result.user;
+      const credential = firebase.auth.EmailAuthProvider.credential(email, password);
+      return phoneUser.linkWithCredential(credential)
+        .then(() => phoneUser.updateProfile({ displayName: username }))
+        .then(() => db.ref('users/' + phoneUser.uid).set({
           name: name,
           username: username,
           email: email,
+          phoneNumber: phoneUser.phoneNumber,
           balance: 0,
           role: 'user',
           freeCaseOpened: false
@@ -140,7 +180,11 @@ loginForm.addEventListener('submit', e => {
 
   auth.setPersistence(persistence)
     .then(() => auth.signInWithEmailAndPassword(email, password))
-    .then(() => {
+    .then(userCredential => {
+      if (!userCredential.user.phoneNumber) {
+        alert('Please verify your phone number before logging in.');
+        return auth.signOut();
+      }
       alert('Login successful!');
       window.location.href = 'index.html';
     })
