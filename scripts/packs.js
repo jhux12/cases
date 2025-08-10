@@ -36,7 +36,7 @@ function renderCases(caseList) {
 
     const imgId = `img-${c.id}`;
 
-    const openLink = c.wonderPick ? `wonder-pick.html?id=${c.id}` : `case.html?id=${c.id}`;
+    const openLink = `case.html?id=${c.id}`;
 
     casesContainer.innerHTML += `
       <div class="relative p-3 sm:p-4 bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition">

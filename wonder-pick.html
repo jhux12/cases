@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="overflow-x-hidden">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,28 +11,36 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="scripts/firebase-config.js"></script>
   <script src="scripts/auth.js" type="module"></script>
+  <style>
+    .flip-card { perspective:1000px; cursor:pointer; transition:transform .3s; }
+    .flip-card-inner { position:relative; width:160px; height:160px; transform-style:preserve-3d; transition:transform .6s; }
+    .flip-card.flipped .flip-card-inner { transform:rotateY(180deg); }
+    .flip-card-front, .flip-card-back { position:absolute; width:100%; height:100%; backface-visibility:hidden; border-radius:0.75rem; }
+    .flip-card-front { transform:rotateY(180deg); }
+  </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white min-h-screen">
   <header></header>
-
-  <section id="pack-section" class="pt-32 pb-16 px-4 max-w-4xl mx-auto">
-    <div class="text-center mb-8">
-      <h1 id="pack-name" class="text-3xl font-bold mb-4"></h1>
-      <img id="pack-image" src="" alt="Pack" class="w-48 h-48 object-contain mx-auto mb-4 rounded-lg shadow" />
-      <div id="prize-list" class="flex flex-wrap justify-center gap-4"></div>
-      <button id="open-pack" class="mt-8 px-6 py-2 bg-pink-600 hover:bg-pink-700 rounded text-white font-semibold">Open Pack</button>
-    </div>
+  <section id="pack-section" class="pt-32 pb-16 px-4 max-w-5xl mx-auto text-center">
+    <h1 id="pack-name" class="text-3xl font-bold mb-6"></h1>
+    <img id="pack-image" src="" alt="Pack" class="w-48 h-48 object-contain mx-auto mb-8 rounded-xl shadow-lg" />
+    <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 text-sm mb-8"></div>
+    <button id="open-pack" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-105">
+      <span class="relative z-10 flex items-center gap-2">
+        Open for
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+        <span id="pack-price">...</span>
+      </span>
+    </button>
   </section>
 
-  <section id="selection-section" class="hidden pt-32 pb-16 px-4 max-w-4xl mx-auto text-center">
+  <section id="selection-section" class="hidden pt-32 pb-16 px-4 max-w-5xl mx-auto text-center">
     <h2 class="text-2xl font-semibold mb-6">Choose a Card</h2>
     <div id="card-container" class="flex justify-center gap-4"></div>
   </section>
 
-  <!-- Win Popup -->
   <div id="win-popup" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
     <div class="bg-gray-900 p-6 rounded-xl text-center relative w-80">
       <button id="close-popup" class="absolute top-2 right-3 text-gray-400 hover:text-white text-xl">&times;</button>

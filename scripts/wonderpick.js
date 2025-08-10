@@ -4,22 +4,40 @@ let currentPrize = null;
 function renderPack(data) {
   document.getElementById('pack-name').textContent = data.name;
   document.getElementById('pack-image').src = data.image;
-  const prizeList = document.getElementById('prize-list');
-  prizeList.innerHTML = '';
-  Object.values(data.prizes || {}).slice(0,5).forEach(p => {
-    const img = document.createElement('img');
-    img.src = p.image;
-    img.alt = p.name;
-    img.className = 'w-20 h-20 object-contain rounded';
-    prizeList.appendChild(img);
-  });
+  document.getElementById('pack-price').textContent = (data.price || 0).toLocaleString();
+
+  const prizes = Object.values(data.prizes || {});
+  const rarityColors = {
+    common: '#a1a1aa',
+    uncommon: '#4ade80',
+    rare: '#60a5fa',
+    ultrarare: '#c084fc',
+    legendary: '#facc15'
+  };
+  document.getElementById('prizes-grid').innerHTML = prizes.map(prize => {
+    const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g,'');
+    const color = rarityColors[rarity] || '#a1a1aa';
+    return `
+      <div class="prize-card relative rounded-xl p-4 bg-gray-800 border-2 text-white text-center shadow-sm transition-transform duration-200 hover:scale-105" style="border-color:${color}">
+        <img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-black/20 rounded-lg" />
+        <div class="font-semibold text-sm clamp-2 mb-8">${prize.name}</div>
+        <div class="absolute bottom-2 left-2 flex items-center gap-1 text-yellow-300 font-medium text-xs">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
+          ${(prize.value || 0).toLocaleString()}
+        </div>
+        <div class="absolute bottom-2 right-2 text-white/70 bg-black/40 px-2 py-[2px] text-xs rounded-full">
+          ${(prize.odds || 0).toFixed(1)}%
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 async function loadPack() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
   if (!id) return;
-  const snap = await firebase.database().ref('cases/' + id).once('value');
+  const snap = await firebase.database().ref('wonderPicks/' + id).once('value');
   currentPack = snap.val();
   if (currentPack) renderPack(currentPack);
 }
@@ -29,10 +47,18 @@ async function openPack() {
   const user = firebase.auth().currentUser;
   if (!user) return alert('You must be logged in.');
 
+  const userSnap = await firebase.database().ref('users/' + user.uid).once('value');
+  const userData = userSnap.val() || {};
+  const balance = parseFloat(userData.balance || 0);
+  const price = parseFloat(currentPack.price || 0);
+  if (balance < price) return alert('Not enough coins.');
+
   const fairSnap = await firebase.database().ref('users/' + user.uid + '/provablyFair').once('value');
   const fairData = fairSnap.val();
   if (!fairData) return alert('Provably fair data missing.');
   const { serverSeed, clientSeed, nonce } = fairData;
+
+  await firebase.database().ref('users/' + user.uid + '/balance').set(balance - price);
 
   const prizes = Object.values(currentPack.prizes || {}).sort((a,b) => a.odds - b.odds);
   const totalOdds = prizes.reduce((sum,p) => sum + (p.odds || 0), 0);
@@ -70,14 +96,14 @@ function setupCards() {
   const container = document.getElementById('card-container');
   container.innerHTML = '';
   const backImg = currentPack.cardBack || 'https://via.placeholder.com/160x160?text=Back';
-  for (let i=0; i<5; i++) {
+  for (let i = 0; i < 5; i++) {
     const card = document.createElement('div');
     card.className = 'flip-card';
     card.style.transform = `rotate(${(i-2)*10}deg)`;
     card.innerHTML = `
       <div class="flip-card-inner">
-        <img class="flip-card-front w-40 h-40 object-contain rounded" src="" alt="Front" />
-        <img class="flip-card-back w-40 h-40 object-contain rounded" src="${backImg}" alt="Back" />
+        <img class="flip-card-front w-40 h-40 object-contain rounded-xl" src="" alt="Front" />
+        <img class="flip-card-back w-40 h-40 object-contain rounded-xl" src="${backImg}" alt="Back" />
       </div>`;
     card.addEventListener('click', () => revealCard(card));
     container.appendChild(card);
@@ -110,17 +136,25 @@ async function sellPrize() {
   await firebase.database().ref('users/' + user.uid + '/inventory/' + currentPrize.key).remove();
 }
 
+function resetGame() {
+  document.getElementById('selection-section').classList.add('hidden');
+  document.getElementById('pack-section').classList.remove('hidden');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   loadPack();
   document.getElementById('open-pack').addEventListener('click', openPack);
   document.getElementById('close-popup').addEventListener('click', () => {
     document.getElementById('win-popup').classList.add('hidden');
+    resetGame();
   });
   document.getElementById('keep-btn').addEventListener('click', () => {
     document.getElementById('win-popup').classList.add('hidden');
+    resetGame();
   });
   document.getElementById('sell-btn').addEventListener('click', async () => {
     await sellPrize();
     document.getElementById('win-popup').classList.add('hidden');
+    resetGame();
   });
 });
