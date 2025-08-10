@@ -108,6 +108,14 @@
   </select>
 </div>
 
+            <div>
+              <label class="inline-flex items-center"><input type="checkbox" id="case-wonder" class="mr-2"> Wonder Pick Mode</label>
+            </div>
+            <div id="card-back-wrapper" class="hidden">
+              <label>Card Back Image URL:</label>
+              <input type="text" id="case-card-back" class="w-full p-2 rounded">
+            </div>
+
             <div id="prizes-section" class="space-y-4">
               <h3 class="text-xl">Prizes:</h3>
               <button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>
@@ -231,6 +239,9 @@
     const prizesSection = document.getElementById('prizes-section');
     const toast = document.getElementById('toast');
     const imagePreview = document.getElementById('image-preview');
+    const wonderCheck = document.getElementById('case-wonder');
+    const cardBackInput = document.getElementById('case-card-back');
+    const cardBackWrapper = document.getElementById('card-back-wrapper');
 
     function showToast(message) {
       toast.textContent = message;
@@ -254,6 +265,10 @@
         imagePreview.classList.add('hidden');
       }
     }
+
+    wonderCheck.addEventListener('change', () => {
+      cardBackWrapper.classList.toggle('hidden', !wonderCheck.checked);
+    });
 
     function addPrize(prize = {}) {
       const div = document.createElement('div');
@@ -420,6 +435,9 @@ function adminReply(event, caseId) {
         document.getElementById('case-featured').checked = !!(data.categories && data.categories.featured);
         document.getElementById('case-starter').checked = !!(data.categories && data.categories.starter);
         document.getElementById('case-spice').value = data.spiceLevel || '';
+        document.getElementById('case-wonder').checked = !!data.wonderPick;
+        document.getElementById('case-card-back').value = data.cardBack || '';
+        document.getElementById('card-back-wrapper').classList.toggle('hidden', !data.wonderPick);
         prizesSection.innerHTML = '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
         if (data.prizes) Object.values(data.prizes).forEach(p => addPrize(p));
         cancelEditBtn.classList.remove('hidden');
@@ -456,6 +474,8 @@ function adminReply(event, caseId) {
       const price = isFree ? 0 : parseFloat(document.getElementById('case-price').value) || 0;
       const tag = document.getElementById('case-tag').value.trim();
       const spiceLevel = document.getElementById('case-spice').value.trim();
+      const wonderPick = wonderCheck.checked;
+      const cardBack = cardBackInput.value.trim();
       const categories = {
         new: document.getElementById('case-new').checked,
         featured: document.getElementById('case-featured').checked,
@@ -472,7 +492,7 @@ function adminReply(event, caseId) {
           odds: parseFloat(div.querySelector('.prize-odds').value) || 0
         };
       });
-     db.ref('cases/' + id).set({ name, image, price, tag, spiceLevel, isFree, prizes, categories }).then(() => {
+     db.ref('cases/' + id).set({ name, image, price, tag, spiceLevel, isFree, wonderPick, cardBack, prizes, categories }).then(() => {
         caseForm.reset();
         previewImage('');
        document.getElementById('case-tag').value = '';
@@ -480,6 +500,9 @@ function adminReply(event, caseId) {
        document.getElementById('case-new').checked = false;
        document.getElementById('case-featured').checked = false;
        document.getElementById('case-starter').checked = false;
+       wonderCheck.checked = false;
+       cardBackInput.value = '';
+       cardBackWrapper.classList.add('hidden');
         prizesSection.innerHTML = '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
         document.getElementById('form-title').innerText = 'Add / Edit Case';
         cancelEditBtn.classList.add('hidden');
@@ -495,6 +518,9 @@ function cancelEdit() {
   document.getElementById('case-new').checked = false;
   document.getElementById('case-featured').checked = false;
   document.getElementById('case-starter').checked = false;
+  wonderCheck.checked = false;
+  cardBackInput.value = '';
+  cardBackWrapper.classList.add('hidden');
   prizesSection.innerHTML = '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
   document.getElementById('form-title').innerText = 'Add / Edit Case';
   cancelEditBtn.classList.add('hidden');
