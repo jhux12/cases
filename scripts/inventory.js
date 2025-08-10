@@ -4,6 +4,19 @@ const selectedItems = new Set();
 let currentItems = [];
 
 document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('mousemove', e => {
+    document.documentElement.style.setProperty('--mouse-x', e.clientX + 'px');
+    document.documentElement.style.setProperty('--mouse-y', e.clientY + 'px');
+  });
+
+  if (window.VanillaTilt) {
+    VanillaTilt.init(document.querySelectorAll('[data-tilt]:not(.item-card)'), {
+      max: 10,
+      speed: 400,
+      glare: true,
+      "max-glare": 0.2
+    });
+  }
   const itemPopup = document.getElementById('item-popup');
   document.getElementById('close-item-popup')?.addEventListener('click', closeItemPopup);
   itemPopup?.addEventListener('click', e => { if (e.target === itemPopup) closeItemPopup(); });
@@ -124,7 +137,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const panel = document.getElementById('controls-panel');
       panel.classList.toggle('hidden');
       panel.classList.toggle('flex');
-      this.textContent = panel.classList.contains('hidden') ? 'Show Controls' : 'Hide Controls';
+      this.innerHTML = panel.classList.contains('hidden')
+        ? '<i class="fas fa-sliders-h text-2xl"></i>'
+        : '<i class="fas fa-times text-2xl"></i>';
     });
   });
 });

@@ -14,6 +14,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --mouse-x: 50%;
+      --mouse-y: 50%;
+    }
     body {
       margin: 0;
       padding: 0;
@@ -23,6 +27,26 @@
       animation: gradientMove 15s ease infinite;
       color: #fff;
       overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), rgba(236,72,153,0.25), transparent 60%);
+      transition: background 0.2s ease;
+      z-index: -1;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-size: 60px 60px;
+      background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+      mix-blend-mode: overlay;
+      z-index: -2;
     }
 
     @keyframes gradientMove {
@@ -55,7 +79,7 @@
       border: 2px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(12px);
       opacity: 0;
-      animation: fadeInUp 0.6s ease forwards;
+      animation: fadeInUp 0.6s ease forwards, float 6s ease-in-out infinite 0.6s;
       transition: transform 0.4s ease, box-shadow 0.4s ease;
     }
 
@@ -81,6 +105,11 @@
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
 
     .btn {
@@ -173,7 +202,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: -1;
+      z-index: -3;
     }
 
     .search-input {
@@ -208,7 +237,7 @@
     <div class="absolute -bottom-16 -right-16 w-64 h-64 bg-purple-600 rounded-full mix-blend-screen filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
     <div class="absolute top-1/2 left-1/2 w-40 h-40 bg-yellow-400 rounded-full mix-blend-screen filter blur-3xl opacity-60 animate-blob animation-delay-4000"></div>
     <div class="max-w-4xl mx-auto relative">
-      <h1 class="text-5xl md:text-6xl font-extrabold mb-6 flex items-center justify-center gap-3">
+      <h1 class="text-5xl md:text-6xl font-extrabold mb-6 flex items-center justify-center gap-3" data-tilt data-tilt-max="10" data-tilt-speed="400">
         <i class="fas fa-box-open text-yellow-300 animate-bounce"></i>
         <span class="bg-gradient-to-r from-yellow-300 via-pink-500 to-purple-500 bg-clip-text text-transparent drop-shadow-lg">Inventory</span>
       </h1>
@@ -225,8 +254,8 @@
     </div>
 
     <section id="inventory-section">
-      <button id="toggle-controls" class="md:hidden px-6 py-2 mb-4 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400">Show Controls</button>
-      <div id="controls-panel" class="panel hidden md:flex flex-col md:flex-row justify-between items-center gap-4 p-6 mb-12 shadow-xl">
+      <button id="toggle-controls" class="md:hidden fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 shadow-2xl transition-transform hover:scale-110"><i class="fas fa-sliders-h text-2xl"></i></button>
+      <div id="controls-panel" class="panel hidden md:flex flex-col md:flex-row justify-between items-center gap-4 p-6 mb-12 shadow-xl transition-all duration-300">
         <div class="flex flex-wrap items-center gap-4 text-sm">
           <label class="flex items-center gap-2"><input type="checkbox" id="select-all-checkbox" class="accent-pink-500"><span class="flex items-center gap-1"><i class="fas fa-check-double text-pink-400"></i>Select All</span></label>
           <div class="flex items-center gap-2">
