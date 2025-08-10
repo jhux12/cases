@@ -13,7 +13,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const usernameDisplay = document.getElementById('username-display');
 
     if (user) {
-      if (!user.phoneNumber || !user.email) {
+      if (!user.email) {
         alert('Please complete registration to continue.');
         firebase.auth().signOut();
         return;
