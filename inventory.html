@@ -5,264 +5,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Inventory | Packly.gg</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #2e026d 0%, #4c1d95 25%, #9333ea 50%, #3b82f6 75%, #1e3a8a 100%);
-      background-size: 400% 400%;
-      animation: gradientMove 20s ease infinite;
-      color: #fff;
-      overflow-x: hidden;
-      position: relative;
+      font-family: system-ui, sans-serif;
     }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 8px),
-        repeating-linear-gradient(-45deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 8px);
-      mix-blend-mode: overlay;
-      opacity: 0.25;
-    }
-
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.15), transparent 40%),
-        radial-gradient(circle at 75% 75%, rgba(0,0,0,0.25), transparent 60%);
-    }
-
-    @keyframes gradientMove {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 50;
-    }
-
-    .panel {
-      background: rgba(255, 255, 255, 0.15);
-      border: 2px solid rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(10px);
-      border-radius: 1.5rem;
-    }
-
-    .item-card {
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(10px);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .item-card:hover {
-      transform: translateY(-6px) rotate(1deg);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    }
-
-    .btn {
-      font-weight: 600;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    }
-
-    select {
-      background-color: white;
-      color: black;
-    }
-
-    /* Background blobs */
-    .animate-blob {
-      animation: blob 8s infinite;
-    }
-
-    .animation-delay-2000 {
-      animation-delay: 2s;
-    }
-
-    .animation-delay-4000 {
-      animation-delay: 4s;
-    }
-
-    @keyframes blob {
-      0%, 100% { transform: translate(0,0) scale(1); }
-      33% { transform: translate(30px,-50px) scale(1.1); }
-      66% { transform: translate(-20px,20px) scale(0.9); }
-    }
-
-    /* Item preview popup */
-    #item-popup {
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(4px);
-    }
-
-    #popup-item-image {
-      max-width: 90vw;
-      max-height: 80vh;
-      border-radius: 0.5rem;
-      box-shadow: 0 0 25px rgba(236,72,153,0.5), 0 0 50px rgba(236,72,153,0.3);
-    }
-
-    .popup-card {}
-
-    .popup-card.animate {
-      animation: popIn 0.3s ease;
-    }
-
-    @keyframes popIn {
-      from { transform: scale(0.8); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .shimmer {
-      position: relative;
-      overflow: hidden;
-    }
-
-    .shimmer::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 200%;
-      height: 100%;
-      background: linear-gradient(
-        120deg,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.4) 50%,
-        rgba(255,255,255,0) 100%
-      );
-      animation: shimmer 2s infinite;
-    }
-
-    @keyframes shimmer {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
+    .item-card { background: rgba(17, 24, 39, 0.6); transition: transform 0.2s, box-shadow 0.2s; }
+    .item-card:hover { transform: scale(1.05); }
+    .rarity-common { border-color: #6b7280; }
+    .rarity-common:hover { box-shadow: 0 0 10px #6b7280; }
+    .rarity-rare { border-color: #3b82f6; }
+    .rarity-rare:hover { box-shadow: 0 0 10px #3b82f6; }
+    .rarity-ultra { border-color: #a855f7; }
+    .rarity-ultra:hover { box-shadow: 0 0 10px #a855f7; }
+    .rarity-legendary { border-color: #f59e0b; }
+    .rarity-legendary:hover { box-shadow: 0 0 10px #f59e0b; }
   </style>
 </head>
-<body class="min-h-screen">
-
-  <!-- Dynamic Header -->
-  <header></header>
-
-  <!-- Hero -->
-  <section class="pt-32 pb-32 px-4 text-center relative overflow-hidden">
-    <div class="absolute -top-10 -left-10 w-52 h-52 bg-pink-500 rounded-full mix-blend-screen filter blur-3xl opacity-70 animate-blob"></div>
-    <div class="absolute -bottom-16 -right-16 w-64 h-64 bg-purple-600 rounded-full mix-blend-screen filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
-    <div class="absolute top-1/2 left-1/2 w-40 h-40 bg-yellow-400 rounded-full mix-blend-screen filter blur-3xl opacity-60 animate-blob animation-delay-4000"></div>
-    <div class="max-w-4xl mx-auto relative">
-      <h1 class="text-5xl md:text-6xl font-extrabold mb-6 flex items-center justify-center gap-3">
-        <i class="fas fa-box-open text-yellow-300 animate-bounce"></i>
-        <span class="bg-gradient-to-r from-yellow-300 via-pink-500 to-purple-500 bg-clip-text text-transparent drop-shadow-lg">Inventory</span>
-      </h1>
-      <p class="mt-2 text-pink-200 text-lg">Ship out your pulls or sell them back for coins — manage your inventory with flair.</p>
-    </div>
-    <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="rgba(255,255,255,0.1)" d="M0,224L80,229.3C160,235,320,245,480,234.7C640,224,800,192,960,186.7C1120,181,1280,203,1360,213.3L1440,224V320H0Z"></path></svg>
-  </section>
-
-  <!-- Tabs & Content -->
-  <main class="max-w-6xl mx-auto px-4 pb-24">
-    <div class="flex justify-center gap-4 mb-12 pt-6">
-      <button id="inventory-tab" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400">Inventory</button>
-      <button id="orders-tab" class="px-6 py-2 rounded-full font-semibold text-white bg-white/20 hover:bg-white/30 transition">Recent Orders</button>
-    </div>
-
-    <section id="inventory-section">
-      <div class="panel flex flex-col md:flex-row justify-between items-center gap-4 p-6 mb-12">
-      <div class="flex flex-wrap items-center gap-4 text-sm">
-        <label class="flex items-center gap-2"><input type="checkbox" id="select-all-checkbox" class="accent-pink-500">Select All</label>
-        <div class="flex items-center gap-2">
-          <label for="sort-select" class="whitespace-nowrap">Sort by:</label>
-          <select id="sort-select" class="text-black rounded px-3 py-1">
-            <option value="rarity">Rarity</option>
-            <option value="value">Value</option>
-            <option value="name">Name</option>
-          </select>
-        </div>
-      </div>
-      <div class="flex flex-col sm:flex-row items-center gap-3">
-        <span id="selected-total" class="text-sm text-gray-200">Total: 0 coins</span>
-        <button onclick="sellSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 hover:from-amber-400 hover:via-pink-500 hover:to-fuchsia-500 transition btn">Sell Selected</button>
-        <button onclick="shipSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 hover:from-amber-400 hover:via-pink-500 hover:to-fuchsia-500 transition btn">Ship Selected</button>
-      </div>
-    </div>
-      <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
-    </section>
-
-    <section id="orders-section" class="hidden">
-      <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-300 via-pink-500 to-purple-500 bg-clip-text text-transparent flex items-center justify-center"><i class="fas fa-truck mr-2"></i>Your Recent Orders</h2>
-        <p class="text-sm text-pink-200">Below are your previous shipment requests and their current status.</p>
-      </div>
-      <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
-    </section>
+<body class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white relative overflow-hidden">
+  <div class="pointer-events-none absolute inset-0 opacity-10" style="background-image:linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.08) 1px, transparent 1px);background-size:40px 40px;"></div>
+  <main class="relative z-10 max-w-6xl mx-auto px-4 py-12">
+    <h1 class="text-3xl md:text-5xl font-bold text-center mb-12 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Your Inventory</h1>
+    <div id="itemGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6"></div>
   </main>
 
-  <!-- Item Preview Popup -->
-  <div id="item-popup" class="fixed inset-0 hidden flex items-center justify-center z-50">
-    <div class="popup-card relative">
-      <img id="popup-item-image" class="shimmer rounded-lg" src="" alt="Item preview" />
-      <button id="close-item-popup" class="absolute -top-4 -right-4 w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center">&times;</button>
+  <div id="itemModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
+    <div class="bg-gray-900 rounded-lg p-6 w-11/12 max-w-sm text-center relative">
+      <button id="closeModal" class="absolute top-2 right-2 text-gray-400 hover:text-white">&times;</button>
+      <img id="modalImage" src="" alt="Item" class="w-48 h-48 object-cover mx-auto rounded">
+      <div id="modalRarity" class="mt-4 text-sm font-semibold"></div>
+      <div id="modalValue" class="mt-1 text-lg"></div>
+      <div class="mt-6 flex justify-center gap-4">
+        <button id="shipBtn" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-500">Ship</button>
+        <button id="sellBtn" class="px-4 py-2 rounded bg-pink-600 hover:bg-pink-500"></button>
+      </div>
     </div>
   </div>
 
-  <!-- Dynamic Footer -->
-  <footer></footer>
-
-  <!-- Firebase Config -->
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
-      authDomain: "cases-e5b4e.firebaseapp.com",
-      databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
-      projectId: "cases-e5b4e",
-      storageBucket: "cases-e5b4e.appspot.com",
-      messagingSenderId: "22502548396",
-      appId: "1:22502548396:web:aac335672c21f07524d009"
+    const items = [
+      {id:1, name:'Gamma Blade', rarity:'common', value:100, img:'https://via.placeholder.com/150'},
+      {id:2, name:'Neon Shield', rarity:'rare', value:250, img:'https://via.placeholder.com/150'},
+      {id:3, name:'Photon Blaster', rarity:'ultra', value:500, img:'https://via.placeholder.com/150'},
+      {id:4, name:'Quantum Core', rarity:'legendary', value:1000, img:'https://via.placeholder.com/150'}
+    ];
+
+    const rarityLabels = {
+      common: 'Common',
+      rare: 'Rare',
+      ultra: 'Ultra',
+      legendary: 'Legendary'
     };
-    firebase.initializeApp(firebaseConfig);
-  </script>
 
-  <!-- Scripts -->
-  <script src="scripts/header.js"></script>
-  <script src="scripts/navbar.js"></script>
-  <script src="scripts/footer.js"></script>
-  <script src="https://js.stripe.com/v3/"></script>
-  <script src="scripts/topup.js"></script>
-  <script src="scripts/inventory.js"></script>
-  <div id="topup-popup-container"></div>
-  <script>
-    fetch("/cases/components/topup.html")
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById("topup-popup-container").innerHTML = html;
-      });
-  </script>
+    const grid = document.getElementById('itemGrid');
+    items.forEach(item => {
+      const card = document.createElement('div');
+      card.className = `item-card border-4 rounded-lg p-4 cursor-pointer rarity-${item.rarity} relative`;
+      card.innerHTML = `
+        <span class="absolute top-2 right-2 bg-black/70 text-xs px-2 py-1 rounded-full">${item.value}c</span>
+        <img src="${item.img}" alt="${item.name}" class="w-full h-24 object-cover rounded">
+        <p class="mt-2 text-center text-sm">${item.name}</p>
+      `;
+      card.addEventListener('click', () => openModal(item));
+      grid.appendChild(card);
+    });
 
+    const modal = document.getElementById('itemModal');
+    const modalImg = document.getElementById('modalImage');
+    const modalRarity = document.getElementById('modalRarity');
+    const modalValue = document.getElementById('modalValue');
+    const sellBtn = document.getElementById('sellBtn');
+
+    function openModal(item) {
+      modalImg.src = item.img;
+      modalRarity.textContent = rarityLabels[item.rarity];
+      modalValue.textContent = item.value + ' coins';
+      sellBtn.textContent = 'Sell for ' + item.value + ' coins';
+      sellBtn.onclick = () => console.log('Sell', item.name, 'for', item.value, 'coins');
+      document.getElementById('shipBtn').onclick = () => console.log('Ship', item.name);
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    document.getElementById('closeModal').addEventListener('click', () => {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    });
+  </script>
 </body>
 </html>
