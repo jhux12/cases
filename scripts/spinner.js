@@ -1,7 +1,6 @@
 // Store prizes for each spinner instance
 const spinnerPrizesMap = {};
 const targetIndex = 15;
-let spinCounter = 0;
 
 function getRarityColor(rarity) {
   const base = rarity?.toLowerCase().replace(/\s+/g, '');
@@ -110,19 +109,25 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
     }
   }
 
-  let scrollOffset = (cardCenter - containerCenter) / scale;
-  spinCounter++;
-  if (spinCounter % 4 === 0) {
-    const dir = Math.random() < 0.5 ? -1 : 1;
-    scrollOffset += dir * 30;
+  const finalOffset = (cardCenter - containerCenter) / scale;
+  let targetOffset = finalOffset;
+  let closeCallDir = 0;
+
+  // Randomly apply a "close call" overshoot so the wheel appears to almost
+  // stop on an adjacent prize before settling on the winner. About one third
+  // of spins will overshoot in a random direction.
+  const closeCallChance = 0.33;
+  if (Math.random() < closeCallChance) {
+    closeCallDir = Math.random() < 0.5 ? -1 : 1;
+    const overshoot = 20 + Math.random() * 40; // 20-60px
+    targetOffset = finalOffset + closeCallDir * overshoot;
   }
 
-  // Now apply the spin
+  const spinDuration = 6 + Math.random() * 2; // 6-8 seconds for variety
   requestAnimationFrame(() => {
-    // Longer, ultra-smooth spin
     spinnerWheel.style.willChange = 'transform';
-    spinnerWheel.style.transition = 'transform 10s cubic-bezier(0.22, 1, 0.36, 1)';
-    spinnerWheel.style.transform = `translate3d(-${scrollOffset}px,0,0)`;
+    spinnerWheel.style.transition = `transform ${spinDuration}s cubic-bezier(0.25, 1, 0.5, 1)`;
+    spinnerWheel.style.transform = `translate3d(-${targetOffset}px,0,0)`;
   });
 
   let animationFrame;
@@ -159,16 +164,25 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
 
   trackCenterPrize();
 
-  spinnerWheel.addEventListener("transitionend", () => {
+  function onTransitionEnd() {
     cancelAnimationFrame(animationFrame);
+    spinnerWheel.style.willChange = '';
 
-    // Flash the near-miss card
-    const nearMissCard = spinnerWheel.querySelector(`.item[data-index="${targetIndex - 1}"]`)
-      || spinnerWheel.querySelector(`.item[data-index="${targetIndex + 1}"]`);
-    if (nearMissCard) {
-      nearMissCard.classList.add("near-miss-flash");
+    // If we performed a close-call overshoot, correct to the final prize now
+    if (closeCallDir !== 0) {
+      const nearMissIndex = closeCallDir === -1 ? targetIndex - 1 : targetIndex + 1;
+      const nearMissCard = spinnerWheel.querySelector(`.item[data-index="${nearMissIndex}"]`);
+      if (nearMissCard) nearMissCard.classList.add("near-miss-flash");
+
+      closeCallDir = 0; // prevent looping
+      requestAnimationFrame(() => {
+        spinnerWheel.style.transition = 'transform 0.6s ease-out';
+        spinnerWheel.style.transform = `translate3d(-${finalOffset}px,0,0)`;
+      });
+      return;
     }
 
+    // Final landing: award the prize
     const prize = spinnerPrizesMap[id][targetIndex];
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
 
@@ -205,7 +219,10 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
     }
 
     if (callback) callback(prize);
-  }, { once: true });
+    spinnerWheel.removeEventListener('transitionend', onTransitionEnd);
+  }
+
+  spinnerWheel.addEventListener('transitionend', onTransitionEnd);
 }
 
 export function showWinPopup(prize) {
