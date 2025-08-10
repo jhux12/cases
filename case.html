@@ -276,21 +276,20 @@ document.getElementById('mute-toggle').addEventListener('click', () => {
   const icon = document.getElementById('mute-icon');
   if (icon) icon.className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
 });
-document.addEventListener("click", () => {
-  const unlockAudio = (id) => {
+document.addEventListener("click", async () => {
+  const ids = ["sound-common", "sound-rare", "sound-ultrarare", "sound-legendary", "sell-sound"];
+  for (const id of ids) {
     const audio = document.getElementById(id);
     if (audio) {
       audio.muted = true;
-      audio.play().then(() => {
-        audio.pause();
-        audio.currentTime = 0;
-        audio.muted = false;
-        applyMuteState();
-      }).catch(() => {});
+      try {
+        await audio.play();
+      } catch (e) {}
+      audio.pause();
+      audio.currentTime = 0;
     }
-  };
-
-  ["sound-common", "sound-rare", "sound-ultrarare", "sound-legendary", "sell-sound"].forEach(unlockAudio);
+  }
+  applyMuteState();
 }, { once: true });
 
     const rarityOrder = { legendary: 5, ultrarare: 4, rare: 3, uncommon: 2, common: 1 };
