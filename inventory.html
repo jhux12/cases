@@ -17,7 +17,7 @@
       margin: 0;
       padding: 0;
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #3b0764, #9333ea, #ec4899);
+      background: linear-gradient(135deg, #4c1d95, #9333ea, #3b82f6);
       background-size: 300% 300%;
       animation: gradientMove 15s ease infinite;
       color: #fff;
@@ -30,8 +30,11 @@
       position: fixed;
       inset: 0;
       pointer-events: none;
-      background: repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0 10px, transparent 10px 20px);
-      opacity: 0.3;
+      background:
+        repeating-radial-gradient(circle at 0 0, rgba(255,255,255,0.02) 0 1px, transparent 1px 10px),
+        repeating-linear-gradient(45deg, rgba(147,51,234,0.05) 0 10px, transparent 10px 20px),
+        repeating-linear-gradient(-45deg, rgba(59,130,246,0.05) 0 10px, transparent 10px 20px);
+      opacity: 0.35;
     }
 
     body::after {
@@ -39,8 +42,8 @@
       position: fixed;
       inset: 0;
       pointer-events: none;
-      background: radial-gradient(circle at 0% 0%, rgba(255,255,255,0.15), transparent 60%),
-                  radial-gradient(circle at 100% 100%, rgba(0,0,0,0.25), transparent 60%);
+      background: radial-gradient(circle at 0% 0%, rgba(147,51,234,0.2), transparent 60%),
+                  radial-gradient(circle at 100% 100%, rgba(59,130,246,0.2), transparent 60%);
     }
 
     @keyframes gradientMove {
