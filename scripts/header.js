@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
       </div>
       <div class="hidden sm:flex items-center gap-6 relative">
-        <a href="vaults.html" class="nav-link text-yellow-400"><i class="fas fa-lock"></i><span>Vaults</span></a>
+        <a href="vaults.html" class="nav-link text-yellow-400"><i class="fas fa-lock"></i><span>Vaults</span><span id="vault-nav-timer-desktop" class="ml-1 text-xs">--:--</span></a>
         <a href="leaderboard.html" class="nav-link text-blue-400"><i class="fas fa-trophy"></i><span>Leaderboard</span></a>
         <a href="marketplace.html" class="nav-link text-pink-400"><i class="fas fa-store"></i><span>Marketplace</span></a>
         <div id="user-balance" class="hidden flex items-center neon-balance rounded-full overflow-hidden text-sm">
@@ -118,7 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <a href="vaults.html" class="flex flex-col items-center text-xs text-yellow-400">
           <i class="fas fa-lock text-lg"></i>
-          <span id="vault-nav-timer">--:--</span>
+          <span>Vaults</span>
+          <span id="vault-nav-timer" class="text-[10px]">--:--</span>
         </a>
         <a href="marketplace.html" class="flex flex-col items-center text-xs text-pink-400">
           <i class="fas fa-store text-lg"></i>
@@ -334,22 +335,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateVaultNavTimer() {
-    const timerEl = document.getElementById('vault-nav-timer');
-    if (!timerEl) return;
+    const timerEls = [
+      document.getElementById('vault-nav-timer'),
+      document.getElementById('vault-nav-timer-desktop')
+    ].filter(Boolean);
+    if (!timerEls.length) return;
     function render() {
       const stored = JSON.parse(localStorage.getItem('vaultActive') || '{}');
-      if (!stored.expires) {
-        timerEl.textContent = '--:--';
-        return;
+      let text = '--:--';
+      if (stored.expires) {
+        const diff = stored.expires - Date.now();
+        if (diff <= 0) {
+          text = '00:00';
+        } else {
+          const mins = Math.floor(diff / 60000);
+          const secs = Math.floor((diff % 60000) / 1000);
+          text = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        }
       }
-      const diff = stored.expires - Date.now();
-      if (diff <= 0) {
-        timerEl.textContent = '00:00';
-        return;
-      }
-      const mins = Math.floor(diff / 60000);
-      const secs = Math.floor((diff % 60000) / 1000);
-      timerEl.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+      timerEls.forEach(el => el.textContent = text);
     }
     render();
     setInterval(render, 1000);

@@ -5,6 +5,7 @@ let selectedIndex = null;
 
 function renderPack(data) {
   document.getElementById('pack-name').textContent = data.name;
+  document.title = `Packly.gg | ${data.name}`;
   document.getElementById('main-pack-image').src = data.image;
   document.querySelectorAll('.case-pack-image').forEach(img => img.src = data.image);
   document.getElementById('pack-price').textContent = (data.price || 0).toLocaleString();
@@ -99,17 +100,30 @@ async function openPack() {
   await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
   currentPrize = { ...winningPrize, key: invRef.key };
 
-  // prepare filler prizes for the face-down cards
+  // prepare unique filler prizes for the face-down cards
   const allPrizes = Object.values(currentPack.prizes || {});
-  const fillers = allPrizes.filter(p => p !== winningPrize);
+  let fillers = allPrizes
+    .filter(p => p !== winningPrize)
+    .filter((p, i, self) => i === self.findIndex(q => q.name === p.name && q.image === p.image));
+
+  // ensure at least 5 unique fillers by randomly adding more if needed
   while (fillers.length < 5) {
-    fillers.push(fillers[Math.floor(Math.random() * fillers.length)] || winningPrize);
+    const candidate = allPrizes[Math.floor(Math.random() * allPrizes.length)];
+    if (candidate && candidate !== winningPrize && !fillers.find(p => p.name === candidate.name && p.image === candidate.image)) {
+      fillers.push(candidate);
+    }
+    if (fillers.length === allPrizes.length - 1) break;
   }
-  // randomize filler order for card placement
-  cardPrizes = fillers.slice(0,5).sort(() => Math.random() - 0.5);
+
+  // shuffle and take first five
+  fillers.sort(() => Math.random() - 0.5);
+  cardPrizes = fillers.slice(0, 5);
+
   selectedIndex = null;
   document.getElementById('pack-display').classList.add('hidden');
   document.getElementById('back-btn').classList.add('hidden');
+  document.getElementById('pack-name').textContent = 'Pick Your Card';
+  document.title = 'Packly.gg | Pick Your Card';
   setupCards();
 }
 
@@ -202,6 +216,10 @@ function resetGame() {
   document.getElementById('pack-display').classList.remove('hidden');
   document.getElementById('back-btn').classList.remove('hidden');
   document.getElementById('open-pack').disabled = false;
+  if (currentPack) {
+    document.getElementById('pack-name').textContent = currentPack.name;
+    document.title = `Packly.gg | ${currentPack.name}`;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
