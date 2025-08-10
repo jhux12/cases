@@ -110,6 +110,7 @@
   <!-- Main logic -->
 <script type="module">
 import { renderSpinner, spinToPrize } from './scripts/spinner.js';
+import { updateMilestones } from './scripts/quests.js';
 
 function setupSpinners(count) {
   const wrapper = document.getElementById('spinners-wrapper');
@@ -375,10 +376,16 @@ const spiceHTML = spiceData
 document.getElementById("case-name").textContent = caseData.name;
 document.getElementById("case-spice").innerHTML = spiceHTML;
 const openBtn = document.getElementById("open-case-button");
+function updatePriceDisplay(count) {
+  const total = (caseData.price || 0) * count;
+  const priceEl = document.getElementById("button-price");
+  if (priceEl) priceEl.textContent = formatCoins(total);
+}
+
 if (isFreeCase) {
   openBtn.innerHTML = '<span class="relative z-10">Open for Free</span>';
 } else {
-  document.getElementById("button-price").textContent = formatCoins(caseData.price);
+  updatePriceDisplay(1);
 }
 
 const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
@@ -396,6 +403,7 @@ document.getElementById('spin-count').addEventListener('change', (e) => {
   for (let i = 0; i < count; i++) {
     renderSpinner(previewPrizes, null, true, i);
   }
+  if (!isFreeCase) updatePriceDisplay(count);
 });
       const rarityColors = {
         common: "#a1a1aa",
@@ -533,6 +541,11 @@ document.getElementById("open-case-button").addEventListener("click", async () =
         const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
         await invRef.set(unboxData);
         await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
+        const levelResult = await updateMilestones(user.uid, winningPrize.value);
+        if (levelResult.leveledUp) {
+          await firebase.database().ref('users/' + user.uid + '/balance').transaction(b => (b || 0) + (levelResult.reward || 0));
+          showToast(`Level ${levelResult.level}! +${formatCoins(levelResult.reward)} coins`, 'bg-green-600');
+        }
         winnings[s] = { ...winningPrize, key: invRef.key };
 
         completed++;
@@ -563,6 +576,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
                 <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
                 <span id="button-price">${formatCoins(caseData.price)}</span>
               </span>`;
+          if (!isFreeCase) updatePriceDisplay(spinCount);
 
           showMultiWinPopup(winnings);
         }

@@ -84,18 +84,20 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
 
   spinnerWheel.classList.remove("animate-scroll-preview");
 
+  // Reset any previous transform before measuring
+  spinnerWheel.style.transition = 'none';
+  spinnerWheel.style.transform = 'translate3d(0,0,0)';
+  void spinnerWheel.offsetWidth; // Force reflow
+
   const cards = spinnerWheel.querySelectorAll(".item");
   const targetCard = cards[targetIndex];
   if (!targetCard) return;
 
-  const targetRect = targetCard.getBoundingClientRect();
-  const cardCenter = targetRect.left + targetRect.width / 2;
   const containerEl = spinnerWheel.parentElement;
+  const targetRect = targetCard.getBoundingClientRect();
   const containerRect = containerEl.getBoundingClientRect();
+  const cardCenter = targetRect.left + targetRect.width / 2;
   const containerCenter = containerRect.left + containerRect.width / 2;
-  const suspenseRange = 70;
-  const randomOffset = Math.floor(Math.random() * (suspenseRange * 2 + 1)) - suspenseRange;
-  let scrollOffset = cardCenter - containerCenter + randomOffset;
 
   // Adjust for any scale transform applied to the container
   let scale = 1;
@@ -106,12 +108,8 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
       scale = parseFloat(match[1]) || 1;
     }
   }
-  scrollOffset /= scale;
 
-  // Reset any previous transform
-  spinnerWheel.style.transition = 'none';
-  spinnerWheel.style.transform = 'translate3d(0,0,0)';
-  void spinnerWheel.offsetWidth; // Force reflow
+  let scrollOffset = (cardCenter - containerCenter) / scale;
 
   // Now apply the spin
   requestAnimationFrame(() => {
