@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <span id="username-display">User</span>
             <i class="fas fa-chevron-down text-xs"></i>
           </button>
-          <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg hidden z-50">
+          <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg hidden z-[60]">
             <a href="index.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-cube mr-2"></i> Open Packs</a>
             <a href="inventory.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-box-open mr-2"></i> Inventory</a>
             <a href="profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-user mr-2"></i> Profile</a>
