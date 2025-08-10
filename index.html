@@ -85,9 +85,14 @@
         </a>
       </div>
 
-      <!-- Pack Animation -->
-      <div class="flex-1 relative w-full h-64 md:h-80">
-        <div id="hero-pack-carousel" class="absolute inset-0"></div>
+      <!-- Demo Spinner -->
+      <div class="flex-1 relative w-full h-64 md:h-80 flex items-center justify-center">
+        <div id="spinner-border-hero" class="border-4 border-gray-800 rounded-lg bg-black/20 w-full h-full flex items-center justify-center">
+          <div class="relative w-full h-full overflow-hidden">
+            <div class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
+            <div id="spinner-container-hero" class="w-full h-full transform"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -235,6 +240,7 @@ if (filterToggle && filterPanel) {
 <script type="module" src="scripts/auth.js"></script>
 <script src="scripts/navbar.js"></script>
 <script src="scripts/hero.js"></script>
+<script type="module" src="scripts/hero-spinner.js"></script>
 <script src="scripts/features.js"></script>
 <script type="module" src="scripts/packs.js"></script>
   <script type="module">
