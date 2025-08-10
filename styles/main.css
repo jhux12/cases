@@ -281,6 +281,13 @@ body {
   transform: rotateY(180deg);
 }
 
+@media (max-width: 640px) {
+  .flip-card-inner {
+    width: 120px;
+    height: 120px;
+  }
+}
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }

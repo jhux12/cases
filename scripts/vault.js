@@ -141,8 +141,8 @@ function setupCards() {
     card.style.transition = 'transform 0.6s ease, opacity 0.6s ease';
     card.innerHTML = `
       <div class="flip-card-inner">
-        <img class="flip-card-front w-40 h-40 object-contain rounded-xl" src="${prize.image}" alt="Front" />
-        <img class="flip-card-back w-40 h-40 object-contain rounded-xl" src="${backImg}" alt="Back" />
+        <img class="flip-card-front w-full h-full object-contain rounded-xl" src="${prize.image}" alt="Front" />
+        <img class="flip-card-back w-full h-full object-contain rounded-xl" src="${backImg}" alt="Back" />
       </div>`;
     card.addEventListener('click', () => selectCard(card, i));
     container.appendChild(card);
