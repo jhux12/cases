@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Packly.gg | Wonder Pick</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script src="scripts/auth.js" type="module"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white min-h-screen">
+  <header></header>
+
+  <section id="pack-section" class="pt-32 pb-16 px-4 max-w-4xl mx-auto">
+    <div class="text-center mb-8">
+      <h1 id="pack-name" class="text-3xl font-bold mb-4"></h1>
+      <img id="pack-image" src="" alt="Pack" class="w-48 h-48 object-contain mx-auto mb-4 rounded-lg shadow" />
+      <div id="prize-list" class="flex flex-wrap justify-center gap-4"></div>
+      <button id="open-pack" class="mt-8 px-6 py-2 bg-pink-600 hover:bg-pink-700 rounded text-white font-semibold">Open Pack</button>
+    </div>
+  </section>
+
+  <section id="selection-section" class="hidden pt-32 pb-16 px-4 max-w-4xl mx-auto text-center">
+    <h2 class="text-2xl font-semibold mb-6">Choose a Card</h2>
+    <div id="card-container" class="flex justify-center gap-4"></div>
+  </section>
+
+  <!-- Win Popup -->
+  <div id="win-popup" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
+    <div class="bg-gray-900 p-6 rounded-xl text-center relative w-80">
+      <button id="close-popup" class="absolute top-2 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
+      <img id="popup-image" src="" alt="Prize" class="w-40 h-40 object-contain mx-auto mb-4 rounded" />
+      <h3 id="popup-name" class="text-lg font-semibold mb-2"></h3>
+      <div class="text-yellow-300 font-bold mb-4"><span id="popup-value"></span> coins</div>
+      <div class="flex justify-center gap-4">
+        <button id="keep-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm font-bold">Keep</button>
+        <button id="sell-btn" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-bold">Sell for <span id="sell-value"></span></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/header.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/topup.js"></script>
+  <script src="scripts/wonderpick.js"></script>
+</body>
+</html>
