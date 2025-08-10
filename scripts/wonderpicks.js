@@ -11,7 +11,13 @@ function renderActive(pack) {
   document.getElementById('open-link').href = `wonder-pick.html?id=${pack.id}`;
   const cards = Object.values(pack.prizes || {}).slice(0,5);
   document.getElementById('card-preview').innerHTML = cards.map(c => `
-    <img src="${c.image}" class="w-20 h-24 object-contain rounded-lg bg-black/40 border-2 border-yellow-500/40 shadow-lg transform transition-transform duration-300 hover:scale-105" />
+    <div class="flex flex-col items-center">
+      <img src="${c.image}" class="w-20 h-24 object-contain rounded-lg bg-black/40 border-2 border-yellow-500/40 shadow-lg transform transition-transform duration-300 hover:scale-105" />
+      <div class="mt-1 flex items-center gap-1 text-sm">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
+        ${Number(c.value || 0).toLocaleString()}
+      </div>
+    </div>
   `).join('');
 }
 
