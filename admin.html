@@ -106,6 +106,50 @@
             <textarea id="vp4-desc" placeholder="Description" class="w-full p-2 rounded"></textarea>
           </div>
         </div>
+        <h2 class="text-2xl font-semibold pt-4">Trending Packs</h2>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="p-4 bg-gray-800 rounded">
+            <h3 class="font-semibold mb-2">Pack 1</h3>
+            <input type="text" id="trending1-title" placeholder="Title" class="w-full p-2 rounded mb-2">
+            <input type="text" id="trending1-image" placeholder="Image URL" class="w-full p-2 rounded mb-2">
+            <input type="text" id="trending1-badge" placeholder="Badge text" class="w-full p-2 rounded mb-2">
+            <input type="text" id="trending1-badgeClass" placeholder="Badge class (bg-red-600)" class="w-full p-2 rounded mb-2">
+            <input type="text" id="trending1-link" placeholder="Link (packs.html)" class="w-full p-2 rounded">
+          </div>
+          <div class="p-4 bg-gray-800 rounded">
+            <h3 class="font-semibold mb-2">Pack 2</h3>
+            <input type="text" id="trending2-title" placeholder="Title" class="w-full p-2 rounded mb-2">
+            <input type="text" id="trending2-image" placeholder="Image URL" class="w-full p-2 rounded mb-2">
+            <input type="text" id="trending2-badge" placeholder="Badge text" class="w-full p-2 rounded mb-2">
+            <input type="text" id="trending2-badgeClass" placeholder="Badge class (bg-yellow-500 text-black)" class="w-full p-2 rounded mb-2">
+            <input type="text" id="trending2-link" placeholder="Link (packs.html)" class="w-full p-2 rounded">
+          </div>
+          <div class="p-4 bg-gray-800 rounded">
+            <h3 class="font-semibold mb-2">Pack 3</h3>
+            <input type="text" id="trending3-title" placeholder="Title" class="w-full p-2 rounded mb-2">
+            <input type="text" id="trending3-image" placeholder="Image URL" class="w-full p-2 rounded mb-2">
+            <input type="text" id="trending3-badge" placeholder="Badge text" class="w-full p-2 rounded mb-2">
+            <input type="text" id="trending3-badgeClass" placeholder="Badge class (bg-purple-600)" class="w-full p-2 rounded mb-2">
+            <input type="text" id="trending3-link" placeholder="Link (packs.html)" class="w-full p-2 rounded">
+          </div>
+        </div>
+        <h2 class="text-2xl font-semibold pt-4">Testimonials</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="p-4 bg-gray-800 rounded">
+            <h3 class="font-semibold mb-2">Testimonial 1</h3>
+            <input type="text" id="test1-avatar" placeholder="Avatar URL" class="w-full p-2 rounded mb-2">
+            <input type="text" id="test1-name" placeholder="Name" class="w-full p-2 rounded mb-2">
+            <input type="number" id="test1-rating" placeholder="Rating (1-5)" class="w-full p-2 rounded mb-2">
+            <textarea id="test1-text" placeholder="Quote" class="w-full p-2 rounded"></textarea>
+          </div>
+          <div class="p-4 bg-gray-800 rounded">
+            <h3 class="font-semibold mb-2">Testimonial 2</h3>
+            <input type="text" id="test2-avatar" placeholder="Avatar URL" class="w-full p-2 rounded mb-2">
+            <input type="text" id="test2-name" placeholder="Name" class="w-full p-2 rounded mb-2">
+            <input type="number" id="test2-rating" placeholder="Rating (1-5)" class="w-full p-2 rounded mb-2">
+            <textarea id="test2-text" placeholder="Quote" class="w-full p-2 rounded"></textarea>
+          </div>
+        </div>
         <button type="submit" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded">Save Homepage</button>
       </form>
     </section>
@@ -899,6 +943,23 @@ function loadHomepageContent() {
       document.getElementById(`vp${i}-title`).value = item.title || '';
       document.getElementById(`vp${i}-desc`).value = item.desc || '';
     }
+    const trending = data.trending || [];
+    for (let i = 1; i <= 3; i++) {
+      const t = trending[i-1] || {};
+      document.getElementById(`trending${i}-title`).value = t.title || '';
+      document.getElementById(`trending${i}-image`).value = t.image || '';
+      document.getElementById(`trending${i}-badge`).value = t.badge || '';
+      document.getElementById(`trending${i}-badgeClass`).value = t.badgeClass || '';
+      document.getElementById(`trending${i}-link`).value = t.link || '';
+    }
+    const testimonials = data.testimonials || [];
+    for (let i = 1; i <= 2; i++) {
+      const t = testimonials[i-1] || {};
+      document.getElementById(`test${i}-avatar`).value = t.avatar || '';
+      document.getElementById(`test${i}-name`).value = t.name || '';
+      document.getElementById(`test${i}-rating`).value = t.rating || '';
+      document.getElementById(`test${i}-text`).value = t.text || '';
+    }
   });
 }
 
@@ -917,7 +978,24 @@ document.getElementById('homepage-form').addEventListener('submit', e => {
     const icon = document.getElementById(`vp${i}-icon`).value.trim();
     if (title || desc || icon) items.push({ icon, title, desc });
   }
-  firebase.database().ref('homepage').set({ hero, valueProps: { heading, items } })
+  const trending = [];
+  for (let i = 1; i <= 3; i++) {
+    const title = document.getElementById(`trending${i}-title`).value.trim();
+    const image = document.getElementById(`trending${i}-image`).value.trim();
+    const badge = document.getElementById(`trending${i}-badge`).value.trim();
+    const badgeClass = document.getElementById(`trending${i}-badgeClass`).value.trim();
+    const link = document.getElementById(`trending${i}-link`).value.trim();
+    if (title || image || badge) trending.push({ title, image, badge, badgeClass, link });
+  }
+  const testimonials = [];
+  for (let i = 1; i <= 2; i++) {
+    const avatar = document.getElementById(`test${i}-avatar`).value.trim();
+    const name = document.getElementById(`test${i}-name`).value.trim();
+    const rating = parseInt(document.getElementById(`test${i}-rating`).value) || 0;
+    const text = document.getElementById(`test${i}-text`).value.trim();
+    if (avatar || name || text) testimonials.push({ avatar, name, rating, text });
+  }
+  firebase.database().ref('homepage').set({ hero, valueProps: { heading, items }, trending, testimonials })
     .then(() => showToast('✅ Homepage content saved'));
 });
 

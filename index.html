@@ -97,32 +97,7 @@
       <h2 class="text-3xl font-bold">Trending Packs</h2>
       <a href="packs.html" class="text-pink-400 hover:underline">See all</a>
     </div>
-    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-      <div class="trending-card relative group opacity-0 translate-y-8">
-        <img src="https://images.unsplash.com/photo-1603349206296-d175ea2c9f50?auto=format&fit=crop&w=800&q=80" alt="Retro NBA" class="w-full h-56 object-cover rounded-2xl">
-        <span class="absolute top-3 left-3 bg-red-600 text-xs uppercase tracking-wide px-2 py-1 rounded">Hot</span>
-        <div class="absolute inset-0 bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition">
-          <h3 class="text-xl font-semibold mb-2">Retro NBA</h3>
-          <a href="packs.html" class="px-4 py-2 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full font-bold">Rip Now</a>
-        </div>
-      </div>
-      <div class="trending-card relative group opacity-0 translate-y-8">
-        <img src="https://images.unsplash.com/photo-1522012188890-3a88b6c02e95?auto=format&fit=crop&w=800&q=80" alt="World Cup" class="w-full h-56 object-cover rounded-2xl">
-        <span class="absolute top-3 left-3 bg-yellow-500 text-black text-xs uppercase tracking-wide px-2 py-1 rounded">New</span>
-        <div class="absolute inset-0 bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition">
-          <h3 class="text-xl font-semibold mb-2">World Cup</h3>
-          <a href="packs.html" class="px-4 py-2 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full font-bold">Rip Now</a>
-        </div>
-      </div>
-      <div class="trending-card relative group opacity-0 translate-y-8">
-        <img src="https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=800&q=80" alt="Hall of Fame" class="w-full h-56 object-cover rounded-2xl">
-        <span class="absolute top-3 left-3 bg-purple-600 text-xs uppercase tracking-wide px-2 py-1 rounded">Limited</span>
-        <div class="absolute inset-0 bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition">
-          <h3 class="text-xl font-semibold mb-2">Hall of Fame</h3>
-          <a href="packs.html" class="px-4 py-2 bg-gradient-to-r from-yellow-400 to-pink-500 text-black rounded-full font-bold">Rip Now</a>
-        </div>
-      </div>
-    </div>
+    <div id="trending-container" class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"></div>
   </div>
 </section>
 
@@ -169,32 +144,7 @@
   <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
     <div>
       <h2 class="text-3xl font-bold mb-8 text-center md:text-left">What Rippers Say</h2>
-      <div class="space-y-8">
-        <div class="bg-white/5 p-6 rounded-2xl border border-white/10">
-          <div class="flex items-center mb-4">
-            <img src="https://i.pravatar.cc/80?img=13" alt="User" class="w-12 h-12 rounded-full mr-4">
-            <div>
-              <p class="font-semibold">CardFan99</p>
-              <div class="text-yellow-400 text-sm">
-                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-              </div>
-            </div>
-          </div>
-          <p class="text-gray-300 text-sm">Pulled a /10 auto and it was at my door in under a week. Insane service!</p>
-        </div>
-        <div class="bg-white/5 p-6 rounded-2xl border border-white/10">
-          <div class="flex items-center mb-4">
-            <img src="https://i.pravatar.cc/80?img=32" alt="User" class="w-12 h-12 rounded-full mr-4">
-            <div>
-              <p class="font-semibold">PackKing</p>
-              <div class="text-yellow-400 text-sm">
-                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
-              </div>
-            </div>
-          </div>
-          <p class="text-gray-300 text-sm">Love the instant resell option. No more stuck with cards I don't want.</p>
-        </div>
-      </div>
+      <div id="testimonial-list" class="space-y-8"></div>
     </div>
     <div>
       <h3 class="text-2xl font-semibold mb-6 text-center md:text-left">Legendary Pulls</h3>
