@@ -115,21 +115,23 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
 
   // Randomly apply a "close call" overshoot so the wheel appears to almost
   // stop on an adjacent prize before settling on the winner. Bias the
-  // overshoot toward a rare neighbour if one exists to make the near miss
+  // overshoot toward a high-tier neighbour if one exists to make the near miss
   // feel more dramatic.
-  const closeCallChance = 0.5; // roughly half the spins
+  const closeCallChance = 0.3; // about one in three spins
   const adjacent = [
     { dir: -1, prize: spinnerPrizesMap[id][targetIndex - 1] },
-    { dir: 1, prize: spinnerPrizesMap[id][targetIndex + 1] }
+    { dir: 1,  prize: spinnerPrizesMap[id][targetIndex + 1] }
   ];
   if (Math.random() < closeCallChance) {
     const rareAdjacent = adjacent.filter(a => {
       const r = (a.prize?.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-      return ['rare', 'ultrarare', 'legendary'].includes(r);
+      return ['ultrarare', 'legendary'].includes(r);
     });
-    const chosen = (rareAdjacent.length ? rareAdjacent : adjacent)[Math.floor(Math.random() * (rareAdjacent.length ? rareAdjacent.length : adjacent.length))];
+    const chosen = (rareAdjacent.length ? rareAdjacent : adjacent)[
+      Math.floor(Math.random() * (rareAdjacent.length ? rareAdjacent.length : adjacent.length))
+    ];
     closeCallDir = chosen.dir;
-    const overshoot = 25 + Math.random() * 35; // 25-60px
+    const overshoot = 20 + Math.random() * 20; // 20-40px for a subtle miss
     targetOffset = finalOffset + closeCallDir * overshoot;
   }
 
