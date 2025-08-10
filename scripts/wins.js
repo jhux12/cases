@@ -19,7 +19,7 @@
 
   const createCard = (prize) => {
     const card = document.createElement('div');
-    card.className = `min-w-[120px] md:min-w-[160px] bg-[#12121b] p-3 rounded-xl border ${rarityGlow(prize.rarity)} text-center flex-shrink-0 mx-2 transform transition-transform duration-200 hover:scale-105`;
+    card.className = `min-w-[120px] md:min-w-[160px] bg-white/5 backdrop-blur-md p-3 rounded-xl border ${rarityGlow(prize.rarity)} text-center flex-shrink-0 mx-2 transform transition-transform duration-200 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]`;
 
     const imgWrapper = document.createElement('div');
     imgWrapper.className = 'relative w-[90px] h-[90px] md:w-[120px] md:h-[120px] mx-auto overflow-hidden rounded-md cursor-pointer';
