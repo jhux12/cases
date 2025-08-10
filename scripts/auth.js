@@ -13,8 +13,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const usernameDisplay = document.getElementById('username-display');
 
     if (user) {
-      if (!user.phoneNumber) {
-        alert('Please verify your phone number to continue.');
+      if (!user.phoneNumber || !user.email) {
+        alert('Please complete registration to continue.');
         firebase.auth().signOut();
         return;
       }
