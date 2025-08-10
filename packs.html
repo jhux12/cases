@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Packly.gg | Browse Packs</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body class="bg-black text-white">
+<header></header>
+
+<!-- Packs Hero -->
+<section class="relative py-24 bg-gradient-to-b from-black via-purple-900/40 to-black text-center">
+  <h1 class="text-4xl md:text-5xl font-extrabold mb-4">Available Packs</h1>
+  <p class="text-gray-300">Rip, collect, and uncover what’s inside 🔥</p>
+</section>
+
+<!-- Packs Section -->
+<section id="packs" class="py-12 px-6">
+  <div class="container mx-auto">
+    <!-- Filter Toggle Button (Mobile Only) -->
+    <div class="sm:hidden mb-4">
+      <button id="filter-toggle" class="text-sm bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-600 w-full">
+        Show Filters
+      </button>
+    </div>
+
+    <!-- Filter Panel -->
+    <div id="filter-panel" class="hidden sm:flex flex-wrap gap-4 mb-6 items-center">
+      <!-- Search -->
+      <input id="search-box" type="text" placeholder="Search packs" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-48" />
+
+      <!-- Min Price -->
+      <input id="min-price" type="number" placeholder="Min" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
+
+      <!-- Max Price -->
+      <input id="max-price" type="number" placeholder="Max" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
+
+      <!-- Affordable Only Toggle -->
+      <div class="flex items-center gap-3 px-3 py-2 rounded bg-gray-800 border border-gray-700 hover:border-yellow-400 transition-all">
+        <label for="affordable-only" class="flex items-center cursor-pointer select-none">
+          <div class="relative">
+            <input type="checkbox" id="affordable-only" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-yellow-400 transition-all duration-300"></div>
+            <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
+          </div>
+          <span class="ml-3 text-sm text-white">Enough coins to buy</span>
+        </label>
+      </div>
+
+      <!-- Sort Dropdown -->
+      <select id="sort-select" class="px-3 py-2 rounded bg-gray-800 text-white">
+        <option value="default">Sorting</option>
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+      </select>
+
+      <!-- Clear Filters Button -->
+      <button id="clear-filters" class="text-sm text-gray-400 hover:text-white ml-auto">Clear Filters</button>
+    </div>
+
+    <!-- Packs Grid -->
+    <div id="cases-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6"></div>
+  </div>
+</section>
+
+<footer></footer>
+
+<script type="module" src="scripts/auth.js"></script>
+<script src="scripts/navbar.js"></script>
+<script type="module" src="scripts/packs.js"></script>
+<script src="scripts/popups.js"></script>
+<script src="scripts/footer.js"></script>
+<script src="scripts/topup.js"></script>
+<script src="scripts/header.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const filterToggle = document.getElementById("filter-toggle");
+  const filterPanel = document.getElementById("filter-panel");
+  if (filterToggle && filterPanel) {
+    const isHidden = filterPanel.classList.contains("hidden");
+    filterToggle.textContent = isHidden ? "Show Filters" : "Hide Filters";
+    filterToggle.addEventListener("click", () => {
+      filterPanel.classList.toggle("hidden");
+      const nowHidden = filterPanel.classList.contains("hidden");
+      filterToggle.textContent = nowHidden ? "Show Filters" : "Hide Filters";
+    });
+  }
+});
+</script>
+</body>
+</html>

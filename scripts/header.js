@@ -16,6 +16,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <a href="leaderboard.html" class="flex items-center gap-1 text-blue-400 font-semibold hover:text-blue-300 transition">
           <i class="fas fa-trophy"></i> Leaderboard
         </a>
+        <a href="packs.html" class="flex items-center gap-1 text-green-400 font-semibold hover:text-green-300 transition">
+          <i class="fas fa-box-open"></i> Packs
+        </a>
         <a href="marketplace.html" class="flex items-center gap-1 text-pink-400 font-semibold hover:text-pink-300 transition">
           <i class="fas fa-store"></i> Marketplace
         </a>
@@ -35,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <i class="fas fa-chevron-down text-xs"></i>
           </button>
           <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg hidden z-50">
-            <a href="index.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-cube mr-2"></i> Open Packs</a>
+            <a href="packs.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-cube mr-2"></i> Open Packs</a>
             <a href="inventory.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-box-open mr-2"></i> Inventory</a>
             <a href="profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-user mr-2"></i> Profile</a>
             <a href="how-it-works.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-question-circle mr-2"></i> How It Works</a>
@@ -94,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <a id="drawer-register" href="auth.html?register=true" class="w-full text-center py-2 bg-blue-600 rounded text-white">Register</a>
           </div>
           <nav class="flex flex-col gap-2">
-            <a href="index.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-cube"></i> Open Packs</a>
+            <a href="packs.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-cube"></i> Open Packs</a>
             <a id="drawer-inventory-link" href="inventory.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-box-open"></i> Inventory</a>
             <a id="drawer-profile-link" href="profile.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-user"></i> Profile</a>
             <a href="how-it-works.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-question-circle"></i> How It Works</a>
@@ -114,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <i class="fas fa-box-open text-lg"></i>
           <span>Inventory</span>
         </a>
-        <a href="index.html" class="flex flex-col items-center text-xs text-white">
+        <a href="packs.html" class="flex flex-col items-center text-xs text-white">
           <i class="fas fa-cube text-lg"></i>
           <span>Open Packs</span>
         </a>
