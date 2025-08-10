@@ -124,7 +124,11 @@ function glideTo(fromOffset, toOffset, durationMs){
       offset = wrap(fromOffset + diff * e, TRACK_PX);
       track.style.transform = `translate3d(${snap(offset)}px,0,0)`;
       if (debugOn) drawDebug();
-      if (p < 1) requestAnimationFrame(step); else { offset = wrap(toOffset, TRACK_PX); res(); }
+      if (p < 1) requestAnimationFrame(step); else {
+        offset = wrap(toOffset, TRACK_PX);
+        track.style.transform = `translate3d(${snap(offset)}px,0,0)`;
+        res();
+      }
     })(performance.now());
   });
 }
@@ -142,12 +146,14 @@ export async function spinToIndex(winLocal){
   const target = targetOffsetForIndex(idx, viewportW);
   brakeTarget = wrap(target, TRACK_PX);
   let delta = shortestWrap(startOffset, target, TRACK_PX);
-  if (delta > 0) delta -= TRACK_PX; // forward only
+  if (delta >= 0) delta -= TRACK_PX; // forward only travel
 
   mode = 'braking';
   await glideTo(startOffset, startOffset + delta, 1400); // decelerate
-  await ramp(speed, IDLE_SPEED, 500);                    // settle
-  highlightCenteredCard();
+  speed = 0;                                              // pause exactly on target
+  highlightCenteredCard();                                // glow the centered card
+  await wait(900);                                        // keep it visible
+  await ramp(0, IDLE_SPEED, 500);                         // settle back to idle drift
   mode = 'idle';
   spinLock = false;
 }
