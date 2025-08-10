@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" class="overflow-x-hidden">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Packly.gg | Wonder Pick</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <link rel="stylesheet" href="styles/main.css" />
+  <style>
+    .clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+  <style>
+    #particle-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+  </style>
+  <style>
+    .flip-card { perspective:1000px; cursor:pointer; transition:transform .3s; }
+    .flip-card-inner { position:relative; width:160px; height:160px; transform-style:preserve-3d; transition:transform .6s; }
+    .flip-card.flipped .flip-card-inner { transform:rotateY(180deg); }
+    .flip-card-front, .flip-card-back { position:absolute; width:100%; height:100%; backface-visibility:hidden; border-radius:0.75rem; }
+    .flip-card-front { transform:rotateY(180deg); }
+    .animate-in { opacity:0; animation:card-enter .5s forwards; }
+    @keyframes card-enter { from { transform:translateY(40px) scale(.8); opacity:0; } to { transform:translateY(0) scale(1); opacity:1; } }
+    .flip-card:hover { transform:scale(1.05); }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white overflow-x-hidden">
+  <canvas id="particle-canvas"></canvas>
+  <header></header>
+
+  <section id="pack-section" class="relative pt-32 pb-10 px-4">
+    <div class="relative z-10 mb-6">
+      <div class="flex items-center justify-between px-4 py-2 bg-black/40 backdrop-blur-md rounded-full shadow-lg">
+        <a href="wonder-picks.html" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 text-white hover:scale-110 transition-transform" aria-label="Back to packs">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <h2 id="pack-name" class="flex-1 text-center text-xl sm:text-2xl font-bold mx-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 bg-clip-text text-transparent leading-none">Loading...</h2>
+        <div class="flex items-center gap-2">
+          <img id="pack-image" class="w-12 h-12 sm:w-16 sm:h-16 object-contain rounded-full bg-black/40 p-2 border border-white/20 shadow-md transition-transform hover:rotate-6 hover:scale-105" alt="" />
+        </div>
+      </div>
+      <div id="case-spice" class="text-center text-xs mt-2"></div>
+    </div>
+
+    <div class="flex justify-center items-center gap-4 mt-6">
+      <button id="open-pack" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-105 focus:outline-none overflow-hidden">
+        <span class="relative z-10 flex items-center gap-2">
+          Open for
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+          <span id="pack-price">...</span>
+        </span>
+      </button>
+    </div>
+
+    <div class="flex justify-center mt-2">
+      <button id="pf-info" class="flex items-center gap-2 text-sm font-semibold text-green-400 hover:text-green-300 transition cursor-pointer">
+        <i class="fa-solid fa-shield-halved text-green-400 text-base drop-shadow"></i>
+        <span>Provably Fair</span>
+      </button>
+    </div>
+
+    <div class="bg-black/30 backdrop-blur-md rounded-2xl shadow-md border border-white/10 p-6 hover:shadow-purple-500/20 transition-all duration-300 mt-10 relative">
+      <img class="case-pack-image absolute -top-10 left-0 -translate-x-1/2 w-64 opacity-20 z-0 pointer-events-none -rotate-12" alt="Pack Art" />
+      <img class="case-pack-image absolute -top-10 right-0 translate-x-1/2 w-64 opacity-20 z-0 pointer-events-none rotate-12" alt="Pack Art" />
+      <div class="relative z-10">
+        <div class="text-center mb-6">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 shadow-md">
+            <img src="https://cdn-icons-png.flaticon.com/128/5172/5172637.png" alt="Rewards Icon" class="w-5 h-5" />
+            <span class="text-sm font-bold uppercase tracking-wider text-white">Rewards Table</span>
+          </div>
+          <p class="mt-2 text-sm text-gray-300">Each pack contains a mix of prizes with different rarities and values.</p>
+        </div>
+        <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 text-sm"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="selection-section" class="hidden pt-28 pb-16 px-4 max-w-6xl mx-auto text-center">
+    <h2 class="text-3xl font-bold mb-8">Choose a Card</h2>
+    <div id="card-container" class="flex flex-wrap justify-center gap-4 mb-8"></div>
+    <button id="toggle-rewards" class="text-sm text-purple-300 underline mb-4">View Possible Rewards</button>
+    <div id="rewards-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 text-sm hidden"></div>
+  </section>
+
+  <div id="win-popup" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
+    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center relative border border-white/10">
+      <button id="close-popup" class="absolute top-2 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
+      <img id="popup-image" src="" alt="Prize" class="w-40 h-40 object-contain mx-auto mb-4 rounded" />
+      <h3 id="popup-name" class="text-lg font-semibold mb-2"></h3>
+      <div class="text-yellow-300 font-bold mb-4"><span id="popup-value"></span> coins</div>
+      <div class="flex justify-center gap-4">
+        <button id="keep-btn" class="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-bold">Keep</button>
+        <button id="sell-btn" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold">Sell for <span id="sell-value"></span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <footer></footer>
+
+  <script src="scripts/header.js"></script>
+  <script src="scripts/footer.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/topup.js"></script>
+  <script src="scripts/wonderpick.js"></script>
+
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  const particles = [];
+  const count = 50;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 3 + 1,
+      dx: (Math.random() - 0.5) * 0.3,
+      dy: (Math.random() - 0.5) * 0.3
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const p of particles) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.fill();
+      p.x += p.dx;
+      p.y += p.dy;
+      if (p.x < 0) p.x = canvas.width;
+      if (p.x > canvas.width) p.x = 0;
+      if (p.y < 0) p.y = canvas.height;
+      if (p.y > canvas.height) p.y = 0;
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+});
+  </script>
+</body>
+</html>
+
