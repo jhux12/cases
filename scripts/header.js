@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   header.innerHTML = `
-    <nav class="navbar crazy-nav fixed w-full z-50 py-3 px-6 flex items-center justify-between" style="min-height: 72px; background-color: #111117;">
+    <nav class="navbar crazy-nav fixed top-0 left-0 w-full z-50 py-3 px-6 flex items-center justify-between" style="min-height: 72px; background-color: #111117;">
       <div class="flex items-center gap-4">
         <a href="index.html" class="nav-link logo-link">
           <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(29).png?alt=media&token=51dc030a-b05d-46ec-b1ab-c2fd1824d74e" class="h-10 sm:h-12">

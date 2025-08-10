@@ -1,51 +1,50 @@
-window.addEventListener('DOMContentLoaded', () => {
-  const title = document.querySelector('h1.animate-fade-up');
-  const paragraph = document.querySelector('p.animate-fade-up');
-  const cta = document.querySelector('#hero a.animate-fade-up');
+/**
+ * Fetch legendary prizes from Firebase and cycle through them
+ * in the hero card rotator.
+ */
+document.addEventListener('DOMContentLoaded', async () => {
+  const imgEl = document.getElementById('legendaryCard');
+  if (!imgEl) return;
 
-  if (title) setTimeout(() => title.classList.remove('opacity-0'), 200);
-  if (paragraph) setTimeout(() => paragraph.classList.remove('opacity-0'), 400);
-  if (cta) setTimeout(() => cta.classList.remove('opacity-0'), 600);
-
-  const carousel = document.getElementById('hero-pack-carousel');
-  const casesContainer = document.getElementById('cases-container');
-
-  function buildCarousel() {
-    const packImgs = casesContainer?.querySelectorAll('.case-card-img') || [];
-    if (!packImgs.length || !carousel) return;
-
-    Array.from(packImgs).slice(0, 5).forEach((img, i) => {
-      const clone = document.createElement('img');
-      clone.src = img.src;
-      clone.alt = img.alt || 'Pack';
-      clone.className = 'hero-pack-img';
-      if (i === 0) clone.classList.add('active');
-      carousel.appendChild(clone);
+  async function fetchPrizes() {
+    const snap = await firebase.database().ref('cases').once('value');
+    const data = snap.val() || {};
+    const prizes = [];
+    Object.values(data).forEach(caseInfo => {
+      (caseInfo.prizes || []).forEach(p => {
+        prizes.push({ id: p.id || '', name: p.name, imageUrl: p.image, rarity: p.rarity });
+      });
     });
-
-    startCarousel();
+    return prizes;
   }
 
-  function startCarousel() {
-    const slides = carousel?.querySelectorAll('img') || [];
-    if (slides.length <= 1) return;
+  const allPrizes = await fetchPrizes();
+  const legendary = allPrizes.filter(p => p.rarity === 'legendary');
+  const cards = legendary.length ? legendary : allPrizes;
 
-    let index = 0;
-    setInterval(() => {
-      slides[index].classList.remove('active');
-      index = (index + 1) % slides.length;
-      slides[index].classList.add('active');
-    }, 3000);
+  // Preload images to avoid layout jumps
+  await Promise.all(cards.map(p => {
+    const img = new Image();
+    img.src = p.imageUrl;
+    return img.decode ? img.decode().catch(() => {}) : new Promise(res => { img.onload = res; });
+  }));
+
+  let idx = 0;
+
+  function showCard(i) {
+    const card = cards[i % cards.length];
+    imgEl.classList.add('opacity-0');
+    setTimeout(() => {
+      imgEl.src = card.imageUrl;
+      imgEl.classList.remove('opacity-0');
+    }, 250);
   }
 
-  if (casesContainer) {
-    const observer = new MutationObserver((mutations, obs) => {
-      if (casesContainer.querySelector('.case-card-img')) {
-        obs.disconnect();
-        buildCarousel();
-      }
-    });
-    observer.observe(casesContainer, { childList: true, subtree: true });
-  }
+  // start rotation
+  showCard(0);
+  idx = 1;
+  setInterval(() => {
+    showCard(idx);
+    idx = (idx + 1) % cards.length;
+  }, 3000);
 });
-
