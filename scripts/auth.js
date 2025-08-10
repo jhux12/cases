@@ -13,6 +13,12 @@ window.addEventListener('DOMContentLoaded', () => {
     const usernameDisplay = document.getElementById('username-display');
 
     if (user) {
+      if (!user.email) {
+        alert('Please complete registration to continue.');
+        firebase.auth().signOut();
+        return;
+      }
+
       const userRef = firebase.database().ref('users/' + user.uid);
       const snapshot = await userRef.once('value');
       const userData = snapshot.val() || {};
