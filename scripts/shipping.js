@@ -1,6 +1,20 @@
 // scripts/shipping.js
 let shipmentSelection = [];
 
+function loadGoogleMaps(apiKey) {
+  return new Promise(resolve => {
+    if (!apiKey) {
+      console.warn('Google Maps API key missing');
+      return resolve();
+    }
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    script.async = true;
+    script.onload = resolve;
+    document.head.appendChild(script);
+  });
+}
+
 function initAddressAutocomplete() {
   const addressInput = document.getElementById('ship-address');
   if (!addressInput || !window.google || !google.maps?.places) return;
@@ -44,7 +58,7 @@ function initAddressAutocomplete() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
   const stored = localStorage.getItem('shipItems');
   if (!stored) return window.location.href = 'inventory.html';
   shipmentSelection = JSON.parse(stored);
@@ -61,6 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  await loadGoogleMaps(window.GOOGLE_MAPS_API_KEY);
   initAddressAutocomplete();
   const addressField = document.getElementById('ship-address');
   if (addressField) addressField.focus();
