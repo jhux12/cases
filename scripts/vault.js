@@ -74,8 +74,10 @@ async function openPack() {
 
   await firebase.database().ref('users/' + user.uid + '/balance').set(balance - price);
 
-  const prizes = Object.values(currentPack.prizes || {}).sort((a,b) => a.odds - b.odds);
-  const totalOdds = prizes.reduce((sum,p) => sum + (p.odds || 0), 0);
+  const prizes = Object.values(currentPack.prizes || {})
+    .map(p => ({ ...p, odds: Number(p.odds) || 0 }))
+    .sort((a,b) => a.odds - b.odds);
+  const totalOdds = prizes.reduce((sum,p) => sum + p.odds, 0);
 
   const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${serverSeed}:${clientSeed}:${nonce || 0}`));
   const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('');
@@ -84,7 +86,7 @@ async function openPack() {
   let cumulative = 0;
   let winningPrize = prizes[prizes.length - 1];
   for (const p of prizes) {
-    cumulative += p.odds || 0;
+    cumulative += p.odds;
     if (rand * totalOdds < cumulative) { winningPrize = p; break; }
   }
 
@@ -100,6 +102,7 @@ async function openPack() {
   await invRef.set(unboxData);
   await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
   currentPrize = { ...winningPrize, key: invRef.key };
+  await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: (nonce || 0) + 1 });
 
   // prepare unique filler prizes for the face-down cards
   const allPrizes = Object.values(currentPack.prizes || {});
