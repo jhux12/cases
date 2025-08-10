@@ -1,4 +1,5 @@
-let spinnerPrizes = [];
+// Store prizes for each spinner instance
+const spinnerPrizesMap = {};
 const targetIndex = 15;
 
 function getRarityColor(rarity) {
@@ -18,17 +19,17 @@ export function getTopPrizes(prizeList, count = 30) {
     .slice(0, count);
 }
 
-export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
-  const container = document.getElementById("spinner-container");
+export function renderSpinner(prizes, winningPrize = null, isPreview = false, id = 0) {
+  const container = document.getElementById(`spinner-container-${id}`);
   if (!container) return console.warn("🚫 Spinner container not found");
 
   container.innerHTML = "";
 
-  const borderEl = document.getElementById("spinner-border");
+  const borderEl = document.getElementById(`spinner-border-${id}`);
   if (borderEl) borderEl.style.borderColor = "#1f2937";
 
   const spinnerWheel = document.createElement("div");
-  spinnerWheel.id = "spinner-wheel";
+  spinnerWheel.id = `spinner-wheel-${id}`;
   spinnerWheel.className = "flex h-full items-center";
 
   if (isPreview) {
@@ -36,7 +37,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
   }
 
   container.appendChild(spinnerWheel);
-  spinnerPrizes = [];
+  spinnerPrizesMap[id] = [];
 
   const shuffled = [...prizes];
 
@@ -54,7 +55,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
       };
     }
 
-    spinnerPrizes.push(prize);
+    spinnerPrizesMap[id].push(prize);
 
     const div = document.createElement("div");
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
@@ -77,41 +78,74 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
   }
 }
 
-export function spinToPrize(callback, showPopup = true) {
-  const spinnerWheel = document.getElementById("spinner-wheel");
-  if (!spinnerWheel) return;
+export function spinToPrize(callback, showPopup = true, id = 0) {
+  const spinnerWheel = document.getElementById(`spinner-wheel-${id}`);
+  if (!spinnerWheel) return Promise.resolve();
 
   spinnerWheel.classList.remove("animate-scroll-preview");
 
-  const cards = spinnerWheel.querySelectorAll(".item");
-  const targetCard = cards[targetIndex];
-  if (!targetCard) return;
-
-  const targetRect = targetCard.getBoundingClientRect();
-  const cardCenter = targetRect.left + targetRect.width / 2;
-  const containerCenter = window.innerWidth / 2;
-  const suspenseRange = 70;
-  const randomOffset = Math.floor(Math.random() * (suspenseRange * 2 + 1)) - suspenseRange;
-  const scrollOffset = cardCenter - containerCenter + randomOffset;
-
-  // Reset any previous transform
+  // Reset any previous transform before measuring
   spinnerWheel.style.transition = 'none';
   spinnerWheel.style.transform = 'translate3d(0,0,0)';
   void spinnerWheel.offsetWidth; // Force reflow
 
-  // Now apply the spin
+  const cards = spinnerWheel.querySelectorAll(".item");
+  const targetCard = cards[targetIndex];
+  if (!targetCard) return Promise.resolve();
+
+  const containerEl = spinnerWheel.parentElement;
+  const targetRect = targetCard.getBoundingClientRect();
+  const containerRect = containerEl.getBoundingClientRect();
+  const cardCenter = targetRect.left + targetRect.width / 2;
+  const containerCenter = containerRect.left + containerRect.width / 2;
+
+  // Adjust for any scale transform applied to the container
+  let scale = 1;
+  const transform = window.getComputedStyle(containerEl).transform;
+  if (transform && transform !== 'none') {
+    const match = transform.match(/matrix\(([^,]+)/);
+    if (match) {
+      scale = parseFloat(match[1]) || 1;
+    }
+  }
+
+  const finalOffset = (cardCenter - containerCenter) / scale;
+  let targetOffset = finalOffset;
+  let closeCallDir = 0;
+
+  // Randomly apply a "close call" overshoot so the wheel appears to almost
+  // stop on an adjacent prize before settling on the winner. Bias the
+  // overshoot toward a rare neighbour if one exists to make the near miss
+  // feel more dramatic.
+  const closeCallChance = 0.5; // roughly half the spins
+  const adjacent = [
+    { dir: -1, prize: spinnerPrizesMap[id][targetIndex - 1] },
+    { dir: 1, prize: spinnerPrizesMap[id][targetIndex + 1] }
+  ];
+  if (Math.random() < closeCallChance) {
+    const rareAdjacent = adjacent.filter(a => {
+      const r = (a.prize?.rarity || 'common').toLowerCase().replace(/\s+/g, '');
+      return ['rare', 'ultrarare', 'legendary'].includes(r);
+    });
+    const chosen = (rareAdjacent.length ? rareAdjacent : adjacent)[Math.floor(Math.random() * (rareAdjacent.length ? rareAdjacent.length : adjacent.length))];
+    closeCallDir = chosen.dir;
+    const overshoot = 25 + Math.random() * 35; // 25-60px
+    targetOffset = finalOffset + closeCallDir * overshoot;
+  }
+
+  const spinDuration = 4 + Math.random() * 2; // 4-6 seconds for a snappier feel
   requestAnimationFrame(() => {
-    // Longer, ultra-smooth spin
     spinnerWheel.style.willChange = 'transform';
-    spinnerWheel.style.transition = 'transform 10s cubic-bezier(0.22, 1, 0.36, 1)';
-    spinnerWheel.style.transform = `translate3d(-${scrollOffset}px,0,0)`;
+    spinnerWheel.style.transition = `transform ${spinDuration}s cubic-bezier(0.33, 1, 0.68, 1)`;
+    spinnerWheel.style.transform = `translate3d(-${targetOffset}px,0,0)`;
   });
 
   let animationFrame;
 
   function trackCenterPrize() {
     const cards = spinnerWheel.querySelectorAll(".item");
-    const centerX = window.innerWidth / 2;
+    const containerRect = spinnerWheel.parentElement.getBoundingClientRect();
+    const centerX = containerRect.left + containerRect.width / 2;
     let closestCard = null;
     let minDistance = Infinity;
 
@@ -127,11 +161,11 @@ export function spinToPrize(callback, showPopup = true) {
 
     if (closestCard) {
       const indexAttr = closestCard.getAttribute("data-index");
-      const prize = spinnerPrizes[indexAttr];
+      const prize = spinnerPrizesMap[id][indexAttr];
       const rarity = (prize?.rarity || "common").toLowerCase().replace(/\s+/g, '');
       const color = getRarityColor(rarity);
 
-      const borderEl = document.getElementById("spinner-border");
+      const borderEl = document.getElementById(`spinner-border-${id}`);
       if (borderEl) borderEl.style.borderColor = color;
     }
 
@@ -140,28 +174,28 @@ export function spinToPrize(callback, showPopup = true) {
 
   trackCenterPrize();
 
-  spinnerWheel.addEventListener("transitionend", () => {
-    cancelAnimationFrame(animationFrame);
+  return new Promise(resolve => {
+    function onTransitionEnd() {
+      cancelAnimationFrame(animationFrame);
+      spinnerWheel.style.willChange = '';
 
-    // Flash the near-miss card
-    const nearMissCard = spinnerWheel.querySelector(`.item[data-index="${targetIndex - 1}"]`)
-      || spinnerWheel.querySelector(`.item[data-index="${targetIndex + 1}"]`);
-    if (nearMissCard) {
-      nearMissCard.classList.add("near-miss-flash");
+    // If we performed a close-call overshoot, correct to the final prize now
+    if (closeCallDir !== 0) {
+      const nearMissIndex = closeCallDir === -1 ? targetIndex - 1 : targetIndex + 1;
+      const nearMissCard = spinnerWheel.querySelector(`.item[data-index="${nearMissIndex}"]`);
+      if (nearMissCard) nearMissCard.classList.add("near-miss-flash");
+
+      closeCallDir = 0; // prevent looping
+      requestAnimationFrame(() => {
+        spinnerWheel.style.transition = 'transform 0.4s ease-out';
+        spinnerWheel.style.transform = `translate3d(-${finalOffset}px,0,0)`;
+      });
+      return;
     }
 
-    const prize = spinnerPrizes[targetIndex];
+    // Final landing: award the prize
+    const prize = spinnerPrizesMap[id][targetIndex];
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-
-    const soundMap = {
-      common: document.getElementById("sound-common"),
-      uncommon: document.getElementById("sound-rare"),
-      rare: document.getElementById("sound-rare"),
-      ultrarare: document.getElementById("sound-ultrarare"),
-      legendary: document.getElementById("sound-legendary"),
-    };
-    const sound = soundMap[rarity];
-    if (sound) sound.play();
 
     const spinnerResultText = document.getElementById("spinner-result");
     if (spinnerResultText) {
@@ -186,7 +220,12 @@ export function spinToPrize(callback, showPopup = true) {
     }
 
     if (callback) callback(prize);
-  }, { once: true });
+    resolve(prize);
+    spinnerWheel.removeEventListener('transitionend', onTransitionEnd);
+  }
+
+    spinnerWheel.addEventListener('transitionend', onTransitionEnd);
+  });
 }
 
 export function showWinPopup(prize) {

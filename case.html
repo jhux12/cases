@@ -61,24 +61,24 @@
     </div>
     <div id="case-spice" class="text-center text-xs mt-2"></div>
   </div>
-    <div id="spinner-border" class="my-8 border-4 border-gray-800 rounded-lg bg-black/20 transition-colors duration-300">
-      <div class="relative h-[200px] overflow-hidden">
-        <div id="center-line" class="absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10"></div>
-        <div id="spinner-container" class="w-full h-full"></div>
-      </div>
-    </div>
-    <div class="flex justify-center gap-4 mt-6">
-  <button id="open-case-button" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform transform hover:scale-105 animate-pulse focus:outline-none overflow-hidden">
+    <div id="spinners-wrapper" class="my-8 flex flex-wrap gap-4 justify-center"></div>
+    <div class="flex justify-center items-center gap-4 mt-6">
+      <select id="spin-count" class="bg-gray-800 text-white rounded px-3 py-2">
+        <option value="1">1x</option>
+        <option value="2">2x</option>
+        <option value="3">3x</option>
+      </select>
+      <button id="open-case-button" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform transform hover:scale-105 animate-pulse focus:outline-none overflow-hidden">
         <span class="relative z-10 flex items-center gap-2">
-      Open for
-      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
-      <span id="button-price">...</span>
-    </span>
-  </button>
-  <button id="try-free-button" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-green-400 via-teal-500 to-blue-500 text-white font-extrabold shadow-lg transition-transform transform hover:scale-105 focus:outline-none overflow-hidden">
-    <span class="relative z-10">Try for Free</span>
-  </button>
-</div>
+          Open for
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+          <span id="button-price">...</span>
+        </span>
+      </button>
+      <button id="try-free-button" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-green-400 via-teal-500 to-blue-500 text-white font-extrabold shadow-lg transition-transform transform hover:scale-105 focus:outline-none overflow-hidden">
+        <span class="relative z-10">Try for Free</span>
+      </button>
+    </div>
 
 
 <!-- Provably Fair Display -->
@@ -111,6 +111,161 @@
 <script type="module">
 import { renderSpinner, spinToPrize } from './scripts/spinner.js';
 import { updateMilestones } from './scripts/quests.js';
+
+function setupSpinners(count) {
+  const wrapper = document.getElementById('spinners-wrapper');
+  if (!wrapper) return;
+  wrapper.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const border = document.createElement('div');
+    border.id = `spinner-border-${i}`;
+    border.className = `border-4 border-gray-800 rounded-lg bg-black/20 transition-colors duration-300 ${count === 1 ? 'w-full sm:w-2/3 md:w-1/2' : 'w-full sm:w-1/2 md:w-1/3'}`;
+
+    const inner = document.createElement('div');
+    let heightClass;
+    if (count === 1) {
+      heightClass = 'h-[250px] sm:h-[300px]';
+    } else {
+      // slightly larger spinners on mobile when multiple are shown
+      heightClass = 'h-[150px] sm:h-[180px]';
+    }
+    inner.className = `relative ${heightClass} overflow-hidden`;
+
+    const line = document.createElement('div');
+    line.className = 'absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10';
+    const container = document.createElement('div');
+    container.id = `spinner-container-${i}`;
+    container.className = 'w-full h-full transform';
+    if (count > 1) {
+      // make additional spinners a bit bigger on mobile while still shrinking overall
+      container.classList.add('scale-[0.6]', 'sm:scale-75', 'md:scale-90', 'lg:scale-100');
+    }
+    inner.appendChild(line);
+    inner.appendChild(container);
+    border.appendChild(inner);
+    wrapper.appendChild(border);
+  }
+}
+
+const formatCoins = (num) => {
+  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
+  if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
+  return num.toLocaleString();
+};
+
+async function sellPrize(prize) {
+  const user = firebase.auth().currentUser;
+  if (!user || !prize) return;
+  const sellAmount = Math.floor(prize.value * 0.8);
+  const balanceRef = firebase.database().ref('users/' + user.uid + '/balance');
+  const balanceSnap = await balanceRef.once('value');
+  const currentBalance = balanceSnap.val() || 0;
+  await balanceRef.set(currentBalance + sellAmount);
+  await firebase.database().ref('users/' + user.uid + '/inventory/' + prize.key).remove();
+  const sellSound = document.getElementById('sell-sound');
+  if (sellSound) sellSound.play();
+}
+
+function showMultiWinPopup(prizes) {
+  const popup = document.getElementById('win-popup');
+  const itemContainer = document.getElementById('win-item');
+  const countEl = document.getElementById('win-count');
+  const prevBtn = document.getElementById('prev-win');
+  const nextBtn = document.getElementById('next-win');
+  const sellAllBtn = document.getElementById('sell-all-btn');
+  const sellAllValue = document.getElementById('sell-all-value');
+  const processed = new Set();
+  let current = 0;
+
+  const totalSell = prizes.reduce((sum, p) => sum + Math.floor(p.value * 0.8), 0);
+  sellAllValue.textContent = formatCoins(totalSell);
+
+  function render(index) {
+    const prize = prizes[index];
+    itemContainer.innerHTML = `
+      <div class="prize-card bg-gray-800 rounded-xl p-4 flex flex-col items-center">
+        <img src="${prize.image}" class="w-32 h-32 object-contain mb-2 rounded-lg shadow-md" />
+        <div class="text-sm font-semibold mb-1">${prize.name}</div>
+        <div class="flex items-center gap-1 text-yellow-300 text-sm mb-2"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />${formatCoins(prize.value)}</div>
+        <div class="flex gap-2 w-full mt-2">
+          <button id="keep-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 text-white text-sm font-bold flex items-center justify-center gap-1"><i class="fas fa-box-open"></i> Add to Inventory</button>
+          <button id="sell-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 text-white text-sm font-bold flex items-center justify-center gap-1"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />Sell for ${formatCoins(Math.floor(prize.value * 0.8))}</button>
+        </div>
+      </div>`;
+
+    const keepBtn = itemContainer.querySelector('#keep-btn');
+    const sellBtn = itemContainer.querySelector('#sell-btn');
+
+    if (processed.has(index)) {
+      keepBtn.disabled = true;
+      sellBtn.disabled = true;
+      itemContainer.firstElementChild.classList.add('opacity-50');
+    } else {
+      keepBtn.onclick = () => {
+        processed.add(index);
+        handleDone();
+      };
+      sellBtn.onclick = async () => {
+        await sellPrize(prize);
+        processed.add(index);
+        handleDone();
+      };
+    }
+
+    countEl.textContent = `${index + 1} / ${prizes.length}`;
+    prevBtn.disabled = index === 0;
+    nextBtn.disabled = index === prizes.length - 1;
+  }
+
+  function handleDone() {
+    if (processed.size === prizes.length) {
+      popup.classList.add('hidden');
+      return;
+    }
+    do {
+      current = (current + 1) % prizes.length;
+    } while (processed.has(current));
+    render(current);
+  }
+
+  prevBtn.onclick = () => {
+    if (current > 0) {
+      current--;
+      render(current);
+    }
+  };
+
+  nextBtn.onclick = () => {
+    if (current < prizes.length - 1) {
+      current++;
+      render(current);
+    }
+  };
+
+  let startX = 0;
+  itemContainer.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+  });
+  itemContainer.addEventListener('touchend', (e) => {
+    const diff = e.changedTouches[0].clientX - startX;
+    if (Math.abs(diff) > 50) {
+      diff < 0 ? nextBtn.onclick() : prevBtn.onclick();
+    }
+  });
+
+  sellAllBtn.onclick = async () => {
+    for (let i = 0; i < prizes.length; i++) {
+      if (!processed.has(i)) {
+        await sellPrize(prizes[i]);
+        processed.add(i);
+      }
+    }
+    popup.classList.add('hidden');
+  };
+
+  popup.classList.remove('hidden');
+  render(current);
+}
 let isMuted = false;
 function applyMuteState() {
   document.querySelectorAll('audio').forEach(a => { a.muted = isMuted; });
@@ -137,13 +292,8 @@ document.addEventListener("click", () => {
 
   ["sound-common", "sound-rare", "sound-ultrarare", "sound-legendary", "sell-sound"].forEach(unlockAudio);
 }, { once: true });
-    const formatCoins = (num) => {
-      if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
-      if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
-      return num.toLocaleString();
-    };
 
-    const rarityOrder = { legendary: 5, "ultra rare": 4, rare: 3, uncommon: 2, common: 1 };
+    const rarityOrder = { legendary: 5, ultrarare: 4, rare: 3, uncommon: 2, common: 1 };
 
   function playRaritySound(rarity) {
   const soundMap = {
@@ -227,19 +377,40 @@ const spiceHTML = spiceData
 document.getElementById("case-name").textContent = caseData.name;
 document.getElementById("case-spice").innerHTML = spiceHTML;
 const openBtn = document.getElementById("open-case-button");
+const spinSelect = document.getElementById('spin-count');
+function updatePriceDisplay(count) {
+  const total = (caseData.price || 0) * count;
+  const priceEl = document.getElementById("button-price");
+  if (priceEl) priceEl.textContent = formatCoins(total);
+}
+
 if (isFreeCase) {
   openBtn.innerHTML = '<span class="relative z-10">Open for Free</span>';
+  if (spinSelect) spinSelect.remove();
 } else {
-  document.getElementById("button-price").textContent = formatCoins(caseData.price);
+  updatePriceDisplay(1);
 }
 
 const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
-  const rarityDiff = (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
+  const rarityDiff = (rarityOrder[b.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) -
+    (rarityOrder[a.rarity?.toLowerCase().replace(/\s+/g,'')] || 0);
   if (rarityDiff !== 0) return rarityDiff;
   return (b.value || 0) - (a.value || 0); // secondary sort by value
 });
 
-renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
+const previewPrizes = prizeList.slice(0, 30);
+setupSpinners(1);
+renderSpinner(previewPrizes, null, true, 0); // show preview spinner
+if (spinSelect) {
+  spinSelect.addEventListener('change', (e) => {
+    const count = parseInt(e.target.value) || 1;
+    setupSpinners(count);
+    for (let i = 0; i < count; i++) {
+      renderSpinner(previewPrizes, null, true, i);
+    }
+    if (!isFreeCase) updatePriceDisplay(count);
+  });
+}
       const rarityColors = {
         common: "#a1a1aa",
         uncommon: "#4ade80",
@@ -268,155 +439,177 @@ renderSpinner(prizeList.slice(0, 30), null, true); // show preview spinner
 }).join("");
 enablePrizePopups();
 
-
 document.getElementById("open-case-button").addEventListener("click", async () => {
-
   const btn = document.getElementById("open-case-button");
-btn.disabled = true;
-btn.classList.add("cursor-not-allowed", "opacity-60");
-btn.innerHTML = `
-  <span class="relative z-10 flex items-center gap-2 animate-pulse">
-    <svg class="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-    </svg>
-    Spinning...
-  </span>
-`;
-
-        const user = firebase.auth().currentUser;
-        if (!user) return alert("Please sign in to open cases.");
-
-        const userSnap = await firebase.database().ref('users/' + user.uid).once("value");
-        const userData = userSnap.val() || {};
-        const balance = parseFloat(userData.balance || 0);
-        const price = parseFloat(caseData.price || 0);
-
-        const weeklyReset = 7 * 24 * 60 * 60 * 1000;
-        if (Date.now() - (userData.lastWeeklyReset || 0) > weeklyReset) {
-          await firebase.database().ref('users/' + user.uid + '/weeklyQuests').remove();
-          await firebase.database().ref('users/' + user.uid + '/lastWeeklyReset').set(Date.now());
-        }
-
-if (isFreeCase && userData.freeCaseOpened) {
-  showToast("Free case already opened!", "bg-red-600");
-  btn.disabled = false;
-  btn.classList.remove("cursor-not-allowed", "opacity-60");
-  btn.innerHTML = '<span class="relative z-10">Open for Free</span>';
-  return;
-}
-
-if (!isFreeCase && balance < price) {
-  showToast("Not enough coins!", "bg-red-600");
-  btn.disabled = false;
-  btn.classList.remove("cursor-not-allowed", "opacity-60");
+  const spinCount = isFreeCase ? 1 : parseInt(spinSelect.value) || 1;
+  if (spinSelect) spinSelect.disabled = true;
+  btn.disabled = true;
+  btn.classList.add("cursor-not-allowed", "opacity-60");
   btn.innerHTML = `
-    <span class="relative z-10 flex items-center gap-2">
-      Open for
-      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
-      <span id="button-price">${formatCoins(caseData.price)}</span>
+    <span class="relative z-10 flex items-center gap-2 animate-pulse">
+      <svg class="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+      </svg>
+      Spinning...
     </span>
   `;
-  return;
-}
 
-        const fairSnap = await firebase.database().ref('users/' + user.uid + '/provablyFair').once("value");
-        const fairData = fairSnap.val();
-        if (!fairData) return alert("Provably fair data missing.");
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    if (spinSelect) spinSelect.disabled = false;
+    return alert("Please sign in to open cases.");
+  }
 
-        const { serverSeed, clientSeed, nonce } = fairData;
-        const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${serverSeed}:${clientSeed}:${nonce}`));
-        const hashHex = [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
-        const rand = parseInt(hashHex.substring(0, 8), 16) / 0xffffffff;
+  const userSnap = await firebase.database().ref('users/' + user.uid).once("value");
+  const userData = userSnap.val() || {};
+  const balance = parseFloat(userData.balance || 0);
+  const price = parseFloat(caseData.price || 0);
+  const totalPrice = price * spinCount;
 
-        const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
-        const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+  const weeklyReset = 7 * 24 * 60 * 60 * 1000;
+  if (Date.now() - (userData.lastWeeklyReset || 0) > weeklyReset) {
+    await firebase.database().ref('users/' + user.uid + '/weeklyQuests').remove();
+    await firebase.database().ref('users/' + user.uid + '/lastWeeklyReset').set(Date.now());
+  }
 
-        let cumulative = 0;
-        let winningPrize = prizes[prizes.length - 1];
-        for (let p of prizes) {
-          cumulative += p.odds || 0;
-          if (rand * totalOdds < cumulative) {
-            winningPrize = p;
-            break;
-          }
-        }
-
-        // Build spinner prizes and inject the winning prize at index 15
-const spinnerPrizes = [];
-for (let i = 0; i < 30; i++) {
-  const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
-  spinnerPrizes.push(randomPrize);
-}
-spinnerPrizes[15] = winningPrize;
-
-renderSpinner(spinnerPrizes, winningPrize);
-setTimeout(() => {
-  spinToPrize(() => {
-    // ✅ Restore button after spin ends
-    const btn = document.getElementById("open-case-button");
+  if (isFreeCase && userData.freeCaseOpened) {
+    showToast("Free case already opened!", "bg-red-600");
     btn.disabled = false;
     btn.classList.remove("cursor-not-allowed", "opacity-60");
-    btn.innerHTML = isFreeCase
-      ? '<span class="relative z-10">Open for Free</span>'
-      : `<div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50 z-0 animate-spin-slow"></div>
+    btn.innerHTML = '<span class="relative z-10">Open for Free</span>';
+    if (spinSelect) spinSelect.disabled = false;
+    return;
+  }
+
+  if (!isFreeCase && balance < totalPrice) {
+    showToast("Not enough coins!", "bg-red-600");
+    btn.disabled = false;
+    btn.classList.remove("cursor-not-allowed", "opacity-60");
+    btn.innerHTML = `
       <span class="relative z-10 flex items-center gap-2">
         Open for
         <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
         <span id="button-price">${formatCoins(caseData.price)}</span>
-      </span>`;
+      </span>
+    `;
+    if (spinSelect) spinSelect.disabled = false;
+    return;
+  }
 
-    playRaritySound(winningPrize.rarity);
-  });
-}, 150);
+  const fairSnap = await firebase.database().ref('users/' + user.uid + '/provablyFair').once("value");
+  const fairData = fairSnap.val();
+  if (!fairData) {
+    if (spinSelect) spinSelect.disabled = false;
+    return alert("Provably fair data missing.");
+  }
+  const { serverSeed, clientSeed, nonce } = fairData;
+
+  setupSpinners(spinCount);
+
+  const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
+  const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+
+  const winnings = [];
+  let completed = 0;
+
+  if (!isFreeCase) {
+    const newBalance = balance - totalPrice;
+    await firebase.database().ref('users/' + user.uid + '/balance').set(newBalance);
+  }
+
+  for (let s = 0; s < spinCount; s++) {
+    const currentNonce = (nonce || 0) + s;
+    const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${serverSeed}:${clientSeed}:${currentNonce}`));
+    const hashHex = [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+    const rand = parseInt(hashHex.substring(0, 8), 16) / 0xffffffff;
+
+    let cumulative = 0;
+    let winningPrize = prizes[prizes.length - 1];
+    for (let p of prizes) {
+      cumulative += p.odds || 0;
+      if (rand * totalOdds < cumulative) {
+        winningPrize = p;
+        break;
+      }
+    }
+
+    const unboxData = {
+      name: winningPrize.name,
+      image: winningPrize.image,
+      rarity: winningPrize.rarity,
+      value: winningPrize.value,
+      timestamp: Date.now(),
+      sold: false
+    };
+    const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
+    await invRef.set(unboxData);
+    await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
+    const levelResult = await updateMilestones(user.uid, winningPrize.value);
+    if (levelResult.leveledUp) {
+      await firebase.database().ref('users/' + user.uid + '/balance').transaction(b => (b || 0) + (levelResult.reward || 0));
+    }
+    winnings[s] = { ...winningPrize, key: invRef.key, levelResult };
+
+    const spinnerPrizes = [];
+    for (let i = 0; i < 30; i++) {
+      const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
+      spinnerPrizes.push(randomPrize);
+    }
+    spinnerPrizes[15] = winningPrize;
+
+    renderSpinner(spinnerPrizes, winningPrize, false, s);
+    setTimeout(() => {
+      spinToPrize(async () => {
+        const lr = winnings[s].levelResult;
+        if (lr.leveledUp) {
+          showToast(`Level ${lr.level}! +${formatCoins(lr.reward)} coins`, 'bg-green-600');
+        }
+        completed++;
+        if (completed === spinCount) {
+          if (isFreeCase) {
+            await firebase.database().ref('users/' + user.uid + '/freeCaseOpened').set(true);
+          }
+          const questUpdates = {
+            'openPacks/progress': firebase.database.ServerValue.increment(spinCount)
+          };
+          if (!isFreeCase) {
+            questUpdates['spendCoins/progress'] = firebase.database.ServerValue.increment(totalPrice);
+          }
+          const rareHits = winnings.filter(p => ['rare', 'ultra rare', 'legendary'].includes((p.rarity || '').toLowerCase())).length;
+          if (rareHits > 0) {
+            questUpdates['pullRare/progress'] = firebase.database.ServerValue.increment(rareHits);
+          }
+          await firebase.database().ref('users/' + user.uid + '/weeklyQuests').update(questUpdates);
+          await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + spinCount });
+
+          btn.disabled = false;
+          btn.classList.remove('cursor-not-allowed', 'opacity-60');
+          btn.innerHTML = isFreeCase
+            ? '<span class="relative z-10">Open for Free</span>'
+            : `<div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50 z-0 animate-spin-slow"></div>
+              <span class="relative z-10 flex items-center gap-2">
+                Open for
+                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+                <span id="button-price">${formatCoins(caseData.price)}</span>
+              </span>`;
+          if (!isFreeCase) updatePriceDisplay(spinCount);
+          if (spinSelect) spinSelect.disabled = false;
+
+          const topPrize = winnings.reduce((best, p) =>
+            (rarityOrder[p.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) >
+            (rarityOrder[best.rarity?.toLowerCase().replace(/\s+/g,'')] || 0)
+              ? p : best
+          , winnings[0]);
+          playRaritySound(topPrize.rarity);
+          showMultiWinPopup(winnings);
+        }
+      }, false, s);
+    }, 150);
+  }
+});
 
 
-
-        const balanceBefore = balance;
-        let balanceAfter = balance;
-        if (!isFreeCase) {
-          balanceAfter = balance - price;
-          await firebase.database().ref('users/' + user.uid + '/balance').set(balanceAfter);
-        }
-        const milestoneRes = await updateMilestones(user.uid, winningPrize.value);
-        if (milestoneRes.leveledUp && milestoneRes.reward) {
-          balanceAfter += milestoneRes.reward;
-          await firebase.database().ref('users/' + user.uid + '/balance').set(balanceAfter);
-          const toast = document.createElement('div');
-          toast.className = 'fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-xl z-[9999] flex items-center gap-2';
-          toast.innerHTML = `You've reached level ${milestoneRes.level}! <span class="flex items-center">+${milestoneRes.reward}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 ml-1"/></span>`;
-          document.body.appendChild(toast);
-          setTimeout(() => toast.remove(), 3000);
-        }
-        const unboxData = {
-          name: winningPrize.name,
-          image: winningPrize.image,
-          rarity: winningPrize.rarity,
-          value: winningPrize.value,
-          timestamp: Date.now(),
-          sold: false,
-          balanceBefore,
-          balanceAfter
-        };
-        const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
-        await invRef.set(unboxData);
-        await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
-        if (isFreeCase) {
-          await firebase.database().ref('users/' + user.uid + '/freeCaseOpened').set(true);
-        }
-        const questUpdates = {
-          'openPacks/progress': firebase.database.ServerValue.increment(1)
-        };
-        if (!isFreeCase) {
-          questUpdates['spendCoins/progress'] = firebase.database.ServerValue.increment(price);
-        }
-        const rarityCheck = (winningPrize.rarity || '').toLowerCase();
-        if (['rare', 'ultra rare', 'legendary'].includes(rarityCheck)) {
-          questUpdates['pullRare/progress'] = firebase.database.ServerValue.increment(1);
-        }
-        await firebase.database().ref('users/' + user.uid + '/weeklyQuests').update(questUpdates);
-        await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
-      });
       document.getElementById("try-free-button").addEventListener("click", () => {
         const btn = document.getElementById("try-free-button");
         btn.disabled = true;
@@ -433,35 +626,51 @@ setTimeout(() => {
 
         const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
         const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
-        const rand = Math.random() * totalOdds;
 
-        let cumulative = 0;
-        let demoPrize = prizes[prizes.length - 1];
-        for (let p of prizes) {
-          cumulative += p.odds || 0;
-          if (rand < cumulative) {
-            demoPrize = p;
-            break;
+        const spinCountDemo = parseInt(spinSelect?.value) || 1;
+        const demoPrizes = [];
+        for (let s = 0; s < spinCountDemo; s++) {
+          const rand = Math.random() * totalOdds;
+          let cumulative = 0;
+          let demoPrize = prizes[prizes.length - 1];
+          for (let p of prizes) {
+            cumulative += p.odds || 0;
+            if (rand < cumulative) {
+              demoPrize = p;
+              break;
+            }
           }
+          demoPrizes.push(demoPrize);
         }
 
-        const spinnerPrizes = [];
-        for (let i = 0; i < 30; i++) {
-          const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
-          spinnerPrizes.push(randomPrize);
-        }
-        spinnerPrizes[15] = demoPrize;
+        setupSpinners(spinCountDemo);
 
-        renderSpinner(spinnerPrizes, demoPrize);
+        demoPrizes.forEach((demoPrize, idx) => {
+          const spinnerPrizes = [];
+          for (let i = 0; i < 30; i++) {
+            const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
+            spinnerPrizes.push(randomPrize);
+          }
+          spinnerPrizes[15] = demoPrize;
+          renderSpinner(spinnerPrizes, demoPrize, false, idx);
+        });
+
         setTimeout(() => {
           // Spin without showing the win popup in demo mode
-          spinToPrize(() => {
+          const promises = demoPrizes.map((_, idx) => spinToPrize(() => {}, false, idx));
+          Promise.all(promises).then(results => {
             btn.disabled = false;
             btn.classList.remove("cursor-not-allowed", "opacity-60");
             btn.innerHTML = '<span class="relative z-10">Try for Free</span>';
-            playRaritySound(demoPrize.rarity);
-            showToast(`You would have won ${demoPrize.name}!`, "bg-blue-600");
-          }, false);
+            const names = results.map(p => p.name).join(', ');
+            const topPrize = results.reduce((best, p) =>
+              (rarityOrder[p.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) >
+              (rarityOrder[best.rarity?.toLowerCase().replace(/\s+/g,'')] || 0)
+                ? p : best
+            , results[0]);
+            playRaritySound(topPrize.rarity);
+            showToast(`You would have won ${names}!`, "bg-blue-600");
+          });
         }, 150);
       });
   document.getElementById("pf-info").addEventListener("click", async () => {
@@ -527,51 +736,7 @@ function enablePrizePopups() {
     <script>
 document.addEventListener("DOMContentLoaded", () => {
   const closeBtn = document.getElementById("close-popup");
-  const keepBtn = document.getElementById("keep-button");
-  const sellBtn = document.getElementById("sell-button");
-
   if (closeBtn) closeBtn.addEventListener("click", () => {
-    document.getElementById("win-popup").classList.add("hidden");
-  });
-
-  if (keepBtn) keepBtn.addEventListener("click", () => {
-    document.getElementById("win-popup").classList.add("hidden");
-  });
-
-  sellBtn.addEventListener("click", () => {
-    const sellAmount = parseInt(document.getElementById("sell-value").textContent);
-    const user = firebase.auth().currentUser;
-    if (user) {
-      const balanceRef = firebase.database().ref("users/" + user.uid + "/balance");
-
-      balanceRef.once("value").then(snap => {
-        const currentBalance = snap.val() || 0;
-        const newBalance = currentBalance + sellAmount;
-
-        balanceRef.set(newBalance);
-        const sellSound = document.getElementById("sell-sound");
-        if (sellSound) sellSound.play();
-      });
-
-      const name = document.getElementById("popup-name").textContent;
-      const value = parseInt(document.getElementById("popup-value").textContent);
-
-      const inventoryRef = firebase.database().ref("users/" + user.uid + "/inventory");
-      inventoryRef.once("value").then(snapshot => {
-        const inventory = snapshot.val();
-        if (inventory) {
-          const keys = Object.keys(inventory);
-          for (let key of keys) {
-            const item = inventory[key];
-            if (item.name === name && item.value === value) {
-              firebase.database().ref("users/" + user.uid + "/inventory/" + key).remove();
-              break;
-            }
-          }
-        }
-      });
-    }
-
     document.getElementById("win-popup").classList.add("hidden");
   });
 
@@ -587,29 +752,18 @@ document.addEventListener("DOMContentLoaded", () => {
 <audio id="sound-legendary" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"></audio>
 <!-- Winning Prize Popup -->
 <div id="win-popup" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden">
-  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center relative border border-white/10">
-    
+  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 w-full max-w-sm sm:max-w-md shadow-2xl text-center relative border border-white/10">
     <div class="absolute top-3 right-3 text-gray-400 hover:text-white cursor-pointer text-xl" id="close-popup">&times;</div>
-
-    <img id="popup-image" src="" class="w-40 h-40 object-contain mx-auto mb-4 rounded-xl shadow-md" />
-
-    <div class="inline-block bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow mb-2" id="popup-name">Prize Name</div>
-
-    <div class="inline-block bg-gray-700 text-white text-xs font-semibold px-4 py-1 rounded-full mb-4">
-      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 mr-1" />
-      <span id="popup-value">0</span>
+    <div id="win-carousel" class="relative mb-4">
+      <div id="win-item"></div>
+      <button id="prev-win" class="absolute left-0 top-1/2 -translate-y-1/2 bg-gray-700/60 hover:bg-gray-700 text-white rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-chevron-left"></i></button>
+      <button id="next-win" class="absolute right-0 top-1/2 -translate-y-1/2 bg-gray-700/60 hover:bg-gray-700 text-white rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-chevron-right"></i></button>
     </div>
-
-    <div class="flex flex-col gap-3 mt-4">
-  <button id="sell-button" class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 hover:brightness-110 text-white font-extrabold text-sm shadow-lg shadow-red-800/30 transition-all duration-200">
-    <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
-    Sell for <span id="sell-value">0</span> coins
-  </button>
-  <button id="keep-button" class="w-full flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 hover:brightness-110 text-white font-extrabold text-sm shadow-lg shadow-emerald-800/30 transition-all duration-200">
-    <i class="fas fa-box-open mr-2"></i> Add to Inventory
-  </button>
-</div>
-
+    <div id="win-count" class="text-sm text-gray-400 mb-2"></div>
+    <button id="sell-all-btn" class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 hover:brightness-110 text-white font-extrabold text-sm shadow-lg shadow-red-800/30 transition-all duration-200">
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+      Sell All for <span id="sell-all-value">0</span> coins
+    </button>
   </div>
 </div>
     <!-- Prize Detail Popup -->
