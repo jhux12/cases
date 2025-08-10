@@ -290,8 +290,16 @@ const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
   return (b.value || 0) - (a.value || 0); // secondary sort by value
 });
 
+const previewPrizes = prizeList.slice(0, 30);
 setupSpinners(1);
-renderSpinner(prizeList.slice(0, 30), null, true, 0); // show preview spinner
+renderSpinner(previewPrizes, null, true, 0); // show preview spinner
+document.getElementById('spin-count').addEventListener('change', (e) => {
+  const count = parseInt(e.target.value) || 1;
+  setupSpinners(count);
+  for (let i = 0; i < count; i++) {
+    renderSpinner(previewPrizes, null, true, i);
+  }
+});
       const rarityColors = {
         common: "#a1a1aa",
         uncommon: "#4ade80",

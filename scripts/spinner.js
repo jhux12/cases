@@ -90,7 +90,8 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
 
   const targetRect = targetCard.getBoundingClientRect();
   const cardCenter = targetRect.left + targetRect.width / 2;
-  const containerCenter = window.innerWidth / 2;
+  const containerRect = spinnerWheel.parentElement.getBoundingClientRect();
+  const containerCenter = containerRect.left + containerRect.width / 2;
   const suspenseRange = 70;
   const randomOffset = Math.floor(Math.random() * (suspenseRange * 2 + 1)) - suspenseRange;
   const scrollOffset = cardCenter - containerCenter + randomOffset;
@@ -112,7 +113,8 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
 
   function trackCenterPrize() {
     const cards = spinnerWheel.querySelectorAll(".item");
-    const centerX = window.innerWidth / 2;
+    const containerRect = spinnerWheel.parentElement.getBoundingClientRect();
+    const centerX = containerRect.left + containerRect.width / 2;
     let closestCard = null;
     let minDistance = Infinity;
 
