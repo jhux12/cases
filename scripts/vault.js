@@ -102,20 +102,20 @@ async function openPack() {
 
   // prepare unique filler prizes for the face-down cards
   const allPrizes = Object.values(currentPack.prizes || {});
+  // start with unique fillers excluding the winning prize
   let fillers = allPrizes
     .filter(p => p !== winningPrize)
     .filter((p, i, self) => i === self.findIndex(q => q.name === p.name && q.image === p.image));
 
-  // ensure at least 5 unique fillers by randomly adding more if needed
-  while (fillers.length < 5) {
-    const candidate = allPrizes[Math.floor(Math.random() * allPrizes.length)];
-    if (candidate && candidate !== winningPrize && !fillers.find(p => p.name === candidate.name && p.image === candidate.image)) {
-      fillers.push(candidate);
+  // if we don't have enough unique fillers, allow duplicates until we have five
+  if (fillers.length < 5) {
+    const pool = allPrizes.filter(p => p !== winningPrize);
+    while (fillers.length < 5 && pool.length) {
+      fillers.push(pool[Math.floor(Math.random() * pool.length)]);
     }
-    if (fillers.length === allPrizes.length - 1) break;
   }
 
-  // shuffle and take first five
+  // shuffle and take the first five entries
   fillers.sort(() => Math.random() - 0.5);
   cardPrizes = fillers.slice(0, 5);
 
