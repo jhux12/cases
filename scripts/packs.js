@@ -3,16 +3,15 @@ import { setupFilters } from './filters.js';
 let allCases = [];
 function getPepperHTML(spiceLevel) {
   const map = {
-    easy: { class: "spice-label spice-easy", label: "Easy 🌶️" },
-    medium: { class: "spice-label spice-medium", label: "Medium 🌶️🌶️" },
-    hard: { class: "spice-label spice-hard", label: "Hard 🌶️🌶️🌶️" }
+    easy: { class: "spice-label spice-easy" },
+    medium: { class: "spice-label spice-medium" },
+    hard: { class: "spice-label spice-hard" }
   };
 
   if (!map[spiceLevel]) return "";
 
-  const { class: cls, label } = map[spiceLevel];
-
-  return `<div class="${cls}">${label}</div>`;
+  const { class: cls } = map[spiceLevel];
+  return `<div class="${cls}" aria-label="${spiceLevel} pepper"><i class="fa-solid fa-pepper-hot"></i></div>`;
 }
 function renderCases(caseList) {
   const casesContainer = document.getElementById("cases-container");
