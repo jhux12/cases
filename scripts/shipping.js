@@ -1,104 +1,47 @@
 // scripts/shipping.js
 let shipmentSelection = [];
 
-let currentAddressSuggestions = [];
-let activeSuggestionIndex = -1;
-
 function initAddressAutocomplete() {
   const addressInput = document.getElementById('ship-address');
-  const list = document.getElementById('address-suggestions');
-  if (!addressInput || !list) return;
+  if (!addressInput || !window.google || !google.maps?.places) return;
 
-  function clearSuggestions() {
-    list.innerHTML = '';
-    list.classList.add('hidden');
-    currentAddressSuggestions = [];
-    activeSuggestionIndex = -1;
-  }
-
-  addressInput.addEventListener('input', function () {
-    const query = addressInput.value.trim();
-    if (query.length < 2) {
-      clearSuggestions();
-      return;
-    }
-
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&countrycodes=us&q=${encodeURIComponent(query)}`)
-      .then(res => res.json())
-      .then(data => {
-        currentAddressSuggestions = data;
-        list.innerHTML = '';
-        data.forEach((place, idx) => {
-          const info = formatPlace(place);
-          const li = document.createElement('li');
-          li.textContent = info.suggestion;
-          li.className = 'px-4 py-2 cursor-pointer hover:bg-gray-600';
-          li.addEventListener('mousedown', function (e) {
-            e.preventDefault();
-            selectSuggestion(place);
-          });
-          list.appendChild(li);
-        });
-        activeSuggestionIndex = data.length ? 0 : -1;
-        highlightActive();
-        if (data.length) list.classList.remove('hidden');
-        else list.classList.add('hidden');
-      })
-      .catch(() => {});
+  const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+    types: ['address'],
+    componentRestrictions: { country: 'us' }
   });
 
-  addressInput.addEventListener('keydown', function (e) {
-    if (!currentAddressSuggestions.length) return;
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      activeSuggestionIndex = (activeSuggestionIndex + 1) % currentAddressSuggestions.length;
-      highlightActive();
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      activeSuggestionIndex = (activeSuggestionIndex - 1 + currentAddressSuggestions.length) % currentAddressSuggestions.length;
-      highlightActive();
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      const place = currentAddressSuggestions[activeSuggestionIndex] || currentAddressSuggestions[0];
-      selectSuggestion(place);
-    }
+  addressInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') e.preventDefault();
   });
 
-  document.addEventListener('click', function (e) {
-    if (e.target !== addressInput) list.classList.add('hidden');
-  });
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+    if (!place.address_components) return;
 
-  function formatPlace(place) {
-    const addr = place.address || {};
-    const line1 = [addr.house_number, addr.road].filter(Boolean).join(' ').trim();
-    const city = addr.city || addr.town || addr.village || '';
-    const state = addr.state || '';
-    const postcode = addr.postcode || '';
-    const suggestion = [line1, city, state, postcode].filter(Boolean).join(', ');
-    return { line1, city, state, postcode, suggestion };
-  }
+    let street = '';
+    let city = '';
+    let zip = '';
 
-  function highlightActive() {
-    Array.from(list.children).forEach((li, idx) => {
-      if (idx === activeSuggestionIndex) li.classList.add('bg-gray-600');
-      else li.classList.remove('bg-gray-600');
+    place.address_components.forEach(comp => {
+      const types = comp.types;
+      if (types.includes('street_number')) street = comp.long_name + ' ' + street;
+      else if (types.includes('route')) street += comp.long_name;
+      else if (types.includes('locality')) city = comp.long_name;
+      else if (types.includes('postal_code')) zip = comp.long_name;
     });
-  }
 
-  function selectSuggestion(place) {
-    const info = formatPlace(place);
-    addressInput.value = info.line1;
-    clearSuggestions();
+    addressInput.value = street.trim();
     const cityInput = document.getElementById('ship-city');
     const zipInput = document.getElementById('ship-zip');
-    if (cityInput) cityInput.value = info.city;
-    if (zipInput) zipInput.value = info.postcode;
+    if (cityInput) cityInput.value = city;
+    if (zipInput) zipInput.value = zip;
+
     setTimeout(() => {
       addressInput.focus();
       const len = addressInput.value.length;
       addressInput.setSelectionRange(len, len);
     }, 0);
-  }
+  });
 }
 
 document.addEventListener('DOMContentLoaded', function () {
