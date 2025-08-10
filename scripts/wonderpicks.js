@@ -11,11 +11,11 @@ function renderWonderPicks(list) {
     container.innerHTML += `
       <div class="relative p-4 bg-gray-800/60 backdrop-blur rounded-xl shadow-lg hover:shadow-purple-500/20 transition-transform hover:scale-105">
         <img src="${wp.image}" alt="${wp.name}" class="w-full h-40 object-contain mx-auto mb-3 transform transition-transform duration-300 hover:scale-110" />
-        <div class="flex justify-center gap-2 mb-3">${cardImgs}</div>
-        <h3 class="text-center font-semibold mb-3">${wp.name}</h3>
-        <a href="wonder-pick.html?id=${wp.id}" class="open-button glow-button text-sm w-full block text-center">
+        <a href="wonder-pick.html?id=${wp.id}" class="open-button glow-button text-sm w-full block text-center mb-3">
           Open for ${priceLabel} <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 inline-block" />
         </a>
+        <div class="flex justify-center gap-2 mb-3">${cardImgs}</div>
+        <h3 class="text-center font-semibold">${wp.name}</h3>
       </div>
     `;
   });
