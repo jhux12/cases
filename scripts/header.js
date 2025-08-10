@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
       </div>
       <div class="hidden sm:flex items-center gap-6 relative">
-        <a href="rewards.html" class="nav-link text-yellow-400"><i class="fas fa-gift"></i><span>Rewards</span></a>
+        <a href="vaults.html" class="nav-link text-yellow-400"><i class="fas fa-lock"></i><span>Vaults</span></a>
         <a href="leaderboard.html" class="nav-link text-blue-400"><i class="fas fa-trophy"></i><span>Leaderboard</span></a>
         <a href="marketplace.html" class="nav-link text-pink-400"><i class="fas fa-store"></i><span>Marketplace</span></a>
         <div id="user-balance" class="hidden flex items-center neon-balance rounded-full overflow-hidden text-sm">
@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <a id="drawer-inventory-link" href="inventory.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-box-open"></i> Inventory</a>
             <a id="drawer-profile-link" href="profile.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-user"></i> Profile</a>
             <a href="how-it-works.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-question-circle"></i> How It Works</a>
-            <a href="rewards.html" class="block px-4 py-2 text-sm text-yellow-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-gift"></i> Rewards</a>
+            <a href="vaults.html" class="block px-4 py-2 text-sm text-yellow-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-lock"></i> Vaults</a>
             <a href="marketplace.html" class="block px-4 py-2 text-sm text-pink-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-store"></i> Marketplace</a>
             <a href="leaderboard.html" class="block px-4 py-2 text-sm text-blue-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-trophy"></i> Leaderboard</a>
             <a id="drawer-logout" href="#" class="block px-4 py-2 text-sm text-red-400 rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -116,9 +116,9 @@ document.addEventListener("DOMContentLoaded", () => {
           <i class="fas fa-cube text-lg"></i>
           <span>Open Packs</span>
         </a>
-        <a href="rewards.html" class="flex flex-col items-center text-xs text-yellow-400">
-          <i class="fas fa-gift text-lg"></i>
-          <span>Rewards</span>
+        <a href="vaults.html" class="flex flex-col items-center text-xs text-yellow-400">
+          <i class="fas fa-lock text-lg"></i>
+          <span id="vault-nav-timer">--:--</span>
         </a>
         <a href="marketplace.html" class="flex flex-col items-center text-xs text-pink-400">
           <i class="fas fa-store text-lg"></i>
@@ -332,5 +332,29 @@ document.addEventListener("DOMContentLoaded", () => {
     if (next === null) next = prev;
     return { level: lvl, prevThreshold: prev, nextThreshold: next };
   }
+
+  function updateVaultNavTimer() {
+    const timerEl = document.getElementById('vault-nav-timer');
+    if (!timerEl) return;
+    function render() {
+      const stored = JSON.parse(localStorage.getItem('vaultActive') || '{}');
+      if (!stored.expires) {
+        timerEl.textContent = '--:--';
+        return;
+      }
+      const diff = stored.expires - Date.now();
+      if (diff <= 0) {
+        timerEl.textContent = '00:00';
+        return;
+      }
+      const mins = Math.floor(diff / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      timerEl.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+    }
+    render();
+    setInterval(render, 1000);
+  }
+
+  updateVaultNavTimer();
 });
 

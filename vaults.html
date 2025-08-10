@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" class="overflow-x-hidden">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Packly.gg | Vaults</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script src="scripts/auth.js" type="module"></script>
+  <style>
+    .timer-badge {
+      animation: pulse 1s ease-in-out infinite alternate;
+    }
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.1); }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-black via-gray-900 to-black min-h-screen text-white">
+  <header></header>
+  <section class="pt-32 pb-20 max-w-4xl mx-auto px-4">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold">Vaults</h1>
+      <p class="text-gray-300 mt-2">Exclusive limited-time packs where you pick one of five cards to win its coin value.</p>
+    </div>
+    <div id="active-pick" class="relative p-8 bg-black/40 backdrop-blur rounded-3xl border border-yellow-500/40 shadow-2xl flex flex-col items-center text-center">
+      <div class="relative w-40 sm:w-56 mx-auto mb-4">
+        <img id="pack-image" alt="Vault" class="w-full h-auto object-contain mx-auto drop-shadow-xl transform transition-transform duration-300 hover:scale-105">
+        <div id="vault-timer" class="timer-badge absolute -top-4 -right-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">30:00</div>
+      </div>
+      <div id="card-preview" class="flex justify-center flex-wrap gap-4 mb-6"></div>
+      <a id="open-link" href="#" class="open-button glow-button text-lg px-8 py-3 mb-6">Open for <span id="pack-price"></span> <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 inline-block align-[-2px]"></a>
+      <h2 id="pack-name" class="text-3xl font-bold"></h2>
+    </div>
+  </section>
+  <footer></footer>
+  <script src="scripts/header.js"></script>
+  <script src="scripts/footer.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/topup.js"></script>
+  <script src="scripts/vaults.js"></script>
+</body>
+</html>
