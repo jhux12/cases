@@ -30,5 +30,5 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }, { threshold: 0.2 });
 
-  document.querySelectorAll('.highlight-card').forEach(card => observer.observe(card));
+  document.querySelectorAll('.highlight-card, .trending-card').forEach(card => observer.observe(card));
 });
