@@ -69,6 +69,27 @@ function renderCases(caseList) {
   });
 }
 
+function setupCategoryTabs(filterControls) {
+  const tabs = document.querySelectorAll('.category-tab');
+  const budgetLimit = 50;
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const category = tab.dataset.category;
+      let filtered = [...allCases];
+      if (category === 'free') {
+        filtered = allCases.filter(c => c.isFree);
+      } else if (category === 'budget') {
+        filtered = allCases.filter(c => !c.isFree && parseFloat(c.price) <= budgetLimit);
+      } else if (category === 'premium') {
+        filtered = allCases.filter(c => parseFloat(c.price) > budgetLimit);
+      }
+      filterControls.updateCases(filtered);
+    });
+  });
+}
+
 function loadCases() {
   firebase.auth().onAuthStateChanged(user => {
     const dbRef = firebase.database().ref("cases");
@@ -95,7 +116,8 @@ function loadCases() {
         return parseFloat(document.getElementById("balance-amount")?.innerText.replace(/,/g, "")) || 0;
       };
 
-      setupFilters(allCases, renderCases, getUserBalance);
+      const filterControls = setupFilters(allCases, renderCases, getUserBalance);
+      setupCategoryTabs(filterControls);
     });
   });
 }
