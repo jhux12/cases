@@ -113,6 +113,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sort-select')?.addEventListener('change', function () {
       sortItems(this.value);
     });
+
+    document.getElementById('search-input')?.addEventListener('input', function() {
+      const term = this.value.toLowerCase();
+      const filtered = currentItems.filter(item => item.name.toLowerCase().includes(term));
+      renderItems(filtered);
+    });
+
+    document.getElementById('toggle-controls')?.addEventListener('click', function () {
+      const panel = document.getElementById('controls-panel');
+      panel.classList.toggle('hidden');
+      panel.classList.toggle('flex');
+      this.innerHTML = panel.classList.contains('hidden')
+        ? '<i class="fas fa-sliders-h text-2xl"></i>'
+        : '<i class="fas fa-times text-2xl"></i>';
+    });
   });
 });
 
@@ -148,9 +163,9 @@ function renderItems(items) {
     const refund = Math.floor((item.value || 0) * 0.8);
     const checked = selectedItems.has(item.key) ? 'checked' : '';
     container.innerHTML += `
-      <div class="item-card rounded-2xl p-6 text-center">
+      <div class="item-card rounded-2xl p-6 text-center cursor-default">
         <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-3 accent-pink-500" ${item.shipped || item.requested ? 'disabled' : ''} />
-        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}')" class="mx-auto mb-4 h-28 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
+        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}')" class="mx-auto mb-4 h-28 object-contain rounded shadow-lg cursor-pointer" />
         <h2 class="font-bold text-xl text-yellow-300">${item.name}</h2>
         <p class="text-sm text-pink-200 mb-1">Rarity: ${item.rarity}</p>
         <p class="text-sm text-pink-200 mb-3">Value: ${item.value || 0} coins</p>
@@ -311,14 +326,7 @@ function showItemPopup(encodedSrc) {
   const img = document.getElementById('popup-item-image');
   if (!img) return;
   img.src = src;
-  const popup = document.getElementById('item-popup');
-  const card = popup?.querySelector('.popup-card');
-  popup?.classList.remove('hidden');
-  if (card) {
-    card.classList.remove('animate');
-    void card.offsetWidth;
-    card.classList.add('animate');
-  }
+  document.getElementById('item-popup')?.classList.remove('hidden');
 }
 
 function closeItemPopup() {
