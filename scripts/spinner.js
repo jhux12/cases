@@ -80,7 +80,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false, id
 
 export function spinToPrize(callback, showPopup = true, id = 0) {
   const spinnerWheel = document.getElementById(`spinner-wheel-${id}`);
-  if (!spinnerWheel) return;
+  if (!spinnerWheel) return Promise.resolve();
 
   spinnerWheel.classList.remove("animate-scroll-preview");
 
@@ -91,7 +91,7 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
 
   const cards = spinnerWheel.querySelectorAll(".item");
   const targetCard = cards[targetIndex];
-  if (!targetCard) return;
+  if (!targetCard) return Promise.resolve();
 
   const containerEl = spinnerWheel.parentElement;
   const targetRect = targetCard.getBoundingClientRect();
@@ -174,9 +174,10 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
 
   trackCenterPrize();
 
-  function onTransitionEnd() {
-    cancelAnimationFrame(animationFrame);
-    spinnerWheel.style.willChange = '';
+  return new Promise(resolve => {
+    function onTransitionEnd() {
+      cancelAnimationFrame(animationFrame);
+      spinnerWheel.style.willChange = '';
 
     // If we performed a close-call overshoot, correct to the final prize now
     if (closeCallDir !== 0) {
@@ -195,16 +196,6 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
     // Final landing: award the prize
     const prize = spinnerPrizesMap[id][targetIndex];
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-
-    const soundMap = {
-      common: document.getElementById("sound-common"),
-      uncommon: document.getElementById("sound-rare"),
-      rare: document.getElementById("sound-rare"),
-      ultrarare: document.getElementById("sound-ultrarare"),
-      legendary: document.getElementById("sound-legendary"),
-    };
-    const sound = soundMap[rarity];
-    if (sound) sound.play();
 
     const spinnerResultText = document.getElementById("spinner-result");
     if (spinnerResultText) {
@@ -229,10 +220,12 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
     }
 
     if (callback) callback(prize);
+    resolve(prize);
     spinnerWheel.removeEventListener('transitionend', onTransitionEnd);
   }
 
-  spinnerWheel.addEventListener('transitionend', onTransitionEnd);
+    spinnerWheel.addEventListener('transitionend', onTransitionEnd);
+  });
 }
 
 export function showWinPopup(prize) {

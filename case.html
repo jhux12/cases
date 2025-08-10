@@ -293,7 +293,7 @@ document.addEventListener("click", () => {
   ["sound-common", "sound-rare", "sound-ultrarare", "sound-legendary", "sell-sound"].forEach(unlockAudio);
 }, { once: true });
 
-    const rarityOrder = { legendary: 5, "ultra rare": 4, rare: 3, uncommon: 2, common: 1 };
+    const rarityOrder = { legendary: 5, ultrarare: 4, rare: 3, uncommon: 2, common: 1 };
 
   function playRaritySound(rarity) {
   const soundMap = {
@@ -392,7 +392,8 @@ if (isFreeCase) {
 }
 
 const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
-  const rarityDiff = (rarityOrder[b.rarity?.toLowerCase()] || 0) - (rarityOrder[a.rarity?.toLowerCase()] || 0);
+  const rarityDiff = (rarityOrder[b.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) -
+    (rarityOrder[a.rarity?.toLowerCase().replace(/\s+/g,'')] || 0);
   if (rarityDiff !== 0) return rarityDiff;
   return (b.value || 0) - (a.value || 0); // secondary sort by value
 });
@@ -560,7 +561,6 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     renderSpinner(spinnerPrizes, winningPrize, false, s);
     setTimeout(() => {
       spinToPrize(async () => {
-        playRaritySound(winningPrize.rarity);
         const lr = winnings[s].levelResult;
         if (lr.leveledUp) {
           showToast(`Level ${lr.level}! +${formatCoins(lr.reward)} coins`, 'bg-green-600');
@@ -596,6 +596,12 @@ document.getElementById("open-case-button").addEventListener("click", async () =
           if (!isFreeCase) updatePriceDisplay(spinCount);
           if (spinSelect) spinSelect.disabled = false;
 
+          const topPrize = winnings.reduce((best, p) =>
+            (rarityOrder[p.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) >
+            (rarityOrder[best.rarity?.toLowerCase().replace(/\s+/g,'')] || 0)
+              ? p : best
+          , winnings[0]);
+          playRaritySound(topPrize.rarity);
           showMultiWinPopup(winnings);
         }
       }, false, s);
@@ -651,15 +657,20 @@ document.getElementById("open-case-button").addEventListener("click", async () =
 
         setTimeout(() => {
           // Spin without showing the win popup in demo mode
-          demoPrizes.forEach((demoPrize, idx) => {
-            spinToPrize(() => {}, false, idx);
-            playRaritySound(demoPrize.rarity);
+          const promises = demoPrizes.map((_, idx) => spinToPrize(() => {}, false, idx));
+          Promise.all(promises).then(results => {
+            btn.disabled = false;
+            btn.classList.remove("cursor-not-allowed", "opacity-60");
+            btn.innerHTML = '<span class="relative z-10">Try for Free</span>';
+            const names = results.map(p => p.name).join(', ');
+            const topPrize = results.reduce((best, p) =>
+              (rarityOrder[p.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) >
+              (rarityOrder[best.rarity?.toLowerCase().replace(/\s+/g,'')] || 0)
+                ? p : best
+            , results[0]);
+            playRaritySound(topPrize.rarity);
+            showToast(`You would have won ${names}!`, "bg-blue-600");
           });
-          btn.disabled = false;
-          btn.classList.remove("cursor-not-allowed", "opacity-60");
-          btn.innerHTML = '<span class="relative z-10">Try for Free</span>';
-          const names = demoPrizes.map(p => p.name).join(', ');
-          showToast(`You would have won ${names}!`, "bg-blue-600");
         }, 150);
       });
   document.getElementById("pf-info").addEventListener("click", async () => {
