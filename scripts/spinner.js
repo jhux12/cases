@@ -1,4 +1,5 @@
-let spinnerPrizes = [];
+// Store prizes for each spinner instance
+const spinnerPrizesMap = {};
 const targetIndex = 15;
 
 function getRarityColor(rarity) {
@@ -18,17 +19,17 @@ export function getTopPrizes(prizeList, count = 30) {
     .slice(0, count);
 }
 
-export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
-  const container = document.getElementById("spinner-container");
+export function renderSpinner(prizes, winningPrize = null, isPreview = false, id = 0) {
+  const container = document.getElementById(`spinner-container-${id}`);
   if (!container) return console.warn("🚫 Spinner container not found");
 
   container.innerHTML = "";
 
-  const borderEl = document.getElementById("spinner-border");
+  const borderEl = document.getElementById(`spinner-border-${id}`);
   if (borderEl) borderEl.style.borderColor = "#1f2937";
 
   const spinnerWheel = document.createElement("div");
-  spinnerWheel.id = "spinner-wheel";
+  spinnerWheel.id = `spinner-wheel-${id}`;
   spinnerWheel.className = "flex h-full items-center";
 
   if (isPreview) {
@@ -36,7 +37,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
   }
 
   container.appendChild(spinnerWheel);
-  spinnerPrizes = [];
+  spinnerPrizesMap[id] = [];
 
   const shuffled = [...prizes];
 
@@ -54,7 +55,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
       };
     }
 
-    spinnerPrizes.push(prize);
+    spinnerPrizesMap[id].push(prize);
 
     const div = document.createElement("div");
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
@@ -77,8 +78,8 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false) {
   }
 }
 
-export function spinToPrize(callback, showPopup = true) {
-  const spinnerWheel = document.getElementById("spinner-wheel");
+export function spinToPrize(callback, showPopup = true, id = 0) {
+  const spinnerWheel = document.getElementById(`spinner-wheel-${id}`);
   if (!spinnerWheel) return;
 
   spinnerWheel.classList.remove("animate-scroll-preview");
@@ -127,11 +128,11 @@ export function spinToPrize(callback, showPopup = true) {
 
     if (closestCard) {
       const indexAttr = closestCard.getAttribute("data-index");
-      const prize = spinnerPrizes[indexAttr];
+      const prize = spinnerPrizesMap[id][indexAttr];
       const rarity = (prize?.rarity || "common").toLowerCase().replace(/\s+/g, '');
       const color = getRarityColor(rarity);
 
-      const borderEl = document.getElementById("spinner-border");
+      const borderEl = document.getElementById(`spinner-border-${id}`);
       if (borderEl) borderEl.style.borderColor = color;
     }
 
@@ -150,7 +151,7 @@ export function spinToPrize(callback, showPopup = true) {
       nearMissCard.classList.add("near-miss-flash");
     }
 
-    const prize = spinnerPrizes[targetIndex];
+    const prize = spinnerPrizesMap[id][targetIndex];
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
 
     const soundMap = {
