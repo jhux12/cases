@@ -19,6 +19,9 @@
     .flip-card.flipped .flip-card-inner { transform:rotateY(180deg); }
     .flip-card-front, .flip-card-back { position:absolute; width:100%; height:100%; backface-visibility:hidden; border-radius:0.75rem; }
     .flip-card-front { transform:rotateY(180deg); }
+    .animate-in { opacity:0; animation:card-enter .5s forwards; }
+    @keyframes card-enter { from { transform:translateY(40px) scale(.8); opacity:0; } to { transform:translateY(0) scale(1); opacity:1; } }
+    .flip-card:hover { transform:scale(1.05); }
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white min-h-screen">
@@ -36,9 +39,11 @@
     </button>
   </section>
 
-  <section id="selection-section" class="hidden pt-32 pb-16 px-4 max-w-5xl mx-auto text-center">
+  <section id="selection-section" class="hidden pt-28 pb-16 px-4 max-w-6xl mx-auto text-center">
     <h2 class="text-2xl font-semibold mb-6">Choose a Card</h2>
-    <div id="card-container" class="flex justify-center gap-4"></div>
+    <div id="card-container" class="flex flex-wrap justify-center gap-4 mb-6"></div>
+    <button id="toggle-rewards" class="text-sm text-purple-300 underline mb-4">View Possible Rewards</button>
+    <div id="rewards-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 text-sm hidden"></div>
   </section>
 
   <div id="win-popup" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">

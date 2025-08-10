@@ -89,6 +89,7 @@ async function openPack() {
 
   document.getElementById('pack-section').classList.add('hidden');
   document.getElementById('selection-section').classList.remove('hidden');
+  document.getElementById('rewards-grid').innerHTML = document.getElementById('prizes-grid').innerHTML;
   setupCards();
 }
 
@@ -98,8 +99,9 @@ function setupCards() {
   const backImg = currentPack.cardBack || 'https://via.placeholder.com/160x160?text=Back';
   for (let i = 0; i < 5; i++) {
     const card = document.createElement('div');
-    card.className = 'flip-card';
+    card.className = 'flip-card animate-in';
     card.style.transform = `rotate(${(i-2)*10}deg)`;
+    card.style.animationDelay = `${i * 0.1}s`;
     card.innerHTML = `
       <div class="flip-card-inner">
         <img class="flip-card-front w-40 h-40 object-contain rounded-xl" src="" alt="Front" />
@@ -144,6 +146,9 @@ function resetGame() {
 document.addEventListener('DOMContentLoaded', () => {
   loadPack();
   document.getElementById('open-pack').addEventListener('click', openPack);
+  document.getElementById('toggle-rewards').addEventListener('click', () => {
+    document.getElementById('rewards-grid').classList.toggle('hidden');
+  });
   document.getElementById('close-popup').addEventListener('click', () => {
     document.getElementById('win-popup').classList.add('hidden');
     resetGame();
