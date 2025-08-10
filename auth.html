@@ -147,41 +147,49 @@ function toggleForms() {
 }
 
 // Register
-registerForm.addEventListener('submit', e => {
+registerForm.addEventListener('submit', async e => {
   e.preventDefault();
   if (!confirmationResult) {
     alert('Please verify your phone number first.');
     return;
   }
+
   const name = document.getElementById('register-name').value;
   const username = document.getElementById('register-username').value;
   const email = document.getElementById('register-email').value;
   const password = document.getElementById('register-password').value;
   const code = document.getElementById('verification-code').value;
 
-  confirmationResult.confirm(code)
-    .then(result => {
-      const phoneUser = result.user;
-      const credential = firebase.auth.EmailAuthProvider.credential(email, password);
-      return phoneUser.linkWithCredential(credential)
-        .then(() => phoneUser.updateProfile({ displayName: username }))
-        .then(() => db.ref('users/' + phoneUser.uid).set({
-          name: name,
-          username: username,
-          email: email,
-          phoneNumber: phoneUser.phoneNumber,
-          balance: 0,
-          role: 'user',
-          freeCaseOpened: false
-        }));
-    })
-    .then(() => {
+  try {
+    const phoneCredential = firebase.auth.PhoneAuthProvider.credential(
+      confirmationResult.verificationId,
+      code
+    );
+
+    const { user } = await auth.createUserWithEmailAndPassword(email, password);
+
+    try {
+      await auth.currentUser.updateProfile({ displayName: username });
+      await auth.currentUser.linkWithCredential(phoneCredential);
+      await db.ref('users/' + user.uid).set({
+        name: name,
+        username: username,
+        email: email,
+        phoneNumber: auth.currentUser.phoneNumber,
+        balance: 0,
+        role: 'user',
+        freeCaseOpened: false
+      });
+
       alert('Registration successful!');
       window.location.href = 'index.html';
-    })
-    .catch(error => {
-      alert('❌ ' + error.message);
-    });
+    } catch (linkError) {
+      await user.delete();
+      throw linkError;
+    }
+  } catch (error) {
+    alert('❌ ' + error.message);
+  }
 });
 
 // Login
