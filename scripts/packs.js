@@ -69,6 +69,28 @@ function renderCases(caseList) {
   });
 }
 
+function setupCategoryTabs(filterControls) {
+  const tabs = document.querySelectorAll('.category-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const category = tab.dataset.category;
+      let filtered = [...allCases];
+      if (category === 'new') {
+        filtered = allCases.filter(c => c.categories?.new);
+      } else if (category === 'featured') {
+        filtered = allCases.filter(c => c.categories?.featured);
+      } else if (category === 'starter') {
+        filtered = allCases.filter(c => c.categories?.starter);
+      } else if (category === 'other') {
+        filtered = allCases.filter(c => !(c.categories?.new || c.categories?.featured || c.categories?.starter));
+      }
+      filterControls.updateCases(filtered);
+    });
+  });
+}
+
 function loadCases() {
   firebase.auth().onAuthStateChanged(user => {
     const dbRef = firebase.database().ref("cases");
@@ -95,7 +117,8 @@ function loadCases() {
         return parseFloat(document.getElementById("balance-amount")?.innerText.replace(/,/g, "")) || 0;
       };
 
-      setupFilters(allCases, renderCases, getUserBalance);
+      const filterControls = setupFilters(allCases, renderCases, getUserBalance);
+      setupCategoryTabs(filterControls);
     });
   });
 }
