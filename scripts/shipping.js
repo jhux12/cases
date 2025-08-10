@@ -1,0 +1,170 @@
+// scripts/shipping.js
+let shipmentSelection = [];
+
+let currentAddressSuggestions = [];
+let activeSuggestionIndex = -1;
+
+function initAddressAutocomplete() {
+  const addressInput = document.getElementById('ship-address');
+  const list = document.getElementById('address-suggestions');
+  if (!addressInput || !list) return;
+
+  function clearSuggestions() {
+    list.innerHTML = '';
+    list.classList.add('hidden');
+    currentAddressSuggestions = [];
+    activeSuggestionIndex = -1;
+  }
+
+  addressInput.addEventListener('input', function () {
+    const query = addressInput.value.trim();
+    if (query.length < 2) {
+      clearSuggestions();
+      return;
+    }
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&countrycodes=us&q=${encodeURIComponent(query)}`)
+      .then(res => res.json())
+      .then(data => {
+        currentAddressSuggestions = data;
+        list.innerHTML = '';
+        data.forEach((place, idx) => {
+          const info = formatPlace(place);
+          const li = document.createElement('li');
+          li.textContent = info.suggestion;
+          li.className = 'px-4 py-2 cursor-pointer hover:bg-gray-600';
+          li.addEventListener('mousedown', function (e) {
+            e.preventDefault();
+            selectSuggestion(place);
+          });
+          list.appendChild(li);
+        });
+        activeSuggestionIndex = data.length ? 0 : -1;
+        highlightActive();
+        if (data.length) list.classList.remove('hidden');
+        else list.classList.add('hidden');
+      })
+      .catch(() => {});
+  });
+
+  addressInput.addEventListener('keydown', function (e) {
+    if (!currentAddressSuggestions.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeSuggestionIndex = (activeSuggestionIndex + 1) % currentAddressSuggestions.length;
+      highlightActive();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeSuggestionIndex = (activeSuggestionIndex - 1 + currentAddressSuggestions.length) % currentAddressSuggestions.length;
+      highlightActive();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const place = currentAddressSuggestions[activeSuggestionIndex] || currentAddressSuggestions[0];
+      selectSuggestion(place);
+    }
+  });
+
+  document.addEventListener('click', function (e) {
+    if (e.target !== addressInput) list.classList.add('hidden');
+  });
+
+  function formatPlace(place) {
+    const addr = place.address || {};
+    const line1 = [addr.house_number, addr.road].filter(Boolean).join(' ').trim();
+    const city = addr.city || addr.town || addr.village || '';
+    const state = addr.state || '';
+    const postcode = addr.postcode || '';
+    const suggestion = [line1, city, state, postcode].filter(Boolean).join(', ');
+    return { line1, city, state, postcode, suggestion };
+  }
+
+  function highlightActive() {
+    Array.from(list.children).forEach((li, idx) => {
+      if (idx === activeSuggestionIndex) li.classList.add('bg-gray-600');
+      else li.classList.remove('bg-gray-600');
+    });
+  }
+
+  function selectSuggestion(place) {
+    const info = formatPlace(place);
+    addressInput.value = info.line1;
+    clearSuggestions();
+    const cityInput = document.getElementById('ship-city');
+    const zipInput = document.getElementById('ship-zip');
+    if (cityInput) cityInput.value = info.city;
+    if (zipInput) zipInput.value = info.postcode;
+    setTimeout(() => {
+      addressInput.focus();
+      const len = addressInput.value.length;
+      addressInput.setSelectionRange(len, len);
+    }, 0);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const stored = localStorage.getItem('shipItems');
+  if (!stored) return window.location.href = 'inventory.html';
+  shipmentSelection = JSON.parse(stored);
+  const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
+  document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelection.length} item(s) will cost ${cost} coins.`;
+
+  firebase.auth().onAuthStateChanged(function (user) {
+    if (!user) return window.location.href = 'auth.html';
+    firebase.database().ref('users/' + user.uid).once('value').then(function (snapshot) {
+      const data = snapshot.val() || {};
+      const uname = data.username || user.displayName || user.email;
+      const usernameInput = document.getElementById('ship-username');
+      if (usernameInput) usernameInput.value = uname;
+    });
+  });
+
+  initAddressAutocomplete();
+  const addressField = document.getElementById('ship-address');
+  if (addressField) addressField.focus();
+});
+
+function submitShipmentRequest() {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  const name = document.getElementById('ship-name').value.trim();
+  const address = document.getElementById('ship-address').value.trim();
+  const address2 = document.getElementById('ship-address2').value.trim();
+  const city = document.getElementById('ship-city').value.trim();
+  const zip = document.getElementById('ship-zip').value.trim();
+  const phone = document.getElementById('ship-phone').value.trim();
+
+  if (!name || !address || !city || !zip) return alert('Please fill out all fields.');
+
+  const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
+  const userRef = firebase.database().ref('users/' + user.uid);
+
+  userRef.once('value').then(function (snap) {
+    const balance = (snap.val() && snap.val().balance) || 0;
+    if (balance < cost) return alert('Insufficient balance.');
+
+    userRef.update({ balance: balance - cost });
+
+    shipmentSelection.forEach(function (item) {
+      if (!item.id) return;
+      firebase.database().ref('shipments').push({
+        userId: user.uid,
+        itemId: item.id,
+        name: item.name,
+        image: item.image,
+        shippingInfo: { name: name, address: address, address2: address2, city: city, zip: zip, phone: phone },
+        status: 'Requested',
+        timestamp: Date.now()
+      });
+      firebase.database().ref('users/' + user.uid + '/inventory/' + item.id).update({ requested: true });
+    });
+
+    localStorage.removeItem('shipItems');
+    window.location.href = 'inventory.html';
+  });
+}
+
+function cancelShipping() {
+  localStorage.removeItem('shipItems');
+  window.location.href = 'inventory.html';
+}
