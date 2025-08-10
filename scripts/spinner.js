@@ -1,237 +1,224 @@
-// Store prizes for each spinner instance
-const spinnerPrizesMap = {};
-const targetIndex = 15;
+/**
+ * Spinner module rendering a seamless horizontal carousel that can spin to any prize index.
+ * @module spinner
+ */
+/* global currentPrizes */
 
-function getRarityColor(rarity) {
-  const base = rarity?.toLowerCase().replace(/\s+/g, '');
-  switch (base) {
-    case 'legendary': return '#facc15';
-    case 'ultrarare': return '#e879f9';
-    case 'rare': return '#3b82f6';
-    case 'uncommon': return '#22c55e';
-    default: return '#9ca3af';
-  }
+// --- Constants ---
+export const CARD_W = 220;
+export const CARD_H = 320;
+export const GAP = 16;
+export const TILE_W = CARD_W + GAP;
+const IDLE_SPEED = 0.6; // px/ms
+
+// --- Internal state ---
+let viewport, track;
+let prizes = [];
+let trackItems = [];
+let TRACK_PX = 0;
+let offset = 0;
+let speed = IDLE_SPEED;
+let spinLock = false;
+let lastTs = performance.now();
+let rafId = 0;
+const prefersReduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** Wrap value into [-mod, 0) */
+function wrap(n, mod) {
+  n = n % mod;
+  if (n > 0) n -= mod;
+  return n;
 }
 
-export function getTopPrizes(prizeList, count = 30) {
-  return [...prizeList]
-    .sort((a, b) => (b.value || 0) - (a.value || 0))
-    .slice(0, count);
+/** Center X position of tile index in track space */
+function tileCenterX(idx) {
+  return idx * TILE_W + CARD_W / 2;
 }
 
-export function renderSpinner(prizes, winningPrize = null, isPreview = false, id = 0) {
-  const container = document.getElementById(`spinner-container-${id}`);
-  if (!container) return console.warn("🚫 Spinner container not found");
-
-  container.innerHTML = "";
-
-  const borderEl = document.getElementById(`spinner-border-${id}`);
-  if (borderEl) borderEl.style.borderColor = "#1f2937";
-
-  const spinnerWheel = document.createElement("div");
-  spinnerWheel.id = `spinner-wheel-${id}`;
-  spinnerWheel.className = "flex h-full items-center";
-
-  if (isPreview) {
-    spinnerWheel.classList.add("animate-scroll-preview");
-  }
-
-  container.appendChild(spinnerWheel);
-  spinnerPrizesMap[id] = [];
-
-  const shuffled = [...prizes];
-
-  for (let i = 0; i < 30; i++) {
-    let prize = isPreview || !winningPrize
-      ? shuffled[i % shuffled.length]
-      : (i === targetIndex ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)]);
-
-    if (!prize || typeof prize !== 'object' || !prize.image || !prize.name) {
-      prize = {
-        name: "Mystery",
-        image: "https://via.placeholder.com/80?text=?",
-        value: 0,
-        rarity: "common"
-      };
-    }
-
-    spinnerPrizesMap[id].push(prize);
-
-    const div = document.createElement("div");
-    const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-    const borderColor = getRarityColor(rarity);
-
-    const glowClass = `glow-${rarity}`;
-    div.className = `min-w-[140px] h-[160px] mx-1 flex items-center justify-center rounded-xl bg-transparent shadow-md item border-2 ${glowClass}`;
-    div.style.borderColor = borderColor;
-    div.setAttribute("data-index", i);
-    div.innerHTML = `
-      <div class="flex flex-col items-center">
-        <img src="${prize.image}" class="h-[100px] object-contain drop-shadow-md rounded-xl" />
-        <div class="mt-1 text-xs text-white bg-black/50 px-2 py-0.5 rounded-sm flex items-center gap-1">
-          <span>${prize.value.toLocaleString()}</span>
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin" />
-        </div>
-      </div>
-    `;
-    spinnerWheel.appendChild(div);
-  }
+/** Target offset for aligning index to viewport center */
+function targetOffsetForIndex(idx, viewportW) {
+  return viewportW / 2 - tileCenterX(idx);
 }
 
-export function spinToPrize(callback, showPopup = true, id = 0) {
-  const spinnerWheel = document.getElementById(`spinner-wheel-${id}`);
-  if (!spinnerWheel) return Promise.resolve();
+/** Shortest wrapped distance from a to b within mod */
+function shortestWrap(a, b, mod) {
+  let d = ((b - a) % mod + mod) % mod;
+  if (d > mod / 2) d -= mod;
+  return d;
+}
 
-  spinnerWheel.classList.remove("animate-scroll-preview");
+/** Preload prize images */
+function preloadImages(list) {
+  return Promise.all(list.map(p => new Promise(res => {
+    const img = new Image();
+    img.src = p.imageUrl;
+    img.onload = img.onerror = res;
+  })));
+}
 
-  // Reset any previous transform before measuring
-  spinnerWheel.style.transition = 'none';
-  spinnerWheel.style.transform = 'translate3d(0,0,0)';
-  void spinnerWheel.offsetWidth; // Force reflow
-
-  const cards = spinnerWheel.querySelectorAll(".item");
-  const targetCard = cards[targetIndex];
-  if (!targetCard) return Promise.resolve();
-
-  const containerEl = spinnerWheel.parentElement;
-  const targetRect = targetCard.getBoundingClientRect();
-  const containerRect = containerEl.getBoundingClientRect();
-  const cardCenter = targetRect.left + targetRect.width / 2;
-  const containerCenter = containerRect.left + containerRect.width / 2;
-
-  // Adjust for any scale transform applied to the container
-  let scale = 1;
-  const transform = window.getComputedStyle(containerEl).transform;
-  if (transform && transform !== 'none') {
-    const match = transform.match(/matrix\(([^,]+)/);
-    if (match) {
-      scale = parseFloat(match[1]) || 1;
-    }
-  }
-
-  const finalOffset = (cardCenter - containerCenter) / scale;
-  let targetOffset = finalOffset;
-  let closeCallDir = 0;
-
-  // Randomly apply a "close call" overshoot so the wheel appears to almost
-  // stop on an adjacent prize before settling on the winner. Bias the
-  // overshoot toward a rare neighbour if one exists to make the near miss
-  // feel more dramatic.
-  const closeCallChance = 0.5; // roughly half the spins
-  const adjacent = [
-    { dir: -1, prize: spinnerPrizesMap[id][targetIndex - 1] },
-    { dir: 1, prize: spinnerPrizesMap[id][targetIndex + 1] }
-  ];
-  if (Math.random() < closeCallChance) {
-    const rareAdjacent = adjacent.filter(a => {
-      const r = (a.prize?.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-      return ['rare', 'ultrarare', 'legendary'].includes(r);
-    });
-    const chosen = (rareAdjacent.length ? rareAdjacent : adjacent)[Math.floor(Math.random() * (rareAdjacent.length ? rareAdjacent.length : adjacent.length))];
-    closeCallDir = chosen.dir;
-    const overshoot = 25 + Math.random() * 35; // 25-60px
-    targetOffset = finalOffset + closeCallDir * overshoot;
-  }
-
-  const spinDuration = 4 + Math.random() * 2; // 4-6 seconds for a snappier feel
-  requestAnimationFrame(() => {
-    spinnerWheel.style.willChange = 'transform';
-    spinnerWheel.style.transition = `transform ${spinDuration}s cubic-bezier(0.33, 1, 0.68, 1)`;
-    spinnerWheel.style.transform = `translate3d(-${targetOffset}px,0,0)`;
+/** Build track items once and duplicate for seamless loop */
+function renderTrack(list) {
+  const first = list.map(p => {
+    const tile = document.createElement('div');
+    tile.className = 'card flex-shrink-0';
+    tile.style.width = CARD_W + 'px';
+    tile.style.height = CARD_H + 'px';
+    const img = document.createElement('img');
+    img.src = p.imageUrl;
+    img.alt = p.name || '';
+    img.draggable = false;
+    tile.appendChild(img);
+    return tile;
   });
+  trackItems = [...first, ...first];
+  track.innerHTML = '';
+  trackItems.forEach(t => track.appendChild(t));
+  TRACK_PX = trackItems.length * TILE_W;
+}
 
-  let animationFrame;
-
-  function trackCenterPrize() {
-    const cards = spinnerWheel.querySelectorAll(".item");
-    const containerRect = spinnerWheel.parentElement.getBoundingClientRect();
-    const centerX = containerRect.left + containerRect.width / 2;
-    let closestCard = null;
-    let minDistance = Infinity;
-
-    cards.forEach(card => {
-      const rect = card.getBoundingClientRect();
-      const cardCenter = rect.left + rect.width / 2;
-      const distance = Math.abs(centerX - cardCenter);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestCard = card;
-      }
-    });
-
-    if (closestCard) {
-      const indexAttr = closestCard.getAttribute("data-index");
-      const prize = spinnerPrizesMap[id][indexAttr];
-      const rarity = (prize?.rarity || "common").toLowerCase().replace(/\s+/g, '');
-      const color = getRarityColor(rarity);
-
-      const borderEl = document.getElementById(`spinner-border-${id}`);
-      if (borderEl) borderEl.style.borderColor = color;
-    }
-
-    animationFrame = requestAnimationFrame(trackCenterPrize);
+/** Main requestAnimationFrame loop */
+function loop(ts) {
+  const dt = ts - lastTs;
+  lastTs = ts;
+  if (!document.hidden) {
+    offset = wrap(offset - speed * dt, TRACK_PX);
+    track.style.transform = `translate3d(${offset}px,0,0)`;
   }
+  rafId = requestAnimationFrame(loop);
+}
 
-  trackCenterPrize();
-
-  return new Promise(resolve => {
-    function onTransitionEnd() {
-      cancelAnimationFrame(animationFrame);
-      spinnerWheel.style.willChange = '';
-
-    // If we performed a close-call overshoot, correct to the final prize now
-    if (closeCallDir !== 0) {
-      const nearMissIndex = closeCallDir === -1 ? targetIndex - 1 : targetIndex + 1;
-      const nearMissCard = spinnerWheel.querySelector(`.item[data-index="${nearMissIndex}"]`);
-      if (nearMissCard) nearMissCard.classList.add("near-miss-flash");
-
-      closeCallDir = 0; // prevent looping
-      requestAnimationFrame(() => {
-        spinnerWheel.style.transition = 'transform 0.4s ease-out';
-        spinnerWheel.style.transform = `translate3d(-${finalOffset}px,0,0)`;
-      });
-      return;
+/** Return global index ahead of current offset for given local index */
+function nearestForwardIndex(localIdx, startOffset, viewportW) {
+  const len = prizes.length;
+  const candidates = [localIdx % len, (localIdx % len) + len];
+  let bestIdx = candidates[0];
+  let bestDelta = -Infinity;
+  for (const cand of candidates) {
+    const target = targetOffsetForIndex(cand, viewportW);
+    let delta = shortestWrap(startOffset, target, TRACK_PX);
+    if (delta > 0) delta -= TRACK_PX; // enforce forward travel
+    if (delta > bestDelta) {
+      bestDelta = delta;
+      bestIdx = cand;
     }
-
-    // Final landing: award the prize
-    const prize = spinnerPrizesMap[id][targetIndex];
-    const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-
-    const spinnerResultText = document.getElementById("spinner-result");
-    if (spinnerResultText) {
-      spinnerResultText.textContent = `You won: ${prize.name}!`;
-      spinnerResultText.classList.remove("hidden");
-    }
-
-    if (showPopup) {
-      document.getElementById("popup-image").src = prize.image;
-      document.getElementById("popup-name").textContent = prize.name;
-      document.getElementById("popup-value").textContent = prize.value;
-      document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
-      document.getElementById("win-popup").classList.remove("hidden");
-    } else {
-      const popup = document.getElementById("win-popup");
-      if (popup) popup.classList.add("hidden");
-    }
-
-    if (targetCard) {
-      const glowClass = `glow-${rarity}`;
-      targetCard.classList.add(glowClass, "ring-4", "ring-white");
-    }
-
-    if (callback) callback(prize);
-    resolve(prize);
-    spinnerWheel.removeEventListener('transitionend', onTransitionEnd);
   }
+  return bestIdx;
+}
 
-    spinnerWheel.addEventListener('transitionend', onTransitionEnd);
+/** Cubic ease-in-out */
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+/** Quintic ease-out */
+function easeOutQuint(t) {
+  return 1 - Math.pow(1 - t, 5);
+}
+
+/** Ramp speed from "from" to "to" over duration */
+function ramp(from, to, duration) {
+  return new Promise(res => {
+    const start = performance.now();
+    function step(ts) {
+      const t = Math.min(1, (ts - start) / duration);
+      speed = from + (to - from) * easeInOutCubic(t);
+      if (t < 1) requestAnimationFrame(step); else { speed = to; res(); }
+    }
+    requestAnimationFrame(step);
   });
 }
 
-export function showWinPopup(prize) {
-  document.getElementById("popup-image").src = prize.image;
-  document.getElementById("popup-name").textContent = prize.name;
-  document.getElementById("popup-value").textContent = prize.value;
-  document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
-  document.getElementById("win-popup").classList.remove("hidden");
+/** Glide offset to target with easeOutQuint */
+function glideTo(fromOffset, toOffset, duration) {
+  return new Promise(res => {
+    const start = performance.now();
+    const diff = shortestWrap(fromOffset, toOffset, TRACK_PX);
+    function step(ts) {
+      const t = Math.min(1, (ts - start) / duration);
+      const eased = easeOutQuint(t);
+      offset = wrap(fromOffset + diff * eased, TRACK_PX);
+      speed = 0.45 * (1 - eased);
+      track.style.transform = `translate3d(${offset}px,0,0)`;
+      if (t < 1) requestAnimationFrame(step); else { offset = wrap(toOffset, TRACK_PX); res(); }
+    }
+    requestAnimationFrame(step);
+  });
 }
+
+/** Highlight the card under the center pin */
+function highlightCenteredCard() {
+  const viewportW = viewport.getBoundingClientRect().width;
+  const centerPos = -offset + viewportW / 2;
+  const idx = ((Math.round((centerPos - CARD_W / 2) / TILE_W)) % trackItems.length + trackItems.length) % trackItems.length;
+  const card = trackItems[idx];
+  card.classList.add('glow');
+  setTimeout(() => card.classList.remove('glow'), 900);
+}
+
+/** Wait helper */
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/** Spin to prize index deterministically */
+async function spinToIndex(winIndexLocal) {
+  if (spinLock) return;
+  spinLock = true;
+  await ramp(IDLE_SPEED, 2.6, 600);
+  await wait(300);
+  const viewportW = viewport.getBoundingClientRect().width;
+  const startOffset = offset;
+  const baseIdx = nearestForwardIndex(winIndexLocal, startOffset, viewportW);
+  const targetOffsetRaw = targetOffsetForIndex(baseIdx, viewportW);
+  let delta = shortestWrap(startOffset, targetOffsetRaw, TRACK_PX);
+  if (delta > 0) delta -= TRACK_PX;
+  await glideTo(startOffset, startOffset + delta, 1400);
+  await ramp(0.45, IDLE_SPEED, 500);
+  highlightCenteredCard();
+  spinLock = false;
+}
+
+const demo = {
+  timer: null,
+  start(interval = 6000) {
+    if (prefersReduce) return;
+    this.stop();
+    this.timer = setInterval(() => {
+      const idx = Math.floor(Math.random() * prizes.length);
+      spinToIndex(idx);
+    }, interval);
+  },
+  stop() {
+    if (this.timer) { clearInterval(this.timer); this.timer = null; }
+  }
+};
+
+/** Initialise spinner with viewport, track and prizes */
+export async function initSpinner(viewportEl, trackEl, prizeList = currentPrizes) {
+  viewport = viewportEl;
+  track = trackEl;
+  prizes = prizeList.slice(); // immutable copy
+  await preloadImages(prizes);
+  renderTrack(prizes);
+  offset = 0;
+  speed = IDLE_SPEED;
+  lastTs = performance.now();
+  rafId = requestAnimationFrame(loop);
+  return { spinTo: spinToIndex, demo, destroy };
+}
+
+/** External spin API */
+export function spinTo(winIndex) { return spinToIndex(winIndex); }
+
+/** Destroy spinner instance */
+export function destroy() {
+  cancelAnimationFrame(rafId);
+  demo.stop();
+  track.innerHTML = '';
+  trackItems = [];
+}
+
+// Example usage:
+// <div class="spin-viewport"><div id="spinTrack" class="spin-track"></div><div class="center-pin"></div></div>
+// import { initSpinner, spinTo } from './spinner.js';
+// const api = await initSpinner(viewportEl, trackEl, prizes);
+// api.demo.start(6000); // optional
+// await api.spinTo(index);

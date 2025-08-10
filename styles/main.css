@@ -985,23 +985,26 @@ html {
 }
 
 .spin-viewport {
-  mask-image: linear-gradient(90deg, transparent 0%, white 8%, white 92%, transparent 100%);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, white 8%, white 92%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, black 14%, black 86%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 14%, black 86%, transparent 100%);
 }
 .spin-track {
   will-change: transform;
 }
 
 .card {
-  width: 140px;
-  height: 204px;
-  border-radius: 12px;
+  width: 220px;
+  height: 320px;
+  border-radius: 16px;
   background: linear-gradient(180deg,#1a1f2f,#121622);
   box-shadow:
     0 12px 30px rgba(0,0,0,.55),
     inset 0 0 0 1px rgba(255,255,255,.05);
   position: relative;
   overflow: hidden;
+  opacity: 0.6;
+  filter: blur(1px);
+  transition: opacity 0.3s, filter 0.3s;
 }
 .card::after {
   content: "";
@@ -1019,6 +1022,8 @@ html {
   filter: saturate(1.08) contrast(1.05);
 }
 .glow {
+  opacity: 1;
+  filter: none;
   box-shadow:
     0 0 0 2px rgba(108,92,231,.6),
     0 0 32px 8px rgba(108,92,231,.35),
