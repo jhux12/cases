@@ -91,6 +91,14 @@
   <input type="text" id="case-tag" class="w-full p-2 rounded" placeholder="Optional badge">
 </div>
             <div>
+  <label class="block mb-1">Categories:</label>
+  <div class="flex flex-wrap gap-4">
+    <label class="inline-flex items-center"><input type="checkbox" id="case-new" class="mr-2"> <i class="fa-solid fa-bolt mr-1 text-yellow-400"></i> New</label>
+    <label class="inline-flex items-center"><input type="checkbox" id="case-featured" class="mr-2"> <i class="fa-solid fa-star mr-1 text-yellow-400"></i> Featured</label>
+    <label class="inline-flex items-center"><input type="checkbox" id="case-starter" class="mr-2"> <i class="fa-solid fa-seedling mr-1 text-green-400"></i> Starter</label>
+  </div>
+</div>
+            <div>
   <label>Spice Level:</label>
   <select id="case-spice" class="w-full p-2 rounded">
     <option value="">None</option>
@@ -408,6 +416,9 @@ function adminReply(event, caseId) {
         document.getElementById('case-price').value = data.price;
         document.getElementById('case-free').checked = !!data.isFree;
         document.getElementById('case-tag').value = data.tag || '';
+        document.getElementById('case-new').checked = !!(data.categories && data.categories.new);
+        document.getElementById('case-featured').checked = !!(data.categories && data.categories.featured);
+        document.getElementById('case-starter').checked = !!(data.categories && data.categories.starter);
         document.getElementById('case-spice').value = data.spiceLevel || '';
         prizesSection.innerHTML = '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
         if (data.prizes) Object.values(data.prizes).forEach(p => addPrize(p));
@@ -445,6 +456,11 @@ function adminReply(event, caseId) {
       const price = isFree ? 0 : parseFloat(document.getElementById('case-price').value) || 0;
       const tag = document.getElementById('case-tag').value.trim();
       const spiceLevel = document.getElementById('case-spice').value.trim();
+      const categories = {
+        new: document.getElementById('case-new').checked,
+        featured: document.getElementById('case-featured').checked,
+        starter: document.getElementById('case-starter').checked
+      };
       const prizesElements = prizesSection.querySelectorAll('div.prize-block');
       const prizes = {};
       prizesElements.forEach((div, idx) => {
@@ -456,11 +472,14 @@ function adminReply(event, caseId) {
           odds: parseFloat(div.querySelector('.prize-odds').value) || 0
         };
       });
-     db.ref('cases/' + id).set({ name, image, price, tag, spiceLevel, isFree, prizes }).then(() => {
+     db.ref('cases/' + id).set({ name, image, price, tag, spiceLevel, isFree, prizes, categories }).then(() => {
         caseForm.reset();
         previewImage('');
        document.getElementById('case-tag').value = '';
        document.getElementById('case-free').checked = false;
+       document.getElementById('case-new').checked = false;
+       document.getElementById('case-featured').checked = false;
+       document.getElementById('case-starter').checked = false;
         prizesSection.innerHTML = '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
         document.getElementById('form-title').innerText = 'Add / Edit Case';
         cancelEditBtn.classList.add('hidden');
@@ -473,6 +492,9 @@ function cancelEdit() {
   previewImage('');
   document.getElementById('case-tag').value = '';
   document.getElementById('case-free').checked = false;
+  document.getElementById('case-new').checked = false;
+  document.getElementById('case-featured').checked = false;
+  document.getElementById('case-starter').checked = false;
   prizesSection.innerHTML = '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
   document.getElementById('form-title').innerText = 'Add / Edit Case';
   cancelEditBtn.classList.add('hidden');

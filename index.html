@@ -173,6 +173,30 @@
   <button id="clear-filters" class="text-sm text-gray-400 hover:text-white ml-auto">Clear Filters</button>
 </div>
 
+ <!-- Category Tabs -->
+ <div id="category-tabs" class="flex flex-wrap justify-center gap-2 mb-6">
+   <button data-category="all" class="category-tab active" title="All">
+     <i class="fa-solid fa-layer-group"></i>
+     <span class="sr-only">All</span>
+   </button>
+   <button data-category="new" class="category-tab" title="New">
+     <i class="fa-solid fa-bolt"></i>
+     <span class="sr-only">New</span>
+   </button>
+   <button data-category="featured" class="category-tab" title="Featured">
+     <i class="fa-solid fa-star"></i>
+     <span class="sr-only">Featured</span>
+   </button>
+   <button data-category="starter" class="category-tab" title="Starter">
+     <i class="fa-solid fa-seedling"></i>
+     <span class="sr-only">Starter</span>
+   </button>
+   <button data-category="other" class="category-tab" title="Other Boxes">
+     <i class="fa-solid fa-box"></i>
+     <span class="sr-only">Other Boxes</span>
+   </button>
+ </div>
+
     <!-- Cases Grid -->
     <div id="cases-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6"></div>
   </div>
