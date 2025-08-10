@@ -188,7 +188,14 @@ registerForm.addEventListener('submit', async e => {
       throw linkError;
     }
   } catch (error) {
-    alert('❌ ' + error.message);
+    if (error.code === 'auth/account-exists-with-different-credential' ||
+        error.code === 'auth/email-already-in-use') {
+      const methods = await auth.fetchSignInMethodsForEmail(email);
+      const method = methods[0] === 'password' ? 'that password' : methods[0];
+      alert(`An account already exists with this email. Please sign in using ${method}.`);
+    } else {
+      alert('❌ ' + error.message);
+    }
   }
 });
 
