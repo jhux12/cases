@@ -85,9 +85,12 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         tiles.forEach(tile => tile.classList.remove('glow'));
         tiles[idx % tiles.length].classList.add('glow');
-        speed = baseSpeed;
-        demoLock = false;
-        scheduleDemo();
+        offset = targetOffset;
+        setTimeout(() => {
+          speed = baseSpeed;
+          demoLock = false;
+          scheduleDemo();
+        }, 2000);
       }
     }
     requestAnimationFrame(animate);
