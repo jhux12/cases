@@ -11,6 +11,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -140,9 +141,38 @@
       0% { transform: translateX(0); }
       100% { transform: translateX(-50%); }
     }
+
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .search-input {
+      background: rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.25);
+      backdrop-filter: blur(10px);
+      border-radius: 9999px;
+      padding: 0.5rem 1rem 0.5rem 2.5rem;
+      color: #fff;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .search-input::placeholder {
+      color: #fbcfe8;
+    }
+
+    .search-input:focus {
+      outline: none;
+      box-shadow: 0 0 15px rgba(236,72,153,0.5);
+    }
   </style>
 </head>
 <body class="min-h-screen">
+  <canvas id="bg-canvas"></canvas>
 
   <!-- Dynamic Header -->
   <header></header>
@@ -180,6 +210,10 @@
             <option value="value">Value</option>
             <option value="name">Name</option>
           </select>
+        </div>
+        <div class="relative">
+          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-pink-300"></i>
+          <input id="search-input" type="text" placeholder="Search" class="search-input" />
         </div>
       </div>
       <div class="flex flex-col sm:flex-row items-center gap-3">
@@ -239,6 +273,34 @@
       .then(html => {
         document.getElementById("topup-popup-container").innerHTML = html;
       });
+  </script>
+
+  <script>
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    function resize(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    for(let i=0;i<150;i++){
+      stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+0.5});
+    }
+    function animate(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle='rgba(255,255,255,0.8)';
+      stars.forEach(s=>{
+        ctx.beginPath();
+        ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+        ctx.fill();
+        s.y+=s.r*0.15;
+        if(s.y>canvas.height){s.y=0;s.x=Math.random()*canvas.width;}
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
   </script>
 
 </body>
