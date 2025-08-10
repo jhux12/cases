@@ -56,41 +56,36 @@
 
 <header></header>
 
-<!-- Hero -->
-<section id="hero" class="relative overflow-hidden bg-gradient-to-b from-gray-900 via-purple-900 to-gray-900">
-  <div class="container mx-auto max-w-6xl px-6 pt-20 pb-16 flex flex-col gap-8">
+<!-- Futuristic Spinner Hero -->
+<section id="packly-hero" class="relative w-full overflow-hidden aspect-video">
+  <!-- Gradient background with faint Packly X shapes -->
+  <div class="absolute inset-0 bg-gradient-to-br from-[#020618] via-[#090d2d] to-[#1b0f3c]">
+    <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\' viewBox=\'0 0 100 100\' fill=\'none\' stroke=\'%236c5ce7\' stroke-width=\'5\' stroke-opacity=\'0.1\'><path d=\'M0 0L100 100M100 0L0 100\'/></svg>')] bg-[length:80px_80px] animate-bg-pan"></div>
+    <div class="absolute inset-0 pointer-events-none" id="hero-particles"></div>
+  </div>
 
-    <!-- Updates Bar -->
-    <div class="w-full bg-gradient-to-r from-yellow-500 via-pink-500 to-purple-600 text-white py-2 overflow-hidden rounded-xl shadow-md">
-      <div class="animate-marquee whitespace-nowrap text-sm font-medium flex items-center gap-12 px-4">
-        <span>📦 All cards are near mint unless specified otherwise</span>
-        <span class="flex items-center gap-1">
-          🪙 Sell back unwanted cards for coins
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />
-        </span>
-      </div>
-    </div>
+  <!-- Spotlight overlay -->
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.15)_0%,rgba(0,0,0,0.6)_70%)] pointer-events-none"></div>
 
-    <div class="flex flex-col md:flex-row items-center gap-12">
-      <!-- Text -->
-      <div class="flex-1 text-center md:text-left">
-        <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-white tracking-tight leading-tight opacity-0 animate-fade-up">
-          Virtual packs,<br>real cards. <span class="emoji-sparkle">✨</span>
-        </h1>
-        <p class="text-md md:text-lg text-gray-300 mb-6 leading-relaxed opacity-0 animate-fade-up">
-          Open digital packs. Win real cards. Start ripping in seconds. Packly.gg.
-        </p>
-        <a href="#cases" class="inline-block px-6 py-3 bg-yellow-400 text-black rounded-full font-semibold border border-yellow-500 hover:bg-yellow-300 transition-all duration-200 shadow-md hover:scale-105 opacity-0 animate-fade-up">
-          Grab A Pack
-        </a>
-      </div>
+  <!-- Optional mascot -->
+  <div class="absolute left-0 top-1/2 -translate-y-1/2 z-20">
+    <img src="https://placehold.co/120x180?text=Mascot" alt="Mascot" class="opacity-80" />
+  </div>
 
-      <!-- Pack Animation -->
-      <div class="flex-1 relative w-full h-64 md:h-80">
-        <div id="hero-pack-carousel" class="absolute inset-0"></div>
-      </div>
-    </div>
+  <!-- Headline placeholder -->
+  <div class="absolute top-6 w-full text-center z-20 pointer-events-none">
+    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent">Discover, Open & Collect</h1>
+  </div>
 
+  <!-- Spinner -->
+  <div id="card-spinner" class="relative z-10 flex items-center justify-center h-full px-8">
+    <div id="spinner-track" class="flex gap-4 will-change-transform"></div>
+  </div>
+
+  <!-- CTA placeholder buttons -->
+  <div class="absolute bottom-6 w-full flex justify-center gap-4 z-20 pointer-events-none">
+    <div class="w-32 h-10 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm"></div>
+    <div class="w-32 h-10 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm"></div>
   </div>
 </section>
 
@@ -234,7 +229,7 @@ if (filterToggle && filterPanel) {
 <!-- Core Functional Scripts -->
 <script type="module" src="scripts/auth.js"></script>
 <script src="scripts/navbar.js"></script>
-<script src="scripts/hero.js"></script>
+<script src="scripts/hero-spinner.js"></script>
 <script src="scripts/features.js"></script>
 <script type="module" src="scripts/packs.js"></script>
   <script type="module">
