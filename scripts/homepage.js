@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const hero = data.hero || {};
     if (hero.title) document.getElementById('hero-title').innerHTML = hero.title;
     if (hero.subtitle) document.getElementById('hero-subtitle').innerHTML = hero.subtitle;
-    if (hero.background) document.getElementById('hero-image').src = hero.background;
 
     const vp = data.valueProps || {};
     if (vp.heading) document.getElementById('value-props-heading').textContent = vp.heading;
@@ -59,6 +58,18 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <p class="text-gray-300 text-sm">${item.text || ''}</p>`;
         testimonialContainer.appendChild(card);
+      });
+    }
+
+    const pullContainer = document.getElementById('pulls-gallery');
+    if (pullContainer) {
+      pullContainer.innerHTML = '';
+      (data.pulls || []).forEach(url => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = 'Legendary pull';
+        img.className = 'rounded-xl h-32 w-full object-cover reveal opacity-0 translate-y-8';
+        pullContainer.appendChild(img);
       });
     }
 

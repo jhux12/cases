@@ -71,10 +71,6 @@
           <label class="block mb-1">Hero Subtitle</label>
           <textarea id="home-hero-sub" class="w-full p-2 rounded"></textarea>
         </div>
-        <div>
-          <label class="block mb-1">Hero Background URL</label>
-          <input type="text" id="home-hero-bg" class="w-full p-2 rounded">
-        </div>
         <h2 class="text-2xl font-semibold pt-4">Value Proposition</h2>
         <div>
           <label class="block mb-1">Heading</label>
@@ -149,6 +145,15 @@
             <input type="number" id="test2-rating" placeholder="Rating (1-5)" class="w-full p-2 rounded mb-2">
             <textarea id="test2-text" placeholder="Quote" class="w-full p-2 rounded"></textarea>
           </div>
+        </div>
+        <h2 class="text-2xl font-semibold pt-4">Legendary Pulls</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div class="p-4 bg-gray-800 rounded"><input type="text" id="pull1-image" placeholder="Image URL" class="w-full p-2 rounded"></div>
+          <div class="p-4 bg-gray-800 rounded"><input type="text" id="pull2-image" placeholder="Image URL" class="w-full p-2 rounded"></div>
+          <div class="p-4 bg-gray-800 rounded"><input type="text" id="pull3-image" placeholder="Image URL" class="w-full p-2 rounded"></div>
+          <div class="p-4 bg-gray-800 rounded"><input type="text" id="pull4-image" placeholder="Image URL" class="w-full p-2 rounded"></div>
+          <div class="p-4 bg-gray-800 rounded"><input type="text" id="pull5-image" placeholder="Image URL" class="w-full p-2 rounded"></div>
+          <div class="p-4 bg-gray-800 rounded"><input type="text" id="pull6-image" placeholder="Image URL" class="w-full p-2 rounded"></div>
         </div>
         <button type="submit" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded">Save Homepage</button>
       </form>
@@ -934,7 +939,6 @@ function loadHomepageContent() {
     const data = snap.val() || {};
     document.getElementById('home-hero-title').value = data.hero?.title || '';
     document.getElementById('home-hero-sub').value = data.hero?.subtitle || '';
-    document.getElementById('home-hero-bg').value = data.hero?.background || '';
     document.getElementById('vp-heading').value = data.valueProps?.heading || '';
     const items = data.valueProps?.items || [];
     for (let i = 1; i <= 4; i++) {
@@ -960,6 +964,10 @@ function loadHomepageContent() {
       document.getElementById(`test${i}-rating`).value = t.rating || '';
       document.getElementById(`test${i}-text`).value = t.text || '';
     }
+    const pulls = data.pulls || [];
+    for (let i = 1; i <= 6; i++) {
+      document.getElementById(`pull${i}-image`).value = pulls[i-1] || '';
+    }
   });
 }
 
@@ -967,8 +975,7 @@ document.getElementById('homepage-form').addEventListener('submit', e => {
   e.preventDefault();
   const hero = {
     title: document.getElementById('home-hero-title').value.trim(),
-    subtitle: document.getElementById('home-hero-sub').value.trim(),
-    background: document.getElementById('home-hero-bg').value.trim()
+    subtitle: document.getElementById('home-hero-sub').value.trim()
   };
   const heading = document.getElementById('vp-heading').value.trim();
   const items = [];
@@ -995,7 +1002,12 @@ document.getElementById('homepage-form').addEventListener('submit', e => {
     const text = document.getElementById(`test${i}-text`).value.trim();
     if (avatar || name || text) testimonials.push({ avatar, name, rating, text });
   }
-  firebase.database().ref('homepage').set({ hero, valueProps: { heading, items }, trending, testimonials })
+  const pulls = [];
+  for (let i = 1; i <= 6; i++) {
+    const image = document.getElementById(`pull${i}-image`).value.trim();
+    if (image) pulls.push(image);
+  }
+  firebase.database().ref('homepage').set({ hero, valueProps: { heading, items }, trending, testimonials, pulls })
     .then(() => showToast('✅ Homepage content saved'));
 });
 

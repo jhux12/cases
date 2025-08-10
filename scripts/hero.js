@@ -31,7 +31,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }, { threshold: 0.2 });
 
   const observeCards = () => {
-    document.querySelectorAll('.highlight-card, .trending-card').forEach(card => observer.observe(card));
+    document.querySelectorAll('.highlight-card, .trending-card, .reveal').forEach(card => observer.observe(card));
   };
 
   observeCards();
