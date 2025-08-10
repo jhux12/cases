@@ -1,270 +1,282 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Packly.gg | Virtual Packs, Real Cards.</title>
-  <script>
-    tailwind.config = {
-      safelist: [
-        'bg-gradient-to-r',
-        'from-purple-600',
-        'to-pink-500',
-        'bg-pink-600',
-        'bg-black/50',
-        'right-2',
-        'left-2',
-        'top-2',
-        'text-green-400',
-        'text-orange-400',
-        'text-red-500',
-        'min-w-[120px]',
-        'md:min-w-[160px]',
-        'w-[90px]',
-        'h-[90px]',
-        'md:w-[120px]',
-        'md:h-[120px]',
-        'bg-[#12121b]',
-        'shadow-[0_0_20px_4px_rgba(255,215,0,0.5)]',
-        'border-yellow-400',
-        'shadow-[0_0_16px_3px_rgba(186,85,211,0.5)]',
-        'border-purple-500',
-        'shadow-[0_0_12px_2px_rgba(30,144,255,0.5)]',
-        'border-blue-500',
-        'shadow-[0_0_8px_1px_rgba(50,205,50,0.4)]',
-        'border-green-500',
-        'shadow-[0_0_6px_1px_rgba(255,255,255,0.1)]',
-        'border-gray-700'
-      ]
-    }
-  </script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Packly.gg — Hero Demo</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <script src="scripts/firebase-config.js"></script>
-  <script src="https://js.stripe.com/v3/"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles/main.css">
-</head>
-<body>
-
-<header></header>
-
-<!-- Futuristic Spinner Hero -->
-<section id="packly-hero" class="relative w-full overflow-hidden aspect-video">
-  <!-- Gradient background with faint Packly X shapes -->
-  <div class="absolute inset-0 bg-gradient-to-br from-[#020618] via-[#090d2d] to-[#1b0f3c]">
-    <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\' viewBox=\'0 0 100 100\' fill=\'none\' stroke=\'%236c5ce7\' stroke-width=\'5\' stroke-opacity=\'0.1\'><path d=\'M0 0L100 100M100 0L0 100\'/></svg>')] bg-[length:80px_80px] animate-bg-pan"></div>
-    <div class="absolute inset-0 pointer-events-none" id="hero-particles"></div>
-  </div>
-
-  <!-- Spotlight overlay -->
-  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.15)_0%,rgba(0,0,0,0.6)_70%)] pointer-events-none"></div>
-
-  <!-- Optional mascot -->
-  <div class="absolute left-0 top-1/2 -translate-y-1/2 z-20">
-    <img src="https://placehold.co/120x180?text=Mascot" alt="Mascot" class="opacity-80" />
-  </div>
-
-  <!-- Headline placeholder -->
-  <div class="absolute top-6 w-full text-center z-20 pointer-events-none">
-    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent">Discover, Open & Collect</h1>
-  </div>
-
-  <!-- Spinner -->
-  <div id="card-spinner" class="relative z-10 flex items-center justify-center h-full px-8">
-    <div id="spinner-track" class="flex gap-4 will-change-transform"></div>
-  </div>
-
-  <!-- CTA placeholder buttons -->
-  <div class="absolute bottom-6 w-full flex justify-center gap-4 z-20 pointer-events-none">
-    <div class="w-32 h-10 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm"></div>
-    <div class="w-32 h-10 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm"></div>
-  </div>
-</section>
-
-
-<!-- Cases Section -->
-  <section id="cases" class="py-12 px-6">
-  <div class="container mx-auto relative z-10">
-
-  <!-- 🌟 Floating Stardust Particles -->
-  <div class="stardust">
-  <span style="top:5%; left:10%; animation-delay:0s;"></span>
-  <span style="top:15%; left:30%; animation-delay:0.5s;"></span>
-  <span style="top:25%; left:70%; animation-delay:1s;"></span>
-  <span style="top:35%; left:50%; animation-delay:1.5s;"></span>
-  <span style="top:45%; left:20%; animation-delay:2s;"></span>
-  <span style="top:55%; left:80%; animation-delay:2.5s;"></span>
-  <span style="top:65%; left:40%; animation-delay:3s;"></span>
-  <span style="top:75%; left:60%; animation-delay:3.5s;"></span>
-  <span style="top:85%; left:90%; animation-delay:4s;"></span>
-  <span style="top:95%; left:15%; animation-delay:4.5s;"></span>
-</div>
-
-<div class="flex flex-col items-center text-center gap-2 p-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl shadow-lg mb-6">
-  <img src="https://cdn-icons-png.flaticon.com/128/5966/5966817.png" alt="Pack Icon" class="w-12 h-12" />
-  <h2 class="text-xl font-bold text-white">Available Packs</h2>
-  <p class="text-sm text-white/80">Rip, collect, and uncover what’s inside 🔥</p>
-</div>
-
-<!-- Filter Toggle Button (Mobile Only) -->
-<div class="sm:hidden mb-4">
-  <button id="filter-toggle" class="text-sm bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-600 w-full">
-    Show Filters
-  </button>
-</div>
-
-<!-- Filter Panel -->
-<div id="filter-panel" class="hidden sm:flex flex-wrap gap-4 mb-6 items-center">
-  <!-- Search -->
-  <input id="search-box" type="text" placeholder="Search packs" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-48" />
-
-  <!-- Min Price -->
-  <input id="min-price" type="number" placeholder="Min" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
-
-  <!-- Max Price -->
-  <input id="max-price" type="number" placeholder="Max" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
-
-  <!-- Affordable Only Toggle -->
-  <div class="flex items-center gap-3 px-3 py-2 rounded bg-gray-800 border border-gray-700 hover:border-yellow-400 transition-all">
-    <label for="affordable-only" class="flex items-center cursor-pointer select-none">
-      <div class="relative">
-        <input type="checkbox" id="affordable-only" class="sr-only peer">
-        <div class="w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-yellow-400 transition-all duration-300"></div>
-        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
-      </div>
-      <span class="ml-3 text-sm text-white">Enough coins to buy</span>
-    </label>
-  </div>
-
-  <!-- Sort Dropdown -->
-  <select id="sort-select" class="px-3 py-2 rounded bg-gray-800 text-white">
-    <option value="default">Sorting</option>
-    <option value="asc">Ascending</option>
-    <option value="desc">Descending</option>
-  </select>
-
-  <!-- Clear Filters Button -->
-  <button id="clear-filters" class="text-sm text-gray-400 hover:text-white ml-auto">Clear Filters</button>
-</div>
-
-    <!-- Cases Grid -->
-    <div id="cases-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6"></div>
-  </div>
-</section>
-
-<!-- Best Drops -->
-<section id="best-drops" class="relative py-16 overflow-hidden bg-gradient-to-br from-[#050510] via-[#0b0f2c] to-[#050510]">
-  <!-- Futuristic grid background -->
-  <div class="absolute inset-0 -z-10 opacity-30 bg-[linear-gradient(to_right,#2e2e3a_1px,transparent_1px),linear-gradient(to_bottom,#2e2e3a_1px,transparent_1px)] bg-[size:40px_40px]"></div>
-  <!-- Glowing gradient orbs -->
-  <div class="absolute -top-24 -left-24 w-96 h-96 bg-fuchsia-700 rounded-full blur-3xl opacity-25"></div>
-  <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-700 rounded-full blur-3xl opacity-25"></div>
-
-  <h2 class="relative flex items-center justify-center gap-3 mb-10 text-3xl md:text-4xl font-extrabold tracking-tight">
-    <span class="animate-pulse bg-pink-600 text-xs px-3 py-1 rounded-full uppercase tracking-widest">Live</span>
-    <span class="bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-purple-600 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(168,85,247,0.6)]">Best Drops</span>
-  </h2>
-
-  <div id="recent-wins-carousel" class="relative flex overflow-x-auto gap-6 px-6 py-4 scrollbar-hide w-full scroll-smooth">
-    <!-- Cards will be injected here -->
-  </div>
-</section>
-
-<footer></footer>
-
-<script>
-let scrollIntervalId = null;
-function startAutoScrollCarousel(containerId, speed = 0.5) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-
-  // Prevent multiple intervals stacking
-  if (scrollIntervalId) clearInterval(scrollIntervalId);
-
-  container.style.scrollBehavior = "auto";
-  let scrollPos = 0;
-
-  scrollIntervalId = setInterval(() => {
-    scrollPos += speed;
-    if (scrollPos >= container.scrollWidth - container.clientWidth) {
-      scrollPos = 0;
+  <style>
+    /* --- HERO BACKDROP --- */
+    .hero-bg {
+      background: radial-gradient(1200px 600px at 50% 20%, rgba(108,92,231,0.25), transparent 60%),
+                  radial-gradient(900px 500px at 20% 80%, rgba(0,153,255,0.18), transparent 60%),
+                  radial-gradient(900px 500px at 80% 80%, rgba(255,77,216,0.18), transparent 60%),
+                  linear-gradient(180deg, #0c0f1a 0%, #0a0d18 60%, #070a14 100%);
+      position: relative;
+      overflow: hidden;
     }
-    container.scrollLeft = scrollPos;
-  }, 16); // ~60fps
-}
-</script>
-  
-<script>
+    .hero-bg:before, .hero-bg:after {
+      content: "";
+      position: absolute;
+      inset: -30%;
+      background:
+        repeating-linear-gradient(120deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 8px);
+      filter: blur(2px);
+      opacity: .4;
+      pointer-events: none;
+      transform: rotate(5deg);
+    }
+    .hero-bg:after {
+      transform: rotate(-8deg) scale(1.2);
+      opacity: .25;
+    }
 
-function playRaritySound(rarity) {
-  const audio = audioMap[rarity.toLowerCase()];
-  if (audio) {
-    audio.currentTime = 0; // restart sound
-    audio.play().catch(err => console.warn("Sound error:", err));
-  }
-}
-const filterToggle = document.getElementById("filter-toggle");
-const filterPanel = document.getElementById("filter-panel");
+    /* --- SPINNER RAIL --- */
+    .spin-viewport {
+      mask-image: linear-gradient(90deg, transparent 0%, black 14%, black 86%, transparent 100%);
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 14%, black 86%, transparent 100%);
+    }
+    .spin-track {
+      will-change: transform;
+    }
 
-if (filterToggle && filterPanel) {
-  // Ensure button starts in correct state based on classes
-  const isHidden = filterPanel.classList.contains("hidden");
-  filterToggle.textContent = isHidden ? "Show Filters" : "Hide Filters";
+    /* --- CARD TILE --- */
+    .card {
+      width: 220px;
+      height: 320px;
+      border-radius: 16px;
+      background: linear-gradient(180deg,#1a1f2f,#121622);
+      box-shadow:
+        0 12px 30px rgba(0,0,0,.55),
+        inset 0 0 0 1px rgba(255,255,255,.05);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::after { /* foil shimmer */
+      content: "";
+      position: absolute; inset: 0;
+      background: conic-gradient(from 180deg at 50% 50%,
+        rgba(255,255,255,0) 0deg, rgba(255,255,255,0.15) 25deg,
+        rgba(255,255,255,0) 60deg, rgba(255,255,255,0.1) 120deg,
+        rgba(255,255,255,0) 200deg);
+      mix-blend-mode: screen;
+      opacity: .75;
+      pointer-events: none;
+    }
+    .card img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      filter: saturate(1.08) contrast(1.05);
+    }
+    .glow {
+      box-shadow:
+        0 0 0 2px rgba(108,92,231,.6),
+        0 0 32px 8px rgba(108,92,231,.35),
+        0 0 80px 16px rgba(9,153,255,.18);
+      transform: scale(1.04) translateY(-2px);
+    }
 
-  filterToggle.addEventListener("click", () => {
-    filterPanel.classList.toggle("hidden");
-    const nowHidden = filterPanel.classList.contains("hidden");
-    filterToggle.textContent = nowHidden ? "Show Filters" : "Hide Filters";
-  });
-}
-  </script>
-<!-- Core Functional Scripts -->
-<script type="module" src="scripts/auth.js"></script>
-<script src="scripts/navbar.js"></script>
-<script src="scripts/hero-spinner.js"></script>
-<script src="scripts/features.js"></script>
-<script type="module" src="scripts/packs.js"></script>
-  <script type="module">
-  import { renderDailyQuests } from './scripts/quests.js';
-  window.renderDailyQuests = renderDailyQuests; // Make it globally accessible
-</script>
-<script type="module" src="scripts/wins.js"></script>
-<script src="scripts/popups.js"></script>
-<script src="scripts/footer.js"></script>
-<script src="scripts/topup.js"></script>
+    /* --- CENTER MARKER --- */
+    .center-pin {
+      position: absolute; left: 50%; top: 50%;
+      width: 72px; height: 72px;
+      border-radius: 50%; transform: translate(-50%,-50%);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.08),
+                  0 0 0 2px rgba(255,77,216,.18);
+      pointer-events: none;
+    }
+    .center-pin:after {
+      content: "";
+      position: absolute; left: 50%; top: -36px;
+      width: 0; height: 0; transform: translateX(-50%);
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 12px solid rgba(255,255,255,0.8);
+      filter: drop-shadow(0 4px 10px rgba(255,255,255,.35));
+    }
+
+    /* --- CTA placeholders (so you can wire your real buttons) --- */
+    .btn-ghost {
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    /* prefer-reduced-motion: keep it gentle */
+    @media (prefers-reduced-motion: reduce) {
+      .spin-track { transition: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-[#070a14] text-white">
+  <!-- HERO -->
+  <section class="hero-bg relative w-full min-h-[720px] flex items-center justify-center">
+    <!-- HEADLINE -->
+    <div class="absolute top-16 w-full px-6 text-center">
+      <h1 class="mx-auto max-w-5xl text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
+        DISCOVER, OPEN & COLLECT
+        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-[#6C5CE7] via-[#09F] to-[#FF4DD8]">
+          POKÉMON CARDS
+        </span>
+      </h1>
+      <p class="mt-4 opacity-75 text-lg">Packly.gg — premium case opening with provably fair spins.</p>
+    </div>
+
+    <!-- SPINNER -->
+    <div class="relative w-full max-w-6xl mt-16 px-4">
+      <div class="spin-viewport relative mx-auto overflow-hidden rounded-2xl border border-white/10 bg-black/20 backdrop-blur-sm p-4">
+        <div id="spinTrack" class="spin-track flex gap-4 will-change-transform"></div>
+        <div class="center-pin"></div>
+      </div>
+      <!-- CTA placeholders -->
+      <div class="mt-8 flex items-center justify-center gap-3">
+        <a href="/signup" class="btn-ghost rounded-xl px-6 py-3 text-lg font-semibold hover:bg-white/10 transition">
+          Sign up now
+        </a>
+        <a href="/auth/google" class="btn-ghost rounded-xl px-6 py-3 text-lg font-semibold hover:bg-white/10 transition">
+          Continue with Google
+        </a>
+      </div>
+    </div>
+
+    <!-- SUBTLE STARDUST -->
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute inset-0 animate-pulse opacity-30" style="
+        background: radial-gradient(2px 2px at 20% 30%, #fff 50%, transparent 55%),
+                    radial-gradient(1.5px 1.5px at 60% 40%, #fff 50%, transparent 55%),
+                    radial-gradient(1.7px 1.7px at 80% 70%, #fff 50%, transparent 55%),
+                    radial-gradient(1.2px 1.2px at 35% 80%, #fff 50%, transparent 55%);
+        "></div>
+    </div>
+  </section>
 
   <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const menuToggle = document.getElementById("menu-toggle");
-  const mobileDropdown = document.getElementById("mobile-dropdown");
+    /***********************
+     * HERO SPINNER DEMO  *
+     ***********************
+     * - Fetch high-tier prizes (legendary & ultra rare) like Best Drops
+     * - Build a scrolling track
+     * - Periodically spin and land on a legendary card
+     */
 
-  if (menuToggle && mobileDropdown) {
-    menuToggle.addEventListener("click", (e) => {
-      e.stopPropagation();
-      mobileDropdown.classList.toggle("hidden");
-    });
+    const CARD_W = 220;
+    const GAP = 16;
+    const TILE_W = CARD_W + GAP;
 
-    document.addEventListener("click", (event) => {
-      if (
-        !mobileDropdown.classList.contains("hidden") &&
-        !mobileDropdown.contains(event.target) &&
-        !menuToggle.contains(event.target)
-      ) {
-        mobileDropdown.classList.add("hidden");
+    const track = document.getElementById('spinTrack');
+    const cards = []; // will store {img, rarity}
+    let tiles = [];
+
+    let offset = 0;
+    let baseSpeed = 0.6;
+    let speed = baseSpeed;
+    let demoLock = false;
+    let lastTs = performance.now();
+    let tilesCount = 0;
+    let trackPx = 0;
+
+    function buildTrack(prizes) {
+      const tripled = [...prizes, ...prizes, ...prizes];
+      tripled.forEach(p => {
+        const tile = document.createElement('div');
+        tile.className = 'card select-none';
+        tile.style.flex = '0 0 auto';
+        tile.style.width = CARD_W + 'px';
+        tile.innerHTML = `<img src="${p.img}" alt="" loading="lazy" draggable="false">`;
+        track.appendChild(tile);
+        cards.push(p);
+      });
+      tiles = Array.from(track.children);
+      tilesCount = tiles.length;
+      trackPx = tilesCount * TILE_W;
+    }
+
+    function loop(ts) {
+      const dt = ts - lastTs;
+      lastTs = ts;
+      offset -= speed * dt;
+      if (offset < -trackPx) offset += trackPx;
+      track.style.transform = `translateX(${offset}px)`;
+      requestAnimationFrame(loop);
+    }
+
+    function centerTargetIndex(idx) {
+      const viewport = track.parentElement.getBoundingClientRect();
+      const heroCenterX = viewport.width / 2;
+      const tileCenterX = idx * TILE_W + CARD_W / 2;
+      return heroCenterX - tileCenterX;
+    }
+
+    async function demoOpen() {
+      if (demoLock) return;
+      demoLock = true;
+
+      const legends = cards
+        .map((c, i) => ({ i, rarity: c.rarity }))
+        .filter(o => o.rarity === 'legendary');
+      if (!legends.length) {
+        demoLock = false;
+        return;
       }
+      const idx = legends[Math.floor(Math.random() * legends.length)].i;
+
+      speed = baseSpeed * 8;
+      await new Promise(r => setTimeout(r, 600));
+
+      const targetOffset = centerTargetIndex(idx);
+      const startOffset = offset;
+      const delta = startOffset - targetOffset;
+      const duration = 1600;
+      const start = performance.now();
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      function animate(ts) {
+        const t = Math.min(1, (ts - start) / duration);
+        const eased = easeOutCubic(t);
+        offset = startOffset - delta * eased;
+        if (t < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          speed = baseSpeed;
+          tiles.forEach(tile => tile.classList.remove('glow'));
+          tiles[idx % tiles.length].classList.add('glow');
+          demoLock = false;
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+
+    function scheduleDemo() {
+      demoOpen();
+      setInterval(demoOpen, 5000);
+    }
+
+    function fetchHighTierPrizes() {
+      return firebase.database().ref('cases').once('value').then(snap => {
+        const data = snap.val() || {};
+        const highTier = [];
+        Object.values(data).forEach(caseInfo => {
+          (caseInfo.prizes || []).forEach(p => {
+            const rarity = (p.rarity || '').toLowerCase();
+            if (rarity === 'ultra rare' || rarity === 'legendary') {
+              highTier.push({ img: p.image, rarity });
+            }
+          });
+        });
+        return highTier;
+      });
+    }
+
+    fetchHighTierPrizes().then(prizes => {
+      if (!prizes.length) return;
+      buildTrack(prizes);
+      requestAnimationFrame(loop);
+      scheduleDemo();
     });
-  }
-    startAutoScrollCarousel("recent-wins-carousel", 0.5);
-});
-</script>
-  <script src="scripts/header.js"></script>
+  </script>
 </body>
 </html>
