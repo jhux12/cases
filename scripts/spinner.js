@@ -90,11 +90,23 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
 
   const targetRect = targetCard.getBoundingClientRect();
   const cardCenter = targetRect.left + targetRect.width / 2;
-  const containerRect = spinnerWheel.parentElement.getBoundingClientRect();
+  const containerEl = spinnerWheel.parentElement;
+  const containerRect = containerEl.getBoundingClientRect();
   const containerCenter = containerRect.left + containerRect.width / 2;
   const suspenseRange = 70;
   const randomOffset = Math.floor(Math.random() * (suspenseRange * 2 + 1)) - suspenseRange;
-  const scrollOffset = cardCenter - containerCenter + randomOffset;
+  let scrollOffset = cardCenter - containerCenter + randomOffset;
+
+  // Adjust for any scale transform applied to the container
+  let scale = 1;
+  const transform = window.getComputedStyle(containerEl).transform;
+  if (transform && transform !== 'none') {
+    const match = transform.match(/matrix\(([^,]+)/);
+    if (match) {
+      scale = parseFloat(match[1]) || 1;
+    }
+  }
+  scrollOffset /= scale;
 
   // Reset any previous transform
   spinnerWheel.style.transition = 'none';
