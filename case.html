@@ -119,14 +119,14 @@ function setupSpinners(count) {
     const isPrimary = i === 0;
     const border = document.createElement('div');
     border.id = `spinner-border-${i}`;
-    border.className = `border-4 border-gray-800 rounded-lg bg-black/20 transition-colors duration-300 ${isPrimary ? 'w-full sm:w-2/3 md:w-1/2' : 'w-full sm:w-1/2 md:w-1/3'}`;
+    border.className = `border-4 border-gray-800 rounded-lg bg-black/20 transition-colors duration-300 ${count === 1 ? 'w-full sm:w-2/3 md:w-1/2' : 'w-full sm:w-1/2 md:w-1/3'}`;
 
     const inner = document.createElement('div');
     let heightClass;
     if (count === 1) {
       heightClass = 'h-[250px] sm:h-[300px]';
     } else {
-      heightClass = isPrimary ? 'h-[200px] sm:h-[250px]' : 'h-[150px] sm:h-[180px]';
+      heightClass = 'h-[120px] sm:h-[180px]';
     }
     inner.className = `relative ${heightClass} overflow-hidden`;
 
@@ -135,8 +135,8 @@ function setupSpinners(count) {
     const container = document.createElement('div');
     container.id = `spinner-container-${i}`;
     container.className = 'w-full h-full transform';
-    if (!isPrimary && count > 1) {
-      container.classList.add('scale-90');
+    if (count > 1) {
+      container.classList.add('scale-75', 'sm:scale-90', 'md:scale-100');
     }
     inner.appendChild(line);
     inner.appendChild(container);
