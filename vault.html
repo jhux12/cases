@@ -101,15 +101,17 @@
     </div>
   </section>
 
-  <div id="win-popup" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
-    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center relative border border-white/10">
+  <div id="win-popup" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div id="popup-card" class="premium-popup popup-box border-2 rounded-2xl p-6 w-full max-w-sm text-center relative text-white">
       <button id="close-popup" class="absolute top-2 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
-      <img id="popup-image" src="" alt="Prize" class="w-40 h-40 object-contain mx-auto mb-4 rounded" />
-      <h3 id="popup-name" class="text-lg font-semibold mb-2"></h3>
-      <div class="text-yellow-300 font-bold mb-4"><span id="popup-value"></span> coins</div>
+      <img id="popup-image" src="" alt="Prize" class="w-48 h-48 object-contain mx-auto mb-4 rounded-lg premium-glow" />
+      <h3 id="popup-name" class="text-lg font-semibold mb-1"></h3>
+      <div id="popup-rarity" class="text-xs uppercase tracking-wider mb-1"></div>
+      <div class="text-yellow-300 font-bold mb-1"><span id="popup-value"></span> coins</div>
+      <div class="text-gray-400 text-xs mb-4"><span id="popup-odds"></span> chance</div>
       <div class="flex justify-center gap-4">
-        <button id="keep-btn" class="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-bold">Keep</button>
-      <button id="sell-btn" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold">Sell for <span id="sell-value"></span></button>
+        <button id="keep-btn" class="px-4 py-2 rounded-xl premium-button text-sm">Keep</button>
+        <button id="sell-btn" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold">Sell for <span id="sell-value"></span></button>
       </div>
     </div>
   </div>

@@ -3,6 +3,14 @@ let currentPrize = null;
 let cardPrizes = [];
 let selectedIndex = null;
 
+const rarityColors = {
+  common: '#a1a1aa',
+  uncommon: '#4ade80',
+  rare: '#60a5fa',
+  ultrarare: '#c084fc',
+  legendary: '#facc15'
+};
+
 function renderPack(data) {
   document.getElementById('pack-name').textContent = data.name;
   document.title = `Packly.gg | ${data.name}`;
@@ -11,13 +19,6 @@ function renderPack(data) {
   document.getElementById('pack-price').textContent = (data.price || 0).toLocaleString();
 
   const prizes = Object.values(data.prizes || {});
-  const rarityColors = {
-    common: '#a1a1aa',
-    uncommon: '#4ade80',
-    rare: '#60a5fa',
-    ultrarare: '#c084fc',
-    legendary: '#facc15'
-  };
   document.getElementById('prizes-grid').innerHTML = prizes.map(prize => {
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g,'');
     const color = rarityColors[rarity] || '#a1a1aa';
@@ -191,10 +192,28 @@ function selectCard(card, index) {
 }
 
 function showWinPopup() {
-  document.getElementById('popup-image').src = currentPrize.image;
-  document.getElementById('popup-name').textContent = currentPrize.name;
-  document.getElementById('popup-value').textContent = currentPrize.value.toLocaleString();
+  const imgEl = document.getElementById('popup-image');
+  const nameEl = document.getElementById('popup-name');
+  const valueEl = document.getElementById('popup-value');
+  const rarityEl = document.getElementById('popup-rarity');
+  const oddsEl = document.getElementById('popup-odds');
+  const cardEl = document.getElementById('popup-card');
+
+  imgEl.src = currentPrize.image;
+  nameEl.textContent = currentPrize.name;
+  valueEl.textContent = currentPrize.value.toLocaleString();
   document.getElementById('sell-value').textContent = Math.floor(currentPrize.value * 0.8).toLocaleString();
+
+  const rarityKey = (currentPrize.rarity || 'common').toLowerCase().replace(/\s+/g,'');
+  const color = rarityColors[rarityKey] || '#a1a1aa';
+  rarityEl.textContent = currentPrize.rarity || '';
+  rarityEl.style.color = color;
+  oddsEl.textContent = `${(currentPrize.odds || 0).toFixed(1)}%`;
+  cardEl.style.borderColor = color;
+
+  imgEl.classList.remove('glow-flash-common','glow-flash-uncommon','glow-flash-rare','glow-flash-ultrarare','glow-flash-legendary');
+  imgEl.classList.add(`glow-flash-${rarityKey}`);
+
   document.getElementById('win-popup').classList.remove('hidden');
 }
 
