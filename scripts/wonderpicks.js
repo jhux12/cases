@@ -11,7 +11,7 @@ function renderActive(pack) {
   document.getElementById('open-link').href = `wonder-pick.html?id=${pack.id}`;
   const cards = Object.values(pack.prizes || {}).slice(0,5);
   document.getElementById('card-preview').innerHTML = cards.map(c => `
-    <img src="${c.image}" class="w-12 h-16 object-contain rounded-md bg-black/40 border border-yellow-500/30" />
+    <img src="${c.image}" class="w-20 h-24 object-contain rounded-lg bg-black/40 border-2 border-yellow-500/40 shadow-lg transform transition-transform duration-300 hover:scale-105" />
   `).join('');
 }
 

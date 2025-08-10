@@ -12,7 +12,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="scripts/firebase-config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <link rel="stylesheet" href="styles/main.css" />
   <style>
     .clamp-2 {
@@ -68,7 +67,8 @@
     </div>
 
     <div id="pack-display" class="flex flex-col items-center gap-4 mt-6">
-      <img id="main-pack-image" class="w-40 h-40 object-contain" alt="Pack" />
+      <img id="main-pack-image" class="w-28 h-28 object-contain" alt="Pack" />
+      <div id="pack-preview" class="flex justify-center flex-wrap gap-4"></div>
       <button id="open-pack" class="shining-button animate-pulse relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-105 focus:outline-none overflow-hidden">
         <span class="relative z-10 flex items-center gap-2">
           Open for

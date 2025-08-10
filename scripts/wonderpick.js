@@ -10,6 +10,11 @@ function renderPack(data) {
   document.querySelectorAll('.case-pack-image').forEach(img => img.src = data.image);
   document.getElementById('pack-price').textContent = (data.price || 0).toLocaleString();
 
+  const cards = Object.values(data.prizes || {}).slice(0,5);
+  document.getElementById('pack-preview').innerHTML = cards.map(c => `
+    <img src="${c.image}" class="w-24 h-28 object-contain rounded-xl bg-black/40 border-2 border-yellow-500/40 shadow-lg transform transition-transform duration-300 hover:scale-105" />
+  `).join('');
+
   const prizes = Object.values(data.prizes || {});
   const rarityColors = {
     common: '#a1a1aa',
@@ -173,7 +178,6 @@ function selectCard(card, index) {
 
   setTimeout(() => {
     flipCard(index);
-    confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
     setTimeout(showWinPopup, 600);
   }, others.length * delay + 400);
 }
