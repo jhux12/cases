@@ -12,6 +12,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="scripts/firebase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <link rel="stylesheet" href="styles/main.css" />
   <style>
     .clamp-2 {
@@ -40,6 +41,13 @@
     .flip-card-front { transform:rotateY(180deg); }
     .flip-card:hover { transform:scale(1.05); }
   </style>
+  <style>
+    @keyframes win-glow {
+      0%, 100% { box-shadow: 0 0 0 rgba(255,215,0,0.4); }
+      50% { box-shadow: 0 0 20px rgba(255,215,0,0.9); }
+    }
+    .flip-card.selected { animation: win-glow 1s ease-in-out; }
+  </style>
 </head>
 <body class="bg-gradient-to-br from-black via-gray-900 to-black text-white overflow-x-hidden">
   <canvas id="particle-canvas"></canvas>
@@ -61,7 +69,7 @@
 
     <div id="pack-display" class="flex flex-col items-center gap-4 mt-6">
       <img id="main-pack-image" class="w-40 h-40 object-contain" alt="Pack" />
-      <button id="open-pack" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-105 focus:outline-none overflow-hidden">
+      <button id="open-pack" class="shining-button animate-pulse relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-105 focus:outline-none overflow-hidden">
         <span class="relative z-10 flex items-center gap-2">
           Open for
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />

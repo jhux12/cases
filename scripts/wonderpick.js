@@ -159,7 +159,7 @@ function selectCard(card, index) {
   label.textContent = 'Your Pick';
   label.className = 'absolute -top-6 left-1/2 -translate-x-1/2 text-xs bg-purple-600 px-2 py-1 rounded shadow';
   card.appendChild(label);
-  card.classList.add('ring-4', 'ring-yellow-400');
+  card.classList.add('ring-4', 'ring-yellow-400', 'selected');
 
   const others = cardPrizes
     .map((p,i) => ({p,i}))
@@ -173,6 +173,7 @@ function selectCard(card, index) {
 
   setTimeout(() => {
     flipCard(index);
+    confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
     setTimeout(showWinPopup, 600);
   }, others.length * delay + 400);
 }
