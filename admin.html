@@ -48,6 +48,7 @@
     <div class="text-xl font-bold text-white">PrimePull.gg Admin</div>
     <div class="space-x-4">
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('cases')">Cases</a>
+      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('homepage')">Homepage</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('shipments')">Shipments</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('support')">Support Forms</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('users')">Users</a>
@@ -58,6 +59,56 @@
   </nav>
 
   <main id="admin-panel" class="p-6" style="display: none;">
+    <!-- Homepage Section -->
+    <section id="homepage-section" class="hidden">
+      <h1 class="text-3xl font-bold mb-6">Homepage Content</h1>
+      <form id="homepage-form" class="space-y-6 max-w-3xl">
+        <div>
+          <label class="block mb-1">Hero Title</label>
+          <input type="text" id="home-hero-title" class="w-full p-2 rounded">
+        </div>
+        <div>
+          <label class="block mb-1">Hero Subtitle</label>
+          <textarea id="home-hero-sub" class="w-full p-2 rounded"></textarea>
+        </div>
+        <div>
+          <label class="block mb-1">Hero Background URL</label>
+          <input type="text" id="home-hero-bg" class="w-full p-2 rounded">
+        </div>
+        <h2 class="text-2xl font-semibold pt-4">Value Proposition</h2>
+        <div>
+          <label class="block mb-1">Heading</label>
+          <input type="text" id="vp-heading" class="w-full p-2 rounded">
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="p-4 bg-gray-800 rounded">
+            <h3 class="font-semibold mb-2">Card 1</h3>
+            <input type="text" id="vp1-icon" placeholder="Icon class (fa-certificate)" class="w-full p-2 rounded mb-2">
+            <input type="text" id="vp1-title" placeholder="Title" class="w-full p-2 rounded mb-2">
+            <textarea id="vp1-desc" placeholder="Description" class="w-full p-2 rounded"></textarea>
+          </div>
+          <div class="p-4 bg-gray-800 rounded">
+            <h3 class="font-semibold mb-2">Card 2</h3>
+            <input type="text" id="vp2-icon" placeholder="Icon class (fa-rotate)" class="w-full p-2 rounded mb-2">
+            <input type="text" id="vp2-title" placeholder="Title" class="w-full p-2 rounded mb-2">
+            <textarea id="vp2-desc" placeholder="Description" class="w-full p-2 rounded"></textarea>
+          </div>
+          <div class="p-4 bg-gray-800 rounded">
+            <h3 class="font-semibold mb-2">Card 3</h3>
+            <input type="text" id="vp3-icon" placeholder="Icon class (fa-lock)" class="w-full p-2 rounded mb-2">
+            <input type="text" id="vp3-title" placeholder="Title" class="w-full p-2 rounded mb-2">
+            <textarea id="vp3-desc" placeholder="Description" class="w-full p-2 rounded"></textarea>
+          </div>
+          <div class="p-4 bg-gray-800 rounded">
+            <h3 class="font-semibold mb-2">Card 4</h3>
+            <input type="text" id="vp4-icon" placeholder="Icon class (fa-truck-fast)" class="w-full p-2 rounded mb-2">
+            <input type="text" id="vp4-title" placeholder="Title" class="w-full p-2 rounded mb-2">
+            <textarea id="vp4-desc" placeholder="Description" class="w-full p-2 rounded"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded">Save Homepage</button>
+      </form>
+    </section>
     <!-- Cases Section -->
     <section id="cases-section">
       <h1 class="text-3xl font-bold mb-6">Manage Cases</h1>
@@ -231,11 +282,12 @@
     }
 
   function showSection(id) {
-  const sections = ['cases', 'shipments', 'support', 'users', 'marketplace', 'quests', 'milestones'];
+  const sections = ['homepage', 'cases', 'shipments', 'support', 'users', 'marketplace', 'quests', 'milestones'];
   sections.forEach(section => {
     document.getElementById(section + '-section').classList.add('hidden');
   });
   document.getElementById(id + '-section').classList.remove('hidden');
+  if (id === 'homepage') loadHomepageContent();
 }
 
     function previewImage(url) {
@@ -830,6 +882,43 @@ document.getElementById('milestone-config-form').addEventListener('submit', e =>
     if (!isNaN(threshold)) levels.push({ threshold, reward });
   });
   firebase.database().ref('milestoneConfig').set({ badges, levels }).then(() => showToast('✅ Milestone config saved'));
+});
+
+function loadHomepageContent() {
+  const ref = firebase.database().ref('homepage');
+  ref.once('value').then(snap => {
+    const data = snap.val() || {};
+    document.getElementById('home-hero-title').value = data.hero?.title || '';
+    document.getElementById('home-hero-sub').value = data.hero?.subtitle || '';
+    document.getElementById('home-hero-bg').value = data.hero?.background || '';
+    document.getElementById('vp-heading').value = data.valueProps?.heading || '';
+    const items = data.valueProps?.items || [];
+    for (let i = 1; i <= 4; i++) {
+      const item = items[i-1] || {};
+      document.getElementById(`vp${i}-icon`).value = item.icon || '';
+      document.getElementById(`vp${i}-title`).value = item.title || '';
+      document.getElementById(`vp${i}-desc`).value = item.desc || '';
+    }
+  });
+}
+
+document.getElementById('homepage-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const hero = {
+    title: document.getElementById('home-hero-title').value.trim(),
+    subtitle: document.getElementById('home-hero-sub').value.trim(),
+    background: document.getElementById('home-hero-bg').value.trim()
+  };
+  const heading = document.getElementById('vp-heading').value.trim();
+  const items = [];
+  for (let i = 1; i <= 4; i++) {
+    const title = document.getElementById(`vp${i}-title`).value.trim();
+    const desc = document.getElementById(`vp${i}-desc`).value.trim();
+    const icon = document.getElementById(`vp${i}-icon`).value.trim();
+    if (title || desc || icon) items.push({ icon, title, desc });
+  }
+  firebase.database().ref('homepage').set({ hero, valueProps: { heading, items } })
+    .then(() => showToast('✅ Homepage content saved'));
 });
 
   </script>

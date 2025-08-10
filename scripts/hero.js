@@ -30,5 +30,10 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }, { threshold: 0.2 });
 
-  document.querySelectorAll('.highlight-card, .trending-card').forEach(card => observer.observe(card));
+  const observeCards = () => {
+    document.querySelectorAll('.highlight-card, .trending-card').forEach(card => observer.observe(card));
+  };
+
+  observeCards();
+  document.addEventListener('homepageDataLoaded', observeCards);
 });
