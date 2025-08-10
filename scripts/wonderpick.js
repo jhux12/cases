@@ -1,5 +1,7 @@
 let currentPack = null;
 let currentPrize = null;
+let cardPrizes = [];
+let selectedIndex = null;
 
 function renderPack(data) {
   document.getElementById('pack-name').textContent = data.name;
@@ -87,6 +89,16 @@ async function openPack() {
   await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
   currentPrize = { ...winningPrize, key: invRef.key };
 
+  // prepare filler prizes for the face-down cards
+  const allPrizes = Object.values(currentPack.prizes || {});
+  const fillers = allPrizes.filter(p => p !== winningPrize);
+  while (fillers.length < 5) {
+    fillers.push(fillers[Math.floor(Math.random() * fillers.length)] || winningPrize);
+  }
+  // randomize filler order for card placement
+  cardPrizes = fillers.slice(0,5).sort(() => Math.random() - 0.5);
+  selectedIndex = null;
+
   document.getElementById('pack-section').classList.add('hidden');
   document.getElementById('selection-section').classList.remove('hidden');
   document.getElementById('rewards-grid').innerHTML = document.getElementById('prizes-grid').innerHTML;
@@ -97,26 +109,57 @@ function setupCards() {
   const container = document.getElementById('card-container');
   container.innerHTML = '';
   const backImg = currentPack.cardBack || 'https://via.placeholder.com/160x160?text=Back';
-  for (let i = 0; i < 5; i++) {
+  cardPrizes.forEach((prize, i) => {
     const card = document.createElement('div');
-    card.className = 'flip-card animate-in';
+    card.className = 'flip-card animate-in relative';
+    card.dataset.index = i;
     card.style.transform = `rotate(${(i-2)*10}deg)`;
     card.style.animationDelay = `${i * 0.1}s`;
     card.innerHTML = `
       <div class="flip-card-inner">
-        <img class="flip-card-front w-40 h-40 object-contain rounded-xl" src="" alt="Front" />
+        <img class="flip-card-front w-40 h-40 object-contain rounded-xl" src="${prize.image}" alt="Front" />
         <img class="flip-card-back w-40 h-40 object-contain rounded-xl" src="${backImg}" alt="Back" />
       </div>`;
-    card.addEventListener('click', () => revealCard(card));
+    card.addEventListener('click', () => selectCard(card, i));
     container.appendChild(card);
-  }
+  });
 }
 
-function revealCard(card) {
+function flipCard(index) {
+  const card = document.querySelector(`.flip-card[data-index="${index}"]`);
+  if (card) card.classList.add('flipped');
+}
+
+function selectCard(card, index) {
+  if (selectedIndex !== null) return;
+  selectedIndex = index;
+
+  // replace the selected card's prize with the actual winning prize
+  cardPrizes[index] = currentPrize;
   const front = card.querySelector('.flip-card-front');
   front.src = currentPrize.image;
-  card.classList.add('flipped');
-  showWinPopup();
+
+  // visually mark the chosen card
+  const label = document.createElement('div');
+  label.textContent = 'Your Pick';
+  label.className = 'absolute -top-6 left-1/2 -translate-x-1/2 text-xs bg-purple-600 px-2 py-1 rounded shadow';
+  card.appendChild(label);
+  card.classList.add('ring-4', 'ring-yellow-400');
+
+  const others = cardPrizes
+    .map((p,i) => ({p,i}))
+    .filter(obj => obj.i !== index)
+    .sort((a,b) => a.p.value - b.p.value); // highest value last
+
+  const delay = 400;
+  others.forEach((obj, idx) => {
+    setTimeout(() => flipCard(obj.i), idx * delay);
+  });
+
+  setTimeout(() => {
+    flipCard(index);
+    setTimeout(showWinPopup, 600);
+  }, others.length * delay + 400);
 }
 
 function showWinPopup() {
