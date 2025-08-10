@@ -165,22 +165,22 @@
   </div>
 </section>
 
-<!-- Recent Wins -->
-<section class="py-8 bg-gradient-to-b from-[#1f1f2b] to-[#12121b] relative overflow-hidden">
-  <h2 class="text-3xl font-bold text-center mb-6 text-white flex items-center justify-center gap-4 relative z-10">
-    <span class="bg-red-600 text-white text-xs px-3 py-1 rounded-full animate-pulse shadow-md tracking-wide">LIVE</span>
-    <span class="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] tracking-wide">Best Drops</span>
-  </h2>
-  
-  <!-- Optional glowing line underneath -->
-  <div class="w-40 h-1 mx-auto bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 rounded-full blur-sm opacity-70 mb-4"></div>
+<!-- Best Drops -->
+<section id="best-drops" class="relative py-16 overflow-hidden bg-gradient-to-br from-[#050510] via-[#0b0f2c] to-[#050510]">
+  <!-- Futuristic grid background -->
+  <div class="absolute inset-0 -z-10 opacity-30 bg-[linear-gradient(to_right,#2e2e3a_1px,transparent_1px),linear-gradient(to_bottom,#2e2e3a_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+  <!-- Glowing gradient orbs -->
+  <div class="absolute -top-24 -left-24 w-96 h-96 bg-fuchsia-700 rounded-full blur-3xl opacity-25"></div>
+  <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-700 rounded-full blur-3xl opacity-25"></div>
 
-  <!-- Optional floating background sparkles (can disable if too distracting) -->
-  <div class="absolute inset-0 pointer-events-none opacity-10 z-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] bg-repeat"></div>
-    <!-- Card-style display -->
-<div id="recent-wins-carousel" class="flex overflow-x-auto gap-4 px-4 py-2 scrollbar-hide w-full scroll-smooth">
-  <!-- Cards will be injected here -->
-</div>
+  <h2 class="relative flex items-center justify-center gap-3 mb-10 text-3xl md:text-4xl font-extrabold tracking-tight">
+    <span class="animate-pulse bg-pink-600 text-xs px-3 py-1 rounded-full uppercase tracking-widest">Live</span>
+    <span class="bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-purple-600 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(168,85,247,0.6)]">Best Drops</span>
+  </h2>
+
+  <div id="recent-wins-carousel" class="relative flex overflow-x-auto gap-6 px-6 py-4 scrollbar-hide w-full scroll-smooth">
+    <!-- Cards will be injected here -->
+  </div>
 </section>
 
 <footer></footer>
