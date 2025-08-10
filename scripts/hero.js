@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let offset = 0;
   let baseSpeed = 0.6;
-  let speed = baseSpeed;
+  let speed = 0;
   let demoLock = false;
   let lastTs = performance.now();
   let tilesCount = 0;
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         tiles.forEach(tile => tile.classList.remove('glow'));
         tiles[idx % tiles.length].classList.add('glow');
-        setTimeout(() => { speed = baseSpeed; }, 1200);
+        speed = 0;
         demoLock = false;
       }
     }
@@ -93,8 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function scheduleDemo() {
-    demoOpen();
-    setInterval(demoOpen, 5000);
+    setTimeout(demoOpen, 500);
   }
 
   function fetchPrizes() {
@@ -114,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchPrizes().then(prizes => {
     if (!prizes.length) return;
     buildTrack(prizes.slice(0, 12));
+    offset = -Math.random() * trackPx;
     requestAnimationFrame(loop);
     scheduleDemo();
   });

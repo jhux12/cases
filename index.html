@@ -57,9 +57,8 @@
 <header></header>
 
 <!-- Hero -->
-<section id="hero" class="hero-bg relative w-full min-h-[500px] aspect-[3/4] md:aspect-[16/9] flex items-center justify-center mt-[72px] mb-24 md:mb-0">
-  <!-- HEADLINE -->
-  <div class="absolute top-16 w-full px-6 text-center">
+<section id="hero" class="hero-bg relative w-full aspect-[16/9] min-h-[500px] flex flex-col items-center justify-center pt-[72px] mb-24 md:mb-0">
+  <div class="w-full px-6 text-center">
     <h1 class="mx-auto max-w-5xl text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
       DISCOVER, OPEN & COLLECT
       <span class="block text-transparent bg-clip-text bg-gradient-to-r from-[#6C5CE7] via-[#09F] to-[#FF4DD8]">
@@ -69,13 +68,11 @@
     <p class="mt-4 opacity-75 text-lg">Packly.gg — premium case opening with provably fair spins.</p>
   </div>
 
-  <!-- SPINNER -->
-  <div class="relative w-full max-w-4xl mt-12 px-4">
+  <div class="relative w-full max-w-4xl mt-12 px-4 flex flex-col items-center">
     <div class="spin-viewport relative mx-auto overflow-hidden rounded-2xl border border-white/10 bg-black/20 backdrop-blur-sm p-4">
       <div id="spinTrack" class="spin-track flex gap-4 will-change-transform"></div>
       <div class="center-pin"></div>
     </div>
-    <!-- CTA placeholders -->
     <div class="mt-8 flex items-center justify-center gap-3">
       <a href="/signup" class="btn-ghost rounded-xl px-6 py-3 text-lg font-semibold hover:bg-white/10 transition">
         Sign up now
@@ -86,7 +83,6 @@
     </div>
   </div>
 
-  <!-- SUBTLE STARDUST -->
   <div class="pointer-events-none absolute inset-0">
     <div class="absolute inset-0 animate-pulse opacity-30" style="
       background: radial-gradient(2px 2px at 20% 30%, #fff 50%, transparent 55%),
