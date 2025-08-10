@@ -1,6 +1,7 @@
 // Store prizes for each spinner instance
 const spinnerPrizesMap = {};
 const targetIndex = 15;
+let spinCounter = 0;
 
 function getRarityColor(rarity) {
   const base = rarity?.toLowerCase().replace(/\s+/g, '');
@@ -110,6 +111,11 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
   }
 
   let scrollOffset = (cardCenter - containerCenter) / scale;
+  spinCounter++;
+  if (spinCounter % 4 === 0) {
+    const dir = Math.random() < 0.5 ? -1 : 1;
+    scrollOffset += dir * 30;
+  }
 
   // Now apply the spin
   requestAnimationFrame(() => {

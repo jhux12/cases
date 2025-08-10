@@ -376,6 +376,7 @@ const spiceHTML = spiceData
 document.getElementById("case-name").textContent = caseData.name;
 document.getElementById("case-spice").innerHTML = spiceHTML;
 const openBtn = document.getElementById("open-case-button");
+const spinSelect = document.getElementById('spin-count');
 function updatePriceDisplay(count) {
   const total = (caseData.price || 0) * count;
   const priceEl = document.getElementById("button-price");
@@ -384,6 +385,7 @@ function updatePriceDisplay(count) {
 
 if (isFreeCase) {
   openBtn.innerHTML = '<span class="relative z-10">Open for Free</span>';
+  if (spinSelect) spinSelect.remove();
 } else {
   updatePriceDisplay(1);
 }
@@ -397,14 +399,16 @@ const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
 const previewPrizes = prizeList.slice(0, 30);
 setupSpinners(1);
 renderSpinner(previewPrizes, null, true, 0); // show preview spinner
-document.getElementById('spin-count').addEventListener('change', (e) => {
-  const count = parseInt(e.target.value) || 1;
-  setupSpinners(count);
-  for (let i = 0; i < count; i++) {
-    renderSpinner(previewPrizes, null, true, i);
-  }
-  if (!isFreeCase) updatePriceDisplay(count);
-});
+if (spinSelect) {
+  spinSelect.addEventListener('change', (e) => {
+    const count = parseInt(e.target.value) || 1;
+    setupSpinners(count);
+    for (let i = 0; i < count; i++) {
+      renderSpinner(previewPrizes, null, true, i);
+    }
+    if (!isFreeCase) updatePriceDisplay(count);
+  });
+}
       const rarityColors = {
         common: "#a1a1aa",
         uncommon: "#4ade80",
@@ -435,7 +439,8 @@ enablePrizePopups();
 
 document.getElementById("open-case-button").addEventListener("click", async () => {
   const btn = document.getElementById("open-case-button");
-  const spinCount = parseInt(document.getElementById("spin-count").value) || 1;
+  const spinCount = isFreeCase ? 1 : parseInt(spinSelect.value) || 1;
+  if (spinSelect) spinSelect.disabled = true;
   btn.disabled = true;
   btn.classList.add("cursor-not-allowed", "opacity-60");
   btn.innerHTML = `
@@ -449,7 +454,10 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   `;
 
   const user = firebase.auth().currentUser;
-  if (!user) return alert("Please sign in to open cases.");
+  if (!user) {
+    if (spinSelect) spinSelect.disabled = false;
+    return alert("Please sign in to open cases.");
+  }
 
   const userSnap = await firebase.database().ref('users/' + user.uid).once("value");
   const userData = userSnap.val() || {};
@@ -468,6 +476,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     btn.disabled = false;
     btn.classList.remove("cursor-not-allowed", "opacity-60");
     btn.innerHTML = '<span class="relative z-10">Open for Free</span>';
+    if (spinSelect) spinSelect.disabled = false;
     return;
   }
 
@@ -482,12 +491,16 @@ document.getElementById("open-case-button").addEventListener("click", async () =
         <span id="button-price">${formatCoins(caseData.price)}</span>
       </span>
     `;
+    if (spinSelect) spinSelect.disabled = false;
     return;
   }
 
   const fairSnap = await firebase.database().ref('users/' + user.uid + '/provablyFair').once("value");
   const fairData = fairSnap.val();
-  if (!fairData) return alert("Provably fair data missing.");
+  if (!fairData) {
+    if (spinSelect) spinSelect.disabled = false;
+    return alert("Provably fair data missing.");
+  }
   const { serverSeed, clientSeed, nonce } = fairData;
 
   setupSpinners(spinCount);
@@ -577,6 +590,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
                 <span id="button-price">${formatCoins(caseData.price)}</span>
               </span>`;
           if (!isFreeCase) updatePriceDisplay(spinCount);
+          if (spinSelect) spinSelect.disabled = false;
 
           showMultiWinPopup(winnings);
         }
