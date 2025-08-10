@@ -4,19 +4,6 @@ const selectedItems = new Set();
 let currentItems = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.addEventListener('mousemove', e => {
-    document.documentElement.style.setProperty('--mouse-x', e.clientX + 'px');
-    document.documentElement.style.setProperty('--mouse-y', e.clientY + 'px');
-  });
-
-  if (window.VanillaTilt) {
-    VanillaTilt.init(document.querySelectorAll('[data-tilt]:not(.item-card)'), {
-      max: 10,
-      speed: 400,
-      glare: true,
-      "max-glare": 0.2
-    });
-  }
   const itemPopup = document.getElementById('item-popup');
   document.getElementById('close-item-popup')?.addEventListener('click', closeItemPopup);
   itemPopup?.addEventListener('click', e => { if (e.target === itemPopup) closeItemPopup(); });
@@ -172,13 +159,13 @@ function renderItems(items) {
   const container = document.getElementById('inventory-container');
   container.innerHTML = '';
 
-  items.forEach((item, idx) => {
+  items.forEach(item => {
     const refund = Math.floor((item.value || 0) * 0.8);
     const checked = selectedItems.has(item.key) ? 'checked' : '';
     container.innerHTML += `
-      <div class="item-card rounded-2xl p-6 text-center cursor-default" style="animation-delay:${idx * 50}ms" data-tilt data-tilt-max="15" data-tilt-glare="true" data-tilt-max-glare="0.5">
+      <div class="item-card rounded-2xl p-6 text-center cursor-default">
         <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-3 accent-pink-500" ${item.shipped || item.requested ? 'disabled' : ''} />
-        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}')" class="mx-auto mb-4 h-28 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
+        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}')" class="mx-auto mb-4 h-28 object-contain rounded shadow-lg cursor-pointer" />
         <h2 class="font-bold text-xl text-yellow-300">${item.name}</h2>
         <p class="text-sm text-pink-200 mb-1">Rarity: ${item.rarity}</p>
         <p class="text-sm text-pink-200 mb-3">Value: ${item.value || 0} coins</p>
@@ -191,15 +178,6 @@ function renderItems(items) {
         </div>
       </div>`;
   });
-
-  if (window.VanillaTilt) {
-    VanillaTilt.init(container.querySelectorAll('.item-card'), {
-      max: 15,
-      speed: 400,
-      glare: true,
-      "max-glare": 0.5
-    });
-  }
 }
 
 function sellBack(key, value) {
@@ -348,14 +326,7 @@ function showItemPopup(encodedSrc) {
   const img = document.getElementById('popup-item-image');
   if (!img) return;
   img.src = src;
-  const popup = document.getElementById('item-popup');
-  const card = popup?.querySelector('.popup-card');
-  popup?.classList.remove('hidden');
-  if (card) {
-    card.classList.remove('animate');
-    void card.offsetWidth;
-    card.classList.add('animate');
-  }
+  document.getElementById('item-popup')?.classList.remove('hidden');
 }
 
 function closeItemPopup() {

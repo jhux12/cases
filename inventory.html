@@ -11,48 +11,14 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --mouse-x: 50%;
-      --mouse-y: 50%;
-    }
     body {
       margin: 0;
       padding: 0;
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #3b0764, #9333ea, #ec4899);
-      background-size: 300% 300%;
-      animation: gradientMove 15s ease infinite;
+      background: linear-gradient(135deg, #1e1b4b, #312e81);
       color: #fff;
-      overflow-x: hidden;
-    }
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), rgba(236,72,153,0.25), transparent 60%);
-      transition: background 0.2s ease;
-      z-index: -1;
-    }
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-size: 60px 60px;
-      background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-      mix-blend-mode: overlay;
-      z-index: -2;
-    }
-
-    @keyframes gradientMove {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
     }
 
     header {
@@ -64,61 +30,31 @@
     }
 
     .panel {
-      background: rgba(255, 255, 255, 0.15);
-      border: 2px solid rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(10px);
-      border-radius: 1.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      border-radius: 1rem;
     }
-
 
     .item-card {
-      position: relative;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 1.25rem;
-      overflow: hidden;
-      border: 2px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(12px);
-      opacity: 0;
-      animation: fadeInUp 0.6s ease forwards, float 6s ease-in-out infinite 0.6s;
-      transition: transform 0.4s ease, box-shadow 0.4s ease;
-    }
-
-    .item-card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      padding: 2px;
-      border-radius: inherit;
-      background: linear-gradient(135deg, #facc15, #ec4899, #8b5cf6);
-      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor;
-      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      mask-composite: exclude;
-      pointer-events: none;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .item-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
-    }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
     }
 
     .btn {
       font-weight: 600;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .btn:hover {
-      transform: scale(1.05);
+      transform: scale(1.03);
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
     }
 
@@ -127,26 +63,6 @@
       color: black;
     }
 
-    /* Background blobs */
-    .animate-blob {
-      animation: blob 8s infinite;
-    }
-
-    .animation-delay-2000 {
-      animation-delay: 2s;
-    }
-
-    .animation-delay-4000 {
-      animation-delay: 4s;
-    }
-
-    @keyframes blob {
-      0%, 100% { transform: translate(0,0) scale(1); }
-      33% { transform: translate(30px,-50px) scale(1.1); }
-      66% { transform: translate(-20px,20px) scale(0.9); }
-    }
-
-    /* Item preview popup */
     #item-popup {
       background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(4px);
@@ -159,91 +75,39 @@
       box-shadow: 0 0 25px rgba(236,72,153,0.5), 0 0 50px rgba(236,72,153,0.3);
     }
 
-    .popup-card {}
-
-    .popup-card.animate {
-      animation: popIn 0.3s ease;
-    }
-
-    @keyframes popIn {
-      from { transform: scale(0.8); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .shimmer {
-      position: relative;
-      overflow: hidden;
-    }
-
-    .shimmer::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 200%;
-      height: 100%;
-      background: linear-gradient(
-        120deg,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.4) 50%,
-        rgba(255,255,255,0) 100%
-      );
-      animation: shimmer 2s infinite;
-    }
-
-    @keyframes shimmer {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-
-    #bg-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -3;
-    }
-
     .search-input {
-      background: rgba(255,255,255,0.15);
-      border: 2px solid rgba(255,255,255,0.25);
-      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(6px);
       border-radius: 9999px;
       padding: 0.5rem 1rem 0.5rem 2.5rem;
       color: #fff;
-      transition: box-shadow 0.3s ease;
+      transition: box-shadow 0.2s ease;
     }
 
     .search-input::placeholder {
-      color: #fbcfe8;
+      color: #cbd5e1;
     }
 
     .search-input:focus {
       outline: none;
-      box-shadow: 0 0 15px rgba(236,72,153,0.5);
+      box-shadow: 0 0 0 2px rgba(236,72,153,0.5);
     }
   </style>
 </head>
 <body class="min-h-screen">
-  <canvas id="bg-canvas"></canvas>
-
   <!-- Dynamic Header -->
   <header></header>
 
   <!-- Hero -->
-  <section class="pt-32 pb-32 px-4 text-center relative overflow-hidden">
-    <div class="absolute -top-10 -left-10 w-52 h-52 bg-pink-500 rounded-full mix-blend-screen filter blur-3xl opacity-70 animate-blob"></div>
-    <div class="absolute -bottom-16 -right-16 w-64 h-64 bg-purple-600 rounded-full mix-blend-screen filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
-    <div class="absolute top-1/2 left-1/2 w-40 h-40 bg-yellow-400 rounded-full mix-blend-screen filter blur-3xl opacity-60 animate-blob animation-delay-4000"></div>
-    <div class="max-w-4xl mx-auto relative">
-      <h1 class="text-5xl md:text-6xl font-extrabold mb-6 flex items-center justify-center gap-3" data-tilt data-tilt-max="10" data-tilt-speed="400">
-        <i class="fas fa-box-open text-yellow-300 animate-bounce"></i>
+  <section class="pt-32 pb-16 px-4 text-center">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-5xl md:text-6xl font-extrabold mb-6 flex items-center justify-center gap-3">
+        <i class="fas fa-box-open text-yellow-300"></i>
         <span class="bg-gradient-to-r from-yellow-300 via-pink-500 to-purple-500 bg-clip-text text-transparent drop-shadow-lg">Inventory</span>
       </h1>
-      <p class="mt-2 text-pink-200 text-lg">Ship out your pulls or sell them back for coins — manage your inventory with flair.</p>
+      <p class="mt-2 text-pink-200 text-lg">Ship out your pulls or sell them back for coins — manage your inventory with ease.</p>
     </div>
-    <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="rgba(255,255,255,0.1)" d="M0,224L80,229.3C160,235,320,245,480,234.7C640,224,800,192,960,186.7C1120,181,1280,203,1360,213.3L1440,224V320H0Z"></path></svg>
   </section>
 
   <!-- Tabs & Content -->
@@ -254,8 +118,8 @@
     </div>
 
     <section id="inventory-section">
-      <button id="toggle-controls" class="md:hidden fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 shadow-2xl transition-transform hover:scale-110"><i class="fas fa-sliders-h text-2xl"></i></button>
-      <div id="controls-panel" class="panel hidden md:flex flex-col md:flex-row justify-between items-center gap-4 p-6 mb-12 shadow-xl transition-all duration-300">
+      <button id="toggle-controls" class="md:hidden fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 shadow-2xl"><i class="fas fa-sliders-h text-2xl"></i></button>
+      <div id="controls-panel" class="panel hidden md:flex flex-col md:flex-row justify-between items-center gap-4 p-6 mb-12 shadow-xl">
         <div class="flex flex-wrap items-center gap-4 text-sm">
           <label class="flex items-center gap-2"><input type="checkbox" id="select-all-checkbox" class="accent-pink-500"><span class="flex items-center gap-1"><i class="fas fa-check-double text-pink-400"></i>Select All</span></label>
           <div class="flex items-center gap-2">
@@ -273,8 +137,8 @@
         </div>
         <div class="flex flex-col sm:flex-row items-center gap-3">
           <span id="selected-total" class="text-sm text-gray-200">Total: 0 coins</span>
-          <button onclick="sellSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 hover:from-amber-400 hover:via-pink-500 hover:to-fuchsia-500 transition btn flex items-center gap-2"><i class="fas fa-coins"></i>Sell Selected</button>
-          <button onclick="shipSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 hover:from-amber-400 hover:via-pink-500 hover:to-fuchsia-500 transition btn flex items-center gap-2"><i class="fas fa-truck"></i>Ship Selected</button>
+          <button onclick="sellSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 btn flex items-center gap-2"><i class="fas fa-coins"></i>Sell Selected</button>
+          <button onclick="shipSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 btn flex items-center gap-2"><i class="fas fa-truck"></i>Ship Selected</button>
         </div>
       </div>
       <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
@@ -292,7 +156,7 @@
   <!-- Item Preview Popup -->
   <div id="item-popup" class="fixed inset-0 hidden flex items-center justify-center z-50">
     <div class="popup-card relative">
-      <img id="popup-item-image" class="shimmer rounded-lg" src="" alt="Item preview" />
+      <img id="popup-item-image" class="rounded-lg" src="" alt="Item preview" />
       <button id="close-item-popup" class="absolute -top-4 -right-4 w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center">&times;</button>
     </div>
   </div>
@@ -328,34 +192,6 @@
       .then(html => {
         document.getElementById("topup-popup-container").innerHTML = html;
       });
-  </script>
-
-  <script>
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d');
-    let stars = [];
-    function resize(){
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resize);
-    resize();
-    for(let i=0;i<150;i++){
-      stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+0.5});
-    }
-    function animate(){
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle='rgba(255,255,255,0.8)';
-      stars.forEach(s=>{
-        ctx.beginPath();
-        ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-        ctx.fill();
-        s.y+=s.r*0.15;
-        if(s.y>canvas.height){s.y=0;s.x=Math.random()*canvas.width;}
-      });
-      requestAnimationFrame(animate);
-    }
-    animate();
   </script>
 
 </body>
