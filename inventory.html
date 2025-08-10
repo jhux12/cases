@@ -46,16 +46,46 @@
       border-radius: 1.5rem;
     }
 
+    .panel-controls {
+      position: sticky;
+      top: 5rem;
+      z-index: 40;
+    }
+
     .item-card {
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(10px);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 1.25rem;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      opacity: 0;
+      animation: fadeInUp 0.6s ease forwards;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .item-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      padding: 2px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, #facc15, #ec4899, #8b5cf6);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
     }
 
     .item-card:hover {
-      transform: translateY(-6px) rotate(1deg);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .btn {
@@ -200,28 +230,28 @@
     </div>
 
     <section id="inventory-section">
-      <div class="panel flex flex-col md:flex-row justify-between items-center gap-4 p-6 mb-12">
-      <div class="flex flex-wrap items-center gap-4 text-sm">
-        <label class="flex items-center gap-2"><input type="checkbox" id="select-all-checkbox" class="accent-pink-500">Select All</label>
-        <div class="flex items-center gap-2">
-          <label for="sort-select" class="whitespace-nowrap">Sort by:</label>
-          <select id="sort-select" class="text-black rounded px-3 py-1">
-            <option value="rarity">Rarity</option>
-            <option value="value">Value</option>
-            <option value="name">Name</option>
-          </select>
+      <div class="panel panel-controls flex flex-col md:flex-row justify-between items-center gap-4 p-6 mb-12 shadow-xl">
+        <div class="flex flex-wrap items-center gap-4 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" id="select-all-checkbox" class="accent-pink-500"><span class="flex items-center gap-1"><i class="fas fa-check-double text-pink-400"></i>Select All</span></label>
+          <div class="flex items-center gap-2">
+            <label for="sort-select" class="flex items-center gap-1 whitespace-nowrap"><i class="fas fa-sort-amount-down"></i>Sort by:</label>
+            <select id="sort-select" class="text-black rounded px-3 py-1">
+              <option value="rarity">Rarity</option>
+              <option value="value">Value</option>
+              <option value="name">Name</option>
+            </select>
+          </div>
+          <div class="relative w-56">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-pink-300"></i>
+            <input id="search-input" type="text" placeholder="Search items..." class="search-input w-full" />
+          </div>
         </div>
-        <div class="relative">
-          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-pink-300"></i>
-          <input id="search-input" type="text" placeholder="Search" class="search-input" />
+        <div class="flex flex-col sm:flex-row items-center gap-3">
+          <span id="selected-total" class="text-sm text-gray-200">Total: 0 coins</span>
+          <button onclick="sellSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 hover:from-amber-400 hover:via-pink-500 hover:to-fuchsia-500 transition btn flex items-center gap-2"><i class="fas fa-coins"></i>Sell Selected</button>
+          <button onclick="shipSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 hover:from-amber-400 hover:via-pink-500 hover:to-fuchsia-500 transition btn flex items-center gap-2"><i class="fas fa-truck"></i>Ship Selected</button>
         </div>
       </div>
-      <div class="flex flex-col sm:flex-row items-center gap-3">
-        <span id="selected-total" class="text-sm text-gray-200">Total: 0 coins</span>
-        <button onclick="sellSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 hover:from-amber-400 hover:via-pink-500 hover:to-fuchsia-500 transition btn">Sell Selected</button>
-        <button onclick="shipSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 hover:from-amber-400 hover:via-pink-500 hover:to-fuchsia-500 transition btn">Ship Selected</button>
-      </div>
-    </div>
       <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
     </section>
 

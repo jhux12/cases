@@ -150,11 +150,11 @@ function renderItems(items) {
   const container = document.getElementById('inventory-container');
   container.innerHTML = '';
 
-  items.forEach(item => {
+  items.forEach((item, idx) => {
     const refund = Math.floor((item.value || 0) * 0.8);
     const checked = selectedItems.has(item.key) ? 'checked' : '';
     container.innerHTML += `
-      <div class="item-card rounded-2xl p-6 text-center cursor-default" data-tilt data-tilt-max="15" data-tilt-glare="true" data-tilt-max-glare="0.5">
+      <div class="item-card rounded-2xl p-6 text-center cursor-default" style="animation-delay:${idx * 50}ms" data-tilt data-tilt-max="15" data-tilt-glare="true" data-tilt-max-glare="0.5">
         <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-3 accent-pink-500" ${item.shipped || item.requested ? 'disabled' : ''} />
         <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}')" class="mx-auto mb-4 h-28 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
         <h2 class="font-bold text-xl text-yellow-300">${item.name}</h2>
