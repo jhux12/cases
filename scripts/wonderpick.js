@@ -6,6 +6,7 @@ let selectedIndex = null;
 function renderPack(data) {
   document.getElementById('pack-name').textContent = data.name;
   document.getElementById('pack-image').src = data.image;
+  document.querySelectorAll('.case-pack-image').forEach(img => img.src = data.image);
   document.getElementById('pack-price').textContent = (data.price || 0).toLocaleString();
 
   const prizes = Object.values(data.prizes || {});
