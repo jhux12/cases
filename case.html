@@ -116,16 +116,28 @@ function setupSpinners(count) {
   if (!wrapper) return;
   wrapper.innerHTML = '';
   for (let i = 0; i < count; i++) {
+    const isPrimary = i === 0;
     const border = document.createElement('div');
     border.id = `spinner-border-${i}`;
-    border.className = 'border-4 border-gray-800 rounded-lg bg-black/20 transition-colors duration-300 w-full sm:w-1/2 md:w-1/3';
+    border.className = `border-4 border-gray-800 rounded-lg bg-black/20 transition-colors duration-300 ${isPrimary ? 'w-full sm:w-2/3 md:w-1/2' : 'w-full sm:w-1/2 md:w-1/3'}`;
+
     const inner = document.createElement('div');
-    inner.className = `relative ${count > 1 ? 'h-[150px] sm:h-[200px]' : 'h-[200px]'} overflow-hidden`;
+    let heightClass;
+    if (count === 1) {
+      heightClass = 'h-[250px] sm:h-[300px]';
+    } else {
+      heightClass = isPrimary ? 'h-[200px] sm:h-[250px]' : 'h-[150px] sm:h-[180px]';
+    }
+    inner.className = `relative ${heightClass} overflow-hidden`;
+
     const line = document.createElement('div');
     line.className = 'absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10';
     const container = document.createElement('div');
     container.id = `spinner-container-${i}`;
-    container.className = 'w-full h-full';
+    container.className = 'w-full h-full transform';
+    if (!isPrimary && count > 1) {
+      container.classList.add('scale-90');
+    }
     inner.appendChild(line);
     inner.appendChild(container);
     border.appendChild(inner);
@@ -154,16 +166,91 @@ async function sellPrize(prize) {
 
 function showMultiWinPopup(prizes) {
   const popup = document.getElementById('win-popup');
-  const list = document.getElementById('win-list');
+  const itemContainer = document.getElementById('win-item');
+  const countEl = document.getElementById('win-count');
+  const prevBtn = document.getElementById('prev-win');
+  const nextBtn = document.getElementById('next-win');
   const sellAllBtn = document.getElementById('sell-all-btn');
   const sellAllValue = document.getElementById('sell-all-value');
-  list.innerHTML = '';
   const processed = new Set();
+  let current = 0;
+
   const totalSell = prizes.reduce((sum, p) => sum + Math.floor(p.value * 0.8), 0);
   sellAllValue.textContent = formatCoins(totalSell);
-  const updateClose = () => {
-    if (processed.size === prizes.length) popup.classList.add('hidden');
+
+  function render(index) {
+    const prize = prizes[index];
+    itemContainer.innerHTML = `
+      <div class="prize-card bg-gray-800 rounded-xl p-4 flex flex-col items-center">
+        <img src="${prize.image}" class="w-32 h-32 object-contain mb-2 rounded-lg shadow-md" />
+        <div class="text-sm font-semibold mb-1">${prize.name}</div>
+        <div class="flex items-center gap-1 text-yellow-300 text-sm mb-2"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />${formatCoins(prize.value)}</div>
+        <div class="flex gap-2 w-full mt-2">
+          <button id="keep-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 text-white text-sm font-bold flex items-center justify-center gap-1"><i class="fas fa-box-open"></i> Add to Inventory</button>
+          <button id="sell-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 text-white text-sm font-bold flex items-center justify-center gap-1"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />Sell for ${formatCoins(Math.floor(prize.value * 0.8))}</button>
+        </div>
+      </div>`;
+
+    const keepBtn = itemContainer.querySelector('#keep-btn');
+    const sellBtn = itemContainer.querySelector('#sell-btn');
+
+    if (processed.has(index)) {
+      keepBtn.disabled = true;
+      sellBtn.disabled = true;
+      itemContainer.firstElementChild.classList.add('opacity-50');
+    } else {
+      keepBtn.onclick = () => {
+        processed.add(index);
+        handleDone();
+      };
+      sellBtn.onclick = async () => {
+        await sellPrize(prize);
+        processed.add(index);
+        handleDone();
+      };
+    }
+
+    countEl.textContent = `${index + 1} / ${prizes.length}`;
+    prevBtn.disabled = index === 0;
+    nextBtn.disabled = index === prizes.length - 1;
+  }
+
+  function handleDone() {
+    if (processed.size === prizes.length) {
+      popup.classList.add('hidden');
+      return;
+    }
+    do {
+      current = (current + 1) % prizes.length;
+    } while (processed.has(current));
+    render(current);
+  }
+
+  prevBtn.onclick = () => {
+    if (current > 0) {
+      current--;
+      render(current);
+    }
   };
+
+  nextBtn.onclick = () => {
+    if (current < prizes.length - 1) {
+      current++;
+      render(current);
+    }
+  };
+
+  let startX = 0;
+  itemContainer.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+  });
+  itemContainer.addEventListener('touchend', (e) => {
+    const diff = e.changedTouches[0].clientX - startX;
+    if (Math.abs(diff) > 50) {
+      diff < 0 ? nextBtn.onclick() : prevBtn.onclick();
+    }
+  });
+
   sellAllBtn.onclick = async () => {
     for (let i = 0; i < prizes.length; i++) {
       if (!processed.has(i)) {
@@ -174,28 +261,8 @@ function showMultiWinPopup(prizes) {
     popup.classList.add('hidden');
   };
 
-  prizes.forEach((prize, index) => {
-    const item = document.createElement('div');
-    item.className = 'prize-card bg-gray-800 rounded-xl p-4 flex flex-col items-center';
-    item.innerHTML = `\n      <img src="${prize.image}" class="w-24 h-24 object-contain mb-2 rounded-lg shadow-md" />\n      <div class=\"text-sm font-semibold mb-1\">${prize.name}</div>\n      <div class=\"flex items-center gap-1 text-yellow-300 text-xs mb-2\"><img src=\"https://cdn-icons-png.flaticon.com/128/6369/6369589.png\" class=\"w-3 h-3\" />${formatCoins(prize.value)}</div>\n      <div class=\"flex gap-2 w-full mt-2\">\n        <button class=\"keep-btn flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 text-white text-xs font-bold flex items-center justify-center gap-1\"><i class=\"fas fa-box-open\"></i> Add to Inventory</button>\n        <button class=\"sell-btn flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 text-white text-xs font-bold flex items-center justify-center gap-1\"><img src=\"https://cdn-icons-png.flaticon.com/128/6369/6369589.png\" class=\"w-3 h-3\" />Sell for ${formatCoins(Math.floor(prize.value * 0.8))}</button>\n      </div>\n    `;
-    list.appendChild(item);
-    const keepBtn = item.querySelector('.keep-btn');
-    const sellBtn = item.querySelector('.sell-btn');
-    const markDone = () => {
-      keepBtn.disabled = true;
-      sellBtn.disabled = true;
-      item.classList.add('opacity-50');
-      processed.add(index);
-      updateClose();
-    };
-    keepBtn.addEventListener('click', markDone);
-    sellBtn.addEventListener('click', async () => {
-      await sellPrize(prize);
-      markDone();
-    });
-  });
-
   popup.classList.remove('hidden');
+  render(current);
 }
 let isMuted = false;
 function applyMuteState() {
@@ -632,9 +699,14 @@ document.addEventListener("DOMContentLoaded", () => {
 <audio id="sound-legendary" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"></audio>
 <!-- Winning Prize Popup -->
 <div id="win-popup" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden">
-  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 w-full max-w-lg shadow-2xl text-center relative border border-white/10">
+  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 w-full max-w-sm sm:max-w-md shadow-2xl text-center relative border border-white/10">
     <div class="absolute top-3 right-3 text-gray-400 hover:text-white cursor-pointer text-xl" id="close-popup">&times;</div>
-    <div id="win-list" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4"></div>
+    <div id="win-carousel" class="relative mb-4">
+      <div id="win-item"></div>
+      <button id="prev-win" class="absolute left-0 top-1/2 -translate-y-1/2 bg-gray-700/60 hover:bg-gray-700 text-white rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-chevron-left"></i></button>
+      <button id="next-win" class="absolute right-0 top-1/2 -translate-y-1/2 bg-gray-700/60 hover:bg-gray-700 text-white rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-chevron-right"></i></button>
+    </div>
+    <div id="win-count" class="text-sm text-gray-400 mb-2"></div>
     <button id="sell-all-btn" class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 hover:brightness-110 text-white font-extrabold text-sm shadow-lg shadow-red-800/30 transition-all duration-200">
       <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
       Sell All for <span id="sell-all-value">0</span> coins
