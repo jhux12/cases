@@ -3,16 +3,17 @@ import { setupFilters } from './filters.js';
 let allCases = [];
 function getPepperHTML(spiceLevel) {
   const map = {
-    easy: { class: "spice-label spice-easy", label: "Easy 🌶️" },
-    medium: { class: "spice-label spice-medium", label: "Medium 🌶️🌶️" },
-    hard: { class: "spice-label spice-hard", label: "Hard 🌶️🌶️🌶️" }
+    easy: { class: "spice-label spice-easy" },
+    medium: { class: "spice-label spice-medium" },
+    hard: { class: "spice-label spice-hard" }
   };
 
   if (!map[spiceLevel]) return "";
 
-  const { class: cls, label } = map[spiceLevel];
+  const { class: cls } = map[spiceLevel];
+  const iconUrl = "https://cdn.jsdelivr.net/npm/openmoji@14.0.0/color/svg/1F336.svg";
 
-  return `<div class="${cls}">${label}</div>`;
+  return `<div class="${cls}"><img src="${iconUrl}" alt="${spiceLevel} pepper" class="pepper-icon"></div>`;
 }
 function renderCases(caseList) {
   const casesContainer = document.getElementById("cases-container");

@@ -809,16 +809,17 @@ html {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background-color: rgba(0, 0, 0, 0.5);
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
   z-index: 10;
 }
-.spice-easy { color: #4ade80; }
-.spice-medium { color: #fb923c; }
-.spice-hard { color: #ef4444; }
+
+.pepper-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.spice-easy .pepper-icon { filter: hue-rotate(120deg); }
+.spice-medium .pepper-icon { filter: hue-rotate(45deg); }
+.spice-hard .pepper-icon { filter: none; }
 
 .open-button {
   margin-top: 0.5rem;
@@ -837,10 +838,13 @@ html {
 }
 
 @media (max-width: 640px) {
-  .pack-tag,
-  .spice-label {
+  .pack-tag {
     font-size: 0.65rem;
     padding: 0.125rem 0.375rem;
+  }
+  .pepper-icon {
+    width: 0.75rem;
+    height: 0.75rem;
   }
   .open-button {
     padding: 0.375rem 0;
