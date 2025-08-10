@@ -1,6 +1,7 @@
 // scripts/filters.js
 
 export function setupFilters(cases, renderFn, getUserBalanceFn) {
+  let currentCases = cases;
   const searchInput = document.getElementById("search-box");
   const minInput = document.getElementById("min-price");
   const maxInput = document.getElementById("max-price");
@@ -63,7 +64,7 @@ export function setupFilters(cases, renderFn, getUserBalanceFn) {
   }
 
   function applyFilters() {
-    let filtered = [...cases];
+    let filtered = [...currentCases];
 
     const search = searchInput?.value.toLowerCase() || "";
     const min = parseFloat(minInput?.value) || 0;
@@ -101,5 +102,12 @@ export function setupFilters(cases, renderFn, getUserBalanceFn) {
   });
 
   applyFilters();
+
+  return {
+    updateCases(newCases) {
+      currentCases = newCases;
+      applyFilters();
+    }
+  };
 }
 

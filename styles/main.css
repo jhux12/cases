@@ -991,3 +991,24 @@ html {
   z-index: -1;
 }
 
+/* Category tabs */
+.category-tab {
+  background-color: #1f2937;
+  color: #ffffff;
+  border: 1px solid #374151;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.category-tab:hover {
+  background-color: #374151;
+}
+
+.category-tab.active {
+  background-color: #facc15;
+  border-color: #facc15;
+  color: #000;
+}
+
