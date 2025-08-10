@@ -119,6 +119,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const filtered = currentItems.filter(item => item.name.toLowerCase().includes(term));
       renderItems(filtered);
     });
+
+    document.getElementById('toggle-controls')?.addEventListener('click', function () {
+      const panel = document.getElementById('controls-panel');
+      panel.classList.toggle('hidden');
+      panel.classList.toggle('flex');
+      this.textContent = panel.classList.contains('hidden') ? 'Show Controls' : 'Hide Controls';
+    });
   });
 });
 

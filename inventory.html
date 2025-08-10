@@ -46,11 +46,6 @@
       border-radius: 1.5rem;
     }
 
-    .panel-controls {
-      position: sticky;
-      top: 5rem;
-      z-index: 40;
-    }
 
     .item-card {
       position: relative;
@@ -230,7 +225,8 @@
     </div>
 
     <section id="inventory-section">
-      <div class="panel panel-controls flex flex-col md:flex-row justify-between items-center gap-4 p-6 mb-12 shadow-xl">
+      <button id="toggle-controls" class="md:hidden px-6 py-2 mb-4 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400">Show Controls</button>
+      <div id="controls-panel" class="panel hidden md:flex flex-col md:flex-row justify-between items-center gap-4 p-6 mb-12 shadow-xl">
         <div class="flex flex-wrap items-center gap-4 text-sm">
           <label class="flex items-center gap-2"><input type="checkbox" id="select-all-checkbox" class="accent-pink-500"><span class="flex items-center gap-1"><i class="fas fa-check-double text-pink-400"></i>Select All</span></label>
           <div class="flex items-center gap-2">
