@@ -1,237 +1,192 @@
-// Store prizes for each spinner instance
-const spinnerPrizesMap = {};
-const targetIndex = 15;
+/**
+ * Deterministic horizontal prize spinner.
+ * Builds a duplicated track of fixed-width tiles and animates it via a single rAF loop
+ * ensuring forward-only travel and sub-pixel accurate landings under a center pin.
+ */
+/* global currentPrizes */
 
-function getRarityColor(rarity) {
-  const base = rarity?.toLowerCase().replace(/\s+/g, '');
-  switch (base) {
-    case 'legendary': return '#facc15';
-    case 'ultrarare': return '#e879f9';
-    case 'rare': return '#3b82f6';
-    case 'uncommon': return '#22c55e';
-    default: return '#9ca3af';
-  }
+// --- constants ---
+export const CARD_W = 220;
+export const CARD_H = 320;
+export const GAP = 16;
+export const TILE_W = CARD_W + GAP;
+const IDLE_SPEED = 0.6; // px/ms
+
+// --- state ---
+let viewport, track, debugEl;
+let prizes = [];
+let trackItems = [];
+let TRACK_PX = 0;
+
+let offset = 0;        // px, negative = moved left
+let speed = IDLE_SPEED;
+let mode = 'idle';     // 'idle' | 'spinning' | 'braking'
+let spinLock = false;
+let raf = 0, lastTs = performance.now();
+
+const prefersReduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const DPR = Math.max(1, Math.round(window.devicePixelRatio || 1));
+function snap(px){ return Math.round(px * DPR) / DPR; }
+function wrap(x, mod){ x %= mod; return x <= -mod ? x + mod : x > 0 ? x - mod : x; }
+
+let brakeTarget = 0;
+let debugOn = false;
+
+// --- helpers ---
+function tileCenter(idx){ return idx * TILE_W + CARD_W / 2; }
+function targetOffsetForIndex(idx, viewportW){ return viewportW / 2 - tileCenter(idx); }
+function shortestWrap(from, to, mod){ let d = ((to - from) % mod + mod) % mod; if (d > mod / 2) d -= mod; return d; }
+
+// choose the forward copy of localIdx within duplicated track
+function forwardIndex(localIdx, startOffset){
+  const n = prizes.length;
+  const lead = Math.floor((-startOffset) / TILE_W) % trackItems.length;
+  const leadLocal = lead % n;
+  let base = Math.floor(lead / n) * n;
+  if (localIdx < leadLocal) base += n; // next copy
+  return base + localIdx;
 }
 
-export function getTopPrizes(prizeList, count = 30) {
-  return [...prizeList]
-    .sort((a, b) => (b.value || 0) - (a.value || 0))
-    .slice(0, count);
+function drawDebug(){
+  if (!debugEl) return;
+  const viewportW = viewport.getBoundingClientRect().width;
+  const center = viewportW / 2;
+  const idx = Math.round((center - CARD_W / 2 - offset) / TILE_W);
+  const err = tileCenter(idx) + offset - center;
+  const delta = mode === 'braking' ? shortestWrap(offset, brakeTarget, TRACK_PX) : 0;
+  debugEl.textContent = `off:${offset.toFixed(2)}\nspd:${speed.toFixed(2)}\nmode:${mode}\ndelta:${delta.toFixed(2)}\nerr:${Math.abs(err).toFixed(2)}`;
 }
 
-export function renderSpinner(prizes, winningPrize = null, isPreview = false, id = 0) {
-  const container = document.getElementById(`spinner-container-${id}`);
-  if (!container) return console.warn("🚫 Spinner container not found");
-
-  container.innerHTML = "";
-
-  const borderEl = document.getElementById(`spinner-border-${id}`);
-  if (borderEl) borderEl.style.borderColor = "#1f2937";
-
-  const spinnerWheel = document.createElement("div");
-  spinnerWheel.id = `spinner-wheel-${id}`;
-  spinnerWheel.className = "flex h-full items-center";
-
-  if (isPreview) {
-    spinnerWheel.classList.add("animate-scroll-preview");
-  }
-
-  container.appendChild(spinnerWheel);
-  spinnerPrizesMap[id] = [];
-
-  const shuffled = [...prizes];
-
-  for (let i = 0; i < 30; i++) {
-    let prize = isPreview || !winningPrize
-      ? shuffled[i % shuffled.length]
-      : (i === targetIndex ? winningPrize : shuffled[Math.floor(Math.random() * shuffled.length)]);
-
-    if (!prize || typeof prize !== 'object' || !prize.image || !prize.name) {
-      prize = {
-        name: "Mystery",
-        image: "https://via.placeholder.com/80?text=?",
-        value: 0,
-        rarity: "common"
-      };
-    }
-
-    spinnerPrizesMap[id].push(prize);
-
-    const div = document.createElement("div");
-    const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-    const borderColor = getRarityColor(rarity);
-
-    const glowClass = `glow-${rarity}`;
-    div.className = `min-w-[140px] h-[160px] mx-1 flex items-center justify-center rounded-xl bg-transparent shadow-md item border-2 ${glowClass}`;
-    div.style.borderColor = borderColor;
-    div.setAttribute("data-index", i);
-    div.innerHTML = `
-      <div class="flex flex-col items-center">
-        <img src="${prize.image}" class="h-[100px] object-contain drop-shadow-md rounded-xl" />
-        <div class="mt-1 text-xs text-white bg-black/50 px-2 py-0.5 rounded-sm flex items-center gap-1">
-          <span>${prize.value.toLocaleString()}</span>
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin" />
-        </div>
-      </div>
-    `;
-    spinnerWheel.appendChild(div);
-  }
+function frame(ts){
+  let dt = ts - lastTs; lastTs = ts;
+  if (document.visibilityState === 'hidden'){ raf = requestAnimationFrame(frame); return; }
+  if (dt > 50) dt = 50;
+  offset = wrap(offset - speed * dt, TRACK_PX);
+  track.style.transform = `translate3d(${snap(offset)}px,0,0)`;
+  if (debugOn) drawDebug();
+  raf = requestAnimationFrame(frame);
 }
 
-export function spinToPrize(callback, showPopup = true, id = 0) {
-  const spinnerWheel = document.getElementById(`spinner-wheel-${id}`);
-  if (!spinnerWheel) return Promise.resolve();
-
-  spinnerWheel.classList.remove("animate-scroll-preview");
-
-  // Reset any previous transform before measuring
-  spinnerWheel.style.transition = 'none';
-  spinnerWheel.style.transform = 'translate3d(0,0,0)';
-  void spinnerWheel.offsetWidth; // Force reflow
-
-  const cards = spinnerWheel.querySelectorAll(".item");
-  const targetCard = cards[targetIndex];
-  if (!targetCard) return Promise.resolve();
-
-  const containerEl = spinnerWheel.parentElement;
-  const targetRect = targetCard.getBoundingClientRect();
-  const containerRect = containerEl.getBoundingClientRect();
-  const cardCenter = targetRect.left + targetRect.width / 2;
-  const containerCenter = containerRect.left + containerRect.width / 2;
-
-  // Adjust for any scale transform applied to the container
-  let scale = 1;
-  const transform = window.getComputedStyle(containerEl).transform;
-  if (transform && transform !== 'none') {
-    const match = transform.match(/matrix\(([^,]+)/);
-    if (match) {
-      scale = parseFloat(match[1]) || 1;
-    }
-  }
-
-  const finalOffset = (cardCenter - containerCenter) / scale;
-  let targetOffset = finalOffset;
-  let closeCallDir = 0;
-
-  // Randomly apply a "close call" overshoot so the wheel appears to almost
-  // stop on an adjacent prize before settling on the winner. Bias the
-  // overshoot toward a rare neighbour if one exists to make the near miss
-  // feel more dramatic.
-  const closeCallChance = 0.5; // roughly half the spins
-  const adjacent = [
-    { dir: -1, prize: spinnerPrizesMap[id][targetIndex - 1] },
-    { dir: 1, prize: spinnerPrizesMap[id][targetIndex + 1] }
-  ];
-  if (Math.random() < closeCallChance) {
-    const rareAdjacent = adjacent.filter(a => {
-      const r = (a.prize?.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-      return ['rare', 'ultrarare', 'legendary'].includes(r);
-    });
-    const chosen = (rareAdjacent.length ? rareAdjacent : adjacent)[Math.floor(Math.random() * (rareAdjacent.length ? rareAdjacent.length : adjacent.length))];
-    closeCallDir = chosen.dir;
-    const overshoot = 25 + Math.random() * 35; // 25-60px
-    targetOffset = finalOffset + closeCallDir * overshoot;
-  }
-
-  const spinDuration = 4 + Math.random() * 2; // 4-6 seconds for a snappier feel
-  requestAnimationFrame(() => {
-    spinnerWheel.style.willChange = 'transform';
-    spinnerWheel.style.transition = `transform ${spinDuration}s cubic-bezier(0.33, 1, 0.68, 1)`;
-    spinnerWheel.style.transform = `translate3d(-${targetOffset}px,0,0)`;
+async function renderTrack(list){
+  const A = list.map(p => {
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    const img = document.createElement('img');
+    img.src = p.imageUrl;
+    img.alt = p.name || '';
+    img.draggable = false;
+    tile.appendChild(img);
+    return tile;
   });
+  trackItems = [...A, ...A];
+  track.replaceChildren(...trackItems);
+  // preload images
+  const imgs = Array.from(track.querySelectorAll('img'));
+  await Promise.all(imgs.map(img => (img.decode ? img.decode() : Promise.resolve()).catch(() => new Promise(r => { img.onload = img.onerror = r; }))));
+  TRACK_PX = trackItems.length * TILE_W;
+}
 
-  let animationFrame;
+function highlightCenteredCard(){
+  const viewportW = viewport.getBoundingClientRect().width;
+  const center = viewportW / 2;
+  const idx = ((Math.round((center - CARD_W / 2 - offset) / TILE_W)) % trackItems.length + trackItems.length) % trackItems.length;
+  const err = Math.abs(tileCenter(idx) + offset - center);
+  if (err > 0.5) console.warn('center error', err.toFixed(2));
+  const card = trackItems[idx];
+  card.classList.add('glow');
+  setTimeout(() => card.classList.remove('glow'), 900);
+}
 
-  function trackCenterPrize() {
-    const cards = spinnerWheel.querySelectorAll(".item");
-    const containerRect = spinnerWheel.parentElement.getBoundingClientRect();
-    const centerX = containerRect.left + containerRect.width / 2;
-    let closestCard = null;
-    let minDistance = Infinity;
+function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
+function easeInOutCubic(x){ return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+function easeOutQuint(x){ return 1 - Math.pow(1 - x, 5); }
 
-    cards.forEach(card => {
-      const rect = card.getBoundingClientRect();
-      const cardCenter = rect.left + rect.width / 2;
-      const distance = Math.abs(centerX - cardCenter);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestCard = card;
-      }
-    });
-
-    if (closestCard) {
-      const indexAttr = closestCard.getAttribute("data-index");
-      const prize = spinnerPrizesMap[id][indexAttr];
-      const rarity = (prize?.rarity || "common").toLowerCase().replace(/\s+/g, '');
-      const color = getRarityColor(rarity);
-
-      const borderEl = document.getElementById(`spinner-border-${id}`);
-      if (borderEl) borderEl.style.borderColor = color;
-    }
-
-    animationFrame = requestAnimationFrame(trackCenterPrize);
-  }
-
-  trackCenterPrize();
-
-  return new Promise(resolve => {
-    function onTransitionEnd() {
-      cancelAnimationFrame(animationFrame);
-      spinnerWheel.style.willChange = '';
-
-    // If we performed a close-call overshoot, correct to the final prize now
-    if (closeCallDir !== 0) {
-      const nearMissIndex = closeCallDir === -1 ? targetIndex - 1 : targetIndex + 1;
-      const nearMissCard = spinnerWheel.querySelector(`.item[data-index="${nearMissIndex}"]`);
-      if (nearMissCard) nearMissCard.classList.add("near-miss-flash");
-
-      closeCallDir = 0; // prevent looping
-      requestAnimationFrame(() => {
-        spinnerWheel.style.transition = 'transform 0.4s ease-out';
-        spinnerWheel.style.transform = `translate3d(-${finalOffset}px,0,0)`;
-      });
-      return;
-    }
-
-    // Final landing: award the prize
-    const prize = spinnerPrizesMap[id][targetIndex];
-    const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-
-    const spinnerResultText = document.getElementById("spinner-result");
-    if (spinnerResultText) {
-      spinnerResultText.textContent = `You won: ${prize.name}!`;
-      spinnerResultText.classList.remove("hidden");
-    }
-
-    if (showPopup) {
-      document.getElementById("popup-image").src = prize.image;
-      document.getElementById("popup-name").textContent = prize.name;
-      document.getElementById("popup-value").textContent = prize.value;
-      document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
-      document.getElementById("win-popup").classList.remove("hidden");
-    } else {
-      const popup = document.getElementById("win-popup");
-      if (popup) popup.classList.add("hidden");
-    }
-
-    if (targetCard) {
-      const glowClass = `glow-${rarity}`;
-      targetCard.classList.add(glowClass, "ring-4", "ring-white");
-    }
-
-    if (callback) callback(prize);
-    resolve(prize);
-    spinnerWheel.removeEventListener('transitionend', onTransitionEnd);
-  }
-
-    spinnerWheel.addEventListener('transitionend', onTransitionEnd);
+function ramp(fromSpeed, toSpeed, durationMs){
+  return new Promise(res => {
+    const t0 = performance.now();
+    (function step(t){
+      const p = Math.min(1, (t - t0) / durationMs);
+      speed = fromSpeed + (toSpeed - fromSpeed) * easeInOutCubic(p);
+      if (p < 1) requestAnimationFrame(step); else { speed = toSpeed; res(); }
+    })(performance.now());
   });
 }
 
-export function showWinPopup(prize) {
-  document.getElementById("popup-image").src = prize.image;
-  document.getElementById("popup-name").textContent = prize.name;
-  document.getElementById("popup-value").textContent = prize.value;
-  document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
-  document.getElementById("win-popup").classList.remove("hidden");
+function glideTo(fromOffset, toOffset, durationMs){
+  return new Promise(res => {
+    const t0 = performance.now();
+    const diff = shortestWrap(fromOffset, toOffset, TRACK_PX);
+    const startSpeed = speed;
+    (function step(t){
+      const p = Math.min(1, (t - t0) / durationMs);
+      const e = easeOutQuint(p);
+      speed = 0.45 + (startSpeed - 0.45) * (1 - e);
+      offset = wrap(fromOffset + diff * e, TRACK_PX);
+      track.style.transform = `translate3d(${snap(offset)}px,0,0)`;
+      if (debugOn) drawDebug();
+      if (p < 1) requestAnimationFrame(step); else { offset = wrap(toOffset, TRACK_PX); res(); }
+    })(performance.now());
+  });
 }
+
+export async function spinToIndex(winLocal){
+  if (spinLock) return;
+  spinLock = true;
+  mode = 'spinning';
+  await ramp(speed, 2.6, 600);    // accelerate
+  await wait(250);                 // brief cruise
+
+  const viewportW = viewport.getBoundingClientRect().width;
+  const startOffset = offset;
+  const idx = forwardIndex(winLocal % prizes.length, startOffset);
+  const target = targetOffsetForIndex(idx, viewportW);
+  brakeTarget = wrap(target, TRACK_PX);
+  let delta = shortestWrap(startOffset, target, TRACK_PX);
+  if (delta > 0) delta -= TRACK_PX; // forward only
+
+  mode = 'braking';
+  await glideTo(startOffset, startOffset + delta, 1400); // decelerate
+  await ramp(speed, IDLE_SPEED, 500);                    // settle
+  highlightCenteredCard();
+  mode = 'idle';
+  spinLock = false;
+}
+
+export const demo = {
+  timer: null,
+  start(ms = 6000){
+    if (prefersReduce) return;
+    this.stop();
+    this.timer = setInterval(() => {
+      const idx = Math.floor(Math.random() * prizes.length);
+      spinToIndex(idx);
+    }, ms);
+  },
+  stop(){ if (this.timer){ clearInterval(this.timer); this.timer = null; } }
+};
+
+export async function initSpinner(viewportEl, trackEl, prizeList = currentPrizes){
+  viewport = viewportEl;
+  track = trackEl;
+  debugEl = viewport.querySelector('#spinDebug');
+  const params = new URLSearchParams(location.search);
+  debugOn = params.get('debug') === '1';
+  if (debugOn) viewport.classList.add('debug');
+
+  prizes = prizeList.slice();
+  await renderTrack(prizes);
+  offset = 0;
+  speed = prefersReduce ? 0 : IDLE_SPEED;
+  mode = 'idle';
+  lastTs = performance.now();
+  raf = requestAnimationFrame(frame);
+  return { spinToIndex, demo, destroy };
+}
+
+export function destroy(){
+  cancelAnimationFrame(raf);
+  demo.stop();
+  track.replaceChildren();
+  trackItems = [];
+}
+
