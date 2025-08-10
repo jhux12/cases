@@ -4,6 +4,7 @@ body {
   font-family: 'Poppins', sans-serif;
   background-color: #0f0f12;
   color: white;
+  margin: 0;
 }
 
 .case-card-img {
@@ -956,5 +957,45 @@ html {
   inset: 0;
   background: rgba(17, 17, 23, 0.95);
   z-index: -1;
+}
+
+/* --- Hero Spinner Demo --- */
+.hero-bg {
+  background: radial-gradient(1200px 600px at 50% 20%, rgba(108,92,231,0.25), transparent 60%),
+              radial-gradient(900px 500px at 20% 80%, rgba(0,153,255,0.18), transparent 60%),
+              radial-gradient(900px 500px at 80% 80%, rgba(255,77,216,0.18), transparent 60%),
+              linear-gradient(180deg, #0c0f1a 0%, #0a0d18 60%, #070a14 100%);
+  position: relative;
+  overflow: hidden;
+}
+.hero-bg:before, .hero-bg:after {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background:
+    repeating-linear-gradient(120deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 8px);
+  filter: blur(2px);
+  opacity: .4;
+  pointer-events: none;
+  transform: rotate(5deg);
+}
+.hero-bg:after {
+  transform: rotate(-8deg) scale(1.2);
+  opacity: .25;
+}
+
+.spin-viewport{position:relative;overflow:hidden;}
+.spin-track{display:flex;gap:16px;will-change:transform;}
+.tile{width:220px;height:320px;border-radius:16px;overflow:hidden;background:#111826;flex:0 0 auto;opacity:.6;filter:blur(1px);transition:opacity .3s,filter .3s;}
+.tile>img{width:100%;height:100%;object-fit:cover;display:block;}
+.glow{opacity:1;filter:none;box-shadow:0 0 0 2px rgba(108,92,231,.6),0 0 40px rgba(108,92,231,.35);transform:scale(1.03);}
+.center-pin{position:absolute;left:50%;top:50%;width:64px;height:64px;border-radius:9999px;transform:translate(-50%,-50%);pointer-events:none;}
+.spin-debug{position:absolute;left:8px;bottom:8px;font:12px/1.2 ui-monospace,monospace;color:#9aa4;background:rgba(0,0,0,.35);padding:6px 8px;border-radius:8px;display:none;}
+.spin-viewport.debug .spin-debug{display:block;}
+@media (prefers-reduced-motion: reduce){.spin-track{transition:none!important;}}
+
+.btn-ghost {
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,.12);
 }
 
