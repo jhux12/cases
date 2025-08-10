@@ -180,6 +180,39 @@ body {
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
 }
 
+/* Hero spinner styling */
+.hero-spinner-border {
+  position: relative;
+  background: rgba(15, 15, 20, 0.6);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+  border: 3px solid transparent;
+}
+
+.hero-spinner-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 3px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ec4899, #8b5cf6);
+  -webkit-mask: linear-gradient(#0000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.hero-spinner {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
+}
+
+.hero-pointer {
+  background: linear-gradient(to bottom, #ec4899, #8b5cf6);
+  box-shadow: 0 0 8px rgba(236, 72, 153, 0.8);
+}
+
 @keyframes overlay-zoom {
   0% { transform: scale(0.75); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
