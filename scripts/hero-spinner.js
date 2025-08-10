@@ -3,48 +3,66 @@ document.addEventListener('DOMContentLoaded', () => {
   const spinner = document.getElementById('card-spinner');
   if (!track || !spinner) return;
 
-  const gradients = [
-    'linear-gradient(135deg,#6C5CE7,#09F)',
-    'linear-gradient(135deg,#09F,#FF4DD8)',
-    'linear-gradient(135deg,#FF4DD8,#6C5CE7)',
-    'linear-gradient(135deg,#6C5CE7,#FF4DD8)',
-    'linear-gradient(135deg,#09F,#6C5CE7)',
-    'linear-gradient(135deg,#FF4DD8,#09F)',
-    'linear-gradient(135deg,#1a1a4f,#6C5CE7)',
-    'linear-gradient(135deg,#0a0f2c,#09F)',
-    'linear-gradient(135deg,#1b0f3c,#FF4DD8)',
-    'linear-gradient(135deg,#6C5CE7,#1b0f3c)'
+  const cardData = [
+    { img: 'https://placehold.co/160x220/1e1e1e/ffffff?text=Common+1', rarity: 'common' },
+    { img: 'https://placehold.co/160x220/1e1e1e/ffffff?text=Common+2', rarity: 'common' },
+    { img: 'https://placehold.co/160x220/1e1e1e/ffffff?text=Common+3', rarity: 'common' },
+    { img: 'https://placehold.co/160x220/1e1e1e/ffffff?text=Common+4', rarity: 'common' },
+    { img: 'https://placehold.co/160x220/1e1e1e/ffffff?text=Common+5', rarity: 'common' },
+    { img: 'https://placehold.co/160x220/1e1e1e/ffffff?text=Common+6', rarity: 'common' },
+    { img: 'https://placehold.co/160x220/ffe066/000000?text=RARE',     rarity: 'rare' }
   ];
 
-  gradients.forEach(g => {
+  cardData.forEach(data => {
     const card = document.createElement('div');
-    card.className = 'card';
-    card.style.setProperty('--bg', g);
+    card.className = 'card' + (data.rarity === 'rare' ? ' rare' : '');
+    card.style.backgroundImage = `url(${data.img})`;
+    card.style.backgroundSize = 'cover';
+    card.style.backgroundPosition = 'center';
     track.appendChild(card);
   });
 
   const cards = Array.from(track.children);
-  let index = -1;
+  const rareIndex = cardData.findIndex(c => c.rarity === 'rare');
+  const cardWidth = cards[0].offsetWidth + 16;
+  const containerWidth = spinner.offsetWidth;
+  const centerShift = containerWidth / 2 - cardWidth / 2;
 
-  function spin() {
-    index = (index + 1) % cards.length;
-    const cardWidth = cards[0].offsetWidth + 16;
-    const offset = cardWidth * index;
-    const containerWidth = spinner.offsetWidth;
-    const centerShift = containerWidth / 2 - cardWidth / 2;
-    track.style.transform = `translateX(${centerShift - offset}px)`;
+  function showIndex(i, duration = 0.3) {
+    track.style.transition = `transform ${duration}s cubic-bezier(0.25, 0.8, 0.25, 1)`;
+    track.style.transform = `translateX(${centerShift - cardWidth * i}px)`;
 
     cards.forEach(c => c.classList.remove('prev','next','center'));
-    const center = index;
-    const prev = (center - 1 + cards.length) % cards.length;
-    const next = (center + 1) % cards.length;
-    cards[center].classList.add('center');
+    const prev = (i - 1 + cards.length) % cards.length;
+    const next = (i + 1) % cards.length;
+    cards[i].classList.add('center');
     cards[prev].classList.add('prev');
     cards[next].classList.add('next');
   }
 
-  spin();
-  setInterval(spin, 5000);
+  function demoSpin() {
+    const sequence = [];
+    const commonCount = cards.length - 1;
+    for (let i = 0; i < 5; i++) {
+      sequence.push(Math.floor(Math.random() * commonCount));
+    }
+    sequence.push(rareIndex);
+
+    let step = 0;
+    function run() {
+      const isLast = step === sequence.length - 1;
+      showIndex(sequence[step], isLast ? 1.1 : 0.25);
+      step++;
+      if (step < sequence.length) {
+        setTimeout(run, isLast ? 1200 : 250);
+      } else {
+        setTimeout(demoSpin, 3000);
+      }
+    }
+    run();
+  }
+
+  demoSpin();
 
   const particleContainer = document.getElementById('hero-particles');
   if (particleContainer) {
