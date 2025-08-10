@@ -56,7 +56,7 @@
       <div>
         <label class="text-sm">Phone Number</label>
         <div class="flex">
-          <input type="tel" id="register-phone" placeholder="+1234567890" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500" required />
+          <input type="tel" id="register-phone" placeholder="+15551234567" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500" required />
           <button type="button" id="send-code" class="ml-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">Send Code</button>
         </div>
       </div>
@@ -98,8 +98,23 @@ window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-contai
 });
 let confirmationResult = null;
 
+function formatPhoneNumber(input) {
+  const trimmed = input.trim();
+  let digits = trimmed.replace(/\D/g, '');
+  if (trimmed.startsWith('+')) {
+    return '+' + digits;
+  }
+  return '+1' + digits;
+}
+
 document.getElementById('send-code').addEventListener('click', () => {
-  const phoneNumber = document.getElementById('register-phone').value;
+  let phoneNumber = document.getElementById('register-phone').value;
+  phoneNumber = formatPhoneNumber(phoneNumber);
+  const e164Regex = /^\+[1-9]\d{9,14}$/;
+  if (!e164Regex.test(phoneNumber)) {
+    alert('Please enter a valid phone number with country code.');
+    return;
+  }
   const appVerifier = window.recaptchaVerifier;
   auth.signInWithPhoneNumber(phoneNumber, appVerifier)
     .then(result => {
