@@ -18,8 +18,22 @@ function renderPack(data) {
   document.querySelectorAll('.case-pack-image').forEach(img => img.src = data.image);
   document.getElementById('pack-price').textContent = (data.price || 0).toLocaleString();
 
-  const prizes = Object.values(data.prizes || {});
-  document.getElementById('prizes-grid').innerHTML = prizes.map(prize => {
+    const prizes = Object.values(data.prizes || {}).sort((a, b) => (b.value || 0) - (a.value || 0));
+    const topCards = prizes.slice(0,2);
+    const left = document.getElementById('top-card-1');
+    const right = document.getElementById('top-card-2');
+    [left, right].forEach(el => { el.classList.add('hidden'); el.classList.remove('legendary-spark'); });
+    if (topCards[0]) {
+      left.src = topCards[0].image;
+      left.classList.remove('hidden');
+      if ((topCards[0].rarity || '').toLowerCase().replace(/\s+/g,'') === 'legendary') left.classList.add('legendary-spark');
+    }
+    if (topCards[1]) {
+      right.src = topCards[1].image;
+      right.classList.remove('hidden');
+      if ((topCards[1].rarity || '').toLowerCase().replace(/\s+/g,'') === 'legendary') right.classList.add('legendary-spark');
+    }
+    document.getElementById('prizes-grid').innerHTML = prizes.map(prize => {
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g,'');
     const color = rarityColors[rarity] || '#a1a1aa';
     return `
