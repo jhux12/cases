@@ -52,6 +52,10 @@
 <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
+<div id="preloader" class="fixed inset-0 flex flex-col items-center justify-center bg-gray-900 text-white z-50 transition-opacity duration-500">
+  <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ChatGPT%20Image%20Aug%2010%2C%202025%2C%2011_08_17%20PM.png?alt=media&token=4950e6a0-1cf9-4c7b-aa56-686dc42693a8" alt="Mascot" class="w-40 h-40 mb-6 animate-bounce">
+  <div id="preloader-progress" class="text-2xl font-bold">0%</div>
+</div>
 
 <header></header>
 
@@ -311,6 +315,24 @@ document.addEventListener("DOMContentLoaded", () => {
     startAutoScrollCarousel("recent-wins-carousel", 0.5);
 });
 </script>
-  <script src="scripts/header.js"></script>
+<script src="scripts/header.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const preloader = document.getElementById('preloader');
+  const progress = document.getElementById('preloader-progress');
+  let current = 0;
+  const interval = setInterval(() => {
+    current = Math.min(current + Math.random() * 10, 90);
+    progress.textContent = `${Math.floor(current)}%`;
+  }, 100);
+
+  window.addEventListener('load', () => {
+    clearInterval(interval);
+    progress.textContent = '100%';
+    preloader.classList.add('opacity-0');
+    setTimeout(() => preloader.style.display = 'none', 500);
+  });
+});
+</script>
 </body>
 </html>
