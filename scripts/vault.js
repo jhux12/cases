@@ -18,7 +18,7 @@ function renderPack(data) {
   document.querySelectorAll('.case-pack-image').forEach(img => img.src = data.image);
   document.getElementById('pack-price').textContent = (data.price || 0).toLocaleString();
 
-  const prizes = Object.values(data.prizes || {});
+  const prizes = Object.values(data.prizes || {}).sort((a, b) => (b.value || 0) - (a.value || 0));
   document.getElementById('prizes-grid').innerHTML = prizes.map(prize => {
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g,'');
     const color = rarityColors[rarity] || '#a1a1aa';
