@@ -9,8 +9,26 @@ function renderActive(pack) {
   document.getElementById('pack-image').src = pack.image;
   document.getElementById('pack-price').textContent = price.toLocaleString();
   document.getElementById('open-link').href = `vault.html?id=${pack.id}`;
-  const cards = Object.values(pack.prizes || {}).slice(0,5);
-  document.getElementById('card-preview').innerHTML = cards.map(c => `
+
+  const cards = Object.values(pack.prizes || {}).sort((a,b) => (b.value || 0) - (a.value || 0));
+
+  const topCards = cards.slice(0,2);
+  const left = document.getElementById('top-card-1');
+  const right = document.getElementById('top-card-2');
+  [left, right].forEach(el => { el.classList.add('hidden'); el.classList.remove('legendary-spark'); });
+  if (topCards[0]) {
+    left.src = topCards[0].image;
+    left.classList.remove('hidden');
+    if ((topCards[0].rarity || '').toLowerCase().replace(/\s+/g,'') === 'legendary') left.classList.add('legendary-spark');
+  }
+  if (topCards[1]) {
+    right.src = topCards[1].image;
+    right.classList.remove('hidden');
+    if ((topCards[1].rarity || '').toLowerCase().replace(/\s+/g,'') === 'legendary') right.classList.add('legendary-spark');
+  }
+
+  const preview = cards.slice(0,5);
+  document.getElementById('card-preview').innerHTML = preview.map(c => `
     <div class="flex flex-col items-center">
       <img src="${c.image}" class="w-16 h-20 sm:w-20 sm:h-24 object-contain rounded-lg bg-black/40 border-2 border-yellow-500/40 shadow-lg transform transition-transform duration-300 hover:scale-105" />
       <div class="mt-1 flex items-center gap-1 text-sm">
