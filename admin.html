@@ -615,6 +615,12 @@ function cancelEdit() {
             <label class="block">Name:<input type="text" id="name-${child.key}" value="${user.name || ''}" class="p-1 rounded w-full"></label>
             <label class="block">Username:<input type="text" id="username-${child.key}" value="${user.username || ''}" class="p-1 rounded w-full"></label>
             <label class="block">Email:<input type="text" id="email-${child.key}" value="${user.email || ''}" class="p-1 rounded w-full"></label>
+            <label class="block">Email Verified:
+              <select id="verified-${child.key}" class="p-1 rounded w-full">
+                <option value="false" ${!user.emailVerified ? 'selected' : ''}>No</option>
+                <option value="true" ${user.emailVerified ? 'selected' : ''}>Yes</option>
+              </select>
+            </label>
             <label class="block">Phone:<input type="text" id="phone-${child.key}" value="${user.phone || ''}" class="p-1 rounded w-full"></label>
             <label class="block">Balance:<input type="number" step="any" id="balance-${child.key}" value="${user.balance || 0}" class="p-1 rounded w-full"></label>
             <label class="block">Role:
@@ -707,6 +713,7 @@ function saveUser(uid) {
     name: document.getElementById(`name-${uid}`).value.trim(),
     username: document.getElementById(`username-${uid}`).value.trim(),
     email: document.getElementById(`email-${uid}`).value.trim(),
+    emailVerified: document.getElementById(`verified-${uid}`).value === 'true',
     phone: document.getElementById(`phone-${uid}`).value.trim(),
     balance: parseFloat(document.getElementById(`balance-${uid}`).value) || 0,
     role: document.getElementById(`role-${uid}`).value,
