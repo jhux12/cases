@@ -2,6 +2,7 @@ let currentPack = null;
 let currentPrize = null;
 let cardPrizes = [];
 let selectedIndex = null;
+let sliderInterval = null;
 
 const rarityColors = {
   common: '#a1a1aa',
@@ -18,7 +19,40 @@ function renderPack(data) {
   document.querySelectorAll('.case-pack-image').forEach(img => img.src = data.image);
   document.getElementById('pack-price').textContent = (data.price || 0).toLocaleString();
 
-  const prizes = Object.values(data.prizes || {});
+  const prizes = Object.values(data.prizes || {}).sort((a,b) => (b.value||0) - (a.value||0));
+
+  const sliderWrap = document.getElementById('slider-wrapper');
+  const sliderImg = document.getElementById('slider-image');
+  sliderWrap.classList.add('hidden');
+  sliderWrap.classList.remove('legendary-spark');
+  sliderImg.classList.add('opacity-0');
+  if (sliderInterval) {
+    clearInterval(sliderInterval);
+    sliderInterval = null;
+  }
+  if (prizes.length) {
+    sliderWrap.classList.remove('hidden');
+    let currentSlide = 0;
+    sliderImg.src = prizes[currentSlide].image;
+    sliderImg.classList.remove('opacity-0');
+    if ((prizes[currentSlide].rarity || '').toLowerCase().replace(/\s+/g,'') === 'legendary') {
+      sliderWrap.classList.add('legendary-spark');
+    }
+    sliderInterval = setInterval(() => {
+      sliderImg.classList.add('opacity-0');
+      setTimeout(() => {
+        currentSlide = (currentSlide + 1) % prizes.length;
+        const nextPrize = prizes[currentSlide];
+        sliderImg.src = nextPrize.image;
+        sliderWrap.classList.remove('legendary-spark');
+        if ((nextPrize.rarity || '').toLowerCase().replace(/\s+/g,'') === 'legendary') {
+          sliderWrap.classList.add('legendary-spark');
+        }
+        sliderImg.classList.remove('opacity-0');
+      }, 700);
+    }, 2000);
+  }
+
   document.getElementById('prizes-grid').innerHTML = prizes.map(prize => {
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g,'');
     const color = rarityColors[rarity] || '#a1a1aa';
