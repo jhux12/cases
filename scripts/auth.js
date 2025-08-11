@@ -13,14 +13,13 @@ window.addEventListener('DOMContentLoaded', () => {
     const usernameDisplay = document.getElementById('username-display');
 
     if (user) {
-      if (!user.email || !user.emailVerified) {
+      const userRef = firebase.database().ref('users/' + user.uid);
+      const snapshot = await userRef.once('value');
+      if ((!user.email || !user.emailVerified) && !snapshot.exists()) {
         alert('Please complete registration and verify your email to continue.');
         firebase.auth().signOut();
         return;
       }
-
-      const userRef = firebase.database().ref('users/' + user.uid);
-      const snapshot = await userRef.once('value');
       const userData = snapshot.val() || {};
 
       // ✅ Setup Provably Fair if missing
