@@ -92,13 +92,15 @@ document.addEventListener("DOMContentLoaded", () => {
             <a id="drawer-register" href="auth.html?register=true" class="w-full text-center py-2 bg-blue-600 rounded text-white">Register</a>
           </div>
           <nav class="flex flex-col gap-2">
+            <div class="text-gray-400 text-xs uppercase px-4 mt-2">Navigation</div>
             <a href="index.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-cube"></i> Open Packs</a>
+            <a href="vaults.html" class="block px-4 py-2 text-sm text-yellow-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-lock"></i> Vaults</a>
+            <a href="leaderboard.html" class="block px-4 py-2 text-sm text-blue-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-trophy"></i> Leaderboard</a>
+            <a href="marketplace.html" class="block px-4 py-2 text-sm text-pink-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-store"></i> Marketplace</a>
+            <div class="text-gray-400 text-xs uppercase px-4 mt-4">Account</div>
             <a id="drawer-inventory-link" href="inventory.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-box-open"></i> Inventory</a>
             <a id="drawer-profile-link" href="profile.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-user"></i> Profile</a>
-              <a href="how-it-works.html" class="how-it-works-link block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-question-circle"></i> How It Works</a>
-            <a href="vaults.html" class="block px-4 py-2 text-sm text-yellow-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-lock"></i> Vaults</a>
-            <a href="marketplace.html" class="block px-4 py-2 text-sm text-pink-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-store"></i> Marketplace</a>
-            <a href="leaderboard.html" class="block px-4 py-2 text-sm text-blue-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-trophy"></i> Leaderboard</a>
+            <a href="how-it-works.html" class="how-it-works-link block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-question-circle"></i> How It Works</a>
             <a id="drawer-logout" href="#" class="block px-4 py-2 text-sm text-red-400 rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-sign-out-alt"></i> Logout</a>
           </nav>
         </div>
@@ -120,10 +122,6 @@ document.addEventListener("DOMContentLoaded", () => {
           <i class="fas fa-lock text-lg"></i>
           <span>Vaults</span>
           <span id="vault-nav-timer" class="text-[10px]">--:--</span>
-        </a>
-        <a href="marketplace.html" class="flex flex-col items-center text-xs text-pink-400">
-          <i class="fas fa-store text-lg"></i>
-          <span>Market</span>
         </a>
       </nav>
     `; // <-- closing backtick and semicolon!
