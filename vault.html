@@ -50,6 +50,29 @@
     }
     .flip-card.selected { animation: win-glow 1s ease-in-out; }
   </style>
+  <style>
+    .legendary-spark{overflow:visible;}
+    .legendary-spark::before,
+    .legendary-spark::after {
+      content:'';
+      position:absolute;
+      top:50%;
+      left:50%;
+      width:6px;
+      height:6px;
+      background:radial-gradient(circle, rgba(250,204,21,1) 0%, rgba(250,204,21,0) 70%);
+      border-radius:50%;
+      pointer-events:none;
+      animation:spark-burst 0.8s linear infinite;
+    }
+    .legendary-spark::after { animation-delay:0.4s; }
+    @keyframes spark-burst {
+      0% { transform:translate(-50%, -50%) scale(1); opacity:1; }
+      100% { transform:translate(calc(-50% + var(--sx)), calc(-50% + var(--sy))) scale(0.2); opacity:0; }
+    }
+    .legendary-spark::before { --sx:-30px; --sy:-30px; }
+    .legendary-spark::after { --sx:30px; --sy:-30px; }
+  </style>
 </head>
 <body class="bg-gradient-to-br from-black via-gray-900 to-black text-white overflow-x-hidden">
   <canvas id="particle-canvas"></canvas>
@@ -67,7 +90,15 @@
     </div>
 
     <div id="pack-display" class="flex flex-col items-center gap-4 mt-6">
-      <img id="main-pack-image" class="w-28 h-28 object-contain" alt="Pack" />
+      <div class="relative w-40 sm:w-52">
+        <div id="top-card-1-wrapper" class="hidden absolute -left-10 sm:-left-12 top-1/2 -translate-y-1/2 w-20 h-28 sm:w-24 sm:h-32 -rotate-6 z-0">
+          <img id="top-card-1" alt="Top Card" class="w-full h-full object-contain rounded-lg" />
+        </div>
+        <div id="top-card-2-wrapper" class="hidden absolute -right-10 sm:-right-12 top-1/2 -translate-y-1/2 w-20 h-28 sm:w-24 sm:h-32 rotate-6 z-0">
+          <img id="top-card-2" alt="Top Card" class="w-full h-full object-contain rounded-lg" />
+        </div>
+        <img id="main-pack-image" class="relative z-10 w-full h-auto object-contain mx-auto drop-shadow-xl transform transition-transform duration-300 hover:scale-105" alt="Pack" />
+      </div>
       <button id="open-pack" class="shining-button animate-pulse relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-105 focus:outline-none overflow-hidden">
         <span class="relative z-10 flex items-center gap-2">
           Open for
