@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <a href="index.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-cube mr-2"></i> Open Packs</a>
             <a href="inventory.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-box-open mr-2"></i> Inventory</a>
             <a href="profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-user mr-2"></i> Profile</a>
-            <a href="how-it-works.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-question-circle mr-2"></i> How It Works</a>
+              <a href="how-it-works.html" class="how-it-works-link block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-question-circle mr-2"></i> How It Works</a>
             <a id="signin-desktop" href="auth.html" class="block px-4 py-2 text-sm text-green-400 hover:bg-gray-700"><i class="fas fa-sign-in-alt mr-2"></i> Sign In</a>
             <a id="logout-desktop" href="#" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
           </div>
@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <a href="index.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-cube"></i> Open Packs</a>
             <a id="drawer-inventory-link" href="inventory.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-box-open"></i> Inventory</a>
             <a id="drawer-profile-link" href="profile.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-user"></i> Profile</a>
-            <a href="how-it-works.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-question-circle"></i> How It Works</a>
+              <a href="how-it-works.html" class="how-it-works-link block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-question-circle"></i> How It Works</a>
             <a href="vaults.html" class="block px-4 py-2 text-sm text-yellow-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-lock"></i> Vaults</a>
             <a href="marketplace.html" class="block px-4 py-2 text-sm text-pink-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-store"></i> Marketplace</a>
             <a href="leaderboard.html" class="block px-4 py-2 text-sm text-blue-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-trophy"></i> Leaderboard</a>
@@ -352,6 +352,38 @@ document.addEventListener("DOMContentLoaded", () => {
     render();
     setInterval(render, 1000);
   }
+
+  // Popup prompting users to sign up when visiting How It Works
+  const signupPopupHtml = `
+    <div id="signup-popup" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-11/12 max-w-md bg-gray-800 text-white rounded-lg shadow-lg p-4 z-[1000] hidden">
+      <div class="flex justify-between items-start">
+        <div class="flex items-center gap-3">
+          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ChatGPT%20Image%20Aug%2010%2C%202025%2C%2011_08_17%20PM.png?alt=media&token=4950e6a0-1cf9-4c7b-aa56-686dc42693a8" alt="Mascot" class="w-8 h-8 rounded-full" />
+          <span class="font-semibold">Get a FREE pack</span>
+        </div>
+        <button id="signup-popup-close" class="text-gray-400 hover:text-white">×</button>
+      </div>
+      <p class="mt-2 text-sm">Find out how it works and get a FREE box! All you have to do is sign up to claim it!</p>
+      <div class="mt-4 flex justify-end gap-3">
+        <button id="signup-popup-dismiss" class="px-4 py-2 text-sm text-gray-300 border border-gray-600 rounded hover:bg-gray-700">No thanks</button>
+        <a href="auth.html?register=true" class="px-4 py-2 text-sm bg-yellow-400 text-black rounded font-semibold hover:bg-yellow-300">Sign Up</a>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML('beforeend', signupPopupHtml);
+
+  const signupPopup = document.getElementById('signup-popup');
+  const closeSignup = () => signupPopup.classList.add('hidden');
+  document.getElementById('signup-popup-close')?.addEventListener('click', closeSignup);
+  document.getElementById('signup-popup-dismiss')?.addEventListener('click', closeSignup);
+
+  document.querySelectorAll('.how-it-works-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      if (!firebase.auth().currentUser) {
+        e.preventDefault();
+        signupPopup.classList.remove('hidden');
+      }
+    });
+  });
 
   updateVaultNavTimer();
 });
