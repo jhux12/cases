@@ -1,8 +1,9 @@
 import { setupFilters } from './filters.js';
 
 let allCases = [];
-const INITIAL_CASE_LIMIT = 20;
-let displayLimit = INITIAL_CASE_LIMIT;
+const ROW_LIMIT = 3;
+let casesPerPage = 0;
+let displayLimit = 0;
 let currentCases = [];
 function getPepperHTML(spiceLevel) {
   const map = {
@@ -16,6 +17,13 @@ function getPepperHTML(spiceLevel) {
   const { class: cls } = map[spiceLevel];
   return `<div class="${cls}" aria-label="${spiceLevel} pepper"><i class="fa-solid fa-pepper-hot"></i></div>`;
 }
+function calculateCasesPerPage() {
+  const container = document.getElementById("cases-container");
+  if (!container) return ROW_LIMIT * 5;
+  const columns = getComputedStyle(container).gridTemplateColumns.split(" ").filter(Boolean).length;
+  return columns * ROW_LIMIT;
+}
+
 function renderCases(caseList, reset = true) {
   const casesContainer = document.getElementById("cases-container");
   casesContainer.innerHTML = "";
@@ -26,7 +34,8 @@ function renderCases(caseList, reset = true) {
 
   if (reset) {
     currentCases = orderedCases;
-    displayLimit = INITIAL_CASE_LIMIT;
+    casesPerPage = calculateCasesPerPage();
+    displayLimit = casesPerPage;
   }
 
   const toRender = currentCases.slice(0, displayLimit);
@@ -144,7 +153,8 @@ function loadCases() {
 window.addEventListener("DOMContentLoaded", () => {
   const seeMoreBtn = document.getElementById('see-more-cases');
   seeMoreBtn?.addEventListener('click', () => {
-    displayLimit += INITIAL_CASE_LIMIT;
+    casesPerPage = calculateCasesPerPage();
+    displayLimit += casesPerPage;
     renderCases(currentCases, false);
   });
   loadCases();
