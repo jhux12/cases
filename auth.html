@@ -203,38 +203,15 @@ registerForm.addEventListener('submit', async e => {
   const name = document.getElementById('register-name').value;
   const username = document.getElementById('register-username').value;
   const email = document.getElementById('register-email').value;
-  const password = document.getElementById('register-password').value;
 
   try {
-    const emailCred = firebase.auth.EmailAuthProvider.credential(email, password);
-    const { user } = await auth.currentUser.linkWithCredential(emailCred);
-
-    await auth.currentUser.updateProfile({ displayName: username });
-    await db.ref('users/' + user.uid).set({
-      name: name,
-      username: username,
-      email: email,
-      phoneNumber: auth.currentUser.phoneNumber,
-      balance: 0,
-      role: 'user',
-      freeCaseOpened: false
-    });
-
-    await auth.currentUser.sendEmailVerification();
-    alert('Registration successful! Please verify your email before logging in.');
+    await auth.currentUser.verifyBeforeUpdateEmail(email);
+    localStorage.setItem('pendingUser', JSON.stringify({ name, username, email }));
+    alert('Verification email sent! Please check your inbox.');
     await auth.signOut();
     window.location.href = 'auth.html';
   } catch (error) {
-    await auth.currentUser.delete().catch(() => {});
-    await auth.signOut();
-    if (error.code === 'auth/email-already-in-use' ||
-        error.code === 'auth/account-exists-with-different-credential') {
-      const methods = await auth.fetchSignInMethodsForEmail(email);
-      const method = methods[0] === 'password' ? 'that password' : methods[0];
-      alert(`An account already exists with this email. Please sign in using ${method}.`);
-    } else {
-      alert('❌ ' + error.message);
-    }
+    alert('❌ ' + error.message);
   }
 });
 
@@ -249,7 +226,17 @@ loginForm.addEventListener('submit', e => {
 
     auth.setPersistence(persistence)
       .then(() => auth.signInWithEmailAndPassword(email, password))
-      .then(() => {
+      .then(async () => {
+        if (!auth.currentUser.emailVerified) {
+          try {
+            await auth.currentUser.sendEmailVerification();
+            alert('Please verify your email. A verification link has been sent.');
+          } catch (error) {
+            alert('❌ ' + error.message);
+          }
+          await auth.signOut();
+          return;
+        }
         alert('Login successful!');
         window.location.href = 'index.html';
       })
@@ -257,6 +244,48 @@ loginForm.addEventListener('submit', e => {
         alert(error.message);
       });
   });
+
+auth.onAuthStateChanged(async user => {
+  const pending = localStorage.getItem('pendingUser');
+  if (user && pending) {
+    const { name, username, email } = JSON.parse(pending);
+    if (user.emailVerified) {
+      const password = prompt('Please set a password for your account:');
+      if (!password) {
+        alert('Password is required to complete registration.');
+        await auth.signOut();
+        return;
+      }
+      try {
+        await auth.currentUser.updatePassword(password);
+        await auth.currentUser.updateProfile({ displayName: username });
+        await db.ref('users/' + user.uid).set({
+          name: name,
+          username: username,
+          email: user.email,
+          phoneNumber: auth.currentUser.phoneNumber,
+          balance: 0,
+          role: 'user',
+          freeCaseOpened: false
+        });
+        localStorage.removeItem('pendingUser');
+        alert('Registration complete! You can now log in with your email and password.');
+        await auth.signOut();
+        window.location.href = 'auth.html';
+      } catch (error) {
+        alert('❌ ' + error.message);
+      }
+    } else {
+      try {
+        await auth.currentUser.verifyBeforeUpdateEmail(email);
+        alert('Please verify your email using the link sent to you. A new verification email has been sent.');
+      } catch (error) {
+        alert('❌ ' + error.message);
+      }
+      await auth.signOut();
+    }
+  }
+});
 
 function forgotPassword() {
   const email = document.getElementById('login-email').value;
