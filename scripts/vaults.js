@@ -2,6 +2,14 @@ let vaults = [];
 let activeVault = null;
 let timerInterval = null;
 
+const rarityColors = {
+  common: '#a1a1aa',
+  uncommon: '#4ade80',
+  rare: '#60a5fa',
+  ultrarare: '#c084fc',
+  legendary: '#facc15'
+};
+
 function renderActive(pack) {
   if (!pack) return;
   const price = parseFloat(pack.price) || 0;
@@ -9,16 +17,45 @@ function renderActive(pack) {
   document.getElementById('pack-image').src = pack.image;
   document.getElementById('pack-price').textContent = price.toLocaleString();
   document.getElementById('open-link').href = `vault.html?id=${pack.id}`;
-  const cards = Object.values(pack.prizes || {}).slice(0,5);
-  document.getElementById('card-preview').innerHTML = cards.map(c => `
-    <div class="flex flex-col items-center">
-      <img src="${c.image}" class="w-16 h-20 sm:w-20 sm:h-24 object-contain rounded-lg bg-black/40 border-2 border-yellow-500/40 shadow-lg transform transition-transform duration-300 hover:scale-105" />
-      <div class="mt-1 flex items-center gap-1 text-sm">
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-        ${Number(c.value || 0).toLocaleString()}
-      </div>
-    </div>
-  `).join('');
+
+  const cards = Object.values(pack.prizes || {}).sort((a,b) => (b.value || 0) - (a.value || 0));
+  const slider = document.getElementById('card-slider');
+  slider.innerHTML = '';
+  slider.scrollLeft = 0;
+  const loopCards = [...cards, ...cards];
+  loopCards.forEach(c => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'relative flex-shrink-0 w-24 h-32 sm:w-32 sm:h-40';
+    const img = document.createElement('img');
+    img.src = c.image;
+    img.className = 'w-full h-full object-contain rounded-lg bg-black/40 border-2 shadow-lg';
+    const rarity = (c.rarity || '').toLowerCase().replace(/\s+/g,'');
+    img.style.borderColor = rarityColors[rarity] || '#a1a1aa';
+    wrapper.appendChild(img);
+    const val = document.createElement('div');
+    val.className = 'absolute bottom-1 left-1 flex items-center gap-1 text-xs bg-black/60 px-1 rounded';
+    val.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" />${Number(c.value || 0).toLocaleString()}`;
+    wrapper.appendChild(val);
+    if(rarity === 'legendary') wrapper.classList.add('legendary-spark');
+    slider.appendChild(wrapper);
+  });
+  if(cards.length){
+    let paused = false;
+    slider.onmouseenter = () => paused = true;
+    slider.onmouseleave = () => paused = false;
+    slider.ontouchstart = () => paused = true;
+    slider.ontouchend = () => paused = false;
+    const step = () => {
+      if(!paused){
+        slider.scrollLeft += 0.5;
+        if(slider.scrollLeft >= slider.scrollWidth / 2){
+          slider.scrollLeft = 0;
+        }
+      }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
 }
 
 function startTimer(expires) {
