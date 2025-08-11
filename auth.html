@@ -220,8 +220,10 @@ registerForm.addEventListener('submit', async e => {
       freeCaseOpened: false
     });
 
-    alert('Registration successful!');
-    window.location.href = 'index.html';
+    await auth.currentUser.sendEmailVerification();
+    alert('Registration successful! Please verify your email before logging in.');
+    await auth.signOut();
+    window.location.href = 'auth.html';
   } catch (error) {
     await auth.currentUser.delete().catch(() => {});
     await auth.signOut();
