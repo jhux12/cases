@@ -9,7 +9,23 @@ function renderActive(pack) {
   document.getElementById('pack-image').src = pack.image;
   document.getElementById('pack-price').textContent = price.toLocaleString();
   document.getElementById('open-link').href = `vault.html?id=${pack.id}`;
-  const cards = Object.values(pack.prizes || {}).slice(0,5);
+
+  const allCards = Object.values(pack.prizes || {}).sort((a,b) => (b.value||0) - (a.value||0));
+
+  const topCards = allCards.slice(0,2);
+  const top1El = document.getElementById('top-card-1');
+  const top2El = document.getElementById('top-card-2');
+  [top1El, top2El].forEach(el => { el.classList.add('hidden'); el.src = ''; });
+  if (topCards[0]) {
+    top1El.src = topCards[0].image;
+    top1El.classList.remove('hidden');
+  }
+  if (topCards[1]) {
+    top2El.src = topCards[1].image;
+    top2El.classList.remove('hidden');
+  }
+
+  const cards = allCards.slice(0,5);
   document.getElementById('card-preview').innerHTML = cards.map(c => `
     <div class="flex flex-col items-center">
       <img src="${c.image}" class="w-16 h-20 sm:w-20 sm:h-24 object-contain rounded-lg bg-black/40 border-2 border-yellow-500/40 shadow-lg transform transition-transform duration-300 hover:scale-105" />
