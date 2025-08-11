@@ -236,7 +236,10 @@ loginForm.addEventListener('submit', e => {
     auth.setPersistence(persistence)
       .then(() => auth.signInWithEmailAndPassword(email, password))
       .then(async () => {
-        if (!auth.currentUser.emailVerified) {
+        const userRef = firebase.database().ref('users/' + auth.currentUser.uid);
+        const snap = await userRef.once('value');
+        const userData = snap.val();
+        if (!auth.currentUser.emailVerified && !userData?.emailVerified) {
           try {
             await auth.currentUser.sendEmailVerification();
             alert('Please verify your email. A verification link has been sent.');
@@ -276,7 +279,8 @@ auth.onAuthStateChanged(async user => {
           balance: 0,
           role: 'user',
           freeCaseOpened: false,
-          emailAlerts: emailAlerts
+          emailAlerts: emailAlerts,
+          emailVerified: true
         });
         localStorage.removeItem('pendingUser');
         alert('Registration complete! You can now log in with your email and password.');

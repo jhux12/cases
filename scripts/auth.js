@@ -15,12 +15,12 @@ window.addEventListener('DOMContentLoaded', () => {
     if (user) {
       const userRef = firebase.database().ref('users/' + user.uid);
       const snapshot = await userRef.once('value');
-      if ((!user.email || !user.emailVerified) && !snapshot.exists()) {
+      const userData = snapshot.val() || {};
+      if (!user.email || (!user.emailVerified && !userData.emailVerified)) {
         alert('Please complete registration and verify your email to continue.');
         firebase.auth().signOut();
         return;
       }
-      const userData = snapshot.val() || {};
 
       // ✅ Setup Provably Fair if missing
       if (!userData.provablyFair) {
