@@ -1,6 +1,10 @@
 import { setupFilters } from './filters.js';
 
 let allCases = [];
+const ROW_LIMIT = 3;
+let casesPerPage = 0;
+let displayLimit = 0;
+let currentCases = [];
 function getPepperHTML(spiceLevel) {
   const map = {
     easy: { class: "spice-label spice-easy" },
@@ -13,7 +17,14 @@ function getPepperHTML(spiceLevel) {
   const { class: cls } = map[spiceLevel];
   return `<div class="${cls}" aria-label="${spiceLevel} pepper"><i class="fa-solid fa-pepper-hot"></i></div>`;
 }
-function renderCases(caseList) {
+function calculateCasesPerPage() {
+  const container = document.getElementById("cases-container");
+  if (!container) return ROW_LIMIT * 5;
+  const columns = getComputedStyle(container).gridTemplateColumns.split(" ").filter(Boolean).length;
+  return columns * ROW_LIMIT;
+}
+
+function renderCases(caseList, reset = true) {
   const casesContainer = document.getElementById("cases-container");
   casesContainer.innerHTML = "";
 
@@ -21,7 +32,15 @@ function renderCases(caseList) {
   const paidCases = caseList.filter(c => !c.isFree);
   const orderedCases = [...freeCases, ...paidCases];
 
-  orderedCases.forEach(c => {
+  if (reset) {
+    currentCases = orderedCases;
+    casesPerPage = calculateCasesPerPage();
+    displayLimit = casesPerPage;
+  }
+
+  const toRender = currentCases.slice(0, displayLimit);
+
+  toRender.forEach(c => {
     const tagHTML = c.tag ? `<div class="pack-tag">${c.tag}</div>` : "";
     const pepperHTML = getPepperHTML(c.spiceLevel);
 
@@ -68,6 +87,13 @@ function renderCases(caseList) {
   document.querySelectorAll(".open-case").forEach(btn => {
     btn.onclick = openCasePopup;
   });
+
+  const seeMoreBtn = document.getElementById('see-more-cases');
+  if (currentCases.length > displayLimit) {
+    seeMoreBtn.classList.remove('hidden');
+  } else {
+    seeMoreBtn.classList.add('hidden');
+  }
 }
 
 function setupCategoryTabs(filterControls) {
@@ -125,5 +151,11 @@ function loadCases() {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
+  const seeMoreBtn = document.getElementById('see-more-cases');
+  seeMoreBtn?.addEventListener('click', () => {
+    casesPerPage = calculateCasesPerPage();
+    displayLimit += casesPerPage;
+    renderCases(currentCases, false);
+  });
   loadCases();
 });
