@@ -340,19 +340,13 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById('vault-nav-timer-desktop')
     ].filter(Boolean);
     if (!timerEls.length) return;
+    const HALF_HOUR = 30 * 60 * 1000;
     function render() {
-      const stored = JSON.parse(localStorage.getItem('vaultActive') || '{}');
-      let text = '--:--';
-      if (stored.expires) {
-        const diff = stored.expires - Date.now();
-        if (diff <= 0) {
-          text = '00:00';
-        } else {
-          const mins = Math.floor(diff / 60000);
-          const secs = Math.floor((diff % 60000) / 1000);
-          text = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-        }
-      }
+      const now = Date.now();
+      const diff = HALF_HOUR - (now % HALF_HOUR);
+      const mins = Math.floor(diff / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      const text = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
       timerEls.forEach(el => el.textContent = text);
     }
     render();
