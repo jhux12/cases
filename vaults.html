@@ -22,6 +22,29 @@
       to { transform: scale(1.1); }
     }
   </style>
+  <style>
+    .legendary-spark{overflow:visible;}
+    .legendary-spark::before,
+    .legendary-spark::after {
+      content:'';
+      position:absolute;
+      top:50%;
+      left:50%;
+      width:6px;
+      height:6px;
+      background:radial-gradient(circle, rgba(250,204,21,1) 0%, rgba(250,204,21,0) 70%);
+      border-radius:50%;
+      pointer-events:none;
+      animation:spark-burst 0.8s linear infinite;
+    }
+    .legendary-spark::after { animation-delay:0.4s; }
+    @keyframes spark-burst {
+      0% { transform:translate(-50%, -50%) scale(1); opacity:1; }
+      100% { transform:translate(calc(-50% + var(--sx)), calc(-50% + var(--sy))) scale(0.2); opacity:0; }
+    }
+    .legendary-spark::before { --sx:-30px; --sy:-30px; }
+    .legendary-spark::after { --sx:30px; --sy:-30px; }
+  </style>
 </head>
 <body class="bg-gradient-to-br from-black via-gray-900 to-black min-h-screen text-white">
   <header></header>
@@ -30,15 +53,18 @@
       <h1 class="text-4xl font-bold">Vaults</h1>
       <p class="text-gray-300 mt-2">Exclusive limited-time packs where you pick one of five cards to win its coin value.</p>
     </div>
-    <div id="active-pick" class="relative p-8 bg-black/40 backdrop-blur rounded-3xl border border-yellow-500/40 shadow-2xl flex flex-col items-center text-center">
-      <h2 id="pack-name" class="text-3xl font-bold mb-4"></h2>
-      <div class="relative w-40 sm:w-56 mx-auto mb-4">
-        <img id="pack-image" alt="Vault" class="w-full h-auto object-contain mx-auto drop-shadow-xl transform transition-transform duration-300 hover:scale-105">
-        <div id="vault-timer" class="timer-badge absolute -top-4 -right-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">30:00</div>
+      <div id="active-pick" class="relative p-8 bg-black/40 backdrop-blur rounded-3xl border border-yellow-500/40 shadow-2xl flex flex-col items-center text-center">
+        <h2 id="pack-name" class="text-3xl font-bold mb-4"></h2>
+        <div class="relative w-56 sm:w-72 mx-auto mb-4">
+          <img id="pack-image" alt="Vault" class="relative z-10 w-full h-auto object-contain mx-auto drop-shadow-xl transform transition-transform duration-300 hover:scale-105">
+          <div id="vault-timer" class="timer-badge absolute -top-4 -right-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">30:00</div>
+        </div>
+        <div class="mb-6 w-full flex flex-col items-center">
+          <h3 class="text-lg font-semibold mb-2">Possible Rewards</h3>
+          <div id="card-slider" class="relative flex overflow-x-auto gap-3 px-1 py-1 scrollbar-hide w-full h-32 sm:h-40"></div>
+        </div>
+        <a id="open-link" href="#" class="open-button glow-button text-lg px-8 py-3 mb-6">Open for <span id="pack-price"></span> <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 inline-block align-[-2px]"></a>
       </div>
-      <div id="card-preview" class="flex justify-center flex-wrap gap-2 sm:gap-4 mb-6"></div>
-      <a id="open-link" href="#" class="open-button glow-button text-lg px-8 py-3 mb-6">Open for <span id="pack-price"></span> <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 inline-block align-[-2px]"></a>
-    </div>
   </section>
   <footer></footer>
   <script src="scripts/header.js"></script>
