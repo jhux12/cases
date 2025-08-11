@@ -18,7 +18,28 @@ function renderPack(data) {
   document.querySelectorAll('.case-pack-image').forEach(img => img.src = data.image);
   document.getElementById('pack-price').textContent = (data.price || 0).toLocaleString();
 
-  const prizes = Object.values(data.prizes || {});
+  const prizes = Object.values(data.prizes || {}).sort((a,b) => (b.value||0) - (a.value||0));
+
+  const top1Wrap = document.getElementById('top-card-1-wrapper');
+  const top1El = document.getElementById('top-card-1');
+  const top2Wrap = document.getElementById('top-card-2-wrapper');
+  const top2El = document.getElementById('top-card-2');
+  [top1Wrap, top2Wrap].forEach(el => { el.classList.add('hidden'); el.classList.remove('legendary-spark'); });
+  if (prizes[0]) {
+    top1El.src = prizes[0].image;
+    top1Wrap.classList.remove('hidden');
+    if ((prizes[0].rarity || '').toLowerCase().replace(/\s+/g,'') === 'legendary') {
+      top1Wrap.classList.add('legendary-spark');
+    }
+  }
+  if (prizes[1]) {
+    top2El.src = prizes[1].image;
+    top2Wrap.classList.remove('hidden');
+    if ((prizes[1].rarity || '').toLowerCase().replace(/\s+/g,'') === 'legendary') {
+      top2Wrap.classList.add('legendary-spark');
+    }
+  }
+
   document.getElementById('prizes-grid').innerHTML = prizes.map(prize => {
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g,'');
     const color = rarityColors[rarity] || '#a1a1aa';
