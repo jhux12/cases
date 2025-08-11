@@ -48,11 +48,52 @@ async function initHeroSpinner() {
       )
     );
 
-    await spinToPrize(() => {}, false, 'hero');
-    setTimeout(spin, 2500);
+    const prize = await spinToPrize(() => {}, false, 'hero');
+    await demoAnimation(prize);
+    setTimeout(spin, 1000);
   }
 
   spin();
+}
+
+function demoAnimation(prize) {
+  return new Promise(resolve => {
+    const border = document.getElementById('spinner-border-hero');
+    const wrapper = border?.parentElement;
+    const sellDest = document.getElementById('demo-sell-dest');
+    const shipDest = document.getElementById('demo-ship-dest');
+    if (!wrapper || !sellDest || !shipDest || !prize) return resolve();
+
+    const action = Math.random() < 0.5 ? 'sell' : 'ship';
+    const destEl = action === 'sell' ? sellDest : shipDest;
+
+    const card = document.createElement('img');
+    card.src = prize.image || '';
+    card.className = 'demo-card absolute rounded-lg shadow-lg';
+    const width = 80;
+    const height = 100;
+    const wrapperRect = wrapper.getBoundingClientRect();
+    card.style.width = `${width}px`;
+    card.style.height = `${height}px`;
+    card.style.left = `${wrapperRect.width / 2 - width / 2}px`;
+    card.style.top = `${wrapperRect.height / 2 - height / 2}px`;
+    card.style.opacity = '1';
+    wrapper.appendChild(card);
+
+    requestAnimationFrame(() => {
+      const destRect = destEl.getBoundingClientRect();
+      const latestWrapperRect = wrapper.getBoundingClientRect();
+      const dx = destRect.left + destRect.width / 2 - (latestWrapperRect.left + latestWrapperRect.width / 2);
+      const dy = destRect.top + destRect.height / 2 - (latestWrapperRect.top + latestWrapperRect.height / 2);
+      card.style.transform = `translate(${dx}px, ${dy}px) scale(0.5)`;
+      card.style.opacity = '0';
+    });
+
+    card.addEventListener('transitionend', () => {
+      card.remove();
+      resolve();
+    }, { once: true });
+  });
 }
 
 document.addEventListener('DOMContentLoaded', initHeroSpinner);
