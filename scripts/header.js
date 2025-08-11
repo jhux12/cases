@@ -363,7 +363,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <button id="signup-popup-close" class="text-gray-400 hover:text-white">×</button>
       </div>
-      <p class="mt-2 text-sm">Find out how it works and get a FREE box! All you have to do is sign up to claim it!</p>
+      <p class="mt-2 text-sm">Find out how it works and get a FREE pack! All you have to do is sign up to claim it!</p>
       <div class="mt-4 flex justify-end gap-3">
         <button id="signup-popup-dismiss" class="px-4 py-2 text-sm text-gray-300 border border-gray-600 rounded hover:bg-gray-700">No thanks</button>
         <a href="auth.html?register=true" class="px-4 py-2 text-sm bg-yellow-400 text-black rounded font-semibold hover:bg-yellow-300">Sign Up</a>
