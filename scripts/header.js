@@ -372,14 +372,17 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.insertAdjacentHTML('beforeend', signupPopupHtml);
 
   const signupPopup = document.getElementById('signup-popup');
-  const closeSignup = () => signupPopup.classList.add('hidden');
+  const closeSignup = () => {
+    signupPopup.classList.add('hidden');
+    sessionStorage.setItem('signupPopupClosed', 'true');
+  };
   document.getElementById('signup-popup-close')?.addEventListener('click', closeSignup);
   document.getElementById('signup-popup-dismiss')?.addEventListener('click', closeSignup);
 
   firebase.auth().onAuthStateChanged(user => {
-    if (!user) {
+    if (!user && !sessionStorage.getItem('signupPopupClosed')) {
       setTimeout(() => {
-        if (!firebase.auth().currentUser) {
+        if (!firebase.auth().currentUser && !sessionStorage.getItem('signupPopupClosed')) {
           signupPopup.classList.remove('hidden');
         }
       }, 7000);
