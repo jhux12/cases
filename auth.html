@@ -206,7 +206,7 @@ registerForm.addEventListener('submit', async e => {
 
   try {
     await auth.currentUser.verifyBeforeUpdateEmail(email);
-    localStorage.setItem('pendingUser', JSON.stringify({ name, username }));
+    localStorage.setItem('pendingUser', JSON.stringify({ name, username, email }));
     alert('Verification email sent! Please check your inbox.');
     await auth.signOut();
     window.location.href = 'auth.html';
@@ -226,7 +226,17 @@ loginForm.addEventListener('submit', e => {
 
     auth.setPersistence(persistence)
       .then(() => auth.signInWithEmailAndPassword(email, password))
-      .then(() => {
+      .then(async () => {
+        if (!auth.currentUser.emailVerified) {
+          try {
+            await auth.currentUser.sendEmailVerification();
+            alert('Please verify your email. A verification link has been sent.');
+          } catch (error) {
+            alert('❌ ' + error.message);
+          }
+          await auth.signOut();
+          return;
+        }
         alert('Login successful!');
         window.location.href = 'index.html';
       })
@@ -238,7 +248,7 @@ loginForm.addEventListener('submit', e => {
 auth.onAuthStateChanged(async user => {
   const pending = localStorage.getItem('pendingUser');
   if (user && pending) {
-    const { name, username } = JSON.parse(pending);
+    const { name, username, email } = JSON.parse(pending);
     if (user.emailVerified) {
       const password = prompt('Please set a password for your account:');
       if (!password) {
@@ -266,7 +276,12 @@ auth.onAuthStateChanged(async user => {
         alert('❌ ' + error.message);
       }
     } else {
-      alert('Please verify your email using the link sent to you.');
+      try {
+        await auth.currentUser.verifyBeforeUpdateEmail(email);
+        alert('Please verify your email using the link sent to you. A new verification email has been sent.');
+      } catch (error) {
+        alert('❌ ' + error.message);
+      }
       await auth.signOut();
     }
   }
