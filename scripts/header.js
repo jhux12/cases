@@ -353,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setInterval(render, 1000);
   }
 
-  // Popup prompting users to sign up when visiting How It Works
+  // Popup prompting users to sign up after a delay if not signed in
   const signupPopupHtml = `
     <div id="signup-popup" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-11/12 max-w-md bg-gray-800 text-white rounded-lg shadow-lg p-4 z-[1000] hidden">
       <div class="flex justify-between items-start">
@@ -376,13 +376,14 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById('signup-popup-close')?.addEventListener('click', closeSignup);
   document.getElementById('signup-popup-dismiss')?.addEventListener('click', closeSignup);
 
-  document.querySelectorAll('.how-it-works-link').forEach(link => {
-    link.addEventListener('click', (e) => {
-      if (!firebase.auth().currentUser) {
-        e.preventDefault();
-        signupPopup.classList.remove('hidden');
-      }
-    });
+  firebase.auth().onAuthStateChanged(user => {
+    if (!user) {
+      setTimeout(() => {
+        if (!firebase.auth().currentUser) {
+          signupPopup.classList.remove('hidden');
+        }
+      }, 7000);
+    }
   });
 
   updateVaultNavTimer();
