@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
       </div>
       <div class="hidden sm:flex items-center gap-6 relative">
-        <a href="vaults.html" class="nav-link text-yellow-400"><i class="fas fa-lock"></i><span>Vaults</span><span id="vault-nav-timer-desktop" class="ml-1 text-xs">--:--</span></a>
+        <a href="pickem.html" class="nav-link text-yellow-400"><i class="fas fa-lock"></i><span>Pickem</span><span id="pickem-nav-timer-desktop" class="ml-1 text-xs">--:--</span></a>
         <a href="leaderboard.html" class="nav-link text-blue-400"><i class="fas fa-trophy"></i><span>Leaderboard</span></a>
         <a href="marketplace.html" class="nav-link text-pink-400"><i class="fas fa-store"></i><span>Marketplace</span></a>
         <div id="user-balance" class="hidden flex items-center neon-balance rounded-full overflow-hidden text-sm">
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <nav class="flex flex-col gap-2">
             <div class="text-gray-400 text-xs uppercase px-4 mt-2">Navigation</div>
             <a href="index.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-cube"></i> Open Packs</a>
-            <a href="vaults.html" class="block px-4 py-2 text-sm text-yellow-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-lock"></i> Vaults</a>
+            <a href="pickem.html" class="block px-4 py-2 text-sm text-yellow-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-lock"></i> Pickem</a>
             <a href="leaderboard.html" class="block px-4 py-2 text-sm text-blue-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-trophy"></i> Leaderboard</a>
             <a href="marketplace.html" class="block px-4 py-2 text-sm text-pink-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-store"></i> Marketplace</a>
             <div class="text-gray-400 text-xs uppercase px-4 mt-4">Account</div>
@@ -118,10 +118,10 @@ document.addEventListener("DOMContentLoaded", () => {
           <i class="fas fa-cube text-lg"></i>
           <span>Open Packs</span>
         </a>
-        <a href="vaults.html" class="flex flex-col items-center text-xs text-yellow-400">
+        <a href="pickem.html" class="flex flex-col items-center text-xs text-yellow-400">
           <i class="fas fa-lock text-lg"></i>
-          <span>Vaults</span>
-          <span id="vault-nav-timer" class="text-[10px]">--:--</span>
+          <span>Pickem</span>
+          <span id="pickem-nav-timer" class="text-[10px]">--:--</span>
         </a>
       </nav>
     `; // <-- closing backtick and semicolon!
@@ -332,10 +332,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return { level: lvl, prevThreshold: prev, nextThreshold: next };
   }
 
-  function updateVaultNavTimer() {
+  function updatePickemNavTimer() {
     const timerEls = [
-      document.getElementById('vault-nav-timer'),
-      document.getElementById('vault-nav-timer-desktop')
+      document.getElementById('pickem-nav-timer'),
+      document.getElementById('pickem-nav-timer-desktop')
     ].filter(Boolean);
     if (!timerEls.length) return;
     const HALF_HOUR = 30 * 60 * 1000;
@@ -387,6 +387,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  updateVaultNavTimer();
+  updatePickemNavTimer();
 });
 
