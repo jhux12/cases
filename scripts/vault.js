@@ -2,6 +2,7 @@ let currentPack = null;
 let currentPrize = null;
 let cardPrizes = [];
 let selectedIndex = null;
+let winningIndex = null;
 
 const rarityColors = {
   common: '#a1a1aa',
@@ -122,24 +123,29 @@ async function openPack() {
   currentPrize = { ...winningPrize, key: invRef.key };
   await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: (nonce || 0) + 1 });
 
-  // prepare unique filler prizes for the face-down cards
+  // prepare prizes for the face-down cards and guarantee five entries
   const allPrizes = Object.values(currentPack.prizes || {});
-  // start with unique fillers excluding the winning prize
-  let fillers = allPrizes
-    .filter(p => p !== winningPrize)
-    .filter((p, i, self) => i === self.findIndex(q => q.name === p.name && q.image === p.image));
+  const keyFor = p => p.image || p.name;
 
-  // if we don't have enough unique fillers, allow duplicates until we have five
-  if (fillers.length < 5) {
-    const pool = allPrizes.filter(p => p !== winningPrize);
-    while (fillers.length < 5 && pool.length) {
-      fillers.push(pool[Math.floor(Math.random() * pool.length)]);
+  // collect up to four unique filler prizes different from the winning prize
+  const fillers = [];
+  const used = new Set([keyFor(winningPrize)]);
+  for (const prize of allPrizes.sort(() => Math.random() - 0.5)) {
+    const key = keyFor(prize);
+    if (!used.has(key)) {
+      fillers.push(prize);
+      used.add(key);
     }
+    if (fillers.length === 4) break;
   }
 
-  // shuffle and take the first five entries
-  fillers.sort(() => Math.random() - 0.5);
-  cardPrizes = fillers.slice(0, 5);
+  // if we couldn't find four unique fillers, pad with random prizes
+  while (fillers.length < 4 && allPrizes.length) {
+    fillers.push(allPrizes[Math.floor(Math.random() * allPrizes.length)]);
+  }
+
+  cardPrizes = [...fillers, winningPrize].sort(() => Math.random() - 0.5);
+  winningIndex = cardPrizes.findIndex(p => keyFor(p) === keyFor(winningPrize));
 
   selectedIndex = null;
   document.getElementById('pack-display').classList.add('hidden');
@@ -184,10 +190,21 @@ function selectCard(card, index) {
   if (selectedIndex !== null) return;
   selectedIndex = index;
 
-  // replace the selected card's prize with the actual winning prize
+  const originalPrize = cardPrizes[index];
+  const originalWinningIndex = winningIndex;
+
+  // move the winning prize to the chosen card and shift the previous prize
   cardPrizes[index] = currentPrize;
+  if (originalWinningIndex !== index) {
+    cardPrizes[originalWinningIndex] = originalPrize;
+    const winCard = document.querySelector(`.flip-card[data-index="${originalWinningIndex}"]`);
+    if (winCard) {
+      winCard.querySelector('.flip-card-front').src = originalPrize.image;
+    }
+  }
   const front = card.querySelector('.flip-card-front');
   front.src = currentPrize.image;
+  winningIndex = index;
 
   // visually mark the chosen card
   const label = document.createElement('div');
