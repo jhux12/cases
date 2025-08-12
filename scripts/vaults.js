@@ -64,7 +64,7 @@ function startAutoScroll(slider, sets){
 
 function startTimer(expires) {
   clearInterval(timerInterval);
-  const timerEl = document.getElementById('vault-timer');
+  const timerEl = document.getElementById('pickem-timer');
   function update() {
     const diff = expires - Date.now();
     if (diff <= 0) {
@@ -85,12 +85,12 @@ function chooseActive() {
   const HALF_HOUR = 30 * 60 * 1000;
   const now = Date.now();
   const period = Math.floor(now / HALF_HOUR);
-  const stored = JSON.parse(localStorage.getItem('vaultActive') || '{}');
+  const stored = JSON.parse(localStorage.getItem('pickemActive') || '{}');
   if (stored.period === period && vaults.find(v => v.id === stored.id)) {
     activeVault = vaults.find(v => v.id === stored.id);
   } else {
     activeVault = vaults[Math.floor(Math.random() * vaults.length)];
-    localStorage.setItem('vaultActive', JSON.stringify({ id: activeVault.id, period }));
+    localStorage.setItem('pickemActive', JSON.stringify({ id: activeVault.id, period }));
   }
   const expires = (period + 1) * HALF_HOUR;
   startTimer(expires);
