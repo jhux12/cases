@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Packly.gg | Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="/scripts/firebase-config.js"></script>
+    <script>
+      const allowedAdmins = ["jhuxf12@outlook.com"];
+    </script>
   </head>
   <body class="bg-[#0b0f14] text-gray-100">
     <div class="flex min-h-screen">
@@ -199,6 +206,26 @@
               </svg>
             </button>
             <button
+              class="p-2 rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              data-hook="info-panel-toggle"
+              aria-label="Toggle info panel"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3 12h18M3 6h18M3 18h18"
+                />
+              </svg>
+            </button>
+            <button
               class="p-1 rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-400"
               data-hook="profile-menu"
               aria-label="Profile menu"
@@ -319,7 +346,7 @@
       <!-- Right Panel -->
       <aside
         id="info-panel"
-        class="fixed top-0 right-0 w-80 h-full bg-[#0f131a]/90 backdrop-blur border-l border-[#1a1f2a] transform translate-x-full md:translate-x-0 transition-transform duration-300 hidden md:block z-20"
+        class="fixed top-0 right-0 w-80 h-full bg-[#0f131a]/90 backdrop-blur border-l border-[#1a1f2a] transform translate-x-full transition-transform duration-300 hidden md:block z-20"
         aria-label="Information panel"
       >
         <div class="h-full overflow-y-auto pt-20 p-4">
@@ -346,6 +373,18 @@
       document.addEventListener("DOMContentLoaded", function () {
         if (typeof initAdminDashboard === "function") {
           initAdminDashboard();
+        }
+        if (typeof renderStats === "function") {
+          renderStats();
+        }
+        if (typeof renderCharts === "function") {
+          renderCharts();
+        }
+        if (typeof bindTableActions === "function") {
+          bindTableActions();
+        }
+        if (typeof loadRecentActivity === "function") {
+          loadRecentActivity();
         }
       });
     </script>
