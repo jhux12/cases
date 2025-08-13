@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Packly.gg | Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -13,34 +17,384 @@
     <script>
       const allowedAdmins = ["jhuxf12@outlook.com"];
 
-      function initAdminDashboard() {
-        const auth = firebase.auth();
-        const sidebar = document.getElementById("sidebar");
-        const sidebarToggle = document.querySelector(
-          "[data-hook='sidebar-toggle']",
+      // DOM references for management sections
+      let caseList,
+        vaultList,
+        caseForm,
+        cancelEditBtn,
+        prizesSection,
+        toast,
+        imagePreview,
+        vaultCheck,
+        cardBackInput,
+        cardBackWrapper;
+
+      function showToast(message) {
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.remove("hidden");
+        setTimeout(() => toast.classList.add("hidden"), 3000);
+      }
+
+      function showSection(id) {
+        const sections = ["dashboard", "cases", "marketplace", "quests"];
+        sections.forEach((s) =>
+          document.getElementById(`${s}-section`).classList.add("hidden"),
         );
-        const infoPanel = document.getElementById("info-panel");
-        const infoToggle = document.querySelector(
-          "[data-hook='info-panel-toggle']",
-        );
+        document.getElementById(`${id}-section`).classList.remove("hidden");
+      }
 
-        if (sidebarToggle) {
-          sidebarToggle.addEventListener("click", () => {
-            sidebar.classList.toggle("hidden");
-          });
+      function previewImage(url) {
+        if (!imagePreview) return;
+        if (url) {
+          imagePreview.src = url;
+          imagePreview.classList.remove("hidden");
+        } else {
+          imagePreview.classList.add("hidden");
         }
+      }
 
-        if (infoToggle) {
-          infoToggle.addEventListener("click", () => {
-            infoPanel.classList.toggle("translate-x-full");
+      function addPrize(prize = {}) {
+        const div = document.createElement("div");
+        div.className = "prize-block p-4 bg-gray-700 rounded";
+        div.innerHTML = `
+          <div class="flex justify-end"><button onclick="this.parentElement.parentElement.remove()" class="text-red-400 hover:text-red-600 text-sm mb-2">Remove</button></div>
+          <input type="text" placeholder="Prize Name" value="${prize.name || ""}" class="prize-name w-full p-2 rounded mb-2">
+          <input type="text" placeholder="Prize Image URL" value="${prize.image || ""}" class="prize-image w-full p-2 rounded mb-2">
+          <select class="prize-rarity w-full p-2 rounded mb-2">
+            <option value="common" ${prize.rarity === "common" ? "selected" : ""}>Common</option>
+            <option value="uncommon" ${prize.rarity === "uncommon" ? "selected" : ""}>Uncommon</option>
+            <option value="rare" ${prize.rarity === "rare" ? "selected" : ""}>Rare</option>
+            <option value="ultra rare" ${prize.rarity === "ultra rare" ? "selected" : ""}>Ultra Rare</option>
+            <option value="legendary" ${prize.rarity === "legendary" ? "selected" : ""}>Legendary</option>
+          </select>
+          <input type="number" placeholder="Prize Value ($)" value="${prize.value || ""}" class="prize-value w-full p-2 rounded mb-2">
+          <input type="number" step="any" min="0" placeholder="Prize Odds (%)" value="${prize.odds || ""}" class="prize-odds w-full p-2 rounded" />
+        `;
+        prizesSection.appendChild(div);
+      }
+
+      function loadCases() {
+        if (!caseList || !vaultList) return;
+        db.ref("cases").on("value", (snapshot) => {
+          caseList.innerHTML = "";
+          snapshot.forEach((child) => {
+            const data = child.val();
+            const div = document.createElement("div");
+            div.className = "p-4 bg-gray-800 rounded";
+            div.innerHTML = `
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="font-bold text-lg">${data.name}</p>
+                  <p class="text-sm text-gray-400">${data.isFree ? "Free" : "$" + data.price}</p>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="editCase('${child.key}', false)" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Edit</button>
+                  <button onclick="deleteCase('${child.key}', false)" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded">Delete</button>
+                </div>
+              </div>`;
+            caseList.appendChild(div);
           });
-        }
-
-        auth.onAuthStateChanged((user) => {
-          if (!user || !allowedAdmins.includes(user.email)) {
-            window.location.href = "/auth.html";
-          }
         });
+
+        db.ref("vaults").on("value", (snapshot) => {
+          vaultList.innerHTML = "";
+          snapshot.forEach((child) => {
+            const data = child.val();
+            const div = document.createElement("div");
+            div.className = "p-4 bg-gray-800 rounded";
+            div.innerHTML = `
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="font-bold text-lg">${data.name}</p>
+                  <p class="text-sm text-gray-400">$${data.price}</p>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="editCase('${child.key}', true)" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Edit</button>
+                  <button onclick="deleteCase('${child.key}', true)" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded">Delete</button>
+                </div>
+              </div>`;
+            vaultList.appendChild(div);
+          });
+        });
+      }
+
+      function editCase(id, isVault = false) {
+        const path = (isVault ? "vaults/" : "cases/") + id;
+        db.ref(path)
+          .once("value")
+          .then((snapshot) => {
+            const data = snapshot.val();
+            document.getElementById("form-title").innerText = "Edit Case";
+            document.getElementById("case-id").value = id;
+            document.getElementById("case-path").value = isVault
+              ? "vaults"
+              : "cases";
+            document.getElementById("case-name").value = data.name;
+            document.getElementById("case-image").value = data.image;
+            previewImage(data.image);
+            document.getElementById("case-price").value = data.price;
+            document.getElementById("case-free").checked = !!data.isFree;
+            document.getElementById("case-tag").value = data.tag || "";
+            document.getElementById("case-new").checked = !!(
+              data.categories && data.categories.new
+            );
+            document.getElementById("case-featured").checked = !!(
+              data.categories && data.categories.featured
+            );
+            document.getElementById("case-starter").checked = !!(
+              data.categories && data.categories.starter
+            );
+            document.getElementById("case-spice").value = data.spiceLevel || "";
+            document.getElementById("case-vault").checked = !!data.vault;
+            document.getElementById("case-card-back").value =
+              data.cardBack || "";
+            document
+              .getElementById("card-back-wrapper")
+              .classList.toggle("hidden", !data.vault);
+            prizesSection.innerHTML =
+              '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
+            if (data.prizes)
+              Object.values(data.prizes).forEach((p) => addPrize(p));
+            cancelEditBtn.classList.remove("hidden");
+          });
+      }
+
+      function deleteCase(id, isVault = false) {
+        if (confirm("Are you sure you want to delete this case?")) {
+          const path = isVault ? "vaults/" : "cases/";
+          db.ref(path + id)
+            .remove()
+            .then(() => showToast("❌ Case deleted"));
+        }
+      }
+
+      function saveCase(e) {
+        e.preventDefault();
+        const idField = document.getElementById("case-id");
+        const pathField = document.getElementById("case-path");
+        const vault = vaultCheck.checked;
+        const path = vault ? "vaults" : "cases";
+        const id = idField.value || db.ref(path).push().key;
+        const name = document.getElementById("case-name").value;
+        const image = document.getElementById("case-image").value;
+        const isFree = document.getElementById("case-free").checked;
+        const price = isFree
+          ? 0
+          : parseFloat(document.getElementById("case-price").value) || 0;
+        const tag = document.getElementById("case-tag").value.trim();
+        const spiceLevel = document.getElementById("case-spice").value.trim();
+        const cardBack = cardBackInput.value.trim();
+        const categories = {
+          new: document.getElementById("case-new").checked,
+          featured: document.getElementById("case-featured").checked,
+          starter: document.getElementById("case-starter").checked,
+        };
+        const prizesElements =
+          prizesSection.querySelectorAll("div.prize-block");
+        const prizes = {};
+        prizesElements.forEach((div, idx) => {
+          prizes[idx] = {
+            name: div.querySelector(".prize-name").value,
+            image: div.querySelector(".prize-image").value,
+            rarity: div.querySelector(".prize-rarity").value,
+            value: parseFloat(div.querySelector(".prize-value").value) || 0,
+            odds: parseFloat(div.querySelector(".prize-odds").value) || 0,
+          };
+        });
+        const data = {
+          name,
+          image,
+          price,
+          tag,
+          spiceLevel,
+          isFree,
+          vault,
+          cardBack,
+          prizes,
+          categories,
+        };
+        const updates = {};
+        updates[`${path}/${id}`] = data;
+        const originalPath = pathField.value;
+        if (originalPath && originalPath !== path) {
+          updates[`${originalPath}/${id}`] = null;
+        }
+        db.ref()
+          .update(updates)
+          .then(() => {
+            caseForm.reset();
+            previewImage("");
+            document.getElementById("case-tag").value = "";
+            document.getElementById("case-free").checked = false;
+            document.getElementById("case-new").checked = false;
+            document.getElementById("case-featured").checked = false;
+            document.getElementById("case-starter").checked = false;
+            vaultCheck.checked = false;
+            cardBackInput.value = "";
+            cardBackWrapper.classList.add("hidden");
+            prizesSection.innerHTML =
+              '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
+            document.getElementById("form-title").innerText = "Add / Edit Case";
+            cancelEditBtn.classList.add("hidden");
+            idField.value = "";
+            pathField.value = "";
+            showToast("✅ Case saved successfully!");
+          });
+      }
+
+      function cancelEdit() {
+        caseForm.reset();
+        previewImage("");
+        document.getElementById("case-tag").value = "";
+        document.getElementById("case-free").checked = false;
+        document.getElementById("case-new").checked = false;
+        document.getElementById("case-featured").checked = false;
+        document.getElementById("case-starter").checked = false;
+        vaultCheck.checked = false;
+        cardBackInput.value = "";
+        cardBackWrapper.classList.add("hidden");
+        prizesSection.innerHTML =
+          '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
+        document.getElementById("form-title").innerText = "Add / Edit Case";
+        cancelEditBtn.classList.add("hidden");
+      }
+
+      function loadMarketplaceItems() {
+        const container = document.getElementById("market-list");
+        if (!container) return;
+        container.innerHTML = "";
+        firebase
+          .database()
+          .ref("marketplace")
+          .once("value")
+          .then((snapshot) => {
+            snapshot.forEach((child) => {
+              const item = child.val();
+              const card = document.createElement("div");
+              card.className =
+                "bg-gray-800 p-4 rounded flex justify-between items-center";
+              card.innerHTML = `
+                <div>
+                  <p class="text-lg font-semibold">${item.name}</p>
+                  <p class="text-sm text-gray-400">${item.value} coins · ${item.rarity}</p>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick='editMarketplaceItem("${child.key}", ${JSON.stringify(
+                    item,
+                  )})' class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm">Edit</button>
+                  <button onclick="deleteMarketplaceItem('${child.key}')" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm">Delete</button>
+                </div>`;
+              container.appendChild(card);
+            });
+          });
+      }
+
+      function editMarketplaceItem(key, item) {
+        document.getElementById("market-name").value = item.name;
+        document.getElementById("market-image").value = item.image;
+        document.getElementById("market-value").value = item.value;
+        document.getElementById("market-rarity").value = item.rarity;
+        document.getElementById("marketplace-form").dataset.editing = key;
+        document.querySelector(
+          "#marketplace-form button[type='submit']",
+        ).textContent = "Update Product";
+      }
+
+      function deleteMarketplaceItem(key) {
+        if (confirm("Are you sure you want to delete this product?")) {
+          firebase
+            .database()
+            .ref("marketplace/" + key)
+            .remove()
+            .then(() => {
+              showToast("🗑️ Product deleted");
+              loadMarketplaceItems();
+            });
+        }
+      }
+
+      async function marketplaceSubmitHandler(e) {
+        e.preventDefault();
+        const name = document.getElementById("market-name").value.trim();
+        const image = document.getElementById("market-image").value.trim();
+        const value = parseInt(
+          document.getElementById("market-value").value.trim(),
+        );
+        const rarity = document.getElementById("market-rarity").value;
+        if (!name || !image || !value || !rarity)
+          return alert("All fields are required!");
+        const form = document.getElementById("marketplace-form");
+        const editingKey = form.dataset.editing;
+        if (editingKey) {
+          await firebase
+            .database()
+            .ref("marketplace/" + editingKey)
+            .set({ name, image, value, rarity, timestamp: Date.now() });
+          showToast("✅ Product updated!");
+          form.dataset.editing = "";
+          form.querySelector("button[type='submit']").textContent =
+            "Add to Marketplace";
+        } else {
+          const newRef = firebase.database().ref("marketplace").push();
+          await newRef.set({
+            name,
+            image,
+            value,
+            rarity,
+            timestamp: Date.now(),
+          });
+          showToast("✅ Card added to marketplace!");
+        }
+        form.reset();
+        loadMarketplaceItems();
+      }
+
+      function loadQuestConfig() {
+        const ref = firebase.database().ref("questConfig");
+        ref.once("value").then((snap) => {
+          const cfg = snap.val() || {};
+          document.getElementById("openPacks-goal").value =
+            cfg.openPacks?.goal || 0;
+          document.getElementById("openPacks-reward").value =
+            cfg.openPacks?.reward || 0;
+          document.getElementById("spendCoins-goal").value =
+            cfg.spendCoins?.goal || 0;
+          document.getElementById("spendCoins-reward").value =
+            cfg.spendCoins?.reward || 0;
+          document.getElementById("pullRare-goal").value =
+            cfg.pullRare?.goal || 0;
+          document.getElementById("pullRare-reward").value =
+            cfg.pullRare?.reward || 0;
+        });
+      }
+
+      function saveQuestConfig(e) {
+        e.preventDefault();
+        const config = {
+          openPacks: {
+            goal:
+              parseInt(document.getElementById("openPacks-goal").value) || 0,
+            reward:
+              parseInt(document.getElementById("openPacks-reward").value) || 0,
+          },
+          spendCoins: {
+            goal:
+              parseInt(document.getElementById("spendCoins-goal").value) || 0,
+            reward:
+              parseInt(document.getElementById("spendCoins-reward").value) || 0,
+          },
+          pullRare: {
+            goal: parseInt(document.getElementById("pullRare-goal").value) || 0,
+            reward:
+              parseInt(document.getElementById("pullRare-reward").value) || 0,
+          },
+        };
+        firebase
+          .database()
+          .ref("questConfig")
+          .set(config)
+          .then(() => showToast("✅ Quest config saved"));
       }
 
       function globalSearchHandler() {
@@ -114,12 +468,105 @@
 
       function loadRecentActivity() {
         const feed = document.getElementById("activity-feed");
-        feed.innerHTML =
-          '<li class="text-sm text-gray-400">No recent activity</li>';
+        if (feed)
+          feed.innerHTML =
+            '<li class="text-sm text-gray-400">No recent activity</li>';
+      }
+
+      function initAdminDashboard() {
+        const auth = firebase.auth();
+        const sidebar = document.getElementById("sidebar");
+        const sidebarToggle = document.querySelector(
+          "[data-hook='sidebar-toggle']",
+        );
+        const infoPanel = document.getElementById("info-panel");
+        const infoToggle = document.querySelector(
+          "[data-hook='info-panel-toggle']",
+        );
+
+        // capture DOM elements for management features
+        caseList = document.getElementById("case-list");
+        vaultList = document.getElementById("vault-list");
+        caseForm = document.getElementById("case-form");
+        cancelEditBtn = document.getElementById("cancel-edit");
+        prizesSection = document.getElementById("prizes-section");
+        toast = document.getElementById("toast");
+        imagePreview = document.getElementById("image-preview");
+        vaultCheck = document.getElementById("case-vault");
+        cardBackInput = document.getElementById("case-card-back");
+        cardBackWrapper = document.getElementById("card-back-wrapper");
+
+        if (sidebarToggle) {
+          sidebarToggle.addEventListener("click", () => {
+            sidebar.classList.toggle("hidden");
+          });
+        }
+
+        if (infoToggle) {
+          infoToggle.addEventListener("click", () => {
+            infoPanel.classList.toggle("translate-x-full");
+          });
+        }
+
+        document
+          .querySelector("[data-hook='nav-dashboard']")
+          ?.addEventListener("click", () => showSection("dashboard"));
+        document
+          .querySelector("[data-hook='nav-cases']")
+          ?.addEventListener("click", () => showSection("cases"));
+        document
+          .querySelector("[data-hook='nav-marketplace']")
+          ?.addEventListener("click", () => showSection("marketplace"));
+        document
+          .querySelector("[data-hook='nav-quests']")
+          ?.addEventListener("click", () => showSection("quests"));
+
+        document
+          .querySelector("[data-hook='add-case']")
+          ?.addEventListener("click", () => showSection("cases"));
+        document
+          .querySelector("[data-hook='add-marketplace']")
+          ?.addEventListener("click", () => showSection("marketplace"));
+        document
+          .querySelector("[data-hook='create-quest']")
+          ?.addEventListener("click", () => showSection("quests"));
+
+        if (vaultCheck) {
+          vaultCheck.addEventListener("change", () => {
+            cardBackWrapper.classList.toggle("hidden", !vaultCheck.checked);
+          });
+        }
+
+        if (caseForm) {
+          caseForm.addEventListener("submit", saveCase);
+        }
+
+        document
+          .getElementById("quest-config-form")
+          ?.addEventListener("submit", saveQuestConfig);
+
+        document
+          .getElementById("marketplace-form")
+          ?.addEventListener("submit", marketplaceSubmitHandler);
+
+        auth.onAuthStateChanged((user) => {
+          if (!user || !allowedAdmins.includes(user.email)) {
+            window.location.href = "/auth.html";
+          } else {
+            showSection("dashboard");
+            loadCases();
+            loadMarketplaceItems();
+            loadQuestConfig();
+          }
+        });
       }
     </script>
   </head>
   <body class="bg-[#0b0f14] text-gray-100">
+    <div
+      id="toast"
+      class="hidden fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50"
+    ></div>
     <div class="flex min-h-screen">
       <!-- Sidebar -->
       <aside
@@ -201,6 +648,54 @@
             <span
               class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >Cases</span
+            >
+          </a>
+          <a
+            href="#"
+            class="flex items-center gap-3 p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            data-hook="nav-marketplace"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 100 6 3 3 0 000-6zm0 0H17.25a3 3 0 100-6H6.375M9 5.25h11.25M12 17.25h2.25"
+              />
+            </svg>
+            <span
+              class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              >Marketplace</span
+            >
+          </a>
+          <a
+            href="#"
+            class="flex items-center gap-3 p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            data-hook="nav-quests"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3.75 5.25l7.5-2.25 7.5 2.25M4.5 19.5v-11m15 11v-11m-15 0l7.5 2.25 7.5-2.25m-15 0L12 12m7.5-3.75L12 12"
+              />
+            </svg>
+            <span
+              class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              >Quests</span
             >
           </a>
           <a
@@ -345,106 +840,371 @@
           </div>
         </header>
 
-        <!-- Main Dashboard -->
+        <!-- Main Content -->
         <main
-          id="dashboard-main"
+          id="content"
           class="flex-1 overflow-y-auto px-4 md:px-8 py-6"
           aria-label="Main content"
         >
-          <!-- Stats Cards -->
-          <section aria-labelledby="stats-heading">
-            <h2 id="stats-heading" class="sr-only">Statistics</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-              <div
-                class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-cyan-500/10"
-              >
-                <h3 class="text-sm text-gray-400">Total Users</h3>
-                <p id="stat-total-users" class="mt-2 text-3xl font-bold">0</p>
+          <section id="dashboard-section">
+            <!-- Stats Cards -->
+            <section aria-labelledby="stats-heading">
+              <h2 id="stats-heading" class="sr-only">Statistics</h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                <div
+                  class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-cyan-500/10"
+                >
+                  <h3 class="text-sm text-gray-400">Total Users</h3>
+                  <p id="stat-total-users" class="mt-2 text-3xl font-bold">0</p>
+                </div>
+                <div
+                  class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-fuchsia-500/10"
+                >
+                  <h3 class="text-sm text-gray-400">Active Users</h3>
+                  <p id="stat-active-users" class="mt-2 text-3xl font-bold">
+                    0
+                  </p>
+                </div>
+                <div
+                  class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-cyan-500/10"
+                >
+                  <h3 class="text-sm text-gray-400">Daily Spins</h3>
+                  <p id="stat-daily-spins" class="mt-2 text-3xl font-bold">0</p>
+                </div>
+                <div
+                  class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-fuchsia-500/10"
+                >
+                  <h3 class="text-sm text-gray-400">Revenue</h3>
+                  <p id="stat-revenue" class="mt-2 text-3xl font-bold">$0</p>
+                </div>
               </div>
+            </section>
+
+            <!-- Charts -->
+            <section
+              class="mt-8 grid grid-cols-1 xl:grid-cols-2 gap-6"
+              aria-labelledby="charts-heading"
+            >
+              <h2 id="charts-heading" class="sr-only">Charts</h2>
               <div
                 class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-fuchsia-500/10"
               >
-                <h3 class="text-sm text-gray-400">Active Users</h3>
-                <p id="stat-active-users" class="mt-2 text-3xl font-bold">0</p>
+                <h3 class="mb-4 text-gray-300">Daily Spins</h3>
+                <div id="chart-daily-spins" class="h-64"></div>
               </div>
               <div
                 class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-cyan-500/10"
               >
-                <h3 class="text-sm text-gray-400">Daily Spins</h3>
-                <p id="stat-daily-spins" class="mt-2 text-3xl font-bold">0</p>
+                <h3 class="mb-4 text-gray-300">Case Popularity</h3>
+                <div id="chart-case-popularity" class="h-64"></div>
               </div>
+            </section>
+
+            <!-- User Table -->
+            <section class="mt-8" aria-labelledby="users-heading">
+              <h2 id="users-heading" class="sr-only">Users</h2>
               <div
                 class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-fuchsia-500/10"
               >
-                <h3 class="text-sm text-gray-400">Revenue</h3>
-                <p id="stat-revenue" class="mt-2 text-3xl font-bold">$0</p>
+                <h3 class="mb-4 text-gray-300">Users</h3>
+                <div class="overflow-x-auto">
+                  <table id="table-users" class="min-w-full text-left text-sm">
+                    <thead class="text-gray-400">
+                      <tr>
+                        <th scope="col" class="px-4 py-2">Username</th>
+                        <th scope="col" class="px-4 py-2">Email</th>
+                        <th scope="col" class="px-4 py-2">Sign Up</th>
+                        <th scope="col" class="px-4 py-2">Status</th>
+                        <th scope="col" class="px-4 py-2">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#1a1f2a]">
+                      <tr>
+                        <td class="px-4 py-2">-</td>
+                        <td class="px-4 py-2">-</td>
+                        <td class="px-4 py-2">-</td>
+                        <td class="px-4 py-2">-</td>
+                        <td class="px-4 py-2 space-x-2">
+                          <button
+                            data-hook="user-edit"
+                            class="px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            data-hook="user-ban"
+                            class="px-2 py-1 rounded-lg bg-fuchsia-500/20 text-fuchsia-300 hover:bg-fuchsia-500/30 focus:outline-none focus:ring-2 focus:ring-fuchsia-400"
+                          >
+                            Ban
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          </section>
+
+          <!-- Cases Management -->
+          <section id="cases-section" class="hidden">
+            <h1 class="text-3xl font-bold mb-6">Manage Cases</h1>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div>
+                <h2 class="text-2xl mb-4">Existing Cases</h2>
+                <div id="case-list" class="space-y-4"></div>
+                <h2 class="text-2xl mb-4 mt-8">Pickem</h2>
+                <div id="vault-list" class="space-y-4"></div>
+              </div>
+              <div>
+                <h2 id="form-title" class="text-2xl mb-4">Add / Edit Case</h2>
+                <form id="case-form" class="space-y-4">
+                  <input type="hidden" id="case-id" />
+                  <input type="hidden" id="case-path" />
+                  <div>
+                    <label>Case Name:</label>
+                    <input
+                      type="text"
+                      id="case-name"
+                      class="w-full p-2 rounded"
+                    />
+                  </div>
+                  <div>
+                    <label>Case Image URL:</label>
+                    <input
+                      type="text"
+                      id="case-image"
+                      class="w-full p-2 rounded"
+                      oninput="previewImage(this.value)"
+                    />
+                    <img
+                      id="image-preview"
+                      src=""
+                      alt="Preview"
+                      class="mt-2 rounded h-24 hidden"
+                    />
+                  </div>
+                  <div>
+                    <label>Case Price ($):</label>
+                    <input
+                      type="number"
+                      id="case-price"
+                      class="w-full p-2 rounded"
+                    />
+                  </div>
+                  <div>
+                    <label class="inline-flex items-center"
+                      ><input type="checkbox" id="case-free" class="mr-2" />
+                      Free Case (price set to 0)</label
+                    >
+                  </div>
+                  <div>
+                    <label>Case Tag (e.g. 🔥 Hot, 🆕 New):</label>
+                    <input
+                      type="text"
+                      id="case-tag"
+                      class="w-full p-2 rounded"
+                      placeholder="Optional badge"
+                    />
+                  </div>
+                  <div>
+                    <label class="block mb-1">Categories:</label>
+                    <div class="flex flex-wrap gap-4">
+                      <label class="inline-flex items-center"
+                        ><input type="checkbox" id="case-new" class="mr-2" />
+                        <i class="fa-solid fa-bolt mr-1 text-yellow-400"></i>
+                        New</label
+                      >
+                      <label class="inline-flex items-center"
+                        ><input
+                          type="checkbox"
+                          id="case-featured"
+                          class="mr-2"
+                        />
+                        <i class="fa-solid fa-star mr-1 text-yellow-400"></i>
+                        Featured</label
+                      >
+                      <label class="inline-flex items-center"
+                        ><input
+                          type="checkbox"
+                          id="case-starter"
+                          class="mr-2"
+                        />
+                        <i class="fa-solid fa-seedling mr-1 text-green-400"></i>
+                        Starter</label
+                      >
+                    </div>
+                  </div>
+                  <div>
+                    <label>Spice Level:</label>
+                    <select id="case-spice" class="w-full p-2 rounded">
+                      <option value="">None</option>
+                      <option value="easy">🌶️ Easy</option>
+                      <option value="medium">🌶️🌶️ Medium</option>
+                      <option value="hard">🌶️🌶️🌶️ Hard</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="inline-flex items-center"
+                      ><input type="checkbox" id="case-vault" class="mr-2" />
+                      Pickem Mode</label
+                    >
+                  </div>
+                  <div id="card-back-wrapper" class="hidden">
+                    <label>Card Back Image URL:</label>
+                    <input
+                      type="text"
+                      id="case-card-back"
+                      class="w-full p-2 rounded"
+                    />
+                  </div>
+                  <div id="prizes-section" class="space-y-4">
+                    <h3 class="text-xl">Prizes:</h3>
+                    <button
+                      type="button"
+                      onclick="addPrize()"
+                      class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded"
+                    >
+                      + Add Prize
+                    </button>
+                  </div>
+                  <div class="flex gap-2">
+                    <button
+                      type="submit"
+                      class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded"
+                    >
+                      Save Case
+                    </button>
+                    <button
+                      type="button"
+                      id="cancel-edit"
+                      onclick="cancelEdit()"
+                      class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded hidden"
+                    >
+                      Cancel Edit
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </section>
 
-          <!-- Charts -->
-          <section
-            class="mt-8 grid grid-cols-1 xl:grid-cols-2 gap-6"
-            aria-labelledby="charts-heading"
-          >
-            <h2 id="charts-heading" class="sr-only">Charts</h2>
-            <div
-              class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-fuchsia-500/10"
+          <!-- Marketplace Management -->
+          <section id="marketplace-section" class="hidden">
+            <h1 class="text-3xl font-bold mb-6">Marketplace</h1>
+            <form
+              id="marketplace-form"
+              class="space-y-4 max-w-xl bg-gray-800 p-6 rounded-lg"
             >
-              <h3 class="mb-4 text-gray-300">Daily Spins</h3>
-              <div id="chart-daily-spins" class="h-64"></div>
-            </div>
-            <div
-              class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-cyan-500/10"
-            >
-              <h3 class="mb-4 text-gray-300">Case Popularity</h3>
-              <div id="chart-case-popularity" class="h-64"></div>
-            </div>
+              <div>
+                <label class="block mb-1">Card Name:</label>
+                <input
+                  type="text"
+                  id="market-name"
+                  class="w-full p-2 rounded"
+                  required
+                />
+              </div>
+              <div>
+                <label class="block mb-1">Image URL:</label>
+                <input
+                  type="text"
+                  id="market-image"
+                  class="w-full p-2 rounded"
+                  required
+                />
+              </div>
+              <div>
+                <label class="block mb-1">Value (Coins):</label>
+                <input
+                  type="number"
+                  id="market-value"
+                  class="w-full p-2 rounded"
+                  required
+                />
+              </div>
+              <div>
+                <label class="block mb-1">Rarity:</label>
+                <select id="market-rarity" class="w-full p-2 rounded">
+                  <option value="common">Common</option>
+                  <option value="uncommon">Uncommon</option>
+                  <option value="rare">Rare</option>
+                  <option value="ultra rare">Ultra Rare</option>
+                  <option value="legendary">Legendary</option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                class="px-6 py-2 bg-pink-600 hover:bg-pink-700 rounded font-semibold"
+              >
+                Add to Marketplace
+              </button>
+            </form>
+            <div id="market-list" class="mt-8 space-y-4"></div>
           </section>
 
-          <!-- User Table -->
-          <section class="mt-8" aria-labelledby="users-heading">
-            <h2 id="users-heading" class="sr-only">Users</h2>
-            <div
-              class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-fuchsia-500/10"
+          <!-- Quests Management -->
+          <section id="quests-section" class="hidden">
+            <h1 class="text-3xl font-bold mb-6">Weekly Quests</h1>
+            <form
+              id="quest-config-form"
+              class="space-y-4 max-w-xl bg-gray-800 p-6 rounded-lg"
             >
-              <h3 class="mb-4 text-gray-300">Users</h3>
-              <div class="overflow-x-auto">
-                <table id="table-users" class="min-w-full text-left text-sm">
-                  <thead class="text-gray-400">
-                    <tr>
-                      <th scope="col" class="px-4 py-2">Username</th>
-                      <th scope="col" class="px-4 py-2">Email</th>
-                      <th scope="col" class="px-4 py-2">Sign Up</th>
-                      <th scope="col" class="px-4 py-2">Status</th>
-                      <th scope="col" class="px-4 py-2">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-[#1a1f2a]">
-                    <tr>
-                      <td class="px-4 py-2">-</td>
-                      <td class="px-4 py-2">-</td>
-                      <td class="px-4 py-2">-</td>
-                      <td class="px-4 py-2">-</td>
-                      <td class="px-4 py-2 space-x-2">
-                        <button
-                          data-hook="user-edit"
-                          class="px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          data-hook="user-ban"
-                          class="px-2 py-1 rounded-lg bg-fuchsia-500/20 text-fuchsia-300 hover:bg-fuchsia-500/30 focus:outline-none focus:ring-2 focus:ring-fuchsia-400"
-                        >
-                          Ban
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div>
+                <label class="block mb-1">Open Packs Goal:</label>
+                <input
+                  type="number"
+                  id="openPacks-goal"
+                  class="w-full p-2 rounded"
+                />
               </div>
-            </div>
+              <div>
+                <label class="block mb-1">Open Packs Reward:</label>
+                <input
+                  type="number"
+                  id="openPacks-reward"
+                  class="w-full p-2 rounded"
+                />
+              </div>
+              <div>
+                <label class="block mb-1">Spend Coins Goal:</label>
+                <input
+                  type="number"
+                  id="spendCoins-goal"
+                  class="w-full p-2 rounded"
+                />
+              </div>
+              <div>
+                <label class="block mb-1">Spend Coins Reward:</label>
+                <input
+                  type="number"
+                  id="spendCoins-reward"
+                  class="w-full p-2 rounded"
+                />
+              </div>
+              <div>
+                <label class="block mb-1">Rare Pull Goal:</label>
+                <input
+                  type="number"
+                  id="pullRare-goal"
+                  class="w-full p-2 rounded"
+                />
+              </div>
+              <div>
+                <label class="block mb-1">Rare Pull Reward:</label>
+                <input
+                  type="number"
+                  id="pullRare-reward"
+                  class="w-full p-2 rounded"
+                />
+              </div>
+              <button
+                type="submit"
+                class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded"
+              >
+                Save
+              </button>
+            </form>
           </section>
         </main>
       </div>
