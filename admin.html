@@ -9,8 +9,114 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="/scripts/firebase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
       const allowedAdmins = ["jhuxf12@outlook.com"];
+
+      function initAdminDashboard() {
+        const auth = firebase.auth();
+        const sidebar = document.getElementById("sidebar");
+        const sidebarToggle = document.querySelector(
+          "[data-hook='sidebar-toggle']",
+        );
+        const infoPanel = document.getElementById("info-panel");
+        const infoToggle = document.querySelector(
+          "[data-hook='info-panel-toggle']",
+        );
+
+        if (sidebarToggle) {
+          sidebarToggle.addEventListener("click", () => {
+            sidebar.classList.toggle("hidden");
+          });
+        }
+
+        if (infoToggle) {
+          infoToggle.addEventListener("click", () => {
+            infoPanel.classList.toggle("translate-x-full");
+          });
+        }
+
+        auth.onAuthStateChanged((user) => {
+          if (!user || !allowedAdmins.includes(user.email)) {
+            window.location.href = "/auth.html";
+          }
+        });
+      }
+
+      function globalSearchHandler() {
+        const query = document.getElementById("global-search").value.trim();
+        if (query) {
+          console.log("Search:", query);
+        }
+      }
+
+      function renderStats() {
+        const db = firebase.database();
+        const usersRef = db.ref("users");
+        usersRef.once("value").then((snap) => {
+          const users = snap.val() || {};
+          const total = Object.keys(users).length;
+          document.getElementById("stat-total-users").textContent = total;
+          document.getElementById("stat-active-users").textContent = total;
+        });
+      }
+
+      function renderCharts() {
+        if (!window.Chart) return;
+        const dailyCtx = document
+          .getElementById("chart-daily-spins")
+          .getContext("2d");
+        new Chart(dailyCtx, {
+          type: "line",
+          data: {
+            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            datasets: [
+              {
+                label: "Spins",
+                data: [0, 0, 0, 0, 0, 0, 0],
+                borderColor: "#22d3ee",
+                backgroundColor: "rgba(34,211,238,0.1)",
+              },
+            ],
+          },
+          options: { plugins: { legend: { display: false } } },
+        });
+
+        const caseCtx = document
+          .getElementById("chart-case-popularity")
+          .getContext("2d");
+        new Chart(caseCtx, {
+          type: "pie",
+          data: {
+            labels: ["A", "B", "C"],
+            datasets: [
+              {
+                data: [1, 1, 1],
+                backgroundColor: ["#22d3ee", "#a855f7", "#3b82f6"],
+              },
+            ],
+          },
+        });
+      }
+
+      function bindTableActions() {
+        document
+          .querySelectorAll("[data-hook='user-edit']")
+          .forEach((btn) =>
+            btn.addEventListener("click", () => alert("Edit user")),
+          );
+        document
+          .querySelectorAll("[data-hook='user-ban']")
+          .forEach((btn) =>
+            btn.addEventListener("click", () => alert("Ban user")),
+          );
+      }
+
+      function loadRecentActivity() {
+        const feed = document.getElementById("activity-feed");
+        feed.innerHTML =
+          '<li class="text-sm text-gray-400">No recent activity</li>';
+      }
     </script>
   </head>
   <body class="bg-[#0b0f14] text-gray-100">
