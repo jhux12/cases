@@ -102,9 +102,18 @@
       max-height: 80vh;
       border-radius: 0.5rem;
       box-shadow: 0 0 25px rgba(236,72,153,0.5), 0 0 50px rgba(236,72,153,0.3);
+      cursor: grab;
+      touch-action: none;
+      transition: transform 0.1s ease-out;
     }
 
-    .popup-card {}
+    #popup-item-image.grabbing {
+      cursor: grabbing;
+    }
+
+    .popup-card {
+      perspective: 1000px;
+    }
 
     .popup-card.animate {
       animation: popIn 0.3s ease;
@@ -205,6 +214,9 @@
   <div id="item-popup" class="fixed inset-0 hidden flex items-center justify-center z-50">
     <div class="popup-card relative">
       <img id="popup-item-image" class="shimmer rounded-lg" src="" alt="Item preview" />
+      <div id="rotate-hint" class="absolute bottom-2 right-2 text-white opacity-80 pointer-events-none">
+        <i class="fa-solid fa-arrows-rotate text-2xl animate-spin" style="animation-duration:3s;"></i>
+      </div>
       <button id="close-item-popup" class="absolute -top-4 -right-4 w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center">&times;</button>
     </div>
   </div>

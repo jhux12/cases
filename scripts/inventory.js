@@ -2,11 +2,47 @@
 
 const selectedItems = new Set();
 let currentItems = [];
+let popupRotX = 0;
+let popupRotY = 0;
+let isDragging = false;
+let startX = 0;
+let startY = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
   const itemPopup = document.getElementById('item-popup');
+  const popupImage = document.getElementById('popup-item-image');
   document.getElementById('close-item-popup')?.addEventListener('click', closeItemPopup);
   itemPopup?.addEventListener('click', e => { if (e.target === itemPopup) closeItemPopup(); });
+
+  popupImage?.addEventListener('pointerdown', e => {
+    isDragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    popupImage.setPointerCapture(e.pointerId);
+    popupImage.classList.add('grabbing');
+    e.preventDefault();
+  });
+
+  popupImage?.addEventListener('pointermove', e => {
+    if (!isDragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    popupImage.style.transform = `rotateY(${popupRotY + dx / 2}deg) rotateX(${popupRotX - dy / 2}deg)`;
+    e.preventDefault();
+  });
+
+  const endDrag = e => {
+    if (!isDragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    popupRotY += dx / 2;
+    popupRotX -= dy / 2;
+    isDragging = false;
+    popupImage.classList.remove('grabbing');
+    e.preventDefault();
+  };
+  popupImage?.addEventListener('pointerup', endDrag);
+  popupImage?.addEventListener('pointerleave', endDrag);
 
   const inventoryTab = document.getElementById('inventory-tab');
   const ordersTab = document.getElementById('orders-tab');
@@ -311,6 +347,10 @@ function showItemPopup(encodedSrc) {
   const img = document.getElementById('popup-item-image');
   if (!img) return;
   img.src = src;
+  popupRotX = 0;
+  popupRotY = 0;
+  img.style.transform = 'rotateY(0deg) rotateX(0deg)';
+  img.classList.remove('grabbing');
   const popup = document.getElementById('item-popup');
   const card = popup?.querySelector('.popup-card');
   popup?.classList.remove('hidden');
