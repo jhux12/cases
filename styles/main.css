@@ -1004,3 +1004,9 @@ html {
   pointer-events: none;
 }
 
+/* Demo card animation */
+.demo-card {
+  transition: transform 1s ease, opacity 1s ease;
+  pointer-events: none;
+}
+

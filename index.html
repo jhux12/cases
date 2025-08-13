@@ -34,7 +34,8 @@
         'shadow-[0_0_8px_1px_rgba(50,205,50,0.4)]',
         'border-green-500',
         'shadow-[0_0_6px_1px_rgba(255,255,255,0.1)]',
-        'border-gray-700'
+        'border-gray-700',
+        'animate-pulse'
       ]
     }
   </script>
@@ -101,6 +102,9 @@
             <div id="spinner-container-hero" class="w-full h-full transform"></div>
           </div>
         </div>
+        <div id="demo-label" class="absolute bottom-16 left-1/2 -translate-x-1/2 text-xs text-gray-200 opacity-0 transition-opacity duration-500 pointer-events-none"></div>
+        <img id="demo-ship-dest" src="https://cdn-icons-png.flaticon.com/128/1041/1041916.png" class="absolute bottom-2 left-2 w-10 h-10 pointer-events-none" alt="Package" />
+        <img id="demo-sell-dest" src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="absolute bottom-2 right-2 w-10 h-10 pointer-events-none" alt="Coins" />
       </div>
     </div>
 
