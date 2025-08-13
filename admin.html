@@ -16,6 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
       const allowedAdmins = ["jhuxf12@outlook.com"];
+      const db = firebase.database();
 
       // DOM references for management sections
       let caseList,
@@ -37,11 +38,17 @@
       }
 
       function showSection(id) {
-        const sections = ["dashboard", "cases", "marketplace", "quests"];
+        const sections = [
+          "dashboard",
+          "cases",
+          "marketplace",
+          "quests",
+          "contact",
+        ];
         sections.forEach((s) =>
-          document.getElementById(`${s}-section`).classList.add("hidden"),
+          document.getElementById(`${s}-section`)?.classList.add("hidden"),
         );
-        document.getElementById(`${id}-section`).classList.remove("hidden");
+        document.getElementById(`${id}-section`)?.classList.remove("hidden");
       }
 
       function previewImage(url) {
@@ -327,8 +334,7 @@
         const form = document.getElementById("marketplace-form");
         const editingKey = form.dataset.editing;
         if (editingKey) {
-          await firebase
-            .database()
+          await db
             .ref("marketplace/" + editingKey)
             .set({ name, image, value, rarity, timestamp: Date.now() });
           showToast("✅ Product updated!");
@@ -336,7 +342,7 @@
           form.querySelector("button[type='submit']").textContent =
             "Add to Marketplace";
         } else {
-          const newRef = firebase.database().ref("marketplace").push();
+          const newRef = db.ref("marketplace").push();
           await newRef.set({
             name,
             image,
@@ -351,7 +357,7 @@
       }
 
       function loadQuestConfig() {
-        const ref = firebase.database().ref("questConfig");
+        const ref = db.ref("questConfig");
         ref.once("value").then((snap) => {
           const cfg = snap.val() || {};
           document.getElementById("openPacks-goal").value =
@@ -405,7 +411,6 @@
       }
 
       function renderStats() {
-        const db = firebase.database();
         const usersRef = db.ref("users");
         usersRef.once("value").then((snap) => {
           const users = snap.val() || {};
@@ -466,6 +471,71 @@
           );
       }
 
+      function loadContactMessages() {
+        const container = document.getElementById("contact-list");
+        if (!container) return;
+        db.ref("supportCases").on("value", (snapshot) => {
+          container.innerHTML = "";
+          const cases = [];
+          snapshot.forEach((child) => {
+            const data = child.val();
+            const messages = Object.values(data.messages || {});
+            const latest = messages.length
+              ? Math.max(...messages.map((m) => m.timestamp || 0))
+              : 0;
+            cases.push({ key: child.key, data, latest });
+          });
+          cases.sort((a, b) => b.latest - a.latest);
+          cases.forEach(({ key, data }) => {
+            const messagesHtml = Object.values(data.messages || {})
+              .map((msg) => {
+                const color =
+                  msg.sender === "admin" ? "text-cyan-300" : "text-gray-300";
+                const time = msg.timestamp
+                  ? new Date(msg.timestamp).toLocaleString()
+                  : "";
+                return `<p class="text-sm ${color}"><strong>${msg.sender}</strong> <span class=\"text-xs text-gray-500\">(${time})</span>: ${msg.text}</p>`;
+              })
+              .join("");
+            const div = document.createElement("div");
+            div.className =
+              "p-4 bg-[#0f131a]/70 rounded-2xl shadow shadow-cyan-500/10";
+            div.innerHTML = `
+              <p><strong>Email:</strong> ${data.email}</p>
+              <p><strong>Subject:</strong> ${data.subject}</p>
+              ${messagesHtml}
+              <p><strong>Status:</strong> ${data.status}</p>
+              <form onsubmit=\"adminReply(event, '${key}')\" class=\"mt-2 space-y-2\">
+                <textarea class=\"w-full p-2 rounded bg-[#1a1f2a] text-white\" placeholder=\"Admin reply...\"></textarea>
+                <button type=\"submit\" class=\"px-4 py-2 rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 focus:outline-none focus:ring-2 focus:ring-cyan-400\">Send Reply</button>
+              </form>
+            `;
+            container.appendChild(div);
+          });
+        });
+      }
+
+      function adminReply(event, caseId) {
+        event.preventDefault();
+        const textarea = event.target.querySelector("textarea");
+        const reply = textarea.value.trim();
+        if (!reply) return;
+        const newKey = db.ref().push().key;
+        const updates = {};
+        updates[`supportCases/${caseId}/messages/${newKey}`] = {
+          sender: "admin",
+          text: reply,
+          timestamp: Date.now(),
+        };
+        updates[`supportCases/${caseId}/status`] = "Replied";
+        db.ref()
+          .update(updates)
+          .then(() => {
+            textarea.value = "";
+            showToast("Reply sent");
+          });
+      }
+
       function loadRecentActivity() {
         const feed = document.getElementById("activity-feed");
         if (feed)
@@ -520,6 +590,17 @@
         document
           .querySelector("[data-hook='nav-quests']")
           ?.addEventListener("click", () => showSection("quests"));
+        document
+          .querySelector("[data-hook='nav-users']")
+          ?.addEventListener("click", () => {
+            showSection("dashboard");
+            document
+              .getElementById("table-users")
+              ?.scrollIntoView({ behavior: "smooth" });
+          });
+        document
+          .querySelector("[data-hook='nav-contact']")
+          ?.addEventListener("click", () => showSection("contact"));
 
         document
           .querySelector("[data-hook='add-case']")
@@ -557,6 +638,7 @@
             loadCases();
             loadMarketplaceItems();
             loadQuestConfig();
+            loadContactMessages();
           }
         });
       }
@@ -696,6 +778,30 @@
             <span
               class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >Quests</span
+            >
+          </a>
+          <a
+            href="#"
+            class="flex items-center gap-3 p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            data-hook="nav-contact"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21.75 7.5l-9.75 7.5L2.25 7.5M21 6H3a1.5 1.5 0 00-1.5 1.5v9A1.5 1.5 0 003 18h18a1.5 1.5 0 001.5-1.5v-9A1.5 1.5 0 0021 6z"
+              />
+            </svg>
+            <span
+              class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              >Contact</span
             >
           </a>
           <a
@@ -1205,6 +1311,11 @@
                 Save
               </button>
             </form>
+          </section>
+          <!-- Admin Contact -->
+          <section id="contact-section" class="hidden">
+            <h1 class="text-3xl font-bold mb-6">Admin Contact</h1>
+            <div id="contact-list" class="space-y-4"></div>
           </section>
         </main>
       </div>
