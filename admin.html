@@ -1,939 +1,353 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PrimePull.gg | Admin Panel</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
-      authDomain: "cases-e5b4e.firebaseapp.com",
-      databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
-      projectId: "cases-e5b4e",
-      storageBucket: "cases-e5b4e.appspot.com",
-      messagingSenderId: "22502548396",
-      appId: "1:22502548396:web:aac335672c21f07524d009"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const allowedAdmins = [
-      "jhuxf12@outlook.com" // Add more admin emails as needed
-    ];
-  </script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Poppins', sans-serif; background-color: #0f0f12; color: white; }
-    input, textarea, select { background-color: #1f1f24; color: white; border: 1px solid #444; }
-    input::placeholder, textarea::placeholder { color: #aaa; }
-    #toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #22c55e;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      display: none;
-      z-index: 1000;
-    }
-  </style>
-</head>
-<body>
-<script src="scripts/preloader.js"></script>
-  <div id="toast"></div>
-  <nav class="w-full px-6 py-4 bg-gray-900 border-b border-gray-800 flex justify-between items-center">
-    <div class="text-xl font-bold text-white">PrimePull.gg Admin</div>
-    <div class="space-x-4">
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('cases')">Cases</a>
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('shipments')">Shipments</a>
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('support')">Support Forms</a>
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('users')">Users</a>
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('marketplace')">Marketplace</a>
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('quests')">Quests</a>
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('milestones')">Milestones</a>
-    </div>
-  </nav>
-
-  <main id="admin-panel" class="p-6" style="display: none;">
-    <!-- Cases Section -->
-    <section id="cases-section">
-      <h1 class="text-3xl font-bold mb-6">Manage Cases</h1>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div>
-          <h2 class="text-2xl mb-4">Existing Cases</h2>
-          <div id="case-list" class="space-y-4"></div>
-          <h2 class="text-2xl mb-4 mt-8">Pickem</h2>
-          <div id="vault-list" class="space-y-4"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Packly.gg | Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-[#0b0f14] text-gray-100">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside
+        id="sidebar"
+        class="group hidden md:flex fixed md:static inset-y-0 left-0 w-16 hover:w-64 bg-[#0f131a]/90 backdrop-blur border-r border-[#1a1f2a] transition-all duration-300 z-30 flex-col"
+        aria-label="Primary"
+      >
+        <div class="h-16 flex items-center justify-center">
+          <img src="/components/logo.svg" alt="Packly.gg" class="h-8 w-8" />
         </div>
-        <div>
-          <h2 class="text-2xl mb-4" id="form-title">Add / Edit Case</h2>
-          <form id="case-form" class="space-y-4">
-            <input type="hidden" id="case-id">
-            <input type="hidden" id="case-path">
-            <div>
-              <label>Case Name:</label>
-              <input type="text" id="case-name" class="w-full p-2 rounded">
-            </div>
-            <div>
-              <label>Case Image URL:</label>
-              <input type="text" id="case-image" class="w-full p-2 rounded" oninput="previewImage(this.value)">
-              <img id="image-preview" src="" alt="Preview" class="mt-2 rounded h-24 hidden">
-            </div>
-            <div>
-              <label>Case Price ($):</label>
-              <input type="number" id="case-price" class="w-full p-2 rounded">
-            </div>
-            <div>
-              <label class="inline-flex items-center"><input type="checkbox" id="case-free" class="mr-2"> Free Case (price set to 0)</label>
-            </div>
-            <div>
-  <label>Case Tag (e.g. 🔥 Hot, 🆕 New):</label>
-  <input type="text" id="case-tag" class="w-full p-2 rounded" placeholder="Optional badge">
-</div>
-            <div>
-  <label class="block mb-1">Categories:</label>
-  <div class="flex flex-wrap gap-4">
-    <label class="inline-flex items-center"><input type="checkbox" id="case-new" class="mr-2"> <i class="fa-solid fa-bolt mr-1 text-yellow-400"></i> New</label>
-    <label class="inline-flex items-center"><input type="checkbox" id="case-featured" class="mr-2"> <i class="fa-solid fa-star mr-1 text-yellow-400"></i> Featured</label>
-    <label class="inline-flex items-center"><input type="checkbox" id="case-starter" class="mr-2"> <i class="fa-solid fa-seedling mr-1 text-green-400"></i> Starter</label>
-  </div>
-</div>
-            <div>
-  <label>Spice Level:</label>
-  <select id="case-spice" class="w-full p-2 rounded">
-    <option value="">None</option>
-    <option value="easy">🌶️ Easy</option>
-    <option value="medium">🌶️🌶️ Medium</option>
-    <option value="hard">🌶️🌶️🌶️ Hard</option>
-  </select>
-</div>
+        <nav class="flex-1 mt-4 space-y-1 px-2">
+          <a
+            href="#"
+            class="relative flex items-center gap-3 p-3 rounded-xl text-sm bg-cyan-500/10 text-cyan-300 border-l-4 border-cyan-400 shadow-[0_0_10px] shadow-cyan-500/40"
+            data-hook="nav-dashboard"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 9.75L12 3l9 6.75V21a.75.75 0 01-.75.75H3.75A.75.75 0 013 21V9.75z"
+              />
+            </svg>
+            <span
+              class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              >Dashboard</span
+            >
+          </a>
+          <a
+            href="#"
+            class="flex items-center gap-3 p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            data-hook="nav-users"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
+              />
+            </svg>
+            <span
+              class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              >Users</span
+            >
+          </a>
+          <a
+            href="#"
+            class="flex items-center gap-3 p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            data-hook="nav-cases"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M2.25 12l8.954-8.955a1.125 1.125 0 011.59 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21V12h7.5v9"
+              />
+            </svg>
+            <span
+              class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              >Cases</span
+            >
+          </a>
+          <a
+            href="#"
+            class="flex items-center gap-3 p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            data-hook="nav-settings"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894a1.125 1.125 0 001.125.99h.962c.667 0 1.183.602 1.078 1.26l-.174 1.093c-.06.378.083.758.37 1.011l.737.645a1.125 1.125 0 01.125 1.591l-.737.645c-.287.253-.43.633-.37 1.011l.174 1.094c.105.657-.411 1.26-1.078 1.26h-.962a1.125 1.125 0 00-1.125.99l-.149.894c-.09.542-.56.94-1.11.94h-1.093c-.55 0-1.02-.398-1.11-.94l-.149-.894a1.125 1.125 0 00-1.125-.99h-.962c-.667 0-1.183-.603-1.078-1.26l.174-1.094a1.125 1.125 0 00-.37-1.011l-.737-.645a1.125 1.125 0 01-.125-1.591l.737-.645c.287-.253.43-.633.37-1.011l-.174-1.093c-.105-.658.411-1.26 1.078-1.26h.962c.607 0 1.064-.448 1.125-.99l.149-.894z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            <span
+              class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              >Settings</span
+            >
+          </a>
+        </nav>
+      </aside>
 
-            <div>
-              <label class="inline-flex items-center"><input type="checkbox" id="case-vault" class="mr-2"> Pickem Mode</label>
-            </div>
-            <div id="card-back-wrapper" class="hidden">
-              <label>Card Back Image URL:</label>
-              <input type="text" id="case-card-back" class="w-full p-2 rounded">
-            </div>
+      <!-- Main content wrapper -->
+      <div class="flex-1 flex flex-col ml-0 md:ml-16">
+        <!-- Header -->
+        <header
+          class="sticky top-0 z-20 h-16 bg-[#0f131a]/80 backdrop-blur border-b border-[#1a1f2a] flex items-center justify-between px-4 md:px-8"
+          aria-label="Global"
+        >
+          <div class="flex items-center gap-2">
+            <button
+              class="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              data-hook="sidebar-toggle"
+              aria-label="Toggle navigation"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3.75 5.25h16.5M3.75 12h16.5M3.75 18.75h16.5"
+                />
+              </svg>
+            </button>
+            <label for="global-search" class="sr-only">Search</label>
+            <input
+              id="global-search"
+              type="text"
+              placeholder="Search..."
+              onkeydown="if(event.key==='Enter'){globalSearchHandler()}"
+              class="w-40 sm:w-64 px-3 py-2 rounded-xl bg-[#0b0f14] border border-[#1a1f2a] focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            />
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              class="px-3 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 focus:outline-none focus:ring-2 focus:ring-cyan-400 shadow shadow-cyan-500/20"
+              data-hook="add-case"
+            >
+              Add Case
+            </button>
+            <button
+              class="px-3 py-2 rounded-xl bg-fuchsia-500/20 text-fuchsia-300 hover:bg-fuchsia-500/30 focus:outline-none focus:ring-2 focus:ring-fuchsia-400 shadow shadow-fuchsia-500/20"
+              data-hook="create-quest"
+            >
+              Create Quest
+            </button>
+            <button
+              class="px-3 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 focus:outline-none focus:ring-2 focus:ring-cyan-400 shadow shadow-cyan-500/20"
+              data-hook="add-marketplace"
+            >
+              Add Marketplace
+            </button>
+            <button
+              class="p-2 rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              data-hook="open-notifications"
+              aria-label="Notifications"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M14.25 18.75a1.5 1.5 0 01-3 0M5.25 9A6.75 6.75 0 0118.75 9c0 7.063 3 8.25 3 8.25H2.25s3-1.187 3-8.25z"
+                />
+              </svg>
+            </button>
+            <button
+              class="p-1 rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              data-hook="profile-menu"
+              aria-label="Profile menu"
+            >
+              <img
+                src="/components/avatar-placeholder.png"
+                alt="Profile"
+                class="h-8 w-8 rounded-full"
+              />
+            </button>
+          </div>
+        </header>
 
-            <div id="prizes-section" class="space-y-4">
-              <h3 class="text-xl">Prizes:</h3>
-              <button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>
+        <!-- Main Dashboard -->
+        <main
+          id="dashboard-main"
+          class="flex-1 overflow-y-auto px-4 md:px-8 py-6"
+          aria-label="Main content"
+        >
+          <!-- Stats Cards -->
+          <section aria-labelledby="stats-heading">
+            <h2 id="stats-heading" class="sr-only">Statistics</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+              <div
+                class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-cyan-500/10"
+              >
+                <h3 class="text-sm text-gray-400">Total Users</h3>
+                <p id="stat-total-users" class="mt-2 text-3xl font-bold">0</p>
+              </div>
+              <div
+                class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-fuchsia-500/10"
+              >
+                <h3 class="text-sm text-gray-400">Active Users</h3>
+                <p id="stat-active-users" class="mt-2 text-3xl font-bold">0</p>
+              </div>
+              <div
+                class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-cyan-500/10"
+              >
+                <h3 class="text-sm text-gray-400">Daily Spins</h3>
+                <p id="stat-daily-spins" class="mt-2 text-3xl font-bold">0</p>
+              </div>
+              <div
+                class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-fuchsia-500/10"
+              >
+                <h3 class="text-sm text-gray-400">Revenue</h3>
+                <p id="stat-revenue" class="mt-2 text-3xl font-bold">$0</p>
+              </div>
             </div>
-            <div class="flex gap-2">
-              <button type="submit" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded">Save Case</button>
-              <button type="button" id="cancel-edit" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded hidden">Cancel Edit</button>
+          </section>
+
+          <!-- Charts -->
+          <section
+            class="mt-8 grid grid-cols-1 xl:grid-cols-2 gap-6"
+            aria-labelledby="charts-heading"
+          >
+            <h2 id="charts-heading" class="sr-only">Charts</h2>
+            <div
+              class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-fuchsia-500/10"
+            >
+              <h3 class="mb-4 text-gray-300">Daily Spins</h3>
+              <div id="chart-daily-spins" class="h-64"></div>
             </div>
-          </form>
-        </div>
+            <div
+              class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-cyan-500/10"
+            >
+              <h3 class="mb-4 text-gray-300">Case Popularity</h3>
+              <div id="chart-case-popularity" class="h-64"></div>
+            </div>
+          </section>
+
+          <!-- User Table -->
+          <section class="mt-8" aria-labelledby="users-heading">
+            <h2 id="users-heading" class="sr-only">Users</h2>
+            <div
+              class="bg-[#0f131a]/70 backdrop-blur rounded-2xl p-6 shadow-lg shadow-fuchsia-500/10"
+            >
+              <h3 class="mb-4 text-gray-300">Users</h3>
+              <div class="overflow-x-auto">
+                <table id="table-users" class="min-w-full text-left text-sm">
+                  <thead class="text-gray-400">
+                    <tr>
+                      <th scope="col" class="px-4 py-2">Username</th>
+                      <th scope="col" class="px-4 py-2">Email</th>
+                      <th scope="col" class="px-4 py-2">Sign Up</th>
+                      <th scope="col" class="px-4 py-2">Status</th>
+                      <th scope="col" class="px-4 py-2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-[#1a1f2a]">
+                    <tr>
+                      <td class="px-4 py-2">-</td>
+                      <td class="px-4 py-2">-</td>
+                      <td class="px-4 py-2">-</td>
+                      <td class="px-4 py-2">-</td>
+                      <td class="px-4 py-2 space-x-2">
+                        <button
+                          data-hook="user-edit"
+                          class="px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          data-hook="user-ban"
+                          class="px-2 py-1 rounded-lg bg-fuchsia-500/20 text-fuchsia-300 hover:bg-fuchsia-500/30 focus:outline-none focus:ring-2 focus:ring-fuchsia-400"
+                        >
+                          Ban
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </main>
       </div>
-    </section>
-    <!-- Marketplace Management Section -->
-<section id="marketplace-section" class="hidden">
-  <h1 class="text-3xl font-bold mb-6">Marketplace</h1>
-  <form id="marketplace-form" class="space-y-4 max-w-xl bg-gray-800 p-6 rounded-lg">
-    <div>
-      <label class="block mb-1">Card Name:</label>
-      <input type="text" id="market-name" class="w-full p-2 rounded" required />
+
+      <!-- Right Panel -->
+      <aside
+        id="info-panel"
+        class="fixed top-0 right-0 w-80 h-full bg-[#0f131a]/90 backdrop-blur border-l border-[#1a1f2a] transform translate-x-full md:translate-x-0 transition-transform duration-300 hidden md:block z-20"
+        aria-label="Information panel"
+      >
+        <div class="h-full overflow-y-auto pt-20 p-4">
+          <section aria-labelledby="activity-heading">
+            <h2
+              id="activity-heading"
+              class="text-sm font-semibold text-gray-400"
+            >
+              Recent Activity
+            </h2>
+            <ul id="activity-feed" class="mt-4 space-y-4"></ul>
+          </section>
+          <section aria-labelledby="online-heading" class="mt-8">
+            <h2 id="online-heading" class="text-sm font-semibold text-gray-400">
+              Now Online
+            </h2>
+            <ul id="mini-user-list" class="mt-4 space-y-2"></ul>
+          </section>
+        </div>
+      </aside>
     </div>
-    <div>
-      <label class="block mb-1">Image URL:</label>
-      <input type="text" id="market-image" class="w-full p-2 rounded" required />
-    </div>
-    <div>
-      <label class="block mb-1">Value (Coins):</label>
-      <input type="number" id="market-value" class="w-full p-2 rounded" required />
-    </div>
-    <div>
-      <label class="block mb-1">Rarity:</label>
-      <select id="market-rarity" class="w-full p-2 rounded">
-        <option value="common">Common</option>
-        <option value="uncommon">Uncommon</option>
-        <option value="rare">Rare</option>
-        <option value="ultra rare">Ultra Rare</option>
-        <option value="legendary">Legendary</option>
-      </select>
-    </div>
-    <button type="submit" class="px-6 py-2 bg-pink-600 hover:bg-pink-700 rounded font-semibold">Add to Marketplace</button>
-  </form>
-  <div id="market-list" class="mt-8 space-y-4"></div>
 
-</section>
-
-<section id="quests-section" class="hidden">
-  <h1 class="text-3xl font-bold mb-6">Weekly Quests</h1>
-  <form id="quest-config-form" class="space-y-4 max-w-xl bg-gray-800 p-6 rounded-lg">
-    <div>
-      <label class="block mb-1">Open Packs Goal:</label>
-      <input type="number" id="openPacks-goal" class="w-full p-2 rounded" />
-    </div>
-    <div>
-      <label class="block mb-1">Open Packs Reward:</label>
-      <input type="number" id="openPacks-reward" class="w-full p-2 rounded" />
-    </div>
-    <div>
-      <label class="block mb-1">Spend Coins Goal:</label>
-      <input type="number" id="spendCoins-goal" class="w-full p-2 rounded" />
-    </div>
-    <div>
-      <label class="block mb-1">Spend Coins Reward:</label>
-      <input type="number" id="spendCoins-reward" class="w-full p-2 rounded" />
-    </div>
-    <div>
-      <label class="block mb-1">Rare Pull Goal:</label>
-      <input type="number" id="pullRare-goal" class="w-full p-2 rounded" />
-    </div>
-    <div>
-      <label class="block mb-1">Rare Pull Reward:</label>
-      <input type="number" id="pullRare-reward" class="w-full p-2 rounded" />
-    </div>
-    <button type="submit" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded">Save</button>
-  </form>
-</section>
-
-
-<section id="milestones-section" class="hidden">
-  <h1 class="text-3xl font-bold mb-6">Milestones</h1>
-  <form id="milestone-config-form" class="space-y-6 max-w-xl bg-gray-800 p-6 rounded-lg">
-    <div>
-      <h2 class="text-2xl mb-4">Badges</h2>
-      <div id="badge-list" class="space-y-4"></div>
-      <button type="button" onclick="addBadge()" class="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">+ Add Badge</button>
-    </div>
-    <div>
-      <h2 class="text-2xl mb-4">Level Requirements</h2>
-      <div id="level-list" class="space-y-4"></div>
-      <button type="button" onclick="addLevel()" class="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">+ Add Level</button>
-    </div>
-    <button type="submit" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded">Save</button>
-  </form>
-</section>
-
-
-    <!-- Shipment Management Section -->
-    <section id="shipments-section" class="hidden">
-      <h1 class="text-3xl font-bold mb-6">Manage Shipments</h1>
-      <div id="shipment-list" class="space-y-4"></div>
-    </section>
-    <!-- Support Forms Section -->
-<section id="support-section" class="hidden">
-  <h1 class="text-3xl font-bold mb-6">User Support Messages</h1>
-  <div id="support-list" class="space-y-4"></div>
-</section>
-    <section id="users-section" class="hidden">
-  <h1 class="text-3xl font-bold mb-6">User Management</h1>
-  <div class="mb-4 flex gap-4">
-    <input type="text" id="user-search" placeholder="Search by email, username, or ID" class="w-full p-2 rounded">
-    <button onclick="searchUsers()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Search</button>
-  </div>
-  <div id="user-results" class="space-y-4"></div>
-</section>
-  </main>
-
-  <script>
-    const db = firebase.database();
-    const caseList = document.getElementById('case-list');
-    const vaultList = document.getElementById('vault-list');
-    const shipmentList = document.getElementById('shipment-list');
-    const caseForm = document.getElementById('case-form');
-    const cancelEditBtn = document.getElementById('cancel-edit');
-    const prizesSection = document.getElementById('prizes-section');
-    const toast = document.getElementById('toast');
-    const imagePreview = document.getElementById('image-preview');
-    const vaultCheck = document.getElementById('case-vault');
-    const cardBackInput = document.getElementById('case-card-back');
-    const cardBackWrapper = document.getElementById('card-back-wrapper');
-
-    function showToast(message) {
-      toast.textContent = message;
-      toast.style.display = 'block';
-      setTimeout(() => { toast.style.display = 'none'; }, 3000);
-    }
-
-  function showSection(id) {
-  const sections = ['cases', 'shipments', 'support', 'users', 'marketplace', 'quests', 'milestones'];
-  sections.forEach(section => {
-    document.getElementById(section + '-section').classList.add('hidden');
-  });
-  document.getElementById(id + '-section').classList.remove('hidden');
-}
-
-    function previewImage(url) {
-      if (url) {
-        imagePreview.src = url;
-        imagePreview.classList.remove('hidden');
-      } else {
-        imagePreview.classList.add('hidden');
-      }
-    }
-
-    vaultCheck.addEventListener('change', () => {
-      cardBackWrapper.classList.toggle('hidden', !vaultCheck.checked);
-    });
-
-    function addPrize(prize = {}) {
-      const div = document.createElement('div');
-      div.className = "prize-block p-4 bg-gray-700 rounded";
-      div.innerHTML = `
-        <div class="flex justify-end"><button onclick="this.parentElement.parentElement.remove()" class="text-red-400 hover:text-red-600 text-sm mb-2">Remove</button></div>
-        <input type="text" placeholder="Prize Name" value="${prize.name || ''}" class="prize-name w-full p-2 rounded mb-2">
-        <input type="text" placeholder="Prize Image URL" value="${prize.image || ''}" class="prize-image w-full p-2 rounded mb-2">
-        <select class="prize-rarity w-full p-2 rounded mb-2">
-          <option value="common" ${prize.rarity === 'common' ? 'selected' : ''}>Common</option>
-          <option value="uncommon" ${prize.rarity === 'uncommon' ? 'selected' : ''}>Uncommon</option>
-          <option value="rare" ${prize.rarity === 'rare' ? 'selected' : ''}>Rare</option>
-          <option value="ultra rare" ${prize.rarity === 'ultra rare' ? 'selected' : ''}>Ultra Rare</option>
-          <option value="legendary" ${prize.rarity === 'legendary' ? 'selected' : ''}>Legendary</option>
-        </select>
-        <input type="number" placeholder="Prize Value ($)" value="${prize.value || ''}" class="prize-value w-full p-2 rounded mb-2">
-<input
-  type="number"
-  step="any"
-  min="0"
-  placeholder="Prize Odds (%)"
-  value="${prize.odds || ''}"
-  class="prize-odds w-full p-2 rounded"
-/>
-      `;
-      prizesSection.appendChild(div);
-    }
-
-    function loadCases() {
-      db.ref('cases').on('value', snapshot => {
-        caseList.innerHTML = '';
-        snapshot.forEach(child => {
-          const data = child.val();
-          const div = document.createElement('div');
-          div.className = 'p-4 bg-gray-800 rounded';
-          div.innerHTML = `
-            <div class="flex justify-between items-center">
-              <div>
-                <p class="font-bold text-lg">${data.name}</p>
-                <p class="text-sm text-gray-400">${data.isFree ? 'Free' : '$' + data.price}</p>
-              </div>
-              <div class="flex gap-2">
-                <button onclick="editCase('${child.key}', false)" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Edit</button>
-                <button onclick="deleteCase('${child.key}', false)" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded">Delete</button>
-              </div>
-            </div>
-          `;
-          caseList.appendChild(div);
-        });
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        if (typeof initAdminDashboard === "function") {
+          initAdminDashboard();
+        }
       });
-
-      db.ref('vaults').on('value', snapshot => {
-        vaultList.innerHTML = '';
-        snapshot.forEach(child => {
-          const data = child.val();
-          const div = document.createElement('div');
-          div.className = 'p-4 bg-gray-800 rounded';
-          div.innerHTML = `
-            <div class="flex justify-between items-center">
-              <div>
-                <p class="font-bold text-lg">${data.name}</p>
-                <p class="text-sm text-gray-400">$${data.price}</p>
-              </div>
-              <div class="flex gap-2">
-                <button onclick="editCase('${child.key}', true)" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Edit</button>
-                <button onclick="deleteCase('${child.key}', true)" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded">Delete</button>
-              </div>
-            </div>
-          `;
-          vaultList.appendChild(div);
-        });
-      });
-    }
-
-    function loadShipments() {
-  db.ref('shipments').on('value', snapshot => {
-    shipmentList.innerHTML = '';
-    snapshot.forEach(child => {
-      const item = child.val();
-      const info = item.shippingInfo || {};
-      const div = document.createElement('div');
-      div.className = 'p-4 bg-gray-800 rounded';
-      div.innerHTML = `
-        <p><strong>User ID:</strong> ${item.userId}</p>
-        <p><strong>Item:</strong> ${item.name}</p>
-        <p><strong>Status:</strong> ${item.status || 'Requested'}</p>
-        <p><strong>Shipping Info:</strong></p>
-        <ul class="ml-4 text-sm text-gray-300">
-          <li><strong>Name:</strong> ${info.name || '-'}</li>
-          <li><strong>Address:</strong> ${info.address || '-'}</li>
-          <li><strong>City:</strong> ${info.city || '-'}</li>
-          <li><strong>Zip:</strong> ${info.zip || '-'}</li>
-          <li><strong>Phone:</strong> ${info.phone || '-'}</li>
-        </ul>
-        <div class="flex gap-2 mt-2">
-  ${item.status === 'Requested' ? `
-    <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded" onclick="approveShipment('${child.key}')">Approve</button>
-  ` : ''}
-  <button class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded" onclick="markShipped('${child.key}')">Mark as Shipped</button>
-  <button class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded" onclick="deleteShipment('${child.key}')">Delete</button>
-</div>
-      `;
-      shipmentList.appendChild(div);
-    });
-  });
-}
-  function loadSupportForms() {
-  const container = document.getElementById('support-list');
-  firebase.database().ref('supportCases').on('value', snapshot => {
-    container.innerHTML = '';
-
-    const supportArray = [];
-
-    snapshot.forEach(child => {
-      const data = child.val();
-      const messages = Object.values(data.messages || {});
-      const latestTimestamp = messages.length
-        ? Math.max(...messages.map(m => m.timestamp || 0))
-        : 0;
-
-      supportArray.push({ key: child.key, data, latestTimestamp });
-    });
-
-    // Sort cases by latest message timestamp (newest first)
-    supportArray.sort((a, b) => b.latestTimestamp - a.latestTimestamp);
-
-    supportArray.forEach(({ key, data }) => {
-      const messagesHtml = Object.values(data.messages || {}).map(msg => {
-        const color = msg.sender === 'admin' ? 'text-yellow-300' : 'text-white';
-        const time = msg.timestamp ? new Date(msg.timestamp).toLocaleString() : '';
-        return `<p class="text-sm ${color}"><strong>${msg.sender}</strong> <span class="text-xs text-gray-400">(${time})</span>: ${msg.text}</p>`;
-      }).join('');
-
-      const div = document.createElement('div');
-      div.className = 'p-4 bg-gray-800 rounded';
-      div.innerHTML = `
-        <p><strong>Email:</strong> ${data.email}</p>
-        <p><strong>Subject:</strong> ${data.subject}</p>
-        ${messagesHtml}
-        <p><strong>Status:</strong> ${data.status}</p>
-        <form onsubmit="adminReply(event, '${key}')" class="mt-2 space-y-2">
-          <textarea class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 admin-reply" placeholder="Admin reply..."></textarea>
-          <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded">Send Reply</button>
-        </form>
-      `;
-      container.appendChild(div);
-    });
-  });
-}
-
-function adminReply(event, caseId) {
-  event.preventDefault();
-  const form = event.target;
-  const textarea = form.querySelector('.admin-reply');
-  const reply = textarea.value.trim();
-  if (!reply) return;
-
-  const newReplyKey = firebase.database().ref().push().key;
-  const updates = {};
-  updates[`supportCases/${caseId}/messages/${newReplyKey}`] = {
-    sender: 'admin',
-    text: reply,
-    timestamp: Date.now()
-  };
-  updates[`supportCases/${caseId}/status`] = 'Replied';
-
-  firebase.database().ref().update(updates).then(() => {
-    textarea.value = '';
-    showToast('✅ Reply sent');
-  });
-}
-
-
-    function editCase(id, isVault = false) {
-      const path = (isVault ? 'vaults/' : 'cases/') + id;
-      db.ref(path).once('value').then(snapshot => {
-        const data = snapshot.val();
-        document.getElementById('form-title').innerText = 'Edit Case';
-        document.getElementById('case-id').value = id;
-        document.getElementById('case-path').value = isVault ? 'vaults' : 'cases';
-        document.getElementById('case-name').value = data.name;
-        document.getElementById('case-image').value = data.image;
-        previewImage(data.image);
-        document.getElementById('case-price').value = data.price;
-        document.getElementById('case-free').checked = !!data.isFree;
-        document.getElementById('case-tag').value = data.tag || '';
-        document.getElementById('case-new').checked = !!(data.categories && data.categories.new);
-        document.getElementById('case-featured').checked = !!(data.categories && data.categories.featured);
-        document.getElementById('case-starter').checked = !!(data.categories && data.categories.starter);
-        document.getElementById('case-spice').value = data.spiceLevel || '';
-        document.getElementById('case-vault').checked = !!data.vault;
-        document.getElementById('case-card-back').value = data.cardBack || '';
-        document.getElementById('card-back-wrapper').classList.toggle('hidden', !data.vault);
-        prizesSection.innerHTML = '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
-        if (data.prizes) Object.values(data.prizes).forEach(p => addPrize(p));
-        cancelEditBtn.classList.remove('hidden');
-      });
-    }
-
-    function deleteCase(id, isVault = false) {
-      if (confirm('Are you sure you want to delete this case?')) {
-        const path = isVault ? 'vaults/' : 'cases/';
-        db.ref(path + id).remove().then(() => showToast('❌ Case deleted'));
-      }
-    }
-
-    function markShipped(id) {
-      db.ref('shipments/' + id).update({ status: 'Shipped' }).then(() => showToast('📦 Marked as shipped'));
-    }
-    function approveShipment(id) {
-  db.ref('shipments/' + id).update({ status: 'Approved' }).then(() => showToast('✅ Shipment approved'));
-}
-    function deleteShipment(id) {
-  if (confirm('Are you sure you want to delete this shipment?')) {
-    db.ref('shipments/' + id).remove().then(() => {
-      showToast('🗑️ Shipment deleted');
-      loadShipments(); // Refresh the list
-    });
-  }
-}
-
-    function saveCase(e) {
-      e.preventDefault();
-      const idField = document.getElementById('case-id');
-      const pathField = document.getElementById('case-path');
-      const vault = vaultCheck.checked;
-      const path = vault ? 'vaults' : 'cases';
-      const id = idField.value || db.ref(path).push().key;
-      const name = document.getElementById('case-name').value;
-      const image = document.getElementById('case-image').value;
-      const isFree = document.getElementById('case-free').checked;
-      const price = isFree ? 0 : parseFloat(document.getElementById('case-price').value) || 0;
-      const tag = document.getElementById('case-tag').value.trim();
-      const spiceLevel = document.getElementById('case-spice').value.trim();
-      const cardBack = cardBackInput.value.trim();
-      const categories = {
-        new: document.getElementById('case-new').checked,
-        featured: document.getElementById('case-featured').checked,
-        starter: document.getElementById('case-starter').checked
-      };
-      const prizesElements = prizesSection.querySelectorAll('div.prize-block');
-      const prizes = {};
-      prizesElements.forEach((div, idx) => {
-        prizes[idx] = {
-          name: div.querySelector('.prize-name').value,
-          image: div.querySelector('.prize-image').value,
-          rarity: div.querySelector('.prize-rarity').value,
-          value: parseFloat(div.querySelector('.prize-value').value) || 0,
-          odds: parseFloat(div.querySelector('.prize-odds').value) || 0
-        };
-      });
-
-      const data = { name, image, price, tag, spiceLevel, isFree, vault, cardBack, prizes, categories };
-      const updates = {};
-      updates[`${path}/${id}`] = data;
-      const originalPath = pathField.value;
-      if (originalPath && originalPath !== path) {
-        updates[`${originalPath}/${id}`] = null;
-      }
-
-      db.ref().update(updates).then(() => {
-        caseForm.reset();
-        previewImage('');
-        document.getElementById('case-tag').value = '';
-        document.getElementById('case-free').checked = false;
-        document.getElementById('case-new').checked = false;
-        document.getElementById('case-featured').checked = false;
-        document.getElementById('case-starter').checked = false;
-        vaultCheck.checked = false;
-        cardBackInput.value = '';
-        cardBackWrapper.classList.add('hidden');
-        prizesSection.innerHTML = '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
-        document.getElementById('form-title').innerText = 'Add / Edit Case';
-        cancelEditBtn.classList.add('hidden');
-        idField.value = '';
-        pathField.value = '';
-        showToast('✅ Case saved successfully!');
-      });
-    }
-
-function cancelEdit() {
-  caseForm.reset();
-  previewImage('');
-  document.getElementById('case-tag').value = '';
-  document.getElementById('case-free').checked = false;
-  document.getElementById('case-new').checked = false;
-  document.getElementById('case-featured').checked = false;
-  document.getElementById('case-starter').checked = false;
-  vaultCheck.checked = false;
-  cardBackInput.value = '';
-  cardBackWrapper.classList.add('hidden');
-  prizesSection.innerHTML = '<h3 class="text-xl">Prizes:</h3><button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>';
-  document.getElementById('form-title').innerText = 'Add / Edit Case';
-  cancelEditBtn.classList.add('hidden');
-  document.getElementById('case-id').value = '';
-  document.getElementById('case-path').value = '';
-}
-
-    caseForm.addEventListener('submit', saveCase);
-    cancelEditBtn.addEventListener('click', cancelEdit);
-    document.getElementById('user-search').addEventListener('keypress', e => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        searchUsers();
-      }
-    });
-
-    function searchUsers() {
-  const query = document.getElementById('user-search').value.trim().toLowerCase();
-  if (!query) return;
-
-  const resultsDiv = document.getElementById('user-results');
-  resultsDiv.innerHTML = 'Searching...';
-
-  firebase.database().ref('users').once('value').then(snapshot => {
-    let found = false;
-    resultsDiv.innerHTML = '';
-
-    snapshot.forEach(child => {
-      const user = child.val();
-      const email = (user.email || '').toLowerCase();
-      const username = (user.username || '').toLowerCase();
-      const uid = child.key.toLowerCase();
-
-      if (
-        email === query ||
-        username === query ||
-        uid === query ||
-        email.includes(query) ||
-        username.includes(query) ||
-        uid.includes(query)
-      ) {
-        found = true;
-        const div = document.createElement('div');
-        div.className = 'p-4 bg-gray-800 rounded-lg shadow mb-4';
-        div.innerHTML = `
-          <h3 class="text-lg font-bold mb-2">${user.username || user.email || 'User'} <span class="text-xs text-gray-400">(${child.key})</span></h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
-            <label class="block">Name:<input type="text" id="name-${child.key}" value="${user.name || ''}" class="p-1 rounded w-full"></label>
-            <label class="block">Username:<input type="text" id="username-${child.key}" value="${user.username || ''}" class="p-1 rounded w-full"></label>
-            <label class="block">Email:<input type="text" id="email-${child.key}" value="${user.email || ''}" class="p-1 rounded w-full"></label>
-            <label class="block">Email Verified:
-              <select id="verified-${child.key}" class="p-1 rounded w-full">
-                <option value="false" ${!user.emailVerified ? 'selected' : ''}>No</option>
-                <option value="true" ${user.emailVerified ? 'selected' : ''}>Yes</option>
-              </select>
-            </label>
-            <label class="block">Phone:<input type="text" id="phone-${child.key}" value="${user.phone || ''}" class="p-1 rounded w-full"></label>
-            <label class="block">Balance:<input type="number" step="any" id="balance-${child.key}" value="${user.balance || 0}" class="p-1 rounded w-full"></label>
-            <label class="block">Role:
-              <select id="role-${child.key}" class="p-1 rounded w-full">
-                <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
-                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
-              </select>
-            </label>
-            <label class="block">Free Case Opened:
-              <select id="free-${child.key}" class="p-1 rounded w-full">
-                <option value="false" ${!user.freeCaseOpened ? 'selected' : ''}>No</option>
-                <option value="true" ${user.freeCaseOpened ? 'selected' : ''}>Yes</option>
-              </select>
-            </label>
-          </div>
-          <div class="flex gap-2 mb-4">
-            <button onclick="saveUser('${child.key}')" class="px-2 py-1 bg-green-600 hover:bg-green-700 rounded">Save</button>
-            <button onclick="sendPasswordReset('${user.email || ''}')" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded">Reset Password</button>
-            <button onclick="deleteUser('${child.key}')" class="px-2 py-1 bg-red-600 hover:bg-red-700 rounded">Delete</button>
-          </div>
-          <p class="font-semibold mt-4">Unbox History:</p>
-          <div class="overflow-x-auto mb-2">
-            <table class="min-w-full text-xs text-gray-300">
-              <thead class="bg-gray-700">
-                <tr>
-                  <th class="px-2 py-1 text-left">Item</th>
-                  <th class="px-2 py-1 text-left">Rarity</th>
-                  <th class="px-2 py-1 text-left">Value</th>
-                  <th class="px-2 py-1 text-left">Status</th>
-                  <th class="px-2 py-1 text-left">Unbox Balance</th>
-                  <th class="px-2 py-1 text-left">Sale Balance</th>
-                  <th class="px-2 py-1 text-left">Timestamp</th>
-                </tr>
-              </thead>
-              <tbody id="unbox-${child.key}"><tr><td colspan="7" class="px-2 py-1">Loading...</td></tr></tbody>
-            </table>
-          </div>
-        `;
-        resultsDiv.appendChild(div);
-
-        const unboxList = document.getElementById(`unbox-${child.key}`);
-        Promise.all([
-          firebase.database().ref(`users/${child.key}/unboxHistory`).once('value'),
-          firebase.database().ref(`users/${child.key}/inventory`).once('value')
-        ]).then(([histSnap, invSnap]) => {
-          const itemMap = new Map();
-          if (histSnap.exists()) {
-            histSnap.forEach(item => {
-              itemMap.set(item.key, item.val());
-            });
-          }
-          if (invSnap.exists()) {
-            invSnap.forEach(item => {
-              if (!itemMap.has(item.key)) itemMap.set(item.key, item.val());
-            });
-          }
-          const items = Array.from(itemMap.values());
-          if (items.length) {
-            unboxList.innerHTML = '';
-            items
-              .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
-              .forEach(winData => {
-                const date = winData.timestamp ? new Date(winData.timestamp).toLocaleString() : '';
-                const status = winData.sold ? 'Sold' : 'Owned';
-                const unboxBal = `${winData.balanceBefore ?? '-'}→${winData.balanceAfter ?? '-'}`;
-                const saleBal = winData.sold ? `${winData.saleBalanceBefore ?? '-'}→${winData.saleBalanceAfter ?? '-'}` : '-';
-                unboxList.innerHTML += `<tr>
-                  <td class="px-2 py-1">${winData.name}</td>
-                  <td class="px-2 py-1">${winData.rarity || ''}</td>
-                  <td class="px-2 py-1">$${winData.value || 0}</td>
-                  <td class="px-2 py-1">${status}</td>
-                  <td class="px-2 py-1">${unboxBal}</td>
-                  <td class="px-2 py-1">${saleBal}</td>
-                  <td class="px-2 py-1 text-xs">${date}</td>
-                </tr>`;
-              });
-          } else {
-            unboxList.innerHTML = '<tr><td colspan="7" class="px-2 py-1">No history found.</td></tr>';
-          }
-        });
-      }
-    });
-
-    if (!found) resultsDiv.innerHTML = 'No users found.';
-  });
-}
-
-function saveUser(uid) {
-  const updates = {
-    name: document.getElementById(`name-${uid}`).value.trim(),
-    username: document.getElementById(`username-${uid}`).value.trim(),
-    email: document.getElementById(`email-${uid}`).value.trim(),
-    emailVerified: document.getElementById(`verified-${uid}`).value === 'true',
-    phone: document.getElementById(`phone-${uid}`).value.trim(),
-    balance: parseFloat(document.getElementById(`balance-${uid}`).value) || 0,
-    role: document.getElementById(`role-${uid}`).value,
-    freeCaseOpened: document.getElementById(`free-${uid}`).value === 'true'
-  };
-
-  firebase.database().ref(`users/${uid}`).update(updates).then(() => {
-    showToast('✅ User updated');
-  });
-}
-
-function deleteUser(uid) {
-  if (!confirm('Are you sure you want to delete this user?')) return;
-  firebase.database().ref(`users/${uid}`).remove().then(() => {
-    showToast('🗑️ User deleted');
-    searchUsers();
-  });
-}
-
-function sendPasswordReset(email) {
-  if (!email) {
-    alert('User has no email to reset.');
-    return;
-  }
-  firebase.auth().sendPasswordResetEmail(email).then(() => {
-    showToast('✅ Reset email sent');
-  }).catch(err => alert(err.message));
-}
-firebase.auth().onAuthStateChanged(user => {
-  if (!user) {
-    alert("Please log in.");
-    window.location.href = "/auth.html";
-    return;
-  }
-
-  if (!allowedAdmins.includes(user.email)) {
-    alert("Access denied. Admins only.");
-    window.location.href = "/";
-    return;
-  }
-
-  document.getElementById('admin-panel').style.display = 'block';
-  loadCases();
-  loadShipments();
-  loadSupportForms();
-  loadMarketplaceItems();
-  loadQuestConfig();
-  loadMilestoneConfig();
-});
-
-
-document.getElementById("marketplace-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const name = document.getElementById("market-name").value.trim();
-  const image = document.getElementById("market-image").value.trim();
-  const value = parseInt(document.getElementById("market-value").value.trim());
-  const rarity = document.getElementById("market-rarity").value;
-
-  if (!name || !image || !value || !rarity) return alert("All fields are required!");
-
-const form = document.getElementById("marketplace-form");
-const editingKey = form.dataset.editing;
-
-if (editingKey) {
-  await firebase.database().ref("marketplace/" + editingKey).set({ name, image, value, rarity, timestamp: Date.now() });
-  showToast("✅ Product updated!");
-  form.dataset.editing = "";
-  form.querySelector("button[type='submit']").textContent = "Add to Marketplace";
-} else {
-  const newRef = firebase.database().ref("marketplace").push();
-  await newRef.set({ name, image, value, rarity, timestamp: Date.now() });
-  showToast("✅ Card added to marketplace!");
-}
-
-
-  document.getElementById("marketplace-form").reset();
-  showToast("✅ Card added to marketplace!");
-});
-  function loadMarketplaceItems() {
-  const container = document.getElementById("market-list");
-  container.innerHTML = "";
-  firebase.database().ref("marketplace").once("value").then(snapshot => {
-    snapshot.forEach(child => {
-      const item = child.val();
-      const card = document.createElement("div");
-      card.className = "bg-gray-800 p-4 rounded flex justify-between items-center";
-
-     card.innerHTML = `
-  <div>
-    <p class="text-lg font-semibold">${item.name}</p>
-    <p class="text-sm text-gray-400">${item.value} coins · ${item.rarity}</p>
-  </div>
-  <div class="flex gap-2">
-    <button onclick='editMarketplaceItem("${child.key}", ${JSON.stringify(item)})' class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm">Edit</button>
-    <button onclick="deleteMarketplaceItem('${child.key}')" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm">Delete</button>
-  </div>
-`;
-
-      container.appendChild(card);
-    });
-  });
-}
-
-function editMarketplaceItem(key, item) {
-
-  document.getElementById("market-name").value = item.name;
-  document.getElementById("market-image").value = item.image;
-  document.getElementById("market-value").value = item.value;
-  document.getElementById("market-rarity").value = item.rarity;
-  document.getElementById("marketplace-form").dataset.editing = key;
-  document.querySelector("#marketplace-form button[type='submit']").textContent = "Update Product";
-}
-
-function deleteMarketplaceItem(key) {
-  if (confirm("Are you sure you want to delete this product?")) {
-    firebase.database().ref("marketplace/" + key).remove().then(() => {
-      showToast("🗑️ Product deleted");
-      loadMarketplaceItems();
-    });
-  }
-}
-
-function loadQuestConfig() {
-  const ref = firebase.database().ref('questConfig');
-  ref.once('value').then(snap => {
-    const cfg = snap.val() || {};
-    document.getElementById('openPacks-goal').value = cfg.openPacks?.goal || 0;
-    document.getElementById('openPacks-reward').value = cfg.openPacks?.reward || 0;
-    document.getElementById('spendCoins-goal').value = cfg.spendCoins?.goal || 0;
-    document.getElementById('spendCoins-reward').value = cfg.spendCoins?.reward || 0;
-    document.getElementById('pullRare-goal').value = cfg.pullRare?.goal || 0;
-    document.getElementById('pullRare-reward').value = cfg.pullRare?.reward || 0;
-  });
-}
-
-document.getElementById('quest-config-form').addEventListener('submit', e => {
-  e.preventDefault();
-  const config = {
-    openPacks: {
-      goal: parseInt(document.getElementById('openPacks-goal').value) || 0,
-      reward: parseInt(document.getElementById('openPacks-reward').value) || 0
-    },
-    spendCoins: {
-      goal: parseInt(document.getElementById('spendCoins-goal').value) || 0,
-      reward: parseInt(document.getElementById('spendCoins-reward').value) || 0
-    },
-    pullRare: {
-      goal: parseInt(document.getElementById('pullRare-goal').value) || 0,
-      reward: parseInt(document.getElementById('pullRare-reward').value) || 0
-    }
-  };
-  firebase.database().ref('questConfig').set(config).then(() => showToast('✅ Quest config saved'));
-});
-
-function addBadge(badge = {}) {
-  const div = document.createElement('div');
-  div.className = 'flex gap-2 items-center';
-  div.innerHTML = `
-    <input type="text" placeholder="Badge Name" class="badge-name w-full p-2 rounded" value="${badge.name || ''}">
-    <input type="number" placeholder="Pack Threshold" class="badge-threshold w-32 p-2 rounded" value="${badge.threshold || ''}">
-    <input type="color" class="badge-color w-16 h-10 rounded" value="${badge.color || '#9333ea'}">
-    <button type="button" class="text-red-400 hover:text-red-600" onclick="this.parentElement.remove()">Remove</button>
-  `;
-  document.getElementById('badge-list').appendChild(div);
-}
-
-function addLevel(level = {}) {
-  const div = document.createElement('div');
-  div.className = 'flex gap-2 items-center';
-  const threshold = typeof level === 'object' ? (level.threshold || '') : level;
-  const reward = typeof level === 'object' ? (level.reward || 0) : 0;
-  div.innerHTML = `
-    <input type="number" placeholder="Pack Threshold" class="level-threshold w-full p-2 rounded" value="${threshold}">
-    <input type="number" placeholder="Coin Reward" class="level-reward w-full p-2 rounded" value="${reward}">
-    <button type="button" class="text-red-400 hover:text-red-600" onclick="this.parentElement.remove()">Remove</button>
-  `;
-  document.getElementById('level-list').appendChild(div);
-}
-
-function loadMilestoneConfig() {
-  const ref = firebase.database().ref('milestoneConfig');
-  ref.once('value').then(snap => {
-    const cfg = snap.val() || {};
-    const badges = cfg.badges || [];
-    const levels = cfg.levels || [];
-    if (badges.length) {
-      badges.forEach(b => addBadge(b));
-    } else {
-      addBadge();
-    }
-    if (levels.length) {
-      levels.forEach(l => {
-        if (typeof l === 'object') addLevel(l);
-        else addLevel({ threshold: l, reward: 0 });
-      });
-    } else {
-      addLevel();
-    }
-  });
-}
-
-document.getElementById('milestone-config-form').addEventListener('submit', e => {
-  e.preventDefault();
-  const badges = [];
-  document.querySelectorAll('#badge-list > div').forEach(div => {
-    const name = div.querySelector('.badge-name').value.trim();
-    const threshold = parseInt(div.querySelector('.badge-threshold').value) || 0;
-    const color = div.querySelector('.badge-color').value || '#9333ea';
-    if (name) badges.push({ name, threshold, color });
-  });
-  const levels = [];
-  document.querySelectorAll('#level-list > div').forEach(div => {
-    const threshold = parseInt(div.querySelector('.level-threshold').value);
-    const reward = parseInt(div.querySelector('.level-reward').value) || 0;
-    if (!isNaN(threshold)) levels.push({ threshold, reward });
-  });
-  firebase.database().ref('milestoneConfig').set({ badges, levels }).then(() => showToast('✅ Milestone config saved'));
-});
-
-  </script>
-
-</body>
+    </script>
+  </body>
 </html>
