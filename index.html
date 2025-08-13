@@ -132,69 +132,72 @@
   <p class="text-sm text-white/80">Rip, collect, and uncover what’s inside 🔥</p>
 </div>
 
-<!-- Filter Toggle Button (Mobile Only) -->
-<div class="sm:hidden mb-4">
-  <button id="filter-toggle" class="text-sm bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-600 w-full">
-    Show Filters
-  </button>
-</div>
+ <!-- Filter Toggle Button (Mobile Only) -->
+ <div class="sm:hidden mb-4">
+   <button id="filter-toggle" class="text-sm bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-600 w-full">
+     Show Filters
+   </button>
+ </div>
 
-<!-- Filter Panel -->
-<div id="filter-panel" class="hidden sm:flex flex-wrap gap-4 mb-6 items-center">
-  <!-- Search -->
-  <input id="search-box" type="text" placeholder="Search packs" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-48" />
+ <!-- Unified Filter Panel -->
+ <div id="filter-panel" class="hidden mb-6 sm:block">
+   <!-- Primary Filters -->
+   <div class="flex flex-col sm:flex-row flex-wrap gap-4 items-center mb-4">
+     <!-- Search -->
+     <input id="search-box" type="text" placeholder="Search packs" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-full sm:w-48" />
 
-  <!-- Min Price -->
-  <input id="min-price" type="number" placeholder="Min" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
+     <!-- Min Price -->
+     <input id="min-price" type="number" placeholder="Min" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-full sm:w-24" />
 
-  <!-- Max Price -->
-  <input id="max-price" type="number" placeholder="Max" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
+     <!-- Max Price -->
+     <input id="max-price" type="number" placeholder="Max" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-full sm:w-24" />
 
-  <!-- Affordable Only Toggle -->
-  <div class="flex items-center gap-3 px-3 py-2 rounded bg-gray-800 border border-gray-700 hover:border-yellow-400 transition-all">
-    <label for="affordable-only" class="flex items-center cursor-pointer select-none">
-      <div class="relative">
-        <input type="checkbox" id="affordable-only" class="sr-only peer">
-        <div class="w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-yellow-400 transition-all duration-300"></div>
-        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
-      </div>
-      <span class="ml-3 text-sm text-white">Enough coins to buy</span>
-    </label>
-  </div>
+     <!-- Affordable Only Toggle -->
+     <div class="flex items-center gap-3 px-3 py-2 rounded bg-gray-800 border border-gray-700 hover:border-yellow-400 transition-all w-full sm:w-auto">
+       <label for="affordable-only" class="flex items-center cursor-pointer select-none w-full">
+         <div class="relative">
+           <input type="checkbox" id="affordable-only" class="sr-only peer">
+           <div class="w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-yellow-400 transition-all duration-300"></div>
+           <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
+         </div>
+         <span class="ml-3 text-sm text-white">Enough coins to buy</span>
+       </label>
+     </div>
 
-  <!-- Sort Dropdown -->
-  <select id="sort-select" class="px-3 py-2 rounded bg-gray-800 text-white">
-    <option value="default">Sorting</option>
-    <option value="asc">Ascending</option>
-    <option value="desc">Descending</option>
-  </select>
+     <!-- Sort Dropdown -->
+     <select id="sort-select" class="px-3 py-2 rounded bg-gray-800 text-white w-full sm:w-auto">
+       <option value="default">Sorting</option>
+       <option value="asc">Ascending</option>
+       <option value="desc">Descending</option>
+     </select>
 
-  <!-- Clear Filters Button -->
-  <button id="clear-filters" class="text-sm text-gray-400 hover:text-white ml-auto">Clear Filters</button>
-</div>
+     <!-- Clear Filters Button -->
+     <button id="clear-filters" class="text-sm text-gray-400 hover:text-white w-full sm:w-auto sm:ml-auto text-left sm:text-right">Clear Filters</button>
+   </div>
 
- <!-- Category Tabs -->
- <div id="category-tabs" class="flex flex-wrap justify-center gap-2 mb-6">
-  <button data-category="all" class="category-tab active" title="All">
-    <i class="fa-solid fa-layer-group"></i>
-    <span class="tab-label">All</span>
-  </button>
-  <button data-category="new" class="category-tab" title="New">
-    <i class="fa-solid fa-bolt"></i>
-    <span class="tab-label">New</span>
-  </button>
-  <button data-category="featured" class="category-tab" title="Featured">
-    <i class="fa-solid fa-star"></i>
-    <span class="tab-label">Featured</span>
-  </button>
-  <button data-category="starter" class="category-tab" title="Starter">
-    <i class="fa-solid fa-seedling"></i>
-    <span class="tab-label">Starter</span>
-  </button>
-  <button data-category="other" class="category-tab" title="Other Boxes">
-    <i class="fa-solid fa-box"></i>
-    <span class="tab-label">Other</span>
-  </button>
+   <!-- Category Tabs -->
+   <div id="category-tabs" class="flex flex-wrap justify-center gap-2">
+     <button data-category="all" class="category-tab active" title="All">
+       <i class="fa-solid fa-layer-group"></i>
+       <span class="tab-label">All</span>
+     </button>
+     <button data-category="new" class="category-tab" title="New">
+       <i class="fa-solid fa-bolt"></i>
+       <span class="tab-label">New</span>
+     </button>
+     <button data-category="featured" class="category-tab" title="Featured">
+       <i class="fa-solid fa-star"></i>
+       <span class="tab-label">Featured</span>
+     </button>
+     <button data-category="starter" class="category-tab" title="Starter">
+       <i class="fa-solid fa-seedling"></i>
+       <span class="tab-label">Starter</span>
+     </button>
+     <button data-category="other" class="category-tab" title="Other Boxes">
+       <i class="fa-solid fa-box"></i>
+       <span class="tab-label">Other</span>
+     </button>
+   </div>
  </div>
 
     <!-- Cases Grid -->
