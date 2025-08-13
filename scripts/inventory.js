@@ -2,11 +2,56 @@
 
 const selectedItems = new Set();
 let currentItems = [];
+let popupRotX = 0;
+let popupRotY = 0;
+let currentRotX = 0;
+let currentRotY = 0;
+const MAX_ROT = 45;
+const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+let isDragging = false;
+let startX = 0;
+let startY = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
   const itemPopup = document.getElementById('item-popup');
+  const popupRotator = document.getElementById('popup-rotator');
+  const holoOverlay = document.getElementById('holo-overlay');
   document.getElementById('close-item-popup')?.addEventListener('click', closeItemPopup);
   itemPopup?.addEventListener('click', e => { if (e.target === itemPopup) closeItemPopup(); });
+
+  popupRotator?.addEventListener('pointerdown', e => {
+    isDragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    popupRotator.setPointerCapture(e.pointerId);
+    popupRotator.classList.add('grabbing');
+    currentRotX = popupRotX;
+    currentRotY = popupRotY;
+    e.preventDefault();
+  });
+
+  popupRotator?.addEventListener('pointermove', e => {
+    if (!isDragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    currentRotY = clamp(popupRotY + dx / 2, -MAX_ROT, MAX_ROT);
+    currentRotX = clamp(popupRotX - dy / 2, -MAX_ROT, MAX_ROT);
+    popupRotator.style.transform = `rotateY(${currentRotY}deg) rotateX(${currentRotX}deg)`;
+    holoOverlay?.style.setProperty('--x', `${50 + currentRotY / 2}%`);
+    holoOverlay?.style.setProperty('--y', `${50 + currentRotX / 2}%`);
+    e.preventDefault();
+  });
+
+  const endDrag = e => {
+    if (!isDragging) return;
+    popupRotY = currentRotY;
+    popupRotX = currentRotX;
+    isDragging = false;
+    popupRotator.classList.remove('grabbing');
+    e.preventDefault();
+  };
+  popupRotator?.addEventListener('pointerup', endDrag);
+  popupRotator?.addEventListener('pointerleave', endDrag);
 
   const inventoryTab = document.getElementById('inventory-tab');
   const ordersTab = document.getElementById('orders-tab');
@@ -309,8 +354,18 @@ function shipItem(key) {
 function showItemPopup(encodedSrc) {
   const src = decodeURIComponent(encodedSrc);
   const img = document.getElementById('popup-item-image');
-  if (!img) return;
+  const rotator = document.getElementById('popup-rotator');
+  const holo = document.getElementById('holo-overlay');
+  if (!img || !rotator) return;
   img.src = src;
+  popupRotX = 0;
+  popupRotY = 0;
+  currentRotX = 0;
+  currentRotY = 0;
+  rotator.style.transform = 'rotateY(0deg) rotateX(0deg)';
+  holo?.style.setProperty('--x', '50%');
+  holo?.style.setProperty('--y', '50%');
+  rotator.classList.remove('grabbing');
   const popup = document.getElementById('item-popup');
   const card = popup?.querySelector('.popup-card');
   popup?.classList.remove('hidden');
