@@ -1,4 +1,5 @@
 let currentPack = null;
+let currentPackId = null;
 let currentPrize = null;
 let cardPrizes = [];
 let selectedIndex = null;
@@ -61,6 +62,7 @@ async function loadPack() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
   if (!id) return;
+  currentPackId = id;
   const snap = await firebase.database().ref('vaults/' + id).once('value');
   currentPack = snap.val();
   if (currentPack) renderPack(currentPack);
@@ -89,25 +91,22 @@ async function openPack() {
     openBtn.disabled = false;
     return alert('Provably fair data missing.');
   }
-  const { serverSeed, clientSeed, nonce } = fairData;
+  const { nonce } = fairData;
 
   await firebase.database().ref('users/' + user.uid + '/balance').set(balance - price);
 
-  const prizes = Object.values(currentPack.prizes || {})
-    .map(p => ({ ...p, odds: Number(p.odds) || 0 }))
-    .sort((a,b) => a.odds - b.odds);
-  const totalOdds = prizes.reduce((sum,p) => sum + p.odds, 0);
-
-  const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${serverSeed}:${clientSeed}:${nonce || 0}`));
-  const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('');
-  const rand = parseInt(hashHex.substring(0,8),16) / 0xffffffff;
-
-  let cumulative = 0;
-  let winningPrize = prizes[prizes.length - 1];
-  for (const p of prizes) {
-    cumulative += p.odds;
-    if (rand * totalOdds < cumulative) { winningPrize = p; break; }
+  // Request a secure outcome from the server instead of computing locally
+  const res = await fetch('/api/spin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ packId: currentPackId })
+  });
+  if (!res.ok) {
+    console.error('Spin request failed');
+    return;
   }
+  const { prize: winningPrize } = await res.json();
 
   const unboxData = {
     name: winningPrize.name,
