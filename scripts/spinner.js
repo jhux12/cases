@@ -94,21 +94,9 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
   if (!targetCard) return Promise.resolve();
 
   const containerEl = spinnerWheel.parentElement;
-  const targetRect = targetCard.getBoundingClientRect();
-  const containerRect = containerEl.getBoundingClientRect();
-  const cardCenter = targetRect.left + targetRect.width / 2;
-  const containerCenter = containerRect.left + containerRect.width / 2;
 
-  // Precompute card center positions relative to the wheel so we don't
-  // force layout recalculations on every animation frame.
-  const wheelStartRect = spinnerWheel.getBoundingClientRect();
-  const initialLeft = wheelStartRect.left;
-  const cardCenters = Array.from(cards).map(card => {
-    const rect = card.getBoundingClientRect();
-    return rect.left + rect.width / 2 - initialLeft;
-  });
-
-  // Adjust for any scale transform applied to the container
+  // Determine scaling applied to the container so calculations can occur in
+  // the unscaled coordinate space used by transforms.
   let scale = 1;
   const transform = window.getComputedStyle(containerEl).transform;
   if (transform && transform !== 'none') {
@@ -117,6 +105,18 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
       scale = parseFloat(match[1]) || 1;
     }
   }
+
+  const targetRect = targetCard.getBoundingClientRect();
+  const containerRect = containerEl.getBoundingClientRect();
+  const containerCenter = containerRect.left + containerRect.width / 2;
+  const cardCenter = targetRect.left + targetRect.width / 2;
+
+  // Precompute each card's center relative to the container center in the
+  // same coordinate space as the transform so we avoid layout work every frame.
+  const cardCenters = Array.from(cards).map(card => {
+    const rect = card.getBoundingClientRect();
+    return (rect.left + rect.width / 2 - containerCenter) / scale;
+  });
 
   const finalOffset = (cardCenter - containerCenter) / scale;
   let targetOffset = finalOffset;
@@ -151,15 +151,16 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
 
   let animationFrame;
 
+  const borderEl = document.getElementById(`spinner-border-${id}`);
+
   function trackCenterPrize() {
-    const wheelRect = spinnerWheel.getBoundingClientRect();
-    const currentOffset = wheelRect.left - initialLeft;
+    const matrix = new DOMMatrix(getComputedStyle(spinnerWheel).transform);
+    const currentOffset = matrix.m41; // current translation in unscaled space
     let closestIndex = 0;
     let minDistance = Infinity;
 
     for (let i = 0; i < cardCenters.length; i++) {
-      const center = cardCenters[i] + currentOffset;
-      const distance = Math.abs(containerCenter - center);
+      const distance = Math.abs(cardCenters[i] + currentOffset);
       if (distance < minDistance) {
         minDistance = distance;
         closestIndex = i;
@@ -169,7 +170,6 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
     const prize = spinnerPrizesMap[id][closestIndex];
     const rarity = (prize?.rarity || 'common').toLowerCase().replace(/\s+/g, '');
     const color = getRarityColor(rarity);
-    const borderEl = document.getElementById(`spinner-border-${id}`);
     if (borderEl) borderEl.style.borderColor = color;
 
     animationFrame = requestAnimationFrame(trackCenterPrize);
