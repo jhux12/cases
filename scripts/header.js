@@ -14,10 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
     <nav class="navbar crazy-nav fixed w-full z-50 py-3 px-6 flex items-center justify-between" style="min-height: 72px; background-color: #111117;">
       <div class="flex items-center gap-4">
         <a href="index.html" class="nav-link logo-link">
-          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(29).png?alt=media&token=51dc030a-b05d-46ec-b1ab-c2fd1824d74e" class="h-10 sm:h-12">
+          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(29).png?alt=media&token=51dc030a-b05d-46ec-b1ab-c2fd1824d74e" class="h-10">
         </a>
       </div>
-      <div class="hidden sm:flex items-center gap-6 relative">
+      <div class="hidden items-center gap-6 relative">
         <a href="pickem.html" class="nav-link text-yellow-400"><i class="fas fa-clone"></i><span>Pickem</span><span id="pickem-nav-timer-desktop" class="ml-1 text-xs">--:--</span></a>
         <a href="leaderboard.html" class="nav-link text-blue-400"><i class="fas fa-trophy"></i><span>Leaderboard</span></a>
         <a href="marketplace.html" class="nav-link text-pink-400"><i class="fas fa-store"></i><span>Marketplace</span></a>
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
       </div>
-      <div class="sm:hidden flex items-center gap-2">
+      <div class="flex items-center gap-2">
         <div id="user-balance-mobile-header" class="hidden flex items-center neon-balance rounded-full overflow-hidden text-sm">
           <div class="flex items-center gap-1 px-3 py-1">
             <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
@@ -58,8 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
     </nav>
-      <div id="drawer-overlay" class="fixed inset-0 bg-black/50 hidden z-40 sm:hidden"></div>
-      <aside id="mobile-drawer" class="fixed top-0 left-0 h-full w-64 bg-gray-900 border-r border-gray-800 transform -translate-x-full transition-transform duration-300 z-[100] sm:hidden">
+      <div id="drawer-overlay" class="fixed inset-0 bg-black/50 hidden z-40"></div>
+      <aside id="mobile-drawer" class="fixed top-0 left-0 h-full w-64 bg-gray-900 border-r border-gray-800 transform -translate-x-full transition-transform duration-300 z-[100]">
         <div class="p-4 h-full overflow-y-auto pb-24 space-y-4">
         <div
             id="drawer-user-info"
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </nav>
         </div>
       </aside>
-      <nav id="mobile-bottom-nav" class="crazy-bottom-nav fixed bottom-0 left-0 right-0 flex justify-around py-2 sm:hidden z-50" style="background-color: #111117;">
+      <nav id="mobile-bottom-nav" class="crazy-bottom-nav fixed bottom-0 left-0 right-0 flex justify-around py-2 z-50" style="background-color: #111117;">
         <button id="drawer-menu-button" type="button" class="flex flex-col items-center text-xs text-white">
           <i class="fas fa-bars text-lg"></i>
           <span>Menu</span>
