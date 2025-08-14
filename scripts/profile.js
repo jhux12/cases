@@ -54,10 +54,10 @@ async function loadProfile(uid, currentUid) {
     });
   }
   const badgeContainer = document.getElementById('badge-container');
-  if (currentBadge) {
-    const color = currentBadge.color || '#9333ea';
-    badgeContainer.innerHTML = `<span class="text-white text-xs px-2 py-1 rounded-full" style="background-color:${color}">${currentBadge.name}</span>`;
-  } else {
+    if (currentBadge) {
+      const color = currentBadge.color || '#3b82f6';
+      badgeContainer.innerHTML = `<span class="text-white text-xs px-2 py-1 rounded-full" style="background-color:${color}">${currentBadge.name}</span>`;
+    } else {
     badgeContainer.innerHTML = '<p class="text-sm text-gray-400">No badge yet.</p>';
   }
 
