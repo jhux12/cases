@@ -96,11 +96,11 @@ async function openPack() {
   await firebase.database().ref('users/' + user.uid + '/balance').set(balance - price);
 
   // Request a secure outcome from the server instead of computing locally
-  const res = await fetch('api/spin', {
+  const res = await fetch('/api/spin', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ packId: currentPackId })
+    body: JSON.stringify({ packId: currentPackId, prizes: Object.values(currentPack.prizes || {}) })
   });
   if (!res.ok) {
     console.error('Spin request failed');

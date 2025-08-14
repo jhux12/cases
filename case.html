@@ -525,11 +525,11 @@ document.getElementById("open-case-button").addEventListener("click", async () =
 
   for (let s = 0; s < spinCount; s++) {
     // Request a cryptographically secure spin result from the server
-    const res = await fetch('api/spin', {
+    const res = await fetch('/api/spin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ caseId })
+      body: JSON.stringify({ caseId, prizes: prizeList })
     });
     if (!res.ok) {
       console.error('Spin request failed');
