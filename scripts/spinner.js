@@ -143,91 +143,93 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
   }
 
   const spinDuration = 4 + Math.random() * 2; // 4-6 seconds for a snappier feel
-  requestAnimationFrame(() => {
-    spinnerWheel.style.willChange = 'transform';
-    spinnerWheel.style.transition = `transform ${spinDuration}s cubic-bezier(0.33, 1, 0.68, 1)`;
-    spinnerWheel.style.transform = `translate3d(-${targetOffset}px,0,0)`;
-  });
-
-  let animationFrame;
-
   const borderEl = document.getElementById(`spinner-border-${id}`);
+  let currentOffset = 0;
 
-  function trackCenterPrize() {
-    const matrix = new DOMMatrix(getComputedStyle(spinnerWheel).transform);
-    const currentOffset = matrix.m41; // current translation in unscaled space
+  function highlight(offset) {
     let closestIndex = 0;
     let minDistance = Infinity;
-
     for (let i = 0; i < cardCenters.length; i++) {
-      const distance = Math.abs(cardCenters[i] + currentOffset);
+      const distance = Math.abs(cardCenters[i] - offset);
       if (distance < minDistance) {
         minDistance = distance;
         closestIndex = i;
       }
     }
-
     const prize = spinnerPrizesMap[id][closestIndex];
     const rarity = (prize?.rarity || 'common').toLowerCase().replace(/\s+/g, '');
     const color = getRarityColor(rarity);
     if (borderEl) borderEl.style.borderColor = color;
-
-    animationFrame = requestAnimationFrame(trackCenterPrize);
   }
 
-  trackCenterPrize();
+  const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+
+  function animate(offset, duration, done) {
+    const start = performance.now();
+    const startOffset = currentOffset;
+    function step(now) {
+      const t = Math.min((now - start) / (duration * 1000), 1);
+      const eased = easeOutCubic(t);
+      currentOffset = startOffset + (offset - startOffset) * eased;
+      spinnerWheel.style.transform = `translate3d(-${currentOffset}px,0,0)`;
+      highlight(currentOffset);
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else if (done) {
+        done();
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  spinnerWheel.style.willChange = 'transform';
 
   return new Promise(resolve => {
-    function onTransitionEnd() {
-      cancelAnimationFrame(animationFrame);
+    function finish() {
       spinnerWheel.style.willChange = '';
 
-    // If we performed a close-call overshoot, correct to the final prize now
-    if (closeCallDir !== 0) {
-      const nearMissIndex = closeCallDir === -1 ? targetIndex - 1 : targetIndex + 1;
-      const nearMissCard = spinnerWheel.querySelector(`.item[data-index="${nearMissIndex}"]`);
-      if (nearMissCard) nearMissCard.classList.add("near-miss-flash");
+      const prize = spinnerPrizesMap[id][targetIndex];
+      const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
 
-      closeCallDir = 0; // prevent looping
-      requestAnimationFrame(() => {
-        spinnerWheel.style.transition = 'transform 0.4s ease-out';
-        spinnerWheel.style.transform = `translate3d(-${finalOffset}px,0,0)`;
-      });
-      return;
+      const spinnerResultText = document.getElementById("spinner-result");
+      if (spinnerResultText) {
+        spinnerResultText.textContent = `You won: ${prize.name}!`;
+        spinnerResultText.classList.remove("hidden");
+      }
+
+      if (showPopup) {
+        document.getElementById("popup-image").src = prize.image;
+        document.getElementById("popup-name").textContent = prize.name;
+        document.getElementById("popup-value").textContent = prize.value;
+        document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
+        document.getElementById("win-popup").classList.remove("hidden");
+      } else {
+        const popup = document.getElementById("win-popup");
+        if (popup) popup.classList.add("hidden");
+      }
+
+      if (targetCard) {
+        const glowClass = `glow-${rarity}`;
+        targetCard.classList.add(glowClass, "ring-4", "ring-white");
+      }
+
+      if (callback) callback(prize);
+      resolve(prize);
     }
 
-    // Final landing: award the prize
-    const prize = spinnerPrizesMap[id][targetIndex];
-    const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-
-    const spinnerResultText = document.getElementById("spinner-result");
-    if (spinnerResultText) {
-      spinnerResultText.textContent = `You won: ${prize.name}!`;
-      spinnerResultText.classList.remove("hidden");
+    function startFinal() {
+      if (closeCallDir !== 0) {
+        const nearMissIndex = closeCallDir === -1 ? targetIndex - 1 : targetIndex + 1;
+        const nearMissCard = spinnerWheel.querySelector(`.item[data-index="${nearMissIndex}"]`);
+        if (nearMissCard) nearMissCard.classList.add("near-miss-flash");
+        closeCallDir = 0;
+        animate(finalOffset, 0.4, finish);
+      } else {
+        finish();
+      }
     }
 
-    if (showPopup) {
-      document.getElementById("popup-image").src = prize.image;
-      document.getElementById("popup-name").textContent = prize.name;
-      document.getElementById("popup-value").textContent = prize.value;
-      document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
-      document.getElementById("win-popup").classList.remove("hidden");
-    } else {
-      const popup = document.getElementById("win-popup");
-      if (popup) popup.classList.add("hidden");
-    }
-
-    if (targetCard) {
-      const glowClass = `glow-${rarity}`;
-      targetCard.classList.add(glowClass, "ring-4", "ring-white");
-    }
-
-    if (callback) callback(prize);
-    resolve(prize);
-    spinnerWheel.removeEventListener('transitionend', onTransitionEnd);
-  }
-
-    spinnerWheel.addEventListener('transitionend', onTransitionEnd);
+    animate(targetOffset, spinDuration, startFinal);
   });
 }
 
