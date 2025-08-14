@@ -516,7 +516,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     if (spinSelect) spinSelect.disabled = false;
     return alert("Provably fair data missing.");
   }
-  const { serverSeed, clientSeed, nonce } = fairData;
+  const { nonce } = fairData;
 
   setupSpinners(spinCount);
 
@@ -532,20 +532,18 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   }
 
   for (let s = 0; s < spinCount; s++) {
-    const currentNonce = (nonce || 0) + s;
-    const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${serverSeed}:${clientSeed}:${currentNonce}`));
-    const hashHex = [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
-    const rand = parseInt(hashHex.substring(0, 8), 16) / 0xffffffff;
-
-    let cumulative = 0;
-    let winningPrize = prizes[prizes.length - 1];
-    for (let p of prizes) {
-      cumulative += p.odds || 0;
-      if (rand * totalOdds < cumulative) {
-        winningPrize = p;
-        break;
-      }
+    // Request a cryptographically secure spin result from the server
+    const res = await fetch('/api/spin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ caseId, prizes: prizeList })
+    });
+    if (!res.ok) {
+      console.error('Spin request failed');
+      continue;
     }
+    const { prize: winningPrize } = await res.json();
 
     const unboxData = {
       name: winningPrize.name,
