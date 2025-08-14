@@ -99,6 +99,15 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
   const cardCenter = targetRect.left + targetRect.width / 2;
   const containerCenter = containerRect.left + containerRect.width / 2;
 
+  // Precompute card center positions relative to the wheel so we don't
+  // force layout recalculations on every animation frame.
+  const wheelStartRect = spinnerWheel.getBoundingClientRect();
+  const initialLeft = wheelStartRect.left;
+  const cardCenters = Array.from(cards).map(card => {
+    const rect = card.getBoundingClientRect();
+    return rect.left + rect.width / 2 - initialLeft;
+  });
+
   // Adjust for any scale transform applied to the container
   let scale = 1;
   const transform = window.getComputedStyle(containerEl).transform;
@@ -143,31 +152,25 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
   let animationFrame;
 
   function trackCenterPrize() {
-    const cards = spinnerWheel.querySelectorAll(".item");
-    const containerRect = spinnerWheel.parentElement.getBoundingClientRect();
-    const centerX = containerRect.left + containerRect.width / 2;
-    let closestCard = null;
+    const wheelRect = spinnerWheel.getBoundingClientRect();
+    const currentOffset = wheelRect.left - initialLeft;
+    let closestIndex = 0;
     let minDistance = Infinity;
 
-    cards.forEach(card => {
-      const rect = card.getBoundingClientRect();
-      const cardCenter = rect.left + rect.width / 2;
-      const distance = Math.abs(centerX - cardCenter);
+    for (let i = 0; i < cardCenters.length; i++) {
+      const center = cardCenters[i] + currentOffset;
+      const distance = Math.abs(containerCenter - center);
       if (distance < minDistance) {
         minDistance = distance;
-        closestCard = card;
+        closestIndex = i;
       }
-    });
-
-    if (closestCard) {
-      const indexAttr = closestCard.getAttribute("data-index");
-      const prize = spinnerPrizesMap[id][indexAttr];
-      const rarity = (prize?.rarity || "common").toLowerCase().replace(/\s+/g, '');
-      const color = getRarityColor(rarity);
-
-      const borderEl = document.getElementById(`spinner-border-${id}`);
-      if (borderEl) borderEl.style.borderColor = color;
     }
+
+    const prize = spinnerPrizesMap[id][closestIndex];
+    const rarity = (prize?.rarity || 'common').toLowerCase().replace(/\s+/g, '');
+    const color = getRarityColor(rarity);
+    const borderEl = document.getElementById(`spinner-border-${id}`);
+    if (borderEl) borderEl.style.borderColor = color;
 
     animationFrame = requestAnimationFrame(trackCenterPrize);
   }
