@@ -50,6 +50,21 @@
           document.getElementById(`${s}-section`)?.classList.add("hidden"),
         );
         document.getElementById(`${id}-section`)?.classList.remove("hidden");
+
+        const activeClasses = [
+          "bg-cyan-500/10",
+          "text-cyan-300",
+          "border-l-4",
+          "border-cyan-400",
+          "shadow-[0_0_10px]",
+          "shadow-cyan-500/40",
+        ];
+        document
+          .querySelectorAll("[data-hook^='nav-']")
+          .forEach((btn) => btn.classList.remove(...activeClasses));
+        document
+          .querySelector(`[data-hook='nav-${id}']`)
+          ?.classList.add(...activeClasses);
       }
 
       function previewImage(url) {
@@ -664,9 +679,9 @@
           <img src="/components/logo.svg" alt="Packly.gg" class="h-8 w-8" />
         </div>
         <nav class="flex-1 mt-4 space-y-1 px-2">
-          <a
-            href="#"
-            class="relative flex items-center gap-3 p-3 rounded-xl text-sm bg-cyan-500/10 text-cyan-300 border-l-4 border-cyan-400 shadow-[0_0_10px] shadow-cyan-500/40"
+          <button
+            type="button"
+            class="relative flex items-center gap-3 w-full p-3 rounded-xl text-sm bg-cyan-500/10 text-cyan-300 border-l-4 border-cyan-400 shadow-[0_0_10px] shadow-cyan-500/40"
             data-hook="nav-dashboard"
           >
             <svg
@@ -687,10 +702,10 @@
               class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >Dashboard</span
             >
-          </a>
-          <a
-            href="#"
-            class="flex items-center gap-3 p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+          </button>
+          <button
+            type="button"
+            class="flex items-center gap-3 w-full p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             data-hook="nav-users"
           >
             <svg
@@ -711,10 +726,10 @@
               class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >Users</span
             >
-          </a>
-          <a
-            href="#"
-            class="flex items-center gap-3 p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+          </button>
+          <button
+            type="button"
+            class="flex items-center gap-3 w-full p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             data-hook="nav-cases"
           >
             <svg
@@ -735,10 +750,10 @@
               class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >Cases</span
             >
-          </a>
-          <a
-            href="#"
-            class="flex items-center gap-3 p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+          </button>
+          <button
+            type="button"
+            class="flex items-center gap-3 w-full p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             data-hook="nav-marketplace"
           >
             <svg
@@ -759,10 +774,10 @@
               class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >Marketplace</span
             >
-          </a>
-          <a
-            href="#"
-            class="flex items-center gap-3 p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+          </button>
+          <button
+            type="button"
+            class="flex items-center gap-3 w-full p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             data-hook="nav-quests"
           >
             <svg
@@ -783,10 +798,10 @@
               class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >Quests</span
             >
-          </a>
-          <a
-            href="#"
-            class="flex items-center gap-3 p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+          </button>
+          <button
+            type="button"
+            class="flex items-center gap-3 w-full p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             data-hook="nav-contact"
           >
             <svg
@@ -807,10 +822,10 @@
               class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >Contact</span
             >
-          </a>
-          <a
-            href="#"
-            class="flex items-center gap-3 p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+          </button>
+          <button
+            type="button"
+            class="flex items-center gap-3 w-full p-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             data-hook="nav-settings"
           >
             <svg
@@ -836,7 +851,7 @@
               class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >Settings</span
             >
-          </a>
+          </button>
         </nav>
       </aside>
 
