@@ -44,6 +44,7 @@
           "marketplace",
           "quests",
           "contact",
+          "settings",
         ];
         sections.forEach((s) =>
           document.getElementById(`${s}-section`)?.classList.add("hidden"),
@@ -601,6 +602,9 @@
         document
           .querySelector("[data-hook='nav-contact']")
           ?.addEventListener("click", () => showSection("contact"));
+        document
+          .querySelector("[data-hook='nav-settings']")
+          ?.addEventListener("click", () => showSection("settings"));
 
         document
           .querySelector("[data-hook='add-case']")
@@ -1311,6 +1315,11 @@
                 Save
               </button>
             </form>
+          </section>
+          <!-- Settings -->
+          <section id="settings-section" class="hidden">
+            <h1 class="text-3xl font-bold mb-6">Settings</h1>
+            <p class="text-gray-400">No settings available.</p>
           </section>
           <!-- Admin Contact -->
           <section id="contact-section" class="hidden">
