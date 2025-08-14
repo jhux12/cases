@@ -208,10 +208,15 @@ function showMultiWinPopup(prizes) {
       itemContainer.firstElementChild.classList.add('opacity-50');
     } else {
       keepBtn.onclick = () => {
+        keepBtn.disabled = true;
+        sellBtn.disabled = true;
         processed.add(index);
         handleDone();
       };
       sellBtn.onclick = async () => {
+        if (sellBtn.disabled) return;
+        sellBtn.disabled = true;
+        keepBtn.disabled = true;
         await sellPrize(prize);
         processed.add(index);
         handleDone();
@@ -260,6 +265,8 @@ function showMultiWinPopup(prizes) {
   });
 
   sellAllBtn.onclick = async () => {
+    if (sellAllBtn.disabled) return;
+    sellAllBtn.disabled = true;
     for (let i = 0; i < prizes.length; i++) {
       if (!processed.has(i)) {
         await sellPrize(prizes[i]);
