@@ -132,8 +132,12 @@ function setupSpinners(count) {
     }
     inner.className = `relative ${heightClass} overflow-hidden`;
 
-    const line = document.createElement('div');
-    line.className = 'absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10';
+    const arrowTop = document.createElement('div');
+    arrowTop.className = 'pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-pink-500 z-10';
+
+    const arrowBottom = document.createElement('div');
+    arrowBottom.className = 'pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-pink-500 z-10';
+
     const container = document.createElement('div');
     container.id = `spinner-container-${i}`;
     container.className = 'w-full h-full transform';
@@ -141,7 +145,8 @@ function setupSpinners(count) {
       // make additional spinners a bit bigger on mobile while still shrinking overall
       container.classList.add('scale-[0.6]', 'sm:scale-75', 'md:scale-90', 'lg:scale-100');
     }
-    inner.appendChild(line);
+    inner.appendChild(arrowTop);
+    inner.appendChild(arrowBottom);
     inner.appendChild(container);
     border.appendChild(inner);
     wrapper.appendChild(border);
