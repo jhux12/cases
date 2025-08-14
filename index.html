@@ -8,9 +8,9 @@
     tailwind.config = {
       safelist: [
         'bg-gradient-to-r',
-        'from-purple-600',
-        'to-pink-500',
-        'bg-pink-600',
+        'from-blue-600',
+        'to-blue-400',
+        'bg-blue-600',
         'bg-black/50',
         'right-2',
         'left-2',
@@ -27,8 +27,8 @@
         'bg-[#12121b]',
         'shadow-[0_0_20px_4px_rgba(255,215,0,0.5)]',
         'border-yellow-400',
-        'shadow-[0_0_16px_3px_rgba(186,85,211,0.5)]',
-        'border-purple-500',
+        'shadow-[0_0_16px_3px_rgba(37,99,235,0.5)]',
+        'border-blue-500',
         'shadow-[0_0_12px_2px_rgba(30,144,255,0.5)]',
         'border-blue-500',
         'shadow-[0_0_8px_1px_rgba(50,205,50,0.4)]',
@@ -56,17 +56,17 @@
 <header></header>
 
 <!-- Hero -->
-<section id="hero" class="relative overflow-hidden bg-gradient-to-b from-gray-900 to-gray-800">
+<section id="hero" class="relative overflow-hidden bg-gradient-to-b from-blue-50 to-white">
   <!-- Subtle background accents -->
   <div class="absolute inset-0 pointer-events-none">
-    <div class="absolute -top-32 -left-32 w-96 h-96 bg-purple-700 opacity-30 blur-3xl rounded-full"></div>
-    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-pink-600 opacity-30 blur-3xl rounded-full"></div>
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-300 opacity-30 blur-3xl rounded-full"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-400 opacity-30 blur-3xl rounded-full"></div>
   </div>
 
   <div class="container mx-auto max-w-6xl px-6 pt-20 pb-24 flex flex-col gap-10 relative">
 
     <!-- Updates Bar -->
-    <div class="w-full bg-gradient-to-r from-yellow-500 via-pink-500 to-purple-600 text-white py-2 overflow-hidden rounded-xl shadow-md">
+    <div class="w-full bg-gradient-to-r from-blue-500 via-blue-400 to-blue-600 text-white py-2 overflow-hidden rounded-xl shadow-md">
       <div class="animate-marquee whitespace-nowrap text-sm font-medium flex items-center gap-12 px-4">
         <span>📦 All cards are near mint unless specified otherwise</span>
         <span class="flex items-center gap-1">
@@ -79,13 +79,13 @@
     <div class="flex flex-col md:flex-row items-center gap-12">
       <!-- Text -->
       <div class="flex-1 text-center md:text-left">
-        <h1 class="text-5xl md:text-6xl font-extrabold mb-6 text-white tracking-tight leading-tight opacity-0 animate-fade-up">
+        <h1 class="text-5xl md:text-6xl font-extrabold mb-6 text-blue-800 tracking-tight leading-tight opacity-0 animate-fade-up">
           Virtual packs,<br>real cards. <span class="emoji-sparkle">✨</span>
         </h1>
-        <p class="text-lg text-gray-300 mb-8 leading-relaxed opacity-0 animate-fade-up">
+        <p class="text-lg text-gray-700 mb-8 leading-relaxed opacity-0 animate-fade-up">
           Open digital packs. Win real cards. Start ripping in seconds. Packly.gg.
         </p>
-        <a href="#cases" class="inline-block px-8 py-3 bg-yellow-400 text-black rounded-full font-semibold border border-yellow-500 hover:bg-yellow-300 transition-all duration-200 shadow-md hover:scale-105 opacity-0 animate-fade-up">
+        <a href="#cases" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-full font-semibold border border-blue-700 hover:bg-blue-500 transition-all duration-200 shadow-md hover:scale-105 opacity-0 animate-fade-up">
           Grab A Pack
         </a>
       </div>
@@ -126,7 +126,7 @@
   <span style="top:95%; left:15%; animation-delay:4.5s;"></span>
 </div>
 
-<div class="flex flex-col items-center text-center gap-2 p-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl shadow-lg mb-6">
+<div class="flex flex-col items-center text-center gap-2 p-4 bg-gradient-to-r from-blue-500 via-blue-400 to-blue-600 rounded-2xl shadow-lg mb-6">
   <img src="https://cdn-icons-png.flaticon.com/128/5966/5966817.png" alt="Pack Icon" class="w-12 h-12" />
   <h2 class="text-xl font-bold text-white">Available Packs</h2>
   <p class="text-sm text-white/80">Rip, collect, and uncover what’s inside 🔥</p>
@@ -134,43 +134,43 @@
 
 <!-- Filter Toggle Button (Mobile Only) -->
 <div class="sm:hidden mb-4">
-  <button id="filter-toggle" class="text-sm bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-600 w-full">
+  <button id="filter-toggle" class="text-sm bg-gray-100 text-gray-800 px-4 py-2 rounded-md border border-gray-300 w-full">
     Show Filters
   </button>
 </div>
 
 <!-- Filter Panel -->
-<div id="filter-panel" class="hidden sm:flex flex-wrap gap-4 mb-6 items-center">
+<div id="filter-panel" class="hidden sm:flex flex-wrap gap-4 mb-6 items-center text-gray-800">
   <!-- Search -->
-  <input id="search-box" type="text" placeholder="Search packs" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-48" />
+  <input id="search-box" type="text" placeholder="Search packs" class="px-3 py-2 rounded bg-white text-gray-800 placeholder-gray-400 border border-gray-300 w-48" />
 
   <!-- Min Price -->
-  <input id="min-price" type="number" placeholder="Min" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
+  <input id="min-price" type="number" placeholder="Min" class="px-3 py-2 rounded bg-white text-gray-800 placeholder-gray-400 border border-gray-300 w-24" />
 
   <!-- Max Price -->
-  <input id="max-price" type="number" placeholder="Max" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
+  <input id="max-price" type="number" placeholder="Max" class="px-3 py-2 rounded bg-white text-gray-800 placeholder-gray-400 border border-gray-300 w-24" />
 
   <!-- Affordable Only Toggle -->
-  <div class="flex items-center gap-3 px-3 py-2 rounded bg-gray-800 border border-gray-700 hover:border-yellow-400 transition-all">
+  <div class="flex items-center gap-3 px-3 py-2 rounded bg-gray-100 border border-gray-300 hover:border-blue-400 transition-all">
     <label for="affordable-only" class="flex items-center cursor-pointer select-none">
       <div class="relative">
         <input type="checkbox" id="affordable-only" class="sr-only peer">
-        <div class="w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-yellow-400 transition-all duration-300"></div>
+        <div class="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-blue-500 transition-all duration-300"></div>
         <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
       </div>
-      <span class="ml-3 text-sm text-white">Enough coins to buy</span>
+      <span class="ml-3 text-sm text-gray-800">Enough coins to buy</span>
     </label>
   </div>
 
   <!-- Sort Dropdown -->
-  <select id="sort-select" class="px-3 py-2 rounded bg-gray-800 text-white">
+  <select id="sort-select" class="px-3 py-2 rounded bg-white text-gray-800 border border-gray-300">
     <option value="default">Sorting</option>
     <option value="asc">Ascending</option>
     <option value="desc">Descending</option>
   </select>
 
   <!-- Clear Filters Button -->
-  <button id="clear-filters" class="text-sm text-gray-400 hover:text-white ml-auto">Clear Filters</button>
+  <button id="clear-filters" class="text-sm text-gray-500 hover:text-gray-700 ml-auto">Clear Filters</button>
 </div>
 
  <!-- Category Tabs -->
@@ -202,24 +202,24 @@
 
     <!-- See More Button -->
     <div class="flex justify-center mt-6">
-      <button id="see-more-cases" class="px-4 py-2 bg-gray-800 text-white rounded-md border border-gray-600 hidden">See more</button>
+      <button id="see-more-cases" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-md border border-gray-300 hidden">See more</button>
     </div>
   </div>
 </section>
 
 <!-- Best Drops -->
-<section id="best-drops" class="relative py-16 overflow-hidden bg-gradient-to-br from-[#050510] via-[#0b0f2c] to-[#050510]">
+<section id="best-drops" class="relative py-16 overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50">
   <!-- Futuristic grid background -->
   <div class="absolute inset-0 -z-10 opacity-30 bg-[linear-gradient(to_right,#2e2e3a_1px,transparent_1px),linear-gradient(to_bottom,#2e2e3a_1px,transparent_1px)] bg-[size:40px_40px]"></div>
   <!-- Glowing gradient orbs -->
-  <div class="absolute -top-24 -left-24 w-96 h-96 bg-fuchsia-700 rounded-full blur-3xl opacity-25"></div>
-  <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-700 rounded-full blur-3xl opacity-25"></div>
+  <div class="absolute -top-24 -left-24 w-96 h-96 bg-blue-300 rounded-full blur-3xl opacity-25"></div>
+  <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-400 rounded-full blur-3xl opacity-25"></div>
 
   <div class="mx-auto max-w-5xl px-6">
-    <div class="relative rounded-2xl bg-gradient-to-r from-cyan-500/10 via-fuchsia-500/10 to-purple-500/10 border border-fuchsia-500/20 backdrop-blur-xl shadow-[0_0_25px_rgba(168,85,247,0.3)] p-6">
+    <div class="relative rounded-2xl bg-gradient-to-r from-blue-400/10 via-blue-300/10 to-blue-500/10 border border-blue-500/20 backdrop-blur-xl shadow-[0_0_25px_rgba(37,99,235,0.3)] p-6">
       <div class="flex items-center gap-3 mb-6">
-        <i class="fa-solid fa-bolt text-fuchsia-400 text-2xl"></i>
-        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-purple-600 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(168,85,247,0.6)]">Best Drops</h2>
+        <i class="fa-solid fa-bolt text-blue-500 text-2xl"></i>
+        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(37,99,235,0.6)]">Best Drops</h2>
       </div>
       <div id="recent-wins-carousel" class="relative flex overflow-x-auto gap-6 py-2 scrollbar-hide w-full scroll-smooth">
         <!-- Cards will be injected here -->

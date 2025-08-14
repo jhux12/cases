@@ -17,8 +17,8 @@
       margin: 0;
       padding: 0;
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #1e1e2f 0%, #3b0764 100%);
-      color: white;
+      background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%);
+      color: #1f2937;
       overflow-x: hidden;
     }
     header {
@@ -39,90 +39,90 @@
   <img src="https://source.unsplash.com/300x400/?trading-card,pack" alt="pack" class="hidden lg:block absolute bottom-0 -right-10 w-40 opacity-20 rotate-12 pointer-events-none" />
 
   <section class="mt-20 px-4 relative z-10">
-    <div id="find-users-section" class="max-w-lg mx-auto mb-8 bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-purple-600/30">
-      <h2 class="text-xl font-bold mb-4 text-center bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">Find Other Users</h2>
-      <input id="user-search" type="text" placeholder="Search users..." class="w-full px-4 py-2 rounded bg-gray-900/60 text-white border border-purple-600/40 focus:outline-none" />
-      <ul id="user-list" class="mt-2 bg-gray-900/60 rounded-lg divide-y divide-gray-700"></ul>
-      <h3 id="top-users-title" class="text-lg font-semibold mt-4 text-center text-pink-300">Top Users</h3>
-      <ul id="top-users" class="mt-2 bg-gray-900/60 rounded-lg divide-y divide-gray-700"></ul>
-    </div>
-
-    <div class="max-w-lg mx-auto bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-purple-600/30">
-      <h2 id="profile-title" class="text-3xl font-extrabold mb-6 text-center bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">Your Profile</h2>
-      <div class="mb-8 text-center">
-        <div id="profile-pic" class="w-28 h-28 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 text-white text-3xl font-bold flex items-center justify-center mx-auto border-4 border-purple-400 shadow-2xl"></div>
+      <div id="find-users-section" class="max-w-lg mx-auto mb-8 bg-white backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-blue-200">
+        <h2 class="text-xl font-bold mb-4 text-center bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">Find Other Users</h2>
+        <input id="user-search" type="text" placeholder="Search users..." class="w-full px-4 py-2 rounded bg-gray-100 text-gray-900 border border-blue-200 focus:outline-none" />
+        <ul id="user-list" class="mt-2 bg-gray-100 rounded-lg divide-y divide-gray-200"></ul>
+        <h3 id="top-users-title" class="text-lg font-semibold mt-4 text-center text-blue-600">Top Users</h3>
+        <ul id="top-users" class="mt-2 bg-gray-100 rounded-lg divide-y divide-gray-200"></ul>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8 text-center">
-        <div class="bg-gradient-to-br from-purple-700/40 to-pink-700/40 backdrop-blur-md p-4 rounded-xl border border-purple-500/30 shadow-lg">
-          <i class="fa-solid fa-star text-pink-300 text-2xl mb-1"></i>
-          <p class="text-sm text-pink-200">Level</p>
-          <p id="level-number" class="text-2xl font-bold">1</p>
+      <div class="max-w-lg mx-auto bg-white backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-blue-200">
+        <h2 id="profile-title" class="text-3xl font-extrabold mb-6 text-center bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">Your Profile</h2>
+        <div class="mb-8 text-center">
+          <div id="profile-pic" class="w-28 h-28 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-3xl font-bold flex items-center justify-center mx-auto border-4 border-blue-300 shadow-2xl"></div>
         </div>
-        <div class="bg-gradient-to-br from-purple-700/40 to-pink-700/40 backdrop-blur-md p-4 rounded-xl border border-purple-500/30 shadow-lg">
-          <i class="fa-solid fa-box-open text-pink-300 text-2xl mb-1"></i>
-          <p class="text-sm text-pink-200">Packs Opened</p>
-          <p id="packs-opened" class="text-2xl font-bold">0</p>
-        </div>
-        <div class="bg-gradient-to-br from-purple-700/40 to-pink-700/40 backdrop-blur-md p-4 rounded-xl border border-purple-500/30 shadow-lg">
-          <i class="fa-solid fa-coins text-pink-300 text-2xl mb-1"></i>
-          <p class="text-sm text-pink-200">Total Spent</p>
-          <p id="total-spent" class="text-2xl font-bold">0</p>
-        </div>
-        <div class="bg-gradient-to-br from-purple-700/40 to-pink-700/40 backdrop-blur-md p-4 rounded-xl border border-purple-500/30 shadow-lg">
-          <i class="fa-solid fa-trophy text-pink-300 text-2xl mb-1"></i>
-          <p class="text-sm text-pink-200">Total Won</p>
-          <p id="total-won" class="text-2xl font-bold">0</p>
-        </div>
-        <div class="bg-gradient-to-br from-purple-700/40 to-pink-700/40 backdrop-blur-md p-4 rounded-xl border border-purple-500/30 shadow-lg sm:col-span-2 md:col-span-1">
-          <i class="fa-solid fa-gem text-pink-300 text-2xl mb-1"></i>
-          <p class="text-sm text-pink-200">Rarest Pull</p>
-          <div id="rarest-pull" class="text-sm text-gray-200"></div>
-        </div>
-      </div>
 
-      <div class="mb-8">
-        <p class="text-sm text-center text-pink-200 mb-1">Progress to Next Level</p>
-        <div class="w-full bg-gray-700 rounded-full h-4">
-          <div id="level-progress" class="bg-pink-500 h-4 rounded-full" style="width:0%"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8 text-center">
+          <div class="bg-gradient-to-br from-blue-200/40 to-blue-400/40 backdrop-blur-md p-4 rounded-xl border border-blue-300/30 shadow-lg">
+            <i class="fa-solid fa-star text-blue-500 text-2xl mb-1"></i>
+            <p class="text-sm text-blue-400">Level</p>
+            <p id="level-number" class="text-2xl font-bold">1</p>
+          </div>
+          <div class="bg-gradient-to-br from-blue-200/40 to-blue-400/40 backdrop-blur-md p-4 rounded-xl border border-blue-300/30 shadow-lg">
+            <i class="fa-solid fa-box-open text-blue-500 text-2xl mb-1"></i>
+            <p class="text-sm text-blue-400">Packs Opened</p>
+            <p id="packs-opened" class="text-2xl font-bold">0</p>
+          </div>
+          <div class="bg-gradient-to-br from-blue-200/40 to-blue-400/40 backdrop-blur-md p-4 rounded-xl border border-blue-300/30 shadow-lg">
+            <i class="fa-solid fa-coins text-blue-500 text-2xl mb-1"></i>
+            <p class="text-sm text-blue-400">Total Spent</p>
+            <p id="total-spent" class="text-2xl font-bold">0</p>
+          </div>
+          <div class="bg-gradient-to-br from-blue-200/40 to-blue-400/40 backdrop-blur-md p-4 rounded-xl border border-blue-300/30 shadow-lg">
+            <i class="fa-solid fa-trophy text-blue-500 text-2xl mb-1"></i>
+            <p class="text-sm text-blue-400">Total Won</p>
+            <p id="total-won" class="text-2xl font-bold">0</p>
+          </div>
+          <div class="bg-gradient-to-br from-blue-200/40 to-blue-400/40 backdrop-blur-md p-4 rounded-xl border border-blue-300/30 shadow-lg sm:col-span-2 md:col-span-1">
+            <i class="fa-solid fa-gem text-blue-500 text-2xl mb-1"></i>
+            <p class="text-sm text-blue-400">Rarest Pull</p>
+            <div id="rarest-pull" class="text-sm text-gray-600"></div>
+          </div>
         </div>
-        <p id="progress-text" class="text-xs text-center text-gray-400 mt-1"></p>
-      </div>
 
-      <div class="mb-8">
-        <h3 class="text-lg font-semibold text-center text-pink-300 mb-2">Recent Pulls</h3>
-        <ul id="recent-pulls" class="bg-gray-900/60 rounded-lg divide-y divide-gray-700"></ul>
-      </div>
+        <div class="mb-8">
+          <p class="text-sm text-center text-blue-400 mb-1">Progress to Next Level</p>
+          <div class="w-full bg-gray-200 rounded-full h-4">
+            <div id="level-progress" class="bg-blue-500 h-4 rounded-full" style="width:0%"></div>
+          </div>
+          <p id="progress-text" class="text-xs text-center text-gray-500 mt-1"></p>
+        </div>
+
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-center text-blue-600 mb-2">Recent Pulls</h3>
+          <ul id="recent-pulls" class="bg-gray-100 rounded-lg divide-y divide-gray-200"></ul>
+        </div>
 
       <div id="badge-container" class="flex flex-wrap justify-center gap-2 mb-8"></div>
 
       <div class="mb-4 text-center">
-        <label class="block text-sm font-medium text-gray-200 mb-1">Username</label>
-        <input id="username-input" type="text" class="w-full px-4 py-2 rounded bg-gray-900/60 text-white border border-purple-600/40 text-center focus:outline-none" />
+          <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+          <input id="username-input" type="text" class="w-full px-4 py-2 rounded bg-gray-100 text-gray-900 border border-blue-200 text-center focus:outline-none" />
       </div>
 
-      <button onclick="updateProfile()" class="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 hover:from-purple-600 hover:via-pink-600 hover:to-indigo-600 text-white font-bold py-2 px-4 rounded-full transition transform hover:scale-105 mb-4">
+        <button onclick="updateProfile()" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-2 px-4 rounded-full transition transform hover:scale-105 mb-4">
         Save Changes
       </button>
 
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-200 mb-1">Email</label>
-        <input id="email" type="text" class="w-full px-4 py-2 rounded bg-gray-900/60 text-white border border-purple-600/40" disabled />
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input id="email" type="text" class="w-full px-4 py-2 rounded bg-gray-100 text-gray-900 border border-blue-200" disabled />
       </div>
 
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-200 mb-1">Current Password</label>
-        <input id="current-password" type="password" placeholder="Enter current password" class="w-full px-4 py-2 rounded bg-gray-900/60 text-white border border-purple-600/40" />
+          <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+          <input id="current-password" type="password" placeholder="Enter current password" class="w-full px-4 py-2 rounded bg-gray-100 text-gray-900 border border-blue-200" />
       </div>
       <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-200 mb-1">New Password</label>
-        <input id="new-password" type="password" placeholder="Enter new password" class="w-full px-4 py-2 rounded bg-gray-900/60 text-white border border-purple-600/40" />
+          <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+          <input id="new-password" type="password" placeholder="Enter new password" class="w-full px-4 py-2 rounded bg-gray-100 text-gray-900 border border-blue-200" />
       </div>
 
-      <button onclick="changePassword()" class="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
-        Change Password
-      </button>
-    </div>
+        <button onclick="changePassword()" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
+          Change Password
+        </button>
+      </div>
   </section>
 
   <footer></footer>

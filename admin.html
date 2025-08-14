@@ -48,13 +48,13 @@
   <nav class="w-full px-6 py-4 bg-gray-900 border-b border-gray-800 flex justify-between items-center">
     <div class="text-xl font-bold text-white">PrimePull.gg Admin</div>
     <div class="space-x-4">
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('cases')">Cases</a>
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('shipments')">Shipments</a>
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('support')">Support Forms</a>
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('users')">Users</a>
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('marketplace')">Marketplace</a>
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('quests')">Quests</a>
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('milestones')">Milestones</a>
+        <a href="#" class="text-sm text-white hover:text-blue-500" onclick="showSection('cases')">Cases</a>
+        <a href="#" class="text-sm text-white hover:text-blue-500" onclick="showSection('shipments')">Shipments</a>
+        <a href="#" class="text-sm text-white hover:text-blue-500" onclick="showSection('support')">Support Forms</a>
+        <a href="#" class="text-sm text-white hover:text-blue-500" onclick="showSection('users')">Users</a>
+        <a href="#" class="text-sm text-white hover:text-blue-500" onclick="showSection('marketplace')">Marketplace</a>
+        <a href="#" class="text-sm text-white hover:text-blue-500" onclick="showSection('quests')">Quests</a>
+        <a href="#" class="text-sm text-white hover:text-blue-500" onclick="showSection('milestones')">Milestones</a>
     </div>
   </nav>
 
@@ -125,7 +125,7 @@
               <button type="button" onclick="addPrize()" class="mb-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded">+ Add Prize</button>
             </div>
             <div class="flex gap-2">
-              <button type="submit" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded">Save Case</button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded">Save Case</button>
               <button type="button" id="cancel-edit" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded hidden">Cancel Edit</button>
             </div>
           </form>
@@ -158,7 +158,7 @@
         <option value="legendary">Legendary</option>
       </select>
     </div>
-    <button type="submit" class="px-6 py-2 bg-pink-600 hover:bg-pink-700 rounded font-semibold">Add to Marketplace</button>
+    <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded font-semibold">Add to Marketplace</button>
   </form>
   <div id="market-list" class="mt-8 space-y-4"></div>
 
@@ -191,7 +191,7 @@
       <label class="block mb-1">Rare Pull Reward:</label>
       <input type="number" id="pullRare-reward" class="w-full p-2 rounded" />
     </div>
-    <button type="submit" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded">Save</button>
+      <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded">Save</button>
   </form>
 </section>
 
@@ -874,7 +874,7 @@ function addBadge(badge = {}) {
   div.innerHTML = `
     <input type="text" placeholder="Badge Name" class="badge-name w-full p-2 rounded" value="${badge.name || ''}">
     <input type="number" placeholder="Pack Threshold" class="badge-threshold w-32 p-2 rounded" value="${badge.threshold || ''}">
-    <input type="color" class="badge-color w-16 h-10 rounded" value="${badge.color || '#9333ea'}">
+      <input type="color" class="badge-color w-16 h-10 rounded" value="${badge.color || '#3b82f6'}">
     <button type="button" class="text-red-400 hover:text-red-600" onclick="this.parentElement.remove()">Remove</button>
   `;
   document.getElementById('badge-list').appendChild(div);
@@ -921,7 +921,7 @@ document.getElementById('milestone-config-form').addEventListener('submit', e =>
   document.querySelectorAll('#badge-list > div').forEach(div => {
     const name = div.querySelector('.badge-name').value.trim();
     const threshold = parseInt(div.querySelector('.badge-threshold').value) || 0;
-    const color = div.querySelector('.badge-color').value || '#9333ea';
+      const color = div.querySelector('.badge-color').value || '#3b82f6';
     if (name) badges.push({ name, threshold, color });
   });
   const levels = [];
