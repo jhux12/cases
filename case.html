@@ -180,6 +180,7 @@ function showMultiWinPopup(prizes) {
   const nextBtn = document.getElementById('next-win');
   const sellAllBtn = document.getElementById('sell-all-btn');
   const sellAllValue = document.getElementById('sell-all-value');
+  sellAllBtn.disabled = false;
   const processed = new Set();
   let current = 0;
 
