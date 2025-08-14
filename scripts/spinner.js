@@ -117,6 +117,8 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
     const rect = card.getBoundingClientRect();
     return (rect.left + rect.width / 2 - containerCenter) / scale;
   });
+  const step = cardCenters[1] - cardCenters[0];
+  const firstCenter = cardCenters[0];
 
   const finalOffset = (cardCenter - containerCenter) / scale;
   let targetOffset = finalOffset;
@@ -146,40 +148,44 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
   const borderEl = document.getElementById(`spinner-border-${id}`);
   let currentOffset = 0;
 
+  let lastIndex = -1;
   function highlight(offset) {
-    let closestIndex = 0;
-    let minDistance = Infinity;
-    for (let i = 0; i < cardCenters.length; i++) {
-      const distance = Math.abs(cardCenters[i] - offset);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestIndex = i;
-      }
-    }
-    const prize = spinnerPrizesMap[id][closestIndex];
+    const index = Math.max(0, Math.min(cardCenters.length - 1, Math.round((offset - firstCenter) / step)));
+    if (index === lastIndex) return;
+    lastIndex = index;
+    const prize = spinnerPrizesMap[id][index];
     const rarity = (prize?.rarity || 'common').toLowerCase().replace(/\s+/g, '');
     const color = getRarityColor(rarity);
     if (borderEl) borderEl.style.borderColor = color;
   }
 
-  const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
-
   function animate(offset, duration, done) {
-    const start = performance.now();
     const startOffset = currentOffset;
-    function step(now) {
-      const t = Math.min((now - start) / (duration * 1000), 1);
-      const eased = easeOutCubic(t);
-      currentOffset = startOffset + (offset - startOffset) * eased;
-      spinnerWheel.style.transform = `translate3d(-${currentOffset}px,0,0)`;
-      highlight(currentOffset);
-      if (t < 1) {
-        requestAnimationFrame(step);
-      } else if (done) {
-        done();
+    const animation = spinnerWheel.animate(
+      [
+        { transform: `translate3d(-${startOffset}px,0,0)` },
+        { transform: `translate3d(-${offset}px,0,0)` }
+      ],
+      {
+        duration: duration * 1000,
+        easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
+        fill: 'forwards'
       }
+    );
+
+    function step() {
+      currentOffset = startOffset + (offset - startOffset) * (animation.currentTime / (duration * 1000));
+      highlight(currentOffset);
+      if (animation.playState === 'running') requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
+
+    animation.addEventListener('finish', () => {
+      currentOffset = offset;
+      highlight(currentOffset);
+      spinnerWheel.style.transform = `translate3d(-${offset}px,0,0)`;
+      if (done) done();
+    });
   }
 
   spinnerWheel.style.willChange = 'transform';
