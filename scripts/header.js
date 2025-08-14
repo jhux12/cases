@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="hidden items-center gap-6 relative">
         <a href="pickem.html" class="nav-link text-yellow-400"><i class="fas fa-clone"></i><span>Pickem</span><span id="pickem-nav-timer-desktop" class="ml-1 text-xs">--:--</span></a>
         <a href="leaderboard.html" class="nav-link text-blue-400"><i class="fas fa-trophy"></i><span>Leaderboard</span></a>
-        <a href="marketplace.html" class="nav-link text-pink-400"><i class="fas fa-store"></i><span>Marketplace</span></a>
+          <a href="marketplace.html" class="nav-link text-blue-600"><i class="fas fa-store"></i><span>Marketplace</span></a>
         <div id="user-balance" class="hidden flex items-center neon-balance rounded-full overflow-hidden text-sm">
           <div class="flex items-center gap-1 px-3 py-1">
             <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
@@ -67,12 +67,12 @@ document.addEventListener("DOMContentLoaded", () => {
           >
             <span id="drawer-username" class="font-semibold"></span>
             <div class="flex items-center gap-2 text-xs">
-              <div id="drawer-badge" class="px-2 py-0.5 rounded-full bg-purple-600"></div>
+              <div id="drawer-badge" class="px-2 py-0.5 rounded-full bg-blue-600"></div>
               <span class="text-gray-400">Lvl <span id="drawer-level"></span></span>
             </div>
             <div class="w-full mt-2 px-4">
               <div class="relative w-full h-2 bg-gray-700 rounded-full overflow-hidden">
-                <div id="drawer-xp-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-pink-500 via-yellow-400 to-purple-500 rounded-full transition-all duration-300" style="width:0%"></div>
+                <div id="drawer-xp-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-blue-700 rounded-full transition-all duration-300" style="width:0%"></div>
               </div>
               <div id="drawer-progress-text" class="text-[10px] text-gray-400 mt-1"></div>
               <div id="drawer-next-reward" class="text-[10px] text-yellow-400"></div>
@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <a href="index.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-cube"></i> Open Packs</a>
             <a href="pickem.html" class="block px-4 py-2 text-sm text-yellow-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-clone"></i> Pickem</a>
             <a href="leaderboard.html" class="block px-4 py-2 text-sm text-blue-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-trophy"></i> Leaderboard</a>
-            <a href="marketplace.html" class="block px-4 py-2 text-sm text-pink-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-store"></i> Marketplace</a>
+            <a href="marketplace.html" class="block px-4 py-2 text-sm text-blue-600 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-store"></i> Marketplace</a>
             <div class="text-gray-400 text-xs uppercase px-4 mt-4">Account</div>
             <a id="drawer-inventory-link" href="inventory.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-box-open"></i> Inventory</a>
             <a id="drawer-profile-link" href="profile.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-user"></i> Profile</a>
@@ -273,8 +273,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (drawerLevel) drawerLevel.innerText = levelInfo.level;
     if (drawerBadge) {
       if (currentBadge) {
-        drawerBadge.innerText = currentBadge.name;
-        drawerBadge.style.backgroundColor = currentBadge.color || "#9333ea";
+          drawerBadge.innerText = currentBadge.name;
+          drawerBadge.style.backgroundColor = currentBadge.color || "#3b82f6";
         drawerBadge.classList.remove("hidden");
       } else {
         drawerBadge.classList.add("hidden");

@@ -42,20 +42,20 @@
   </style>
 
 </head>
-  <body class="bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white overflow-x-hidden">
+  <body class="bg-gradient-to-br from-gray-900 via-blue-900 to-black text-white overflow-x-hidden">
 <script src="scripts/preloader.js"></script>
       <canvas id="particle-canvas"></canvas>
       <header></header>
 <section id="case-content" class="relative pt-32 pb-10 px-4">
   <div class="relative z-10 mb-6">
     <div class="flex items-center justify-between px-4 py-2 bg-black/40 backdrop-blur-md rounded-full shadow-lg">
-      <a href="index.html" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 text-white hover:scale-110 transition-transform" aria-label="Back to packs">
+      <a href="index.html" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white hover:scale-110 transition-transform" aria-label="Back to packs">
         <i class="fas fa-arrow-left"></i>
       </a>
-      <h2 id="case-name" class="flex-1 text-center text-xl sm:text-2xl font-bold mx-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 bg-clip-text text-transparent leading-none">Loading...</h2>
+      <h2 id="case-name" class="flex-1 text-center text-xl sm:text-2xl font-bold mx-4 bg-gradient-to-r from-blue-400 via-blue-600 to-blue-800 bg-clip-text text-transparent leading-none">Loading...</h2>
       <div class="flex items-center gap-2">
         <img id="case-image" class="w-12 h-12 sm:w-16 sm:h-16 object-contain rounded-full bg-black/40 p-2 border border-white/20 shadow-md transition-transform hover:rotate-6 hover:scale-105" alt="" />
-        <button id="mute-toggle" aria-label="Toggle sound" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg hover:scale-110 transition-transform">
+        <button id="mute-toggle" aria-label="Toggle sound" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-lg hover:scale-110 transition-transform">
           <i id="mute-icon" class="fas fa-volume-up"></i>
         </button>
       </div>
@@ -69,7 +69,7 @@
         <option value="2">2x</option>
         <option value="3">3x</option>
       </select>
-      <button id="open-case-button" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform transform hover:scale-105 animate-pulse focus:outline-none overflow-hidden">
+      <button id="open-case-button" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform transform hover:scale-105 animate-pulse focus:outline-none overflow-hidden">
         <span class="relative z-10 flex items-center gap-2">
           Open for
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
@@ -93,12 +93,12 @@
 
 
 
-    <div class="bg-black/30 backdrop-blur-md rounded-2xl shadow-md border border-white/10 p-6 hover:shadow-purple-500/20 transition-all duration-300 mt-10 relative">
+    <div class="bg-black/30 backdrop-blur-md rounded-2xl shadow-md border border-white/10 p-6 hover:shadow-blue-500/20 transition-all duration-300 mt-10 relative">
       <img class="case-pack-image absolute -top-10 left-0 -translate-x-1/2 w-64 opacity-20 z-0 pointer-events-none -rotate-12" alt="Case Pack" />
       <img class="case-pack-image absolute -top-10 right-0 translate-x-1/2 w-64 opacity-20 z-0 pointer-events-none rotate-12" alt="Case Pack" />
     <div class="relative z-10">
       <div class="text-center mb-6">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 shadow-md">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 shadow-md">
           <img src="https://cdn-icons-png.flaticon.com/128/5172/5172637.png" alt="Rewards Icon" class="w-5 h-5" />
           <span class="text-sm font-bold uppercase tracking-wider text-white">Rewards Table</span>
         </div>
@@ -133,7 +133,7 @@ function setupSpinners(count) {
     inner.className = `relative ${heightClass} overflow-hidden`;
 
     const line = document.createElement('div');
-    line.className = 'absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10';
+    line.className = 'absolute top-0 bottom-0 w-1 bg-blue-500 left-1/2 transform -translate-x-1/2 z-10';
     const container = document.createElement('div');
     container.id = `spinner-container-${i}`;
     container.className = 'w-full h-full transform';
@@ -196,7 +196,7 @@ function showMultiWinPopup(prizes) {
         <div class="flex items-center gap-1 text-yellow-300 text-sm mb-2"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />${formatCoins(prize.value)}</div>
         <div class="flex gap-2 w-full mt-2">
           <button id="keep-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 text-white text-sm font-bold flex items-center justify-center gap-1"><i class="fas fa-box-open"></i> Add to Inventory</button>
-          <button id="sell-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 text-white text-sm font-bold flex items-center justify-center gap-1"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />Sell for ${formatCoins(Math.floor(prize.value * 0.8))}</button>
+          <button id="sell-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white text-sm font-bold flex items-center justify-center gap-1"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />Sell for ${formatCoins(Math.floor(prize.value * 0.8))}</button>
         </div>
       </div>`;
 
@@ -598,7 +598,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
           btn.classList.remove('cursor-not-allowed', 'opacity-60');
           btn.innerHTML = isFreeCase
             ? '<span class="relative z-10">Open for Free</span>'
-            : `<div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50 z-0 animate-spin-slow"></div>
+            : `<div class="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 blur-xl opacity-50 z-0 animate-spin-slow"></div>
               <span class="relative z-10 flex items-center gap-2">
                 Open for
                 <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
@@ -781,7 +781,7 @@ async function sha256(message) {
     <div class="mt-4 space-y-2 text-xs">
       <input id="client-seed-input" type="text" placeholder="New client seed" class="w-full px-2 py-1 rounded bg-gray-800 text-white" />
       <button id="update-client-seed" class="w-full bg-green-600 hover:bg-green-500 rounded py-2 text-white">Update Client Seed</button>
-      <button id="new-server-seed" class="w-full bg-purple-600 hover:bg-purple-500 rounded py-2 text-white">New Server Seed</button>
+      <button id="new-server-seed" class="w-full bg-blue-600 hover:bg-blue-500 rounded py-2 text-white">New Server Seed</button>
       <a href="verify.html" class="block text-center text-blue-400 hover:underline mt-2">Verify a roll</a>
     </div>
   </div>
@@ -820,7 +820,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <button id="next-win" class="absolute right-0 top-1/2 -translate-y-1/2 bg-gray-700/60 hover:bg-gray-700 text-white rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-chevron-right"></i></button>
     </div>
     <div id="win-count" class="text-sm text-gray-400 mb-2"></div>
-    <button id="sell-all-btn" class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 hover:brightness-110 text-white font-extrabold text-sm shadow-lg shadow-red-800/30 transition-all duration-200">
+    <button id="sell-all-btn" class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:brightness-110 text-white font-extrabold text-sm shadow-lg shadow-red-800/30 transition-all duration-200">
       <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
       Sell All for <span id="sell-all-value">0</span> coins
     </button>
