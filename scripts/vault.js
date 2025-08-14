@@ -282,15 +282,23 @@ function resetGame() {
 document.addEventListener('DOMContentLoaded', () => {
   loadPack();
   document.getElementById('open-pack').addEventListener('click', openPack);
+  const keepBtn = document.getElementById('keep-btn');
+  const sellBtn = document.getElementById('sell-btn');
+
   document.getElementById('close-popup').addEventListener('click', () => {
     document.getElementById('win-popup').classList.add('hidden');
     resetGame();
   });
-  document.getElementById('keep-btn').addEventListener('click', () => {
+  keepBtn.addEventListener('click', () => {
+    keepBtn.disabled = true;
+    sellBtn.disabled = true;
     document.getElementById('win-popup').classList.add('hidden');
     resetGame();
   });
-  document.getElementById('sell-btn').addEventListener('click', async () => {
+  sellBtn.addEventListener('click', async () => {
+    if (sellBtn.disabled) return;
+    sellBtn.disabled = true;
+    keepBtn.disabled = true;
     await sellPrize();
     document.getElementById('win-popup').classList.add('hidden');
     resetGame();
