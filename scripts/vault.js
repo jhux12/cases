@@ -100,7 +100,7 @@ async function openPack() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ packId: currentPackId, prizes: Object.values(currentPack.prizes || {}) })
+    body: JSON.stringify({ caseId: currentPackId })
   });
   if (!res.ok) {
     console.error('Spin request failed');

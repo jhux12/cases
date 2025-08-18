@@ -537,7 +537,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ caseId, prizes: prizeList })
+      body: JSON.stringify({ caseId })
     });
     if (!res.ok) {
       console.error('Spin request failed');
