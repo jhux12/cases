@@ -1,0 +1,6 @@
+{
+  "-OPvvJ3oF4Bxp8QF7zC2": [
+    { "name": "Sticker Pack", "image": "images/sticker-pack.png", "rarity": "common", "value": 1, "odds": 90 },
+    { "name": "Gem Pack", "image": "images/gem-pack.png", "rarity": "rare", "value": 5, "odds": 10 }
+  ]
+}

@@ -96,9 +96,13 @@ async function openPack() {
   await firebase.database().ref('users/' + user.uid + '/balance').set(balance - price);
 
   // Request a secure outcome from the server instead of computing locally
+  const token = await firebase.auth().currentUser.getIdToken();
   const res = await fetch('/api/spin', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
     credentials: 'include',
     body: JSON.stringify({ caseId: currentPackId })
   });
