@@ -24,14 +24,21 @@ window.addEventListener('DOMContentLoaded', () => {
 
       // ✅ Setup Provably Fair if missing
       if (!userData.provablyFair) {
-        const serverSeed = generateRandomString(64);
-        const serverSeedHash = await sha256(serverSeed);
-        await userRef.child('provablyFair').set({
-          serverSeed,
-          serverSeedHash,
-          clientSeed: 'default',
-          nonce: 0
-        });
+        try {
+          const res = await fetch('/api/server-seed', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid: user.uid })
+          });
+          const data = await res.json();
+          await userRef.child('provablyFair').set({
+            serverSeedHash: data.serverSeedHash,
+            clientSeed: 'default',
+            nonce: 0
+          });
+        } catch (err) {
+          console.error('Failed to initialize provably fair data', err);
+        }
       }
 
       // Show balances
@@ -92,20 +99,3 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// 🔐 Utility: generate server seed
-function generateRandomString(length) {
-  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += charset.charAt(Math.floor(Math.random() * charset.length));
-  }
-  return result;
-}
-
-// 🔐 Utility: sha256 hash
-async function sha256(message) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(message);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
-}
