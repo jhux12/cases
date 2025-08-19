@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pack Opener Demo</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
 <body>
   <main id="demo" class="opener-demo">
@@ -53,11 +54,11 @@
     reelEl.innerHTML = '<div class="tile skeleton"></div>'.repeat(8);
 
     const mockItems = [
-      { id: 1, name: 'Common Sword', rarity: 'common', image: 'https://via.placeholder.com/100x140?text=Common' },
-      { id: 2, name: 'Uncommon Shield', rarity: 'uncommon', image: 'https://via.placeholder.com/100x140?text=Uncommon' },
-      { id: 3, name: 'Rare Wand', rarity: 'rare', image: 'https://via.placeholder.com/100x140?text=Rare' },
-      { id: 4, name: 'Ultra Ring', rarity: 'ultra', image: 'https://via.placeholder.com/100x140?text=Ultra' },
-      { id: 5, name: 'Legendary Crown', rarity: 'legendary', image: 'https://via.placeholder.com/100x140?text=Legendary' }
+      { id: 1, name: 'Common Sword', rarity: 'common', value: 198, image: 'https://via.placeholder.com/100x140?text=Common' },
+      { id: 2, name: 'Uncommon Shield', rarity: 'uncommon', value: '1.3k', image: 'https://via.placeholder.com/100x140?text=Uncommon' },
+      { id: 3, name: 'Rare Wand', rarity: 'rare', value: 223, image: 'https://via.placeholder.com/100x140?text=Rare' },
+      { id: 4, name: 'Ultra Ring', rarity: 'ultra', value: 688, image: 'https://via.placeholder.com/100x140?text=Ultra' },
+      { id: 5, name: 'Legendary Crown', rarity: 'legendary', value: 233, image: 'https://via.placeholder.com/100x140?text=Legendary' }
     ];
 
     setTimeout(()=>{

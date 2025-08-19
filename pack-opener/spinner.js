@@ -23,7 +23,8 @@
         const tile=document.createElement('div');
         tile.className='tile';
         tile.dataset.id=item.id;
-        tile.innerHTML=`<img src="${item.image}" alt="${item.name}"/><div class="pill ${item.rarity}">${item.name}</div>`;
+        const priceHtml=item.value!==undefined?`<div class="price"><i class='fa-solid fa-gem'></i>${item.value}</div>`:'';
+        tile.innerHTML=`<img src="${item.image}" alt="${item.name}"/><div class="tile-info"><div class="name">${item.name}</div>${priceHtml}</div>`;
         frag.appendChild(tile);
       });
     }
@@ -76,7 +77,9 @@
       const highIndex=state.items.findIndex(it=>['legendary','ultra','rare'].includes(it.rarity)&&state.items.indexOf(it)!==index);
       if(highIndex>=0){
         const clone=document.createElement('div');const it=state.items[highIndex];
-        clone.className='tile';clone.innerHTML=`<img src="${it.image}" alt="${it.name}"/><div class=\"pill ${it.rarity}\">${it.name}</div>`;
+        clone.className='tile';
+        const priceHtml=it.value!==undefined?`<div class="price"><i class='fa-solid fa-gem'></i>${it.value}</div>`:'';
+        clone.innerHTML=`<img src="${it.image}" alt="${it.name}"/><div class=\"tile-info\"><div class=\"name\">${it.name}</div>${priceHtml}</div>`;
         tiles[midStart+index+1].replaceWith(clone);
       }
     }
