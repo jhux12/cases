@@ -38,7 +38,9 @@ function calculateCasesPerPage() {
 
 function renderCases(caseList, reset = true) {
   const casesContainer = document.getElementById("cases-container");
+  const casesCarousel = document.getElementById("cases-carousel");
   casesContainer.innerHTML = "";
+  if (casesCarousel) casesCarousel.innerHTML = "";
 
   const freeCases = caseList.filter(c => c.isFree);
   const paidCases = caseList.filter(c => !c.isFree);
@@ -67,7 +69,8 @@ function renderCases(caseList, reset = true) {
     const packImg = c.image;
     const topPrizeImg = topPrize?.image || packImg;
 
-    const imgId = `img-${c.id}`;
+    const imgIdDesktop = `img-${c.id}`;
+    const imgIdMobile = `img-${c.id}-m`;
 
     const openLink = `case.html?id=${c.id}`;
 
@@ -76,7 +79,7 @@ function renderCases(caseList, reset = true) {
         <div class="relative">
           ${tagHTML}
           ${pepperHTML}
-          <img src="${packImg}" id="${imgId}" class="case-card-img w-full h-48 object-contain p-6 transition-all duration-300">
+          <img src="${packImg}" id="${imgIdDesktop}" class="case-card-img w-full h-48 object-contain p-6 transition-all duration-300">
         </div>
         <div class="p-4">
           <h3 class="text-lg font-medium text-gray-900">${c.name}</h3>
@@ -88,15 +91,43 @@ function renderCases(caseList, reset = true) {
         </div>
       </div>`;
 
+    if (casesCarousel) {
+      casesCarousel.innerHTML += `
+        <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card w-64 flex-shrink-0">
+          <div class="relative">
+            ${tagHTML}
+            ${pepperHTML}
+            <img src="${packImg}" id="${imgIdMobile}" class="case-card-img w-full h-48 object-contain p-6 transition-all duration-300">
+          </div>
+          <div class="p-4">
+            <h3 class="text-lg font-medium text-gray-900">${c.name}</h3>
+            <div class="mt-4">
+              <a href="${openLink}" class="open-button glow-button text-sm whitespace-nowrap">
+                Open for ${priceLabel} ${priceIcon}
+              </a>
+            </div>
+          </div>
+        </div>`;
+    }
+
     // Add hover effect after rendering
     setTimeout(() => {
-      const imgEl = document.getElementById(imgId);
-      if (imgEl && topPrizeImg !== packImg) {
-        imgEl.addEventListener("mouseenter", () => {
-          imgEl.src = topPrizeImg;
+      const imgElDesktop = document.getElementById(imgIdDesktop);
+      if (imgElDesktop && topPrizeImg !== packImg) {
+        imgElDesktop.addEventListener("mouseenter", () => {
+          imgElDesktop.src = topPrizeImg;
         });
-        imgEl.addEventListener("mouseleave", () => {
-          imgEl.src = packImg;
+        imgElDesktop.addEventListener("mouseleave", () => {
+          imgElDesktop.src = packImg;
+        });
+      }
+      const imgElMobile = document.getElementById(imgIdMobile);
+      if (imgElMobile && topPrizeImg !== packImg) {
+        imgElMobile.addEventListener("mouseenter", () => {
+          imgElMobile.src = topPrizeImg;
+        });
+        imgElMobile.addEventListener("mouseleave", () => {
+          imgElMobile.src = packImg;
         });
       }
     }, 0);

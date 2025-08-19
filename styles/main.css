@@ -434,6 +434,18 @@ body {
   display: none;
 }
 
+#hot-cards,
+#cases-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+#hot-cards::-webkit-scrollbar,
+#cases-carousel::-webkit-scrollbar {
+  display: none;
+}
+
 @keyframes marquee {
   0% { transform: translateX(100%); }
   100% { transform: translateX(-100%); }

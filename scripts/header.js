@@ -54,6 +54,11 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
           <div class="-mr-2 flex items-center md:hidden">
+            <div id="user-balance-mobile-header" class="hidden flex items-center mr-3">
+              <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon mr-1" alt="Coins">
+              <span id="balance-amount-mobile" class="font-medium text-gray-700">0</span>
+              <button id="topup-button-mobile" class="ml-2 text-sm text-indigo-600 hover:text-indigo-800 hidden"><i class="fas fa-wallet"></i></button>
+            </div>
             <button id="menu-toggle" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none" aria-expanded="false">
               <span class="sr-only">Open main menu</span>
               <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -71,12 +76,11 @@ document.addEventListener("DOMContentLoaded", () => {
           <a href="marketplace.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300">Marketplace</a>
         </div>
         <div class="pt-4 pb-3 border-t border-gray-200">
-          <div id="user-balance-mobile-header" class="hidden flex items-center px-4">
+          <div class="flex items-center px-4 mb-3">
             <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon mr-1" alt="Coins">
-            <span id="balance-amount-mobile" class="font-medium text-gray-700">0</span>
-            <button id="topup-button-mobile" class="ml-2 text-sm text-indigo-600 hover:text-indigo-800 hidden"><i class="fas fa-wallet"></i></button>
+            <span id="balance-amount-mobile-dropdown" class="font-medium text-gray-700">0</span>
           </div>
-          <div class="mt-3 space-y-1">
+          <div class="space-y-1">
             <a href="inventory.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Inventory</a>
             <a href="profile.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Profile</a>
             <a href="how-it-works.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">How It Works</a>
