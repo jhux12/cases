@@ -1,7 +1,13 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const header = document.querySelector("header");
-  if (!header) return;
+const root = document.documentElement;
+const body = document.body;
 
+if (localStorage.getItem('theme') === 'dark') {
+  root.classList.add('dark');
+  body.classList.add('dark');
+}
+
+const header = document.querySelector("header");
+if (header) {
   if (!document.querySelector('link[href="styles/main.css"]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
@@ -10,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   header.innerHTML = `
-    <nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200 backdrop-blur bg-white/80">
+    <nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200 backdrop-blur bg-white dark:bg-gray-800 dark:border-gray-700">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
@@ -19,12 +25,15 @@ document.addEventListener("DOMContentLoaded", () => {
             </a>
             <div class="hidden md:ml-6 md:flex md:space-x-8">
               <a href="index.html" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Open Packs</a>
-              <a href="pickem.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Pickem <span id="pickem-nav-timer-desktop" class="ml-1 bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-0.5 rounded-full">--:--</span></a>
-              <a href="leaderboard.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Leaderboard</a>
-              <a href="marketplace.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Marketplace</a>
+              <a href="pickem.html" class="border-transparent text-gray-900 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-100 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Pickem <span id="pickem-nav-timer-desktop" class="ml-1 bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-0.5 rounded-full">--:--</span></a>
+              <a href="leaderboard.html" class="border-transparent text-gray-900 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-100 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Leaderboard</a>
+              <a href="marketplace.html" class="border-transparent text-gray-900 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-100 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Marketplace</a>
             </div>
           </div>
           <div class="hidden md:ml-6 md:flex md:items-center">
+            <button id="theme-toggle" class="p-2 rounded-md text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">
+              <i class="fas fa-moon"></i>
+            </button>
             <div id="auth-buttons" class="flex items-center space-x-4">
               <a href="auth.html" class="text-sm font-medium text-gray-700 hover:text-gray-900">Sign In</a>
               <a href="auth.html#register" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
@@ -54,6 +63,10 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
           <div class="-mr-2 flex items-center md:hidden">
+            <button id="theme-toggle-mobile" type="button" class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 focus:outline-none mr-2">
+              <span class="sr-only">Toggle theme</span>
+              <i class="fas fa-moon"></i>
+            </button>
             <div id="user-balance-mobile-header" class="hidden flex items-center mr-3">
               <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon mr-1" alt="Coins">
               <span id="balance-amount-mobile" class="font-medium text-gray-700">0</span>
@@ -71,9 +84,9 @@ document.addEventListener("DOMContentLoaded", () => {
       <div id="mobile-dropdown" class="md:hidden hidden">
         <div class="pt-2 pb-3 space-y-1">
           <a href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-indigo-500 text-base font-medium text-indigo-700 bg-indigo-50">Open Packs</a>
-          <a href="pickem.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300">Pickem <span id="pickem-nav-timer" class="ml-1 bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-0.5 rounded-full">--:--</span></a>
-          <a href="leaderboard.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300">Leaderboard</a>
-          <a href="marketplace.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300">Marketplace</a>
+          <a href="pickem.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-900 dark:text-gray-300 hover:bg-gray-50 hover:border-gray-300 dark:hover:bg-gray-700">Pickem <span id="pickem-nav-timer" class="ml-1 bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-0.5 rounded-full">--:--</span></a>
+          <a href="leaderboard.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-900 dark:text-gray-300 hover:bg-gray-50 hover:border-gray-300 dark:hover:bg-gray-700">Leaderboard</a>
+          <a href="marketplace.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-900 dark:text-gray-300 hover:bg-gray-50 hover:border-gray-300 dark:hover:bg-gray-700">Marketplace</a>
         </div>
         <div class="pt-4 pb-3 border-t border-gray-200">
           <div class="flex items-center px-4 mb-3">
@@ -81,14 +94,34 @@ document.addEventListener("DOMContentLoaded", () => {
             <span id="balance-amount-mobile-dropdown" class="font-medium text-gray-700">0</span>
           </div>
           <div class="space-y-1">
-            <a href="inventory.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Inventory</a>
-            <a href="profile.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Profile</a>
-            <a href="how-it-works.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">How It Works</a>
-            <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Sign In</a>
-            <a id="mobile-register-button" href="auth.html#register" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Register</a>
+            <a href="inventory.html" class="block px-4 py-2 text-base font-medium text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Inventory</a>
+            <a href="profile.html" class="block px-4 py-2 text-base font-medium text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Profile</a>
+            <a href="how-it-works.html" class="block px-4 py-2 text-base font-medium text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">How It Works</a>
+            <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 text-base font-medium text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Sign In</a>
+            <a id="mobile-register-button" href="auth.html#register" class="block px-4 py-2 text-base font-medium text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Register</a>
           </div>
         </div>
       </div>
     </nav>
   `;
-});
+
+  const toggles = header.querySelectorAll('#theme-toggle, #theme-toggle-mobile');
+
+  const setTheme = (isDark) => {
+    root.classList.toggle('dark', isDark);
+    body.classList.toggle('dark', isDark);
+    toggles.forEach(btn => {
+      btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    });
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  };
+
+  const stored = localStorage.getItem('theme');
+  setTheme(stored === 'dark');
+
+  toggles.forEach(btn => {
+    btn.addEventListener('click', () => {
+      setTheme(!root.classList.contains('dark'));
+    });
+  });
+}
