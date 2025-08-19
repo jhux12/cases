@@ -139,11 +139,11 @@ document.addEventListener('DOMContentLoaded', () => {
       snap.forEach(order => {
         const data = order.val();
         container.innerHTML += `
-          <div class="item-card rounded-2xl p-6 text-center">
+          <div class="item-card rounded-2xl p-6 text-center h-full">
             <img src="${data.image}" class="mx-auto mb-4 h-24 object-contain rounded shadow-lg" />
-            <h2 class="font-bold text-xl text-yellow-300">${data.name}</h2>
+            <h2 class="font-bold text-xl text-yellow-300 truncate">${data.name}</h2>
             <p class="text-sm text-pink-200 mb-1">Status: ${data.status}</p>
-            <p class="text-sm text-pink-200">Shipping Info: ${data.shippingInfo?.name}</p>
+            <p class="text-sm text-pink-200 mt-auto">Shipping Info: ${data.shippingInfo?.name}</p>
           </div>`;
       });
     });
@@ -202,13 +202,13 @@ function renderItems(items) {
     const refund = Math.floor((item.value || 0) * 0.8);
     const checked = selectedItems.has(item.key) ? 'checked' : '';
     container.innerHTML += `
-      <div class="item-card rounded-2xl p-6 text-center">
+      <div class="item-card rounded-2xl p-6 text-center h-full">
         <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-3 accent-pink-500" ${item.shipped || item.requested ? 'disabled' : ''} />
-        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}')" class="mx-auto mb-4 h-28 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
-        <h2 class="font-bold text-xl text-yellow-300">${item.name}</h2>
+        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}')" class="mx-auto mb-4 h-32 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
+        <h2 class="font-bold text-xl text-yellow-300 truncate">${item.name}</h2>
         <p class="text-sm text-pink-200 mb-1">Rarity: ${item.rarity}</p>
         <p class="text-sm text-pink-200 mb-3">Value: ${item.value || 0} coins</p>
-        <div class="flex justify-center gap-3">
+        <div class="flex justify-center gap-3 mt-auto">
           <button onclick="sellBack('${item.key}', ${item.value || 0})" ${item.shipped || item.requested ? 'disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full flex items-center space-x-1"' : 'class="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 hover:from-pink-600 hover:to-red-500 rounded-full flex items-center space-x-1"'}>
             <span>Sell for ${refund}</span>
             <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
