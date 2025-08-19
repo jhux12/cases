@@ -78,6 +78,8 @@
             display: flex;
             will-change: transform;
             padding: 1rem 0;
+            align-items: center;
+            justify-content: center;
         }
 
         .tile {
@@ -118,6 +120,7 @@
             padding: 2px 4px;
             border-bottom-left-radius: 12px;
             border-bottom-right-radius: 12px;
+            text-align: center;
         }
 
         .tile-info .price {
@@ -533,12 +536,16 @@
                 if (!items.length) return;
                 PackOpener.init({ root, items });
                 PackOpener.setMuted(true);
+                const legendaryIndices = items.reduce((arr, it, idx) => {
+                    if (it.rarity === 'legendary') arr.push(idx);
+                    return arr;
+                }, []);
+                if (!legendaryIndices.length) return;
 
                 function loop() {
-                    const winIndex = Math.floor(Math.random() * items.length);
+                    const winIndex = legendaryIndices[Math.floor(Math.random() * legendaryIndices.length)];
                     PackOpener.spinToIndex(winIndex, {
                         durationMs: 2400,
-                        nearMiss: true,
                         onReveal: () => setTimeout(loop, 1500)
                     });
                 }
