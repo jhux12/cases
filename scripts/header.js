@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   header.innerHTML = `
-    <nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200 backdrop-blur bg-white/80">
+    <nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200 backdrop-blur bg-white/80 dark:bg-gray-800/80 dark:border-gray-700">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
@@ -25,6 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
           <div class="hidden md:ml-6 md:flex md:items-center">
+            <button id="theme-toggle" class="p-2 rounded-md text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">
+              <i class="fas fa-moon"></i>
+            </button>
             <div id="auth-buttons" class="flex items-center space-x-4">
               <a href="auth.html" class="text-sm font-medium text-gray-700 hover:text-gray-900">Sign In</a>
               <a href="auth.html#register" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
@@ -54,6 +57,10 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
           <div class="-mr-2 flex items-center md:hidden">
+            <button id="theme-toggle-mobile" type="button" class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 focus:outline-none mr-2">
+              <span class="sr-only">Toggle theme</span>
+              <i class="fas fa-moon"></i>
+            </button>
             <div id="user-balance-mobile-header" class="hidden flex items-center mr-3">
               <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon mr-1" alt="Coins">
               <span id="balance-amount-mobile" class="font-medium text-gray-700">0</span>
