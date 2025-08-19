@@ -83,10 +83,11 @@
         tiles[midStart+index+1].replaceWith(clone);
       }
     }
-    const containerWidth=state.root.parentElement.offsetWidth;
+    const container=state.root.parentElement;
+    const containerWidth=container.clientWidth;
     const centerOffset=containerWidth/2 - state.tileWidth/2;
     const targetIndex=state.items.length*2 + index;
-    const finalX=Math.round(-(targetIndex*state.tileWidth - centerOffset));
+    const finalX=-(targetIndex*state.tileWidth - centerOffset);
     const accDur=duration*0.25, cruiseDur=duration*0.35, decelDur=duration-accDur-cruiseDur;
     const accDist=finalX*0.25, cruiseDist=finalX*0.5, decelDist=finalX-accDist-cruiseDist;
     let lastTick=0;emit('start');
@@ -94,13 +95,13 @@
     function animate(now,start){
       const elapsed=now-start;let pos=0;
       if(elapsed<accDur){pos=easeOutCubic(elapsed/accDur)*accDist;}
-      else if(elapsed<accDur+cruiseDur){const t=(elapsed-accDur)/cruiseDur;pos=accDist+t*cruiseDist+Math.sin(now*0.02)*2;if(!state.cruiseEmitted){emit('cruise');state.cruiseEmitted=true;}}
+      else if(elapsed<accDur+cruiseDur){const t=(elapsed-accDur)/cruiseDur;pos=accDist+t*cruiseDist+Math.sin(t*3.1415*4)*1.5;if(!state.cruiseEmitted){emit('cruise');state.cruiseEmitted=true;}}
       else if(elapsed<duration){const t=(elapsed-accDur-cruiseDur)/decelDur;pos=accDist+cruiseDist+easeInQuart(t)*decelDist;}
       else{pos=finalX;}
       state.root.style.transform=`translate3d(${pos}px,0,0)`;
       if(now-lastTick>120){playTick();lastTick=now;}
       if(elapsed<duration){requestAnimationFrame(t=>animate(t,start));}
-      else{state.isSpinning=false;state.cruiseEmitted=false;const item=state.items[index];state.root.children[targetIndex].classList.add('win');stinger(item.rarity);burstConfetti();emit('reveal',item);opts.onReveal&&opts.onReveal(item);emit('finish',item);} }
+      else{state.root.style.transform=`translate3d(${finalX}px,0,0)`;state.isSpinning=false;state.cruiseEmitted=false;const item=state.items[index];state.root.children[targetIndex].classList.add('win');stinger(item.rarity);burstConfetti();emit('reveal',item);opts.onReveal&&opts.onReveal(item);emit('finish',item);} }
     requestAnimationFrame(t=>animate(t,t));
   }
 
