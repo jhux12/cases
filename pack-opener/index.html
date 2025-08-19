@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pack Opener Demo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="demo" class="opener-demo">
+    <section class="reel-wrapper">
+      <div id="reel" class="reel" aria-label="Prize reel" tabindex="0"></div>
+      <div class="center-marker" aria-hidden="true"></div>
+    </section>
+
+    <section class="controls" aria-label="Pack controls">
+      <button id="openBtn" class="btn primary">Open Pack</button>
+      <label class="toggle"><input type="checkbox" id="fastToggle" /> Fast Open</label>
+      <label class="toggle"><input type="checkbox" id="muteToggle" /> Mute</label>
+    </section>
+
+    <section class="drop-table">
+      <h2>Drop Rates</h2>
+      <ul id="odds" class="odds"></ul>
+      <div class="legend">
+        <span class="pill common">Common</span>
+        <span class="pill uncommon">Uncommon</span>
+        <span class="pill rare">Rare</span>
+        <span class="pill ultra">Ultra</span>
+        <span class="pill legendary">Legendary</span>
+      </div>
+    </section>
+  </main>
+
+  <div id="resultModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+    <div class="modal-content">
+      <h2 id="resultTitle"></h2>
+      <img id="resultImg" alt="Result image" />
+      <p id="resultValue" class="value"></p>
+      <div class="modal-actions">
+        <button class="btn" data-action="keep">Keep</button>
+        <button class="btn" data-action="list">List</button>
+        <button class="btn" data-action="sell">Instant Sellback</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="ariaLive" class="sr-only" aria-live="assertive"></div>
+
+  <script src="spinner.js"></script>
+  <script>
+    const reelEl = document.getElementById('reel');
+    reelEl.innerHTML = '<div class="tile skeleton"></div>'.repeat(8);
+
+    const mockItems = [
+      { id: 1, name: 'Common Sword', rarity: 'common', image: 'https://via.placeholder.com/100x140?text=Common' },
+      { id: 2, name: 'Uncommon Shield', rarity: 'uncommon', image: 'https://via.placeholder.com/100x140?text=Uncommon' },
+      { id: 3, name: 'Rare Wand', rarity: 'rare', image: 'https://via.placeholder.com/100x140?text=Rare' },
+      { id: 4, name: 'Ultra Ring', rarity: 'ultra', image: 'https://via.placeholder.com/100x140?text=Ultra' },
+      { id: 5, name: 'Legendary Crown', rarity: 'legendary', image: 'https://via.placeholder.com/100x140?text=Legendary' }
+    ];
+
+    setTimeout(()=>{
+      if(Math.random()<0.1){
+        showToast('Error loading items');
+        PackOpener.init({root: reelEl, items: []});
+      }else{
+        PackOpener.init({ root: reelEl, items: mockItems });
+      }
+    },300);
+
+    const oddsList = document.getElementById('odds');
+    mockItems.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="pill ${item.rarity}">${item.rarity}</span> ${item.name} - ${(Math.random()*20+5).toFixed(1)}%`;
+      oddsList.appendChild(li);
+    });
+
+    document.getElementById('openBtn').addEventListener('click', () => {
+      if (PackOpener.isSpinning()) return;
+      const fast = document.getElementById('fastToggle').checked;
+      const index = Math.floor(Math.random() * mockItems.length);
+      PackOpener.spinToIndex(index, {
+        durationMs: fast ? 600 : 2400,
+        nearMiss: true,
+        onReveal: showResult
+      });
+    });
+
+    document.getElementById('muteToggle').addEventListener('change', (e)=>{
+      PackOpener.setMuted(e.target.checked);
+    });
+
+    function showResult(item) {
+      const modal = document.getElementById('resultModal');
+      document.getElementById('resultTitle').textContent = `${item.name}`;
+      document.getElementById('resultImg').src = item.image;
+      document.getElementById('resultValue').textContent = `${item.rarity.toUpperCase()} • $${(Math.random()*100).toFixed(2)}`;
+      modal.classList.remove('hidden');
+      document.getElementById('ariaLive').textContent = `You pulled ${item.rarity} ${item.name}`;
+    }
+
+    document.getElementById('resultModal').addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal')) {
+        e.currentTarget.classList.add('hidden');
+      }
+    });
+
+    document.querySelectorAll('#resultModal [data-action]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        console.log(btn.dataset.action);
+        document.getElementById('resultModal').classList.add('hidden');
+      });
+    });
+
+    function showToast(msg){
+      const t=document.createElement('div');
+      t.className='toast';
+      t.textContent=msg;
+      document.body.appendChild(t);
+      setTimeout(()=>t.remove(),2000);
+    }
+
+  </script>
+</body>
+</html>
