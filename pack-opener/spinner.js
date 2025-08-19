@@ -1,127 +1,235 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pack Opener Demo</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-</head>
-<body>
-  <main id="demo" class="opener-demo">
-    <section class="reel-wrapper">
-      <div id="reel" class="reel" aria-label="Prize reel" tabindex="0"></div>
-      <div class="center-marker" aria-hidden="true">
-        <span class="marker-arrow top"></span>
-        <span class="marker-line"></span>
-        <span class="marker-arrow bottom"></span>
-      </div>
-    </section>
+(function (global) {
+  const state = {
+    root: null,
+    items: [],
+    isSpinning: false,
+    listeners: {},
+    tileWidth: 132,
+    cruiseEmitted: false,
+    animationId: null,
+  };
 
-    <section class="controls" aria-label="Pack controls">
-      <button id="openBtn" class="btn primary">Open Pack</button>
-      <label class="toggle"><input type="checkbox" id="fastToggle" /> Fast Open</label>
-    </section>
+  const rarityColors = {
+    common: "#b6bdc9",
+    uncommon: "#8FE3C9",
+    rare: "#A6C8FF",
+    ultra: "#C9A7FF",
+    ultrarare: "#C9A7FF",
+    legendary: "#FFD36E",
+  };
 
-    <section class="drop-table">
-      <h2>Drop Rates</h2>
-      <ul id="odds" class="odds"></ul>
-      <div class="legend">
-        <span class="pill common">Common</span>
-        <span class="pill uncommon">Uncommon</span>
-        <span class="pill rare">Rare</span>
-        <span class="pill ultra">Ultra</span>
-        <span class="pill legendary">Legendary</span>
-      </div>
-    </section>
-  </main>
+  function emit(name, data) {
+    (state.listeners[name] || []).forEach((fn) => fn(data));
+  }
+  function on(name, handler) {
+    (state.listeners[name] || (state.listeners[name] = [])).push(handler);
+  }
 
-  <div id="resultModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
-    <div class="modal-content">
-      <h2 id="resultTitle"></h2>
-      <img id="resultImg" alt="Result image" />
-      <p id="resultValue" class="value"></p>
-      <div class="modal-actions">
-        <button class="btn" data-action="keep">Keep</button>
-        <button class="btn" data-action="list">List</button>
-        <button class="btn" data-action="sell">Instant Sellback</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="ariaLive" class="sr-only" aria-live="assertive"></div>
-
-  <script src="spinner.js"></script>
-  <script>
-    const reelEl = document.getElementById('reel');
-    reelEl.innerHTML = '<div class="tile skeleton"></div>'.repeat(8);
-
-    const mockItems = [
-      { id: 1, name: 'Common Sword', rarity: 'common', value: 198, image: 'https://via.placeholder.com/100x140?text=Common' },
-      { id: 2, name: 'Uncommon Shield', rarity: 'uncommon', value: '1.3k', image: 'https://via.placeholder.com/100x140?text=Uncommon' },
-      { id: 3, name: 'Rare Wand', rarity: 'rare', value: 223, image: 'https://via.placeholder.com/100x140?text=Rare' },
-      { id: 4, name: 'Ultra Ring', rarity: 'ultra', value: 688, image: 'https://via.placeholder.com/100x140?text=Ultra' },
-      { id: 5, name: 'Legendary Crown', rarity: 'legendary', value: 233, image: 'https://via.placeholder.com/100x140?text=Legendary' }
-    ];
-
-    setTimeout(()=>{
-      if(Math.random()<0.1){
-        showToast('Error loading items');
-        PackOpener.init({root: reelEl, items: []});
-      }else{
-        PackOpener.init({ root: reelEl, items: mockItems });
-      }
-    },300);
-
-    const oddsList = document.getElementById('odds');
-    mockItems.forEach(item => {
-      const li = document.createElement('li');
-      li.innerHTML = `<span class="pill ${item.rarity}">${item.rarity}</span> ${item.name} - ${(Math.random()*20+5).toFixed(1)}%`;
-      oddsList.appendChild(li);
-    });
-
-    document.getElementById('openBtn').addEventListener('click', () => {
-      if (PackOpener.isSpinning()) return;
-      const fast = document.getElementById('fastToggle').checked;
-      const index = Math.floor(Math.random() * mockItems.length);
-      PackOpener.spinToIndex(index, {
-        durationMs: fast ? 600 : 2400,
-        nearMiss: true,
-        onReveal: showResult
+  function render() {
+    if (!state.root) return;
+    state.root.innerHTML = "";
+    if (state.items.length === 0) {
+      const msg = document.createElement("div");
+      msg.className = "tile";
+      msg.style.background = "transparent";
+      msg.style.boxShadow = "none";
+      msg.textContent = "No items";
+      state.root.appendChild(msg);
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    const copies = 5;
+    for (let c = 0; c < copies; c++) {
+      state.items.forEach((item) => {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.dataset.id = item.id;
+        const priceHtml =
+          item.value !== undefined
+            ? `<div class="price">${item.value}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin"/></div>`
+            : "";
+        tile.innerHTML = `<img src="${item.image}" alt="${item.name}"/><div class="tile-info"><div class="name">${item.name}</div>${priceHtml}</div>`;
+        frag.appendChild(tile);
       });
-    });
+    }
+    state.root.appendChild(frag);
+    state.root.style.transition = "none";
+    state.root.style.transform = "translate3d(0,0,0)";
+    const firstTile = state.root.querySelector(".tile");
+    if (firstTile) {
+      const rect = firstTile.getBoundingClientRect();
+      const style = getComputedStyle(firstTile);
+      state.tileWidth =
+        rect.width +
+        parseFloat(style.marginLeft) +
+        parseFloat(style.marginRight);
+    }
+  }
 
+  function init({ root, items }) {
+    state.root = root;
+    setItems(items || []);
+  }
+  function setItems(items) {
+    state.items = items.slice();
+    render();
+  }
+  function isSpinning() {
+    return state.isSpinning;
+  }
 
-    function showResult(item) {
-      const modal = document.getElementById('resultModal');
-      document.getElementById('resultTitle').textContent = `${item.name}`;
-      document.getElementById('resultImg').src = item.image;
-      document.getElementById('resultValue').textContent = `${item.rarity.toUpperCase()} • $${(Math.random()*100).toFixed(2)}`;
-      modal.classList.remove('hidden');
-      document.getElementById('ariaLive').textContent = `You pulled ${item.rarity} ${item.name}`;
+  function burstConfetti() {
+    const container = document.createElement("div");
+    container.style.position = "absolute";
+    container.style.top = "0";
+    container.style.left = "50%";
+    container.style.transform = "translateX(-50%)";
+    state.root.appendChild(container);
+    for (let i = 0; i < 20; i++) {
+      const c = document.createElement("div");
+      c.className = "confetti";
+      c.style.left = Math.random() * 20 - 10 + "px";
+      c.style.background = ["#FFD36E", "#A6C8FF", "#8FE3C9", "#C9A7FF"][i % 4];
+      container.appendChild(c);
+    }
+    setTimeout(() => container.remove(), 700);
+  }
+
+  function spinToIndex(index, opts = {}) {
+    if (state.isSpinning || !state.root) return;
+    if (state.animationId) cancelAnimationFrame(state.animationId);
+
+    render();
+    Array.from(state.root.children).forEach((t) => t.classList.remove("win"));
+    state.root.style.transform = "translate3d(0,0,0)";
+
+    const startX = 0;
+    const duration = opts.durationMs || 2400;
+    state.isSpinning = true;
+
+    const tiles = state.root.children;
+    const midStart = state.items.length * 2;
+    let offset = 0;
+
+    if (opts.nearMiss && Math.random() < 0.25) {
+      const dir = Math.random() < 0.5 ? 1 : -1;
+      const candidates = state.items.filter(
+        (it, i) =>
+          i !== index && ["legendary", "ultra", "ultrarare"].includes(it.rarity)
+      );
+      const it = candidates[Math.floor(Math.random() * candidates.length)];
+      if (it) {
+        const clone = document.createElement("div");
+        clone.className = "tile";
+        const priceHtml =
+          it.value !== undefined
+            ? `<div class="price">${it.value}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin"/></div>`
+            : "";
+        clone.innerHTML = `<img src="${it.image}" alt="${it.name}"/><div class="tile-info"><div class="name">${it.name}</div>${priceHtml}</div>`;
+        tiles[midStart + index + (dir === 1 ? -1 : 1)].replaceWith(clone);
+        offset = state.tileWidth * 0.35 * dir;
+      }
     }
 
-    document.getElementById('resultModal').addEventListener('click', (e) => {
-      if (e.target.classList.contains('modal')) {
-        e.currentTarget.classList.add('hidden');
-      }
-    });
+    const container = state.root.parentElement;
+    const containerWidth = container.clientWidth;
+    const centerOffset = containerWidth / 2 - state.tileWidth / 2;
 
-    document.querySelectorAll('#resultModal [data-action]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        console.log(btn.dataset.action);
-        document.getElementById('resultModal').classList.add('hidden');
-      });
-    });
+    const targetIndex = state.items.length * 2 + index;
+    const perfectX = -(targetIndex * state.tileWidth - centerOffset);
+    const finalX = perfectX + offset;
+    const distance = finalX - startX;
 
-    function showToast(msg){
-      const t=document.createElement('div');
-      t.className='toast';
-      t.textContent=msg;
-      document.body.appendChild(t);
-      setTimeout(()=>t.remove(),2000);
+    // heavier deceleration for slower end spin
+    const accDur = duration * 0.25,
+      decelDur = duration * 0.45,
+      cruiseDur = duration - accDur - decelDur;
+    const accDist = distance * (accDur / duration),
+      decelDist = distance * (decelDur / duration),
+      cruiseDist = distance - accDist - decelDist;
+
+    let start = null;
+    emit("start");
+
+    function easeInCubic(t) {
+      return t * t * t;
+    }
+    function easeOutQuart(t) {
+      return 1 - Math.pow(1 - t, 4);
     }
 
-  </script>
-</body>
-</html>
+    function step(timestamp) {
+      if (start === null) start = timestamp;
+      const elapsed = timestamp - start;
+      let delta = 0;
+
+      if (elapsed < accDur) {
+        delta = easeInCubic(elapsed / accDur) * accDist;
+      } else if (elapsed < accDur + cruiseDur) {
+        const t = (elapsed - accDur) / cruiseDur;
+        delta = accDist + t * cruiseDist;
+        if (!state.cruiseEmitted) {
+          emit("cruise");
+          state.cruiseEmitted = true;
+        }
+      } else if (elapsed < duration) {
+        const t = (elapsed - accDur - cruiseDur) / decelDur;
+        delta = accDist + cruiseDist + easeOutQuart(t) * decelDist;
+      } else {
+        delta = distance;
+      }
+
+      const pos = startX + delta;
+      state.root.style.transform = `translate3d(${pos}px,0,0)`;
+
+      if (elapsed < duration) {
+        state.animationId = requestAnimationFrame(step);
+      } else {
+        state.animationId = null;
+        state.root.style.transform = `translate3d(${finalX}px,0,0)`;
+        state.isSpinning = false;
+        state.cruiseEmitted = false;
+
+        const item = state.items[index];
+        const winTile = state.root.children[targetIndex];
+        winTile.style.setProperty(
+          "--win-color",
+          rarityColors[item.rarity] || "#FFD36E"
+        );
+        winTile.classList.add("win");
+
+        burstConfetti();
+        emit("reveal", item);
+        opts.onReveal && opts.onReveal(item);
+        emit("finish", item);
+
+        if (offset !== 0) {
+          setTimeout(() => {
+            state.root.style.transition = "transform 0.25s";
+            state.root.style.transform = `translate3d(${perfectX}px,0,0)`;
+            setTimeout(() => {
+              state.root.style.transition = "none";
+            }, 300);
+          }, 300);
+        }
+      }
+    }
+
+    state.animationId = requestAnimationFrame(step);
+  }
+
+  function getCurrentX() {
+    const style = getComputedStyle(state.root);
+    const matrix = new DOMMatrixReadOnly(style.transform);
+    return matrix.m41;
+  }
+
+  global.PackOpener = {
+    init,
+    setItems,
+    isSpinning,
+    spinToIndex,
+    on,
+    _state: state,
+  };
+})(window);
