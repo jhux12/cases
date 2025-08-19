@@ -213,12 +213,12 @@ function renderItems(items) {
           <span>Value: ${item.value || 0}</span>
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" class="coin-icon" />
         </p>
-        <div class="flex justify-center gap-2 mt-auto">
-          <button onclick="sellBack('${item.key}', ${item.value || 0})" ${item.shipped || item.requested ? 'disabled class="px-4 py-2 bg-gray-300 text-gray-500 cursor-not-allowed rounded-full flex items-center gap-1"' : 'class="px-4 py-2 text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-600 rounded-full flex items-center gap-1"'}>
+        <div class="flex gap-2 mt-auto">
+          <button onclick="sellBack('${item.key}', ${item.value || 0})" ${item.shipped || item.requested ? 'disabled class="flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full flex items-center justify-center gap-1"' : 'class="flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-600 rounded-full flex items-center justify-center gap-1 whitespace-nowrap"'}>
             <span>Sell for ${refund}</span>
-            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" class="coin-icon" />
+            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="14" height="14" class="coin-icon" />
           </button>
-          <button onclick="shipItem('${item.key}')" ${item.shipped || item.requested ? 'disabled class="px-4 py-2 bg-gray-300 text-gray-500 cursor-not-allowed rounded-full"' : 'class="px-4 py-2 text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 rounded-full"'}>Ship</button>
+          <button onclick="shipItem('${item.key}')" ${item.shipped || item.requested ? 'disabled class="flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full whitespace-nowrap"' : 'class="flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 rounded-full whitespace-nowrap"'}>Ship</button>
         </div>
       </div>`;
   });
