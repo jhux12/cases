@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Packly.gg | Virtual Packs, Real Cards</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="scripts/firebase-config.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f8fafc;
@@ -56,67 +62,11 @@
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="index.html" class="flex-shrink-0 flex items-center">
-                        <span class="text-2xl font-bold gradient-text">Packly.gg</span>
-                    </a>
-                    <div class="hidden md:ml-6 md:flex md:space-x-8">
-                        <a href="index.html" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Open Packs</a>
-                        <a href="pickem.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Pickem <span class="ml-1 bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-0.5 rounded-full">03:20</span></a>
-                        <a href="leaderboard.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Leaderboard</a>
-                        <a href="marketplace.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Marketplace</a>
-                    </div>
-                </div>
-                <div class="hidden md:ml-6 md:flex md:items-center">
-                    <div class="flex items-center mr-4" id="user-balance">
-                        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon mr-1" alt="Coins">
-                        <span id="balance-amount" class="font-medium text-gray-700">0</span>
-                    </div>
-                    <div class="ml-4 relative flex-shrink-0">
-                        <div class="relative inline-block text-left dropdown">
-                            <button id="dropdown-toggle" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-50 focus:outline-none">
-                                <span id="username-display">User</span>
-                                <svg class="w-5 h-5 ml-2 -mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </button>
-                            <div id="user-dropdown" class="hidden dropdown-menu absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                                <div class="py-1">
-                                    <a href="inventory.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Inventory</a>
-                                    <a href="profile.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-                                    <a href="how-it-works.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">How It Works</a>
-                                    <a id="signin-desktop" href="auth.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign In</a>
-                                    <a id="logout-desktop" href="#" class="hidden block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="-mr-2 flex items-center md:hidden">
-                    <button id="menu-toggle" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none" aria-expanded="false">
-                        <span class="sr-only">Open main menu</span>
-                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
-    <div id="mobile-dropdown" class="hidden md:hidden px-2 pt-2 pb-3 space-y-1">
-        <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Open Packs</a>
-        <a href="pickem.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Pickem</a>
-        <a href="leaderboard.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Leaderboard</a>
-        <a href="marketplace.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Marketplace</a>
-        <a id="mobile-auth-button" href="auth.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Sign In</a>
-    </div>
+  <script src="scripts/preloader.js"></script>
+  <header></header>
 
-    <!-- Hero Section -->
-    <div class="relative bg-white overflow-hidden">
+  <!-- Hero Section -->
+  <div class="relative bg-white overflow-hidden pt-20">
         <div class="max-w-7xl mx-auto">
             <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
                 <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
@@ -241,110 +191,58 @@
 
     <!-- Available Packs Section -->
     <div id="available-packs" class="py-12 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center mb-8">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-900">Available Packs</h2>
-                    <p class="mt-2 text-gray-600">Rip, collect, and uncover what's inside  🔥</p>
-                </div>
-                <div class="flex space-x-3">
-                    <button class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
-                        Show Filters
-                    </button>
-                    <button class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
-                        Clear Filters
-                    </button>
-                </div>
-            </div>
-
-            <div class="flex space-x-2 mb-6 overflow-x-auto pb-2">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">All</span>
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">New</span>
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Featured</span>
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Starter</span>
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Other</span>
-            </div>
-
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                <!-- Pack 1 -->
-                <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card">
-                    <div class="relative">
-                        <img class="w-full h-48 object-contain p-6" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(20).png?alt=media&token=024a7d7d-d306-451a-98af-f47a07f28baf" alt="Moonbreon pack">
-                        <span class="absolute top-2 left-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            🔥 Hot
-                        </span>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="text-lg font-medium text-gray-900">Moonbreon</h3>
-                        <div class="mt-4">
-                            <a href="case.html?id=moonbreon" class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
-                                Open for 27,342 <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-4 w-4 ml-1 coin-icon" alt="Coins">
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Pack 2 -->
-                <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card">
-                    <div class="relative">
-                        <img class="w-full h-48 object-contain p-6" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(23).png?alt=media&token=f5c83894-551b-4f28-9aa8-d441eacb56f6" alt="Salamence Hunt pack">
-                    </div>
-                    <div class="p-4">
-                        <h3 class="text-lg font-medium text-gray-900">Salamence Hunt</h3>
-                        <div class="mt-4">
-                            <a href="case.html?id=salamence-hunt" class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
-                                Open for 91 <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-4 w-4 ml-1 coin-icon" alt="Coins">
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Pack 3 -->
-                <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card">
-                    <div class="relative">
-                        <img class="w-full h-48 object-contain p-6" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(22).png?alt=media&token=583a8b2c-460b-41e2-b00a-481f4c7a630e" alt="Iono's Journey pack">
-                        <span class="absolute top-2 left-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            🔥 Hot
-                        </span>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="text-lg font-medium text-gray-900">Iono's Journey</h3>
-                        <div class="mt-4">
-                            <a href="case.html?id=ionos-journey" class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
-                                Open for 411 <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-4 w-4 ml-1 coin-icon" alt="Coins">
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Pack 4 -->
-                <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card">
-                    <div class="relative">
-                        <img class="w-full h-48 object-contain p-6" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(24).png?alt=media&token=8b547b84-dab2-4961-b9c8-1d0c55fee693" alt="SV Promos pack">
-                        <span class="absolute top-2 left-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            ⭐️ New
-                        </span>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="text-lg font-medium text-gray-900">SV Promos</h3>
-                        <div class="mt-4">
-                            <a href="case.html?id=sv-promos" class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
-                                Open for 1,073 <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-4 w-4 ml-1 coin-icon" alt="Coins">
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="mt-8 text-center">
-                <a href="case.html" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                    See more
-                    <svg class="ml-2 -mr-0.5 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                    </svg>
-                </a>
-            </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center mb-8">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900">Available Packs</h2>
+            <p class="mt-2 text-gray-600">Rip, collect, and uncover what's inside 🔥</p>
+          </div>
+          <div class="flex space-x-3">
+            <button id="filter-toggle" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">Show Filters</button>
+            <button id="clear-filters" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">Clear Filters</button>
+          </div>
         </div>
+
+        <!-- Filter Panel -->
+        <div id="filter-panel" class="hidden sm:flex flex-wrap gap-4 mb-6 items-center">
+          <input id="search-box" type="text" placeholder="Search packs" class="px-3 py-2 rounded bg-gray-100 text-gray-900 placeholder-gray-500 border border-gray-300 w-48" />
+          <input id="min-price" type="number" placeholder="Min" class="px-3 py-2 rounded bg-gray-100 text-gray-900 placeholder-gray-500 border border-gray-300 w-24" />
+          <input id="max-price" type="number" placeholder="Max" class="px-3 py-2 rounded bg-gray-100 text-gray-900 placeholder-gray-500 border border-gray-300 w-24" />
+          <div class="flex items-center gap-3 px-3 py-2 rounded bg-gray-100 border border-gray-300">
+            <label for="affordable-only" class="flex items-center cursor-pointer select-none">
+              <div class="relative">
+                <input type="checkbox" id="affordable-only" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-indigo-600 transition-all duration-300"></div>
+                <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
+              </div>
+              <span class="ml-3 text-sm text-gray-700">Enough coins to buy</span>
+            </label>
+          </div>
+          <select id="sort-select" class="px-3 py-2 rounded bg-gray-100 text-gray-900 border border-gray-300">
+            <option value="default">Sorting</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+            <option value="rarity">Rarity</option>
+          </select>
+        </div>
+
+        <!-- Category Tabs -->
+        <div id="category-tabs" class="flex flex-wrap justify-center gap-2 mb-6">
+          <button data-category="all" class="category-tab active inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">All</button>
+          <button data-category="new" class="category-tab inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">New</button>
+          <button data-category="featured" class="category-tab inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Featured</button>
+          <button data-category="starter" class="category-tab inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Starter</button>
+          <button data-category="other" class="category-tab inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Other</button>
+        </div>
+
+        <!-- Cases Grid -->
+        <div id="cases-container" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"></div>
+
+        <!-- See More Button -->
+        <div class="flex justify-center mt-6">
+          <button id="see-more-cases" class="px-4 py-2 bg-gray-800 text-white rounded-md border border-gray-600 hidden">See more</button>
+        </div>
+      </div>
     </div>
 
     <!-- Best Drops Section -->
@@ -465,49 +363,7 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-white">
-        <div class="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
-            <nav class="-mx-5 -my-2 flex flex-wrap justify-center" aria-label="Footer">
-                <div class="px-5 py-2">
-                    <a href="faq.html" class="text-base text-gray-500 hover:text-gray-900">FAQ</a>
-                </div>
-                <div class="px-5 py-2">
-                    <a href="termsandconditions.html" class="text-base text-gray-500 hover:text-gray-900">Terms & Conditions</a>
-                </div>
-                <div class="px-5 py-2">
-                    <a href="contact.html" class="text-base text-gray-500 hover:text-gray-900">Contact</a>
-                </div>
-                <div class="px-5 py-2">
-                    <a href="https://instagram.com" class="text-base text-gray-500 hover:text-gray-900" target="_blank" rel="noopener">Instagram</a>
-                </div>
-            </nav>
-            <div class="mt-8 flex justify-center space-x-6">
-                <a href="https://facebook.com" class="text-gray-400 hover:text-gray-500" target="_blank" rel="noopener">
-                    <span class="sr-only">Facebook</span>
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="https://twitter.com" class="text-gray-400 hover:text-gray-500" target="_blank" rel="noopener">
-                    <span class="sr-only">Twitter</span>
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a href="https://instagram.com" class="text-gray-400 hover:text-gray-500" target="_blank" rel="noopener">
-                    <span class="sr-only">Instagram</span>
-                    <i class="fab fa-instagram"></i>
-                </a>
-                <a href="https://discord.com" class="text-gray-400 hover:text-gray-500" target="_blank" rel="noopener">
-                    <span class="sr-only">Discord</span>
-                    <i class="fab fa-discord"></i>
-                </a>
-            </div>
-            <p class="mt-8 text-center text-base text-gray-400">
-                © 2025 Packly.gg. All rights reserved.
-            </p>
-            <p class="mt-2 text-center text-sm text-gray-500">
-                Packly.gg – Where virtual packs ignite real hype  ❤️
-            </p>
-        </div>
-    </footer>
+    <footer></footer>
 
     <!-- Free Pack Modal -->
     <div id="freePackModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
@@ -609,28 +465,40 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script src="scripts/firebase-config.js"></script>
     <script src="scripts/navbar.js"></script>
     <script>
         // Show free pack modal after 3 seconds
         setTimeout(() => {
             document.getElementById('freePackModal').classList.remove('hidden');
         }, 3000);
-        
+
         function closeModal() {
             document.getElementById('freePackModal').classList.add('hidden');
             document.getElementById('addCoinsModal').classList.add('hidden');
         }
-        
+
         function showAddCoinsModal() {
             document.getElementById('addCoinsModal').classList.remove('hidden');
         }
-        
-        // Mobile menu toggle functionality would go here
+
+        const filterToggle = document.getElementById('filter-toggle');
+        const filterPanel = document.getElementById('filter-panel');
+        if (filterToggle && filterPanel) {
+          const isHidden = filterPanel.classList.contains('hidden');
+          filterToggle.textContent = isHidden ? 'Show Filters' : 'Hide Filters';
+          filterToggle.addEventListener('click', () => {
+            filterPanel.classList.toggle('hidden');
+            const nowHidden = filterPanel.classList.contains('hidden');
+            filterToggle.textContent = nowHidden ? 'Show Filters' : 'Hide Filters';
+          });
+        }
     </script>
+    <script type="module" src="scripts/auth.js"></script>
+    <script type="module" src="scripts/packs.js"></script>
+    <script src="scripts/popups.js"></script>
+    <script src="scripts/footer.js"></script>
+    <script src="scripts/topup.js"></script>
+    <script src="scripts/header.js"></script>
 <p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=jaydan1/packly-light" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
 </html>
 
