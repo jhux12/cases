@@ -8,8 +8,9 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background-color: #111827;
-      color: #ffffff;
+      background-color: #f8fafc;
+      color: #1f2937;
+      font-family: 'Poppins', sans-serif;
       z-index: 9999;
       transition: opacity 0.5s ease;
     }
@@ -25,6 +26,10 @@
     #preloader-progress {
       font-size: 1.5rem;
       font-weight: 700;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
     @keyframes bounce {
       0%, 100% {
