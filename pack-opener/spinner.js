@@ -1,5 +1,6 @@
 (function(global){
-  const state={root:null,items:[],isSpinning:false,listeners:{},muted:false,tileWidth:132,cruiseEmitted:false};
+  const state={root:null,items:[],isSpinning:false,listeners:{},muted:false,tileWidth:132,cruiseEmitted:false,animationId:null};
+  const rarityColors={common:'#b6bdc9',uncommon:'#8FE3C9',rare:'#A6C8FF',ultra:'#C9A7FF',ultrarare:'#C9A7FF',legendary:'#FFD36E'};
 
   function emit(name,data){(state.listeners[name]||[]).forEach(fn=>fn(data));}
   function on(name,handler){(state.listeners[name]||(state.listeners[name]=[])).push(handler);} 
@@ -70,12 +71,15 @@
 
   function spinToIndex(index,opts={}){
     if(state.isSpinning||!state.root) return;
+    if(state.animationId) cancelAnimationFrame(state.animationId);
     render();
+    Array.from(state.root.children).forEach(t=>t.classList.remove('win'));
+    state.root.style.transform='translate3d(0,0,0)';
     const startX=0;
     const duration=opts.durationMs||2400;state.isSpinning=true;
     if(opts.nearMiss){
       const tiles=state.root.children;const midStart=state.items.length*2;
-      const highIndex=state.items.findIndex(it=>['legendary','ultra','rare'].includes(it.rarity)&&state.items.indexOf(it)!==index);
+      const highIndex=state.items.findIndex(it=>['legendary','ultra','ultrarare','rare'].includes(it.rarity)&&state.items.indexOf(it)!==index);
       if(highIndex>=0){
         const clone=document.createElement('div');const it=state.items[highIndex];
         clone.className='tile';
@@ -90,22 +94,36 @@
     const targetIndex=state.items.length*2 + index;
     const finalX=-(targetIndex*state.tileWidth - centerOffset);
     const distance=finalX-startX;
-      const accDur=duration*0.3, decelDur=duration*0.3, cruiseDur=duration-accDur-decelDur;
-      const accDist=distance*0.3, decelDist=distance*0.3, cruiseDist=distance-accDist-decelDist;
-      let lastTick=0;emit('start');
-      function easeInCubic(t){return t*t*t;}function easeOutQuart(t){return 1-Math.pow(1-t,4);}
-    function animate(now,start){
-      const elapsed=now-start;let delta=0;
-        if(elapsed<accDur){delta=easeInCubic(elapsed/accDur)*accDist;}
+    const accDur=duration*0.3, decelDur=duration*0.3, cruiseDur=duration-accDur-decelDur;
+    const accDist=distance*0.3, decelDist=distance*0.3, cruiseDist=distance-accDist-decelDist;
+    let lastTick=0, start=null;emit('start');
+    function easeInCubic(t){return t*t*t;}
+    function easeOutQuart(t){return 1-Math.pow(1-t,4);}
+    function step(timestamp){
+      if(start===null) start=timestamp;
+      const elapsed=timestamp-start;
+      let delta=0;
+      if(elapsed<accDur){delta=easeInCubic(elapsed/accDur)*accDist;}
       else if(elapsed<accDur+cruiseDur){const t=(elapsed-accDur)/cruiseDur;delta=accDist+t*cruiseDist;if(!state.cruiseEmitted){emit('cruise');state.cruiseEmitted=true;}}
-        else if(elapsed<duration){const t=(elapsed-accDur-cruiseDur)/decelDur;delta=accDist+cruiseDist+easeOutQuart(t)*decelDist;}
+      else if(elapsed<duration){const t=(elapsed-accDur-cruiseDur)/decelDur;delta=accDist+cruiseDist+easeOutQuart(t)*decelDist;}
       else{delta=distance;}
-        const pos=startX+delta;
-        state.root.style.transform=`translate3d(${pos}px,0,0)`;
-      if(now-lastTick>120){playTick();lastTick=now;}
-      if(elapsed<duration){requestAnimationFrame(t=>animate(t,start));}
-        else{state.root.style.transform=`translate3d(${finalX}px,0,0)`;state.isSpinning=false;state.cruiseEmitted=false;const item=state.items[index];state.root.children[targetIndex].classList.add('win');stinger(item.rarity);burstConfetti();emit('reveal',item);opts.onReveal&&opts.onReveal(item);emit('finish',item);} }
-    requestAnimationFrame(t=>animate(t,t));
+      const pos=startX+delta;
+      state.root.style.transform=`translate3d(${pos}px,0,0)`;
+      if(timestamp-lastTick>120){playTick();lastTick=timestamp;}
+      if(elapsed<duration){state.animationId=requestAnimationFrame(step);}
+      else{
+        state.animationId=null;
+        state.root.style.transform=`translate3d(${finalX}px,0,0)`;
+        state.isSpinning=false;state.cruiseEmitted=false;
+        const item=state.items[index];
+        const winTile=state.root.children[targetIndex];
+        winTile.style.setProperty('--win-color',rarityColors[item.rarity]||'#FFD36E');
+        winTile.classList.add('win');
+        stinger(item.rarity);burstConfetti();emit('reveal',item);
+        opts.onReveal&&opts.onReveal(item);emit('finish',item);
+      }
+    }
+    state.animationId=requestAnimationFrame(step);
   }
 
   function getCurrentX(){
