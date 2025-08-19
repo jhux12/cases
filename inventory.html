@@ -12,22 +12,24 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
   <style>
     body {
-      margin: 0;
-      padding: 0;
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #3b0764, #9333ea, #ec4899);
-      background-size: 300% 300%;
-      animation: gradientMove 15s ease infinite;
-      color: #fff;
+      background-color: #f8fafc;
+      color: #1f2937;
       overflow-x: hidden;
     }
 
-    @keyframes gradientMove {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    .gradient-text {
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .coin-icon {
+      filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.7));
     }
 
     header {
@@ -39,56 +41,35 @@
     }
 
     .panel {
-      background: rgba(255, 255, 255, 0.15);
-      border: 2px solid rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(10px);
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
       border-radius: 1.5rem;
     }
 
     .item-card {
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(10px);
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .item-card:hover {
-      transform: translateY(-6px) rotate(1deg);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
 
     .btn {
       font-weight: 600;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 0.3s ease;
     }
 
     .btn:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
     }
 
     select {
       background-color: white;
       color: black;
-    }
-
-    /* Background blobs */
-    .animate-blob {
-      animation: blob 8s infinite;
-    }
-
-    .animation-delay-2000 {
-      animation-delay: 2s;
-    }
-
-    .animation-delay-4000 {
-      animation-delay: 4s;
-    }
-
-    @keyframes blob {
-      0%, 100% { transform: translate(0,0) scale(1); }
-      33% { transform: translate(30px,-50px) scale(1.1); }
-      66% { transform: translate(-20px,20px) scale(0.9); }
     }
 
     /* Item preview popup */
@@ -101,11 +82,13 @@
       max-width: 90vw;
       max-height: 80vh;
       border-radius: 0.5rem;
-      box-shadow: 0 0 25px rgba(236,72,153,0.5), 0 0 50px rgba(236,72,153,0.3);
+      background: #ffffff;
       cursor: grab;
       touch-action: none;
       will-change: transform;
       position: relative;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
     }
 
     #popup-rotator.grabbing {
@@ -116,7 +99,7 @@
       display: block;
       width: 100%;
       height: auto;
-      border-radius: inherit;
+      border-radius: 0.5rem;
     }
 
     #holo-overlay {
@@ -147,38 +130,34 @@
 
   </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen bg-gray-50 text-gray-900">
 <script src="scripts/preloader.js"></script>
 
   <!-- Dynamic Header -->
   <header></header>
 
   <!-- Hero -->
-  <section class="pt-32 pb-32 px-4 text-center relative overflow-hidden">
-    <div class="absolute -top-10 -left-10 w-52 h-52 bg-pink-500 rounded-full mix-blend-screen filter blur-3xl opacity-70 animate-blob"></div>
-    <div class="absolute -bottom-16 -right-16 w-64 h-64 bg-purple-600 rounded-full mix-blend-screen filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
-    <div class="absolute top-1/2 left-1/2 w-40 h-40 bg-yellow-400 rounded-full mix-blend-screen filter blur-3xl opacity-60 animate-blob animation-delay-4000"></div>
-    <div class="max-w-4xl mx-auto relative">
+  <section class="pt-32 pb-16 px-4 text-center bg-white">
+    <div class="max-w-4xl mx-auto">
       <h1 class="text-5xl md:text-6xl font-extrabold mb-6 flex items-center justify-center gap-3">
-        <i class="fas fa-box-open text-yellow-300 animate-bounce"></i>
-        <span class="bg-gradient-to-r from-yellow-300 via-pink-500 to-purple-500 bg-clip-text text-transparent drop-shadow-lg">Inventory</span>
+        <i class="fas fa-box-open text-indigo-600"></i>
+        <span class="gradient-text">Inventory</span>
       </h1>
-      <p class="mt-2 text-pink-200 text-lg">Ship out your pulls or sell them back for coins — manage your inventory with flair.</p>
+      <p class="mt-2 text-gray-600 text-lg">Ship out your pulls or sell them back for coins — manage your inventory with ease.</p>
     </div>
-    <svg class="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="rgba(255,255,255,0.1)" d="M0,224L80,229.3C160,235,320,245,480,234.7C640,224,800,192,960,186.7C1120,181,1280,203,1360,213.3L1440,224V320H0Z"></path></svg>
   </section>
 
   <!-- Tabs & Content -->
   <main class="max-w-6xl mx-auto px-4 pb-24">
     <div class="flex justify-center gap-4 mb-12 pt-6">
-      <button id="inventory-tab" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400">Inventory</button>
-      <button id="orders-tab" class="px-6 py-2 rounded-full font-semibold text-white bg-white/20 hover:bg-white/30 transition">Recent Orders</button>
+      <button id="inventory-tab" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600">Inventory</button>
+      <button id="orders-tab" class="px-6 py-2 rounded-full font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 transition">Recent Orders</button>
     </div>
 
     <section id="inventory-section">
       <div class="panel flex flex-col md:flex-row justify-between items-center gap-4 p-6 mb-12">
       <div class="flex flex-wrap items-center gap-4 text-sm">
-        <label class="flex items-center gap-2"><input type="checkbox" id="select-all-checkbox" class="accent-pink-500">Select All</label>
+        <label class="flex items-center gap-2"><input type="checkbox" id="select-all-checkbox" class="accent-indigo-600">Select All</label>
         <div class="flex items-center gap-2">
           <label for="sort-select" class="whitespace-nowrap">Sort by:</label>
           <select id="sort-select" class="text-black rounded px-3 py-1">
@@ -189,9 +168,9 @@
         </div>
       </div>
       <div class="flex flex-col sm:flex-row items-center gap-3">
-        <span id="selected-total" class="text-sm text-gray-200">Total: 0 coins</span>
-        <button onclick="sellSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 hover:from-amber-400 hover:via-pink-500 hover:to-fuchsia-500 transition btn">Sell Selected</button>
-        <button onclick="shipSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 hover:from-amber-400 hover:via-pink-500 hover:to-fuchsia-500 transition btn">Ship Selected</button>
+        <span id="selected-total" class="text-sm text-gray-700">Total: 0 coins</span>
+        <button onclick="sellSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-600 transition btn">Sell Selected</button>
+        <button onclick="shipSelected()" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 transition btn">Ship Selected</button>
       </div>
     </div>
       <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
@@ -199,8 +178,8 @@
 
     <section id="orders-section" class="hidden">
       <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-300 via-pink-500 to-purple-500 bg-clip-text text-transparent flex items-center justify-center"><i class="fas fa-truck mr-2"></i>Your Recent Orders</h2>
-        <p class="text-sm text-pink-200">Below are your previous shipment requests and their current status.</p>
+        <h2 class="text-3xl font-bold mb-2 gradient-text flex items-center justify-center"><i class="fas fa-truck mr-2"></i>Your Recent Orders</h2>
+        <p class="text-sm text-gray-600">Below are your previous shipment requests and their current status.</p>
       </div>
       <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
     </section>
