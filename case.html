@@ -42,24 +42,26 @@
       width: 100%;
       max-width: 640px;
       margin: 0 auto;
+      border: 1px solid #e5e7eb;
       border-radius: 8px;
-      background: #1d2129;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.6);
+      background: #ffffff;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.05);
     }
     .reel { display: flex; will-change: transform; padding: 1rem 0; }
     .tile {
       flex: 0 0 120px;
       margin: 0 6px;
       text-align: center;
-      background: #2a2f3a;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
       border-radius: 8px;
       padding: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-      transition: transform 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
     }
     .tile img { width: 100px; height: 140px; object-fit: cover; border-radius: 4px; }
-    .tile:hover { transform: translateY(-4px); }
-    .tile.win { box-shadow: 0 0 10px 4px rgba(255,211,110,0.7); animation: flash 0.6s; }
+    .tile:hover { transform: translateY(-4px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+    .tile.win { box-shadow: 0 0 0 3px #FFD36E; animation: flash 0.6s; }
     @keyframes flash {0%,100%{filter:brightness(1);}50%{filter:brightness(1.8);}}
     .tile.skeleton { position:relative; overflow:hidden; }
     .tile.skeleton::after { content:""; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent); animation:shimmer 1.5s infinite; }
@@ -77,11 +79,11 @@
     .confetti { position:absolute; width:6px; height:6px; background:#FFD36E; animation:fall 0.7s forwards; }
     @keyframes fall { to { transform: translateY(60px) rotate(360deg); opacity:0; } }
     .pill { display:inline-block; padding:2px 6px; border-radius:4px; font-size:0.75rem; margin-top:4px; }
-    .pill.common { background:#2a2f3a; color:#b6bdc9; }
-    .pill.uncommon { background:#103a33; color:#8FE3C9; }
-    .pill.rare { background:#0f2746; color:#A6C8FF; }
-    .pill.ultra { background:#2a1650; color:#C9A7FF; }
-    .pill.legendary { background:#3b2b05; color:#FFD36E; }
+    .pill.common { background:#f1f5f9; color:#475569; }
+    .pill.uncommon { background:#ecfdf5; color:#065f46; }
+    .pill.rare { background:#eff6ff; color:#1e3a8a; }
+    .pill.ultra { background:#f5f3ff; color:#5b21b6; }
+    .pill.legendary { background:#fef3c7; color:#92400e; }
   </style>
   <script src="pack-opener/spinner.js"></script>
 </head>
@@ -179,8 +181,6 @@ async function sellPrize(prize) {
   const currentBalance = balanceSnap.val() || 0;
   await balanceRef.set(currentBalance + sellAmount);
   await firebase.database().ref('users/' + user.uid + '/inventory/' + prize.key).remove();
-  const sellSound = document.getElementById('sell-sound');
-  if (sellSound) sellSound.play();
 }
 
 function showMultiWinPopup(prizes) {
@@ -293,7 +293,6 @@ function showMultiWinPopup(prizes) {
 }
 let isMuted = false;
 function applyMuteState() {
-  document.querySelectorAll('audio').forEach(a => { a.muted = isMuted; });
   if (window.PackOpener) PackOpener.setMuted(isMuted);
 }
 document.getElementById('mute-toggle').addEventListener('click', () => {
@@ -302,44 +301,8 @@ document.getElementById('mute-toggle').addEventListener('click', () => {
   const icon = document.getElementById('mute-icon');
   if (icon) icon.className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
 });
-document.addEventListener("click", async () => {
-  const ids = ["sound-common", "sound-rare", "sound-ultrarare", "sound-legendary", "sell-sound"];
-  for (const id of ids) {
-    const audio = document.getElementById(id);
-    if (audio) {
-      audio.muted = true;
-      try {
-        await audio.play();
-      } catch (e) {}
-      audio.pause();
-      audio.currentTime = 0;
-    }
-  }
-  applyMuteState();
-}, { once: true });
-
     const rarityOrder = { legendary: 5, ultrarare: 4, rare: 3, uncommon: 2, common: 1 };
 
-  function playRaritySound(rarity) {
-  const soundMap = {
-    "common": "sound-common",
-    "uncommon": "sound-rare",
-    "rare": "sound-rare",
-    "ultra rare": "sound-ultrarare",
-    "ultrarare": "sound-ultrarare",
-    "legendary": "sound-legendary"
-  };
-
-  const key = rarity?.toLowerCase().replace(/\s+/g, '') || "common";
-  const audioId = soundMap[rarity?.toLowerCase()] || "sound-common";
-  const audio = document.getElementById(audioId);
-  if (audio) {
-    audio.currentTime = 0;
-    audio.play().catch((e) => {
-      console.warn("Audio playback failed:", e);
-    });
-  }
-}
 function showToast(message, color = 'bg-red-600') {
   const toast = document.getElementById("toast");
   toast.textContent = message;
@@ -612,7 +575,6 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     (rarityOrder[best.rarity?.toLowerCase().replace(/\s+/g,'')] || 0)
       ? p : best
   , winnings[0]);
-  playRaritySound(topPrize.rarity);
   showMultiWinPopup(winnings);
 });
 
@@ -665,12 +627,6 @@ document.getElementById("open-case-button").addEventListener("click", async () =
               btn.classList.remove("cursor-not-allowed", "opacity-60");
               btn.innerHTML = '<span class="relative z-10">Try for Free</span>';
               const names = results.map(p => p.name).join(', ');
-              const topPrize = results.reduce((best, p) =>
-                (rarityOrder[p.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) >
-                (rarityOrder[best.rarity?.toLowerCase().replace(/\s+/g,'')] || 0)
-                  ? p : best
-              , results[0]);
-              playRaritySound(topPrize.rarity);
               showToast(`You would have won ${names}!`, "bg-blue-600");
             }
           }});
@@ -799,10 +755,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
     </script>
 
-<audio id="sound-common" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5"></audio>
-<audio id="sound-rare" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8"></audio>
-<audio id="sound-ultrarare" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de"></audio>
-<audio id="sound-legendary" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"></audio>
 <!-- Winning Prize Popup -->
 <div id="win-popup" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden">
   <div class="bg-white rounded-2xl p-6 w-full max-w-sm sm:max-w-md shadow-2xl text-center relative border border-gray-200">
@@ -836,7 +788,6 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
   </div>
 </div>
-    <audio id="sell-sound" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/coin-drops-and-spins-272429.mp3?alt=media&token=e867f5db-1646-4548-8403-6d1fce220c71"></audio>
     <!-- Toast Notification -->
 <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 px-5 py-3 rounded-xl text-white font-bold text-sm z-[9999] bg-red-600 shadow-lg hidden transition-all duration-300 opacity-0"></div>
 </body>

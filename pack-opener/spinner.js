@@ -30,7 +30,11 @@
     state.root.appendChild(frag);
     state.root.style.transform='translate3d(0,0,0)';
     const firstTile=state.root.querySelector('.tile');
-    if(firstTile){state.tileWidth=firstTile.offsetWidth+12;}
+    if(firstTile){
+      const rect=firstTile.getBoundingClientRect();
+      const style=getComputedStyle(firstTile);
+      state.tileWidth=rect.width+parseFloat(style.marginLeft)+parseFloat(style.marginRight);
+    }
   }
 
   function init({root,items}){state.root=root;setItems(items||[]);}
@@ -65,6 +69,7 @@
 
   function spinToIndex(index,opts={}){
     if(state.isSpinning||!state.root) return;
+    render();
     const duration=opts.durationMs||2400;state.isSpinning=true;
     if(opts.nearMiss){
       const tiles=state.root.children;const midStart=state.items.length*2;
@@ -78,7 +83,7 @@
     const containerWidth=state.root.parentElement.offsetWidth;
     const centerOffset=containerWidth/2 - state.tileWidth/2;
     const targetIndex=state.items.length*2 + index;
-    const finalX=-(targetIndex*state.tileWidth - centerOffset);
+    const finalX=Math.round(-(targetIndex*state.tileWidth - centerOffset));
     const accDur=duration*0.25, cruiseDur=duration*0.35, decelDur=duration-accDur-cruiseDur;
     const accDist=finalX*0.25, cruiseDist=finalX*0.5, decelDist=finalX-accDist-cruiseDist;
     let lastTick=0;emit('start');
