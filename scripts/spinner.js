@@ -70,7 +70,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false, id
         <img src="${prize.image}" class="h-[100px] object-contain drop-shadow-md rounded-xl" />
         <div class="mt-1 text-xs text-white bg-black/50 px-2 py-0.5 rounded-sm flex items-center gap-1">
           <span>${prize.value.toLocaleString()}</span>
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin" />
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" alt="coin" />
         </div>
       </div>
     `;
