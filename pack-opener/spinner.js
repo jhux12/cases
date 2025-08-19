@@ -90,21 +90,21 @@
     const targetIndex=state.items.length*2 + index;
     const finalX=-(targetIndex*state.tileWidth - centerOffset);
     const distance=finalX-startX;
-    const accDur=duration*0.25, cruiseDur=duration*0.35, decelDur=duration-accDur-cruiseDur;
-    const accDist=distance*0.25, cruiseDist=distance*0.5, decelDist=distance-accDist-cruiseDist;
-    let lastTick=0;emit('start');
-    function easeOutCubic(t){return 1-Math.pow(1-t,3);}function easeInQuart(t){return t*t*t*t;}
+      const accDur=duration*0.3, decelDur=duration*0.3, cruiseDur=duration-accDur-decelDur;
+      const accDist=distance*0.3, decelDist=distance*0.3, cruiseDist=distance-accDist-decelDist;
+      let lastTick=0;emit('start');
+      function easeInCubic(t){return t*t*t;}function easeOutQuart(t){return 1-Math.pow(1-t,4);}
     function animate(now,start){
       const elapsed=now-start;let delta=0;
-      if(elapsed<accDur){delta=easeOutCubic(elapsed/accDur)*accDist;}
+        if(elapsed<accDur){delta=easeInCubic(elapsed/accDur)*accDist;}
       else if(elapsed<accDur+cruiseDur){const t=(elapsed-accDur)/cruiseDur;delta=accDist+t*cruiseDist;if(!state.cruiseEmitted){emit('cruise');state.cruiseEmitted=true;}}
-      else if(elapsed<duration){const t=(elapsed-accDur-cruiseDur)/decelDur;delta=accDist+cruiseDist+easeInQuart(t)*decelDist;}
+        else if(elapsed<duration){const t=(elapsed-accDur-cruiseDur)/decelDur;delta=accDist+cruiseDist+easeOutQuart(t)*decelDist;}
       else{delta=distance;}
-      const pos=startX+delta;
-      state.root.style.transform=`translate3d(${Math.round(pos)}px,0,0)`;
+        const pos=startX+delta;
+        state.root.style.transform=`translate3d(${pos}px,0,0)`;
       if(now-lastTick>120){playTick();lastTick=now;}
       if(elapsed<duration){requestAnimationFrame(t=>animate(t,start));}
-      else{state.root.style.transform=`translate3d(${Math.round(finalX)}px,0,0)`;state.isSpinning=false;state.cruiseEmitted=false;const item=state.items[index];state.root.children[targetIndex].classList.add('win');stinger(item.rarity);burstConfetti();emit('reveal',item);opts.onReveal&&opts.onReveal(item);emit('finish',item);} }
+        else{state.root.style.transform=`translate3d(${finalX}px,0,0)`;state.isSpinning=false;state.cruiseEmitted=false;const item=state.items[index];state.root.children[targetIndex].classList.add('win');stinger(item.rarity);burstConfetti();emit('reveal',item);opts.onReveal&&opts.onReveal(item);emit('finish',item);} }
     requestAnimationFrame(t=>animate(t,t));
   }
 
