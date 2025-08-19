@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pack Opener Demo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main>
+    <div id="spinner-root" class="reel"></div>
+    <section class="controls" aria-label="Pack controls">
+      <button id="openBtn" class="btn primary">Open Pack</button>
+      <label class="toggle"><input type="checkbox" id="fastToggle" /> Fast Open</label>
+    </section>
+    <section class="drop-table">
+      <ul id="dropTable"></ul>
+    </section>
+
+    <div id="resultModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <h2 id="resultTitle"></h2>
+        <button id="keepBtn" class="btn">Keep</button>
+        <button id="listBtn" class="btn">List</button>
+        <button id="sellBtn" class="btn">Instant Sellback</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="spinner.js"></script>
+  <script>
+    const items=[
+      {id:'a',name:'Common Card',image:'https://via.placeholder.com/100',rarity:'common'},
+      {id:'b',name:'Uncommon Card',image:'https://via.placeholder.com/100',rarity:'uncommon'},
+      {id:'c',name:'Rare Card',image:'https://via.placeholder.com/100',rarity:'rare'},
+      {id:'d',name:'Ultra Card',image:'https://via.placeholder.com/100',rarity:'ultra'},
+      {id:'e',name:'Legendary Card',image:'https://via.placeholder.com/100',rarity:'legendary'}
+    ];
+    PackOpener.init({root:document.getElementById('spinner-root'),items});
+
+    document.getElementById('openBtn').addEventListener('click',()=>{
+      if(PackOpener.isSpinning()) return;
+      const win=Math.floor(Math.random()*items.length);
+      const fast=document.getElementById('fastToggle').checked;
+      PackOpener.spinToIndex(win,{durationMs:fast?600:2400,nearMiss:true,onReveal:showResult});
+    });
+
+    function showResult(item){
+      document.getElementById('resultTitle').textContent=`You pulled ${item.name}`;
+      document.getElementById('resultModal').classList.remove('hidden');
+    }
+
+    document.getElementById('resultModal').addEventListener('click',e=>{
+      if(e.target===e.currentTarget) e.currentTarget.classList.add('hidden');
+    });
+  </script>
+</body>
+</html>
