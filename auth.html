@@ -8,73 +8,76 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
   <style>
-    body { background-color: #0f0f12; color: white; font-family: 'Poppins', sans-serif; }
     .hidden { display: none; }
-    input { color: white; }
   </style>
 </head>
-<body class="flex items-center justify-center min-h-screen px-4 bg-gradient-to-br from-gray-900 via-purple-900 to-black">
+<body class="bg-gray-50">
 <script src="scripts/preloader.js"></script>
-
-  <div class="bg-gray-900/80 backdrop-blur-sm p-10 rounded-xl shadow-2xl w-full max-w-md border border-gray-700">
-    <h2 id="form-title" class="mb-8 text-center">
-      <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(29).png?alt=media&token=51dc030a-b05d-46ec-b1ab-c2fd1824d74e" alt="Logo" style="height: 60px; display: inline-block;">
-    </h2>
+  <header></header>
+  <main class="flex items-center justify-center min-h-screen pt-24 px-4">
+    <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+      <h2 id="form-title" class="mb-8 text-center">
+        <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(29).png?alt=media&token=51dc030a-b05d-46ec-b1ab-c2fd1824d74e" alt="Logo" style="height: 60px; display: inline-block;">
+      </h2>
 
     <!-- Login Form -->
     <form id="login-form" class="space-y-4">
       <div>
         <label class="text-sm">Email</label>
-        <input type="email" id="login-email" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500" required />
+          <input type="email" id="login-email" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
       </div>
       <div>
         <label class="text-sm">Password</label>
-        <input type="password" id="login-password" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500" required />
+          <input type="password" id="login-password" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
       </div>
       <div class="flex items-center justify-between text-sm">
         <label class="inline-flex items-center"><input type="checkbox" id="remember-me" class="mr-2">Remember me</label>
-        <button type="button" onclick="forgotPassword()" class="text-purple-300 hover:underline">Forgot Password?</button>
+        <button type="button" onclick="forgotPassword()" class="text-indigo-600 hover:underline">Forgot Password?</button>
       </div>
-      <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded transition-colors">Login</button>
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition-colors">Login</button>
     </form>
 
     <!-- Register Form -->
     <form id="register-form" class="space-y-4 hidden">
       <div>
         <label class="text-sm">Name</label>
-        <input type="text" id="register-name" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500" required />
+          <input type="text" id="register-name" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-pink-500" required />
       </div>
       <div>
         <label class="text-sm">Username</label>
-        <input type="text" id="register-username" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500" required />
+          <input type="text" id="register-username" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-pink-500" required />
       </div>
       <div>
         <label class="text-sm">Email</label>
-        <input type="email" id="register-email" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500" required />
+          <input type="email" id="register-email" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-pink-500" required />
       </div>
       <div>
         <label class="text-sm">Phone Number</label>
         <div class="flex">
-          <input type="tel" id="register-phone" placeholder="+15551234567" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500" required />
-          <button type="button" id="send-code" class="ml-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">Send Code</button>
+          <input type="tel" id="register-phone" placeholder="+15551234567" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-pink-500" required />
+          <button type="button" id="send-code" class="ml-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">Send Code</button>
         </div>
       </div>
       <div id="phone-verification" class="hidden">
         <label class="text-sm">Verification Code</label>
         <div class="flex">
-          <input type="text" id="verification-code" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="123456" />
-          <button type="button" id="verify-code" class="ml-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">Verify</button>
+            <input type="text" id="verification-code" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="123456" />
+            <button type="button" id="verify-code" class="ml-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">Verify</button>
         </div>
       </div>
       <div>
         <label class="text-sm">Password</label>
-        <input type="password" id="register-password" class="w-full p-3 rounded bg-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500" required />
+          <input type="password" id="register-password" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-pink-500" required />
       </div>
       <div class="flex items-center">
         <input type="checkbox" id="terms" class="mr-2" required />
-        <label class="text-sm" for="terms">I agree to the <a href="termsandconditions.html" class="text-purple-400 underline" target="_blank">Terms & Conditions</a> and confirm I am at least 18 years old.</label>
+        <label class="text-sm" for="terms">I agree to the <a href="termsandconditions.html" class="text-indigo-600 underline" target="_blank">Terms & Conditions</a> and confirm I am at least 18 years old.</label>
       </div>
       <div class="flex items-center">
         <input type="checkbox" id="email-alerts" class="mr-2" checked />
@@ -84,31 +87,24 @@
       <button type="submit" id="register-submit" disabled class="w-full bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded transition-colors opacity-50 cursor-not-allowed">Register</button>
     </form>
 
-    <p id="switch-text" class="mt-4 text-sm text-center">
-      Don't have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Register</button>
-    </p>
-  </div>
+      <p id="switch-text" class="mt-4 text-sm text-center">
+        Don't have an account? <button onclick="toggleForms()" class="text-indigo-600 underline">Register</button>
+      </p>
+    </div>
+  </main>
+  <footer></footer>
 
-<script>
-// Firebase Setup
-const firebaseConfig = {
-  apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
-  authDomain: "cases-e5b4e.firebaseapp.com",
-  databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
-  projectId: "cases-e5b4e",
-  storageBucket: "cases-e5b4e.appspot.com",
-  messagingSenderId: "22502548396",
-  appId: "1:22502548396:web:aac335672c21f07524d009"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
+  <script src="scripts/header.js"></script>
+  <script src="scripts/footer.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/topup.js"></script>
 
-// Setup invisible reCAPTCHA for phone auth
-window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-  size: 'invisible'
-});
-let verificationId = null;
+  <script>
+  // Setup invisible reCAPTCHA for phone auth
+  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+    size: 'invisible'
+  });
+  let verificationId = null;
 
 function formatPhoneNumber(input) {
   const trimmed = input.trim();
