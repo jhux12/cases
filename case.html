@@ -117,9 +117,9 @@
     .pill.legendary { background:#fef3c7; color:#92400e; }
     #best-drops-track { display:flex; will-change:transform; }
     .best-drop-card {
-      flex: 0 0 80px;
-      height: 112px;
-      margin-right: 8px;
+      flex: 0 0 60px;
+      height: 84px;
+      margin-right: 6px;
       background: #2a2f3a;
       border: 1px solid #3a4050;
       border-radius: 8px;
@@ -449,7 +449,17 @@ const openerItems = prizeList.map((p, i) => ({
 }));
 PackOpener.init({ root: document.getElementById('reel'), items: openerItems });
 PackOpener.setMuted(false);
-initBestDropsCarousel(openerItems.slice(0, 10));
+const bestDrops = openerItems.filter(it => it.rarity === 'legendary' || it.rarity === 'ultrarare');
+const repeatedBestDrops = [];
+while (bestDrops.length && repeatedBestDrops.length < 10) {
+  repeatedBestDrops.push(...bestDrops);
+}
+if (repeatedBestDrops.length) {
+  initBestDropsCarousel(repeatedBestDrops.slice(0, 10));
+} else {
+  const wrapper = document.getElementById('best-drops-wrapper');
+  if (wrapper) wrapper.style.display = 'none';
+}
       const rarityColors = {
         common: "#a1a1aa",
         uncommon: "#4ade80",
