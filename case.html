@@ -159,9 +159,10 @@
     </div>
   </div>
     <div class="my-8 flex justify-center">
-      <div class="reel-wrapper">
-        <div id="reel" class="reel"></div>
-        <div class="center-marker">
+      <div class="reel-wrapper relative">
+        <img id="pack-preview" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 transition-all duration-500 z-20 pointer-events-none select-none" alt="Pack" />
+        <div id="reel" class="reel opacity-0 transition-opacity duration-500"></div>
+        <div id="center-marker" class="center-marker opacity-0 transition-opacity duration-500 z-10">
           <span class="marker-arrow top"></span>
           <span class="marker-line"></span>
           <span class="marker-arrow bottom"></span>
@@ -408,6 +409,11 @@ function showToast(message, color = 'bg-red-600') {
           inlineImg.src = caseData.image;
           inlineImg.alt = `${caseData.name} pack`;
         }
+        const previewImg = document.getElementById('pack-preview');
+        if (previewImg) {
+          previewImg.src = caseData.image;
+          previewImg.alt = `${caseData.name} pack`;
+        }
       }
       const isFreeCase = !!caseData.isFree;
       const spiceMap = {
@@ -449,6 +455,29 @@ const openerItems = prizeList.map((p, i) => ({
 }));
 PackOpener.init({ root: document.getElementById('reel'), items: openerItems });
 PackOpener.setMuted(false);
+let reelRevealed = false;
+function transitionToReel() {
+  if (reelRevealed) return Promise.resolve();
+  reelRevealed = true;
+  return new Promise((resolve) => {
+    const pack = document.getElementById('pack-preview');
+    const reel = document.getElementById('reel');
+    const marker = document.getElementById('center-marker');
+    reel?.classList.remove('opacity-0');
+    reel?.classList.add('opacity-100');
+    marker?.classList.remove('opacity-0');
+    marker?.classList.add('opacity-100');
+    if (pack) {
+      pack.classList.add('opacity-0', 'scale-75');
+      pack.addEventListener('transitionend', () => {
+        pack.classList.add('hidden');
+        resolve();
+      }, { once: true });
+    } else {
+      resolve();
+    }
+  });
+}
 const bestDrops = openerItems.filter(it => it.rarity === 'legendary' || it.rarity === 'ultrarare');
 const repeatedBestDrops = [];
 while (bestDrops.length && repeatedBestDrops.length < 10) {
@@ -586,6 +615,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     winnings[0] = { ...winningPrize, key: invRef.key, levelResult };
 
     const winIndex = openerItems.findIndex(p => p.name === winningPrize.name);
+    await transitionToReel();
     await new Promise(resolve => {
       PackOpener.spinToIndex(winIndex, { durationMs: 2400, nearMiss: true, onReveal: () => resolve() });
     });
@@ -630,7 +660,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   , winnings[0]);
   showMultiWinPopup(winnings);
 });
-      document.getElementById("try-free-button").addEventListener("click", () => {
+      document.getElementById("try-free-button").addEventListener("click", async () => {
         const btn = document.getElementById("try-free-button");
         btn.disabled = true;
         btn.classList.add("cursor-not-allowed", "opacity-60");
@@ -643,7 +673,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
             Spinning...
           </span>
         `;
-
+        await transitionToReel();
         const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
         const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
 
