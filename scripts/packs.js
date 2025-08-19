@@ -26,7 +26,14 @@ function calculateCasesPerPage() {
 
 function renderCases(caseList, reset = true) {
   const casesContainer = document.getElementById("cases-container");
+  const casesCarousel = document.getElementById("cases-carousel");
+  const isMobile = window.matchMedia('(max-width: 639px)').matches;
   casesContainer.innerHTML = "";
+  if (casesCarousel) {
+    casesCarousel.innerHTML = "";
+    if (!isMobile) casesCarousel.classList.add('hidden');
+    else casesCarousel.classList.remove('hidden');
+  }
 
   const freeCases = caseList.filter(c => c.isFree);
   const paidCases = caseList.filter(c => !c.isFree);
@@ -57,7 +64,7 @@ function renderCases(caseList, reset = true) {
 
     const openLink = `case.html?id=${c.id}`;
 
-    casesContainer.innerHTML += `
+    const cardHtml = `
       <div class="relative p-3 sm:p-4 bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition">
         ${tagHTML}
         ${pepperHTML}
@@ -68,6 +75,10 @@ function renderCases(caseList, reset = true) {
     ${priceIcon}
   </a>
         </div>`;
+    casesContainer.innerHTML += cardHtml;
+    if (casesCarousel && isMobile) {
+      casesCarousel.innerHTML += `<div class="w-64 flex-shrink-0">${cardHtml}</div>`;
+    }
 
     // Add hover effect after rendering
     setTimeout(() => {

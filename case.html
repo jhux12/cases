@@ -55,9 +55,6 @@
       <h2 id="case-name" class="flex-1 text-center text-xl sm:text-2xl font-bold mx-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 bg-clip-text text-transparent leading-none">Loading...</h2>
       <div class="flex items-center gap-2">
         <img id="case-image" class="w-12 h-12 sm:w-16 sm:h-16 object-contain rounded-full bg-black/40 p-2 border border-white/20 shadow-md transition-transform hover:rotate-6 hover:scale-105" alt="" />
-        <button id="mute-toggle" aria-label="Toggle sound" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg hover:scale-110 transition-transform">
-          <i id="mute-icon" class="fas fa-volume-up"></i>
-        </button>
       </div>
     </div>
     <div id="case-spice" class="text-center text-xs mt-2"></div>
@@ -280,16 +277,6 @@ function showMultiWinPopup(prizes) {
   popup.classList.remove('hidden');
   render(current);
 }
-let isMuted = false;
-function applyMuteState() {
-  document.querySelectorAll('audio').forEach(a => { a.muted = isMuted; });
-}
-document.getElementById('mute-toggle').addEventListener('click', () => {
-  isMuted = !isMuted;
-  applyMuteState();
-  const icon = document.getElementById('mute-icon');
-  if (icon) icon.className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
-});
 document.addEventListener("click", async () => {
   const ids = ["sound-common", "sound-rare", "sound-ultrarare", "sound-legendary", "sell-sound"];
   for (const id of ids) {
@@ -300,10 +287,10 @@ document.addEventListener("click", async () => {
         await audio.play();
       } catch (e) {}
       audio.pause();
+      audio.muted = false;
       audio.currentTime = 0;
     }
   }
-  applyMuteState();
 }, { once: true });
 
     const rarityOrder = { legendary: 5, ultrarare: 4, rare: 3, uncommon: 2, common: 1 };

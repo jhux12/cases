@@ -142,9 +142,16 @@
                     </div>
                 </main>
             </div>
-        </div>
-        <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-            <img class="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full floating" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(26).png?alt=media&token=891ee223-90bd-4125-85e4-6a85dcb0f57b" alt="Heat Check pack">
+    </div>
+    <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
+        <img class="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full floating" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(26).png?alt=media&token=891ee223-90bd-4125-85e4-6a85dcb0f57b" alt="Heat Check pack">
+    </div>
+</div>
+
+    <!-- Demo Spinner -->
+    <div class="py-8 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div id="demo-spinner"></div>
         </div>
     </div>
 
@@ -614,8 +621,32 @@
         function showAddCoinsModal() {
             document.getElementById('addCoinsModal').classList.remove('hidden');
         }
-        
+
         // Mobile menu toggle functionality would go here
     </script>
+    <script src="pack-opener/spinner.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const root = document.getElementById('demo-spinner');
+            if (!root) return;
+            const demoCaseId = '-OPd7bkeviB4Xq_1Ea6i';
+            firebase.database().ref('cases/' + demoCaseId).once('value').then(snap => {
+                const data = snap.val() || {};
+                const items = Object.values(data.prizes || {});
+                if (!items.length) return;
+                PackOpener.init({ root, items });
+                function loop() {
+                    const winIndex = Math.floor(Math.random() * items.length);
+                    PackOpener.spinToIndex(winIndex, {
+                        durationMs: 2400,
+                        nearMiss: true,
+                        onReveal: () => setTimeout(loop, 1500)
+                    });
+                }
+                loop();
+            });
+        });
+    </script>
+    <script src="scripts/navbar.js"></script>
 <p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=jaydan1/packly-light" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
 </html>
