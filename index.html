@@ -1,321 +1,622 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Packly.gg | Virtual Packs, Real Cards.</title>
-  <script>
-    tailwind.config = {
-      safelist: [
-        'bg-gradient-to-r',
-        'from-purple-600',
-        'to-pink-500',
-        'bg-pink-600',
-        'bg-black/50',
-        'right-2',
-        'left-2',
-        'top-2',
-        'text-green-400',
-        'text-orange-400',
-        'text-red-500',
-        'min-w-[120px]',
-        'md:min-w-[160px]',
-        'w-[90px]',
-        'h-[90px]',
-        'md:w-[120px]',
-        'md:h-[120px]',
-        'bg-[#12121b]',
-        'shadow-[0_0_20px_4px_rgba(255,215,0,0.5)]',
-        'border-yellow-400',
-        'shadow-[0_0_16px_3px_rgba(186,85,211,0.5)]',
-        'border-purple-500',
-        'shadow-[0_0_12px_2px_rgba(30,144,255,0.5)]',
-        'border-blue-500',
-        'shadow-[0_0_8px_1px_rgba(50,205,50,0.4)]',
-        'border-green-500',
-        'shadow-[0_0_6px_1px_rgba(255,255,255,0.1)]',
-        'border-gray-700'
-      ]
-    }
-  </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-  <script src="scripts/firebase-config.js"></script>
-  <script src="https://js.stripe.com/v3/"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles/main.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Packly.gg | Virtual Packs, Real Cards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .pack-card {
+            transition: all 0.3s ease;
+        }
+        
+        .pack-card:hover {
+            transform: scale(1.03);
+        }
+        
+        .coin-icon {
+            filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.7));
+        }
+        
+        .navbar {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
 </head>
-<body>
-<script src="scripts/preloader.js"></script>
-<header></header>
-
-<!-- Hero -->
-<section id="hero" class="relative overflow-hidden bg-gradient-to-b from-gray-900 to-gray-800">
-  <!-- Subtle background accents -->
-  <div class="absolute inset-0 pointer-events-none">
-    <div class="absolute -top-32 -left-32 w-96 h-96 bg-purple-700 opacity-30 blur-3xl rounded-full"></div>
-    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-pink-600 opacity-30 blur-3xl rounded-full"></div>
-  </div>
-
-  <div class="container mx-auto max-w-6xl px-6 pt-20 pb-24 flex flex-col gap-10 relative">
-
-    <!-- Updates Bar -->
-    <div class="w-full bg-gradient-to-r from-yellow-500 via-pink-500 to-purple-600 text-white py-2 overflow-hidden rounded-xl shadow-md">
-      <div class="animate-marquee whitespace-nowrap text-sm font-medium flex items-center gap-12 px-4">
-        <span>📦 All cards are near mint unless specified otherwise</span>
-        <span class="flex items-center gap-1">
-          🪙 Sell back unwanted cards for coins
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block" />
-        </span>
-      </div>
-    </div>
-
-    <div class="flex flex-col md:flex-row items-center gap-12">
-      <!-- Text -->
-      <div class="flex-1 text-center md:text-left">
-        <h1 class="text-5xl md:text-6xl font-extrabold mb-6 text-white tracking-tight leading-tight opacity-0 animate-fade-up">
-          Virtual packs,<br>real cards. <span class="emoji-sparkle">✨</span>
-        </h1>
-        <p class="text-lg text-gray-300 mb-8 leading-relaxed opacity-0 animate-fade-up">
-          Open digital packs. Win real cards. Start ripping in seconds. Packly.gg.
-        </p>
-        <a href="#cases" class="inline-block px-8 py-3 bg-yellow-400 text-black rounded-full font-semibold border border-yellow-500 hover:bg-yellow-300 transition-all duration-200 shadow-md hover:scale-105 opacity-0 animate-fade-up">
-          Grab A Pack
-        </a>
-      </div>
-
-      <!-- Demo Spinner -->
-      <div class="flex-1 md:flex-none relative w-full h-64 md:w-80 md:h-80 flex flex-col items-center justify-center gap-4">
-        <div id="hero-pack-badge" class="absolute -bottom-6 -right-6 flex flex-col items-center text-center pointer-events-none z-20">
-          <img id="hero-pack-image" src="" alt="Heat Check pack" class="w-16 md:w-20 rounded-lg shadow-lg" />
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold gradient-text">Packly.gg</span>
+                    </a>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <a href="#" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Open Packs</a>
+                        <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Pickem <span class="ml-1 bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-0.5 rounded-full">03:20</span></a>
+                        <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Leaderboard</a>
+                        <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Marketplace</a>
+                    </div>
+                </div>
+                <div class="hidden md:ml-6 md:flex md:items-center">
+                    <div class="flex items-center mr-4">
+                        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon mr-1" alt="Coins">
+                        <span class="font-medium text-gray-700">0</span>
+                    </div>
+                    <div class="ml-4 relative flex-shrink-0">
+                        <div class="relative inline-block text-left dropdown">
+                            <button class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-50 focus:outline-none">
+                                <span>User</span>
+                                <svg class="w-5 h-5 ml-2 -mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div class="hidden dropdown-menu absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                                <div class="py-1">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Inventory</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">How It Works</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="-mr-2 flex items-center md:hidden">
+                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
-        <div id="spinner-border-hero" class="hero-spinner-border w-full h-full flex items-center justify-center p-4">
-          <div class="relative w-full h-full overflow-hidden hero-spinner rounded-xl">
-            <div class="hero-pointer absolute top-0 bottom-0 w-1 left-1/2 -translate-x-1/2 z-10"></div>
-            <div id="spinner-container-hero" class="w-full h-full transform"></div>
-          </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="relative bg-white overflow-hidden">
+        <div class="max-w-7xl mx-auto">
+            <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+                <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+                    <div class="sm:text-center lg:text-left">
+                        <div class="flex items-center mb-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-indigo-400" fill="currentColor" viewBox="0 0 8 8">
+                                    <circle cx="4" cy="4" r="3" />
+                                </svg>
+                                New drops daily
+                            </span>
+                        </div>
+                        <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                            <span class="block">Virtual packs,</span>
+                            <span class="block gradient-text">real cards.</span>
+                        </h1>
+                        <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                            Open digital packs. Win real cards. Start ripping in seconds.
+                        </p>
+                        <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+                            <div class="rounded-md shadow">
+                                <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 md:py-4 md:text-lg md:px-10">
+                                    Grab A Pack
+                                </a>
+                            </div>
+                            <div class="mt-3 sm:mt-0 sm:ml-3">
+                                <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-lg md:px-10">
+                                    How It Works
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
         </div>
-      </div>
+        <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
+            <img class="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full floating" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(26).png?alt=media&token=891ee223-90bd-4125-85e4-6a85dcb0f57b" alt="Heat Check pack">
+        </div>
     </div>
 
-  </div>
-</section>
+    <!-- Featured Cards Section -->
+    <div class="py-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:text-center">
+                <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">Recent Drops</h2>
+                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                    Hot cards from recent packs
+                </p>
+            </div>
 
-
-<!-- Cases Section -->
-  <section id="cases" class="py-12 px-6">
-  <div class="container mx-auto relative z-10">
-
-  <!-- 🌟 Floating Stardust Particles -->
-  <div class="stardust">
-  <span style="top:5%; left:10%; animation-delay:0s;"></span>
-  <span style="top:15%; left:30%; animation-delay:0.5s;"></span>
-  <span style="top:25%; left:70%; animation-delay:1s;"></span>
-  <span style="top:35%; left:50%; animation-delay:1.5s;"></span>
-  <span style="top:45%; left:20%; animation-delay:2s;"></span>
-  <span style="top:55%; left:80%; animation-delay:2.5s;"></span>
-  <span style="top:65%; left:40%; animation-delay:3s;"></span>
-  <span style="top:75%; left:60%; animation-delay:3.5s;"></span>
-  <span style="top:85%; left:90%; animation-delay:4s;"></span>
-  <span style="top:95%; left:15%; animation-delay:4.5s;"></span>
-</div>
-
-<div class="flex flex-col items-center text-center gap-2 p-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl shadow-lg mb-6">
-  <img src="https://cdn-icons-png.flaticon.com/128/5966/5966817.png" alt="Pack Icon" class="w-12 h-12" />
-  <h2 class="text-xl font-bold text-white">Available Packs</h2>
-  <p class="text-sm text-white/80">Rip, collect, and uncover what’s inside 🔥</p>
-</div>
-
-<!-- Filter Toggle Button (Mobile Only) -->
-<div class="sm:hidden mb-4">
-  <button id="filter-toggle" class="text-sm bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-600 w-full">
-    Show Filters
-  </button>
-</div>
-
-<!-- Filter Panel -->
-<div id="filter-panel" class="hidden sm:flex flex-wrap gap-4 mb-6 items-center">
-  <!-- Search -->
-  <input id="search-box" type="text" placeholder="Search packs" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-48" />
-
-  <!-- Min Price -->
-  <input id="min-price" type="number" placeholder="Min" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
-
-  <!-- Max Price -->
-  <input id="max-price" type="number" placeholder="Max" class="px-3 py-2 rounded bg-gray-800 text-white placeholder-gray-400 w-24" />
-
-  <!-- Affordable Only Toggle -->
-  <div class="flex items-center gap-3 px-3 py-2 rounded bg-gray-800 border border-gray-700 hover:border-yellow-400 transition-all">
-    <label for="affordable-only" class="flex items-center cursor-pointer select-none">
-      <div class="relative">
-        <input type="checkbox" id="affordable-only" class="sr-only peer">
-        <div class="w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-yellow-400 transition-all duration-300"></div>
-        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
-      </div>
-      <span class="ml-3 text-sm text-white">Enough coins to buy</span>
-    </label>
-  </div>
-
-  <!-- Sort Dropdown -->
-  <select id="sort-select" class="px-3 py-2 rounded bg-gray-800 text-white">
-    <option value="default">Sorting</option>
-    <option value="asc">Ascending</option>
-    <option value="desc">Descending</option>
-  </select>
-
-  <!-- Clear Filters Button -->
-  <button id="clear-filters" class="text-sm text-gray-400 hover:text-white ml-auto">Clear Filters</button>
-</div>
-
- <!-- Category Tabs -->
- <div id="category-tabs" class="flex flex-wrap justify-center gap-2 mb-6">
-  <button data-category="all" class="category-tab active" title="All">
-    <i class="fa-solid fa-layer-group"></i>
-    <span class="tab-label">All</span>
-  </button>
-  <button data-category="new" class="category-tab" title="New">
-    <i class="fa-solid fa-bolt"></i>
-    <span class="tab-label">New</span>
-  </button>
-  <button data-category="featured" class="category-tab" title="Featured">
-    <i class="fa-solid fa-star"></i>
-    <span class="tab-label">Featured</span>
-  </button>
-  <button data-category="starter" class="category-tab" title="Starter">
-    <i class="fa-solid fa-seedling"></i>
-    <span class="tab-label">Starter</span>
-  </button>
-  <button data-category="other" class="category-tab" title="Other Boxes">
-    <i class="fa-solid fa-box"></i>
-    <span class="tab-label">Other</span>
-  </button>
- </div>
-
-    <!-- Cases Grid -->
-    <div id="cases-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6"></div>
-
-    <!-- See More Button -->
-    <div class="flex justify-center mt-6">
-      <button id="see-more-cases" class="px-4 py-2 bg-gray-800 text-white rounded-md border border-gray-600 hidden">See more</button>
+            <div class="mt-10">
+                <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                    <!-- Card 1 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover transition-all duration-300">
+                        <img class="w-full h-48 object-contain p-4" src="https://tcgplayer-cdn.tcgplayer.com/product/250320_in_1000x1000.jpg" alt="Card">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-900 font-medium">12,635</span>
+                                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon" alt="Coins">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card 2 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover transition-all duration-300">
+                        <img class="w-full h-48 object-contain p-4" src="https://tcgplayer-cdn.tcgplayer.com/product/535090_in_1000x1000.jpg" alt="Card">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-900 font-medium">22,479</span>
+                                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon" alt="Coins">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card 3 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover transition-all duration-300">
+                        <img class="w-full h-48 object-contain p-4" src="https://tcgplayer-cdn.tcgplayer.com/product/509963_in_1000x1000.jpg" alt="Card">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-900 font-medium">1,142</span>
+                                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon" alt="Coins">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card 4 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover transition-all duration-300">
+                        <img class="w-full h-48 object-contain p-4" src="https://tcgplayer-cdn.tcgplayer.com/product/534484_in_1000x1000.jpg" alt="Card">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-900 font-medium">1,948</span>
+                                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon" alt="Coins">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card 5 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover transition-all duration-300">
+                        <img class="w-full h-48 object-contain p-4" src="https://tcgplayer-cdn.tcgplayer.com/product/534483_in_1000x1000.jpg" alt="Card">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-900 font-medium">2,846</span>
+                                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon" alt="Coins">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card 6 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover transition-all duration-300">
+                        <img class="w-full h-48 object-contain p-4" src="https://tcgplayer-cdn.tcgplayer.com/product/219233_in_1000x1000.jpg" alt="Card">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-900 font-medium">4,707</span>
+                                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon" alt="Coins">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</section>
 
-<!-- Best Drops -->
-<section id="best-drops" class="relative py-16 overflow-hidden bg-gradient-to-br from-[#050510] via-[#0b0f2c] to-[#050510]">
-  <!-- Futuristic grid background -->
-  <div class="absolute inset-0 -z-10 opacity-30 bg-[linear-gradient(to_right,#2e2e3a_1px,transparent_1px),linear-gradient(to_bottom,#2e2e3a_1px,transparent_1px)] bg-[size:40px_40px]"></div>
-  <!-- Glowing gradient orbs -->
-  <div class="absolute -top-24 -left-24 w-96 h-96 bg-fuchsia-700 rounded-full blur-3xl opacity-25"></div>
-  <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-700 rounded-full blur-3xl opacity-25"></div>
+    <!-- Available Packs Section -->
+    <div class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Available Packs</h2>
+                    <p class="mt-2 text-gray-600">Rip, collect, and uncover what's inside  🔥</p>
+                </div>
+                <div class="flex space-x-3">
+                    <button class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+                        Show Filters
+                    </button>
+                    <button class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
 
-  <div class="mx-auto max-w-5xl px-6">
-    <div class="relative rounded-2xl bg-gradient-to-r from-cyan-500/10 via-fuchsia-500/10 to-purple-500/10 border border-fuchsia-500/20 backdrop-blur-xl shadow-[0_0_25px_rgba(168,85,247,0.3)] p-6">
-      <div class="flex items-center gap-3 mb-6">
-        <i class="fa-solid fa-bolt text-fuchsia-400 text-2xl"></i>
-        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-purple-600 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(168,85,247,0.6)]">Best Drops</h2>
-      </div>
-      <div id="recent-wins-carousel" class="relative flex overflow-x-auto gap-6 py-2 scrollbar-hide w-full scroll-smooth">
-        <!-- Cards will be injected here -->
-      </div>
+            <div class="flex space-x-2 mb-6 overflow-x-auto pb-2">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">All</span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">New</span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Featured</span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Starter</span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Other</span>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <!-- Pack 1 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card">
+                    <div class="relative">
+                        <img class="w-full h-48 object-contain p-6" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(20).png?alt=media&token=024a7d7d-d306-451a-98af-f47a07f28baf" alt="Moonbreon pack">
+                        <span class="absolute top-2 left-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            🔥 Hot
+                        </span>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-medium text-gray-900">Moonbreon</h3>
+                        <div class="mt-4">
+                            <a href="#" class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+                                Open for 27,342 <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-4 w-4 ml-1 coin-icon" alt="Coins">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pack 2 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card">
+                    <div class="relative">
+                        <img class="w-full h-48 object-contain p-6" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(23).png?alt=media&token=f5c83894-551b-4f28-9aa8-d441eacb56f6" alt="Salamence Hunt pack">
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-medium text-gray-900">Salamence Hunt</h3>
+                        <div class="mt-4">
+                            <a href="#" class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+                                Open for 91 <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-4 w-4 ml-1 coin-icon" alt="Coins">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pack 3 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card">
+                    <div class="relative">
+                        <img class="w-full h-48 object-contain p-6" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(22).png?alt=media&token=583a8b2c-460b-41e2-b00a-481f4c7a630e" alt="Iono's Journey pack">
+                        <span class="absolute top-2 left-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            🔥 Hot
+                        </span>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-medium text-gray-900">Iono's Journey</h3>
+                        <div class="mt-4">
+                            <a href="#" class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+                                Open for 411 <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-4 w-4 ml-1 coin-icon" alt="Coins">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pack 4 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card">
+                    <div class="relative">
+                        <img class="w-full h-48 object-contain p-6" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(24).png?alt=media&token=8b547b84-dab2-4961-b9c8-1d0c55fee693" alt="SV Promos pack">
+                        <span class="absolute top-2 left-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            ⭐️ New
+                        </span>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-medium text-gray-900">SV Promos</h3>
+                        <div class="mt-4">
+                            <a href="#" class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+                                Open for 1,073 <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-4 w-4 ml-1 coin-icon" alt="Coins">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <a href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    See more
+                    <svg class="ml-2 -mr-0.5 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
     </div>
-  </div>
-</section>
 
-<footer></footer>
+    <!-- Best Drops Section -->
+    <div class="py-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:text-center">
+                <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">Best Drops</h2>
+                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                    Legendary pulls from our community
+                </p>
+            </div>
 
-<script>
-let scrollIntervalId = null;
-function startAutoScrollCarousel(containerId, speed = 0.5) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
+            <div class="mt-10">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <!-- Drop 1 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover">
+                        <div class="flex p-4">
+                            <img class="w-24 h-32 object-contain" src="https://tcgplayer-cdn.tcgplayer.com/product/284302_in_1000x1000.jpg" alt="Pikachu VMAX">
+                            <img class="w-24 h-32 object-contain ml-2" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Pika Pika pack">
+                        </div>
+                        <div class="p-4 border-t border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">Pikachu VMAX (Secret)</h3>
+                            <p class="mt-1 text-sm text-gray-500">From: Pika Pika</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Drop 2 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover">
+                        <div class="flex p-4">
+                            <img class="w-24 h-32 object-contain" src="https://tcgplayer-cdn.tcgplayer.com/product/201352_in_1000x1000.jpg" alt="Pikachu">
+                            <img class="w-24 h-32 object-contain ml-2" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Pika Pika pack">
+                        </div>
+                        <div class="p-4 border-t border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">Pikachu (Secret) SM</h3>
+                            <p class="mt-1 text-sm text-gray-500">From: Pika Pika</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Drop 3 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover">
+                        <div class="flex p-4">
+                            <img class="w-24 h-32 object-contain" src="https://boxed.gg/_next/image?url=https%3A%2F%2Fproduct-images.tcgplayer.com%2F623594.jpg&w=640&q=75" alt="N's Reshiram">
+                            <img class="w-24 h-32 object-contain ml-2" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FChatGPT_Image_Aug_10__2025__11_20_09_PM-removebg-preview.png?alt=media&token=34a17fd5-2a05-4c2c-899c-c4ac0484a152" alt="Twin Dragons pack">
+                        </div>
+                        <div class="p-4 border-t border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">N's Reshiram</h3>
+                            <p class="mt-1 text-sm text-gray-500">From: Twin Dragons</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  // Prevent multiple intervals stacking
-  if (scrollIntervalId) clearInterval(scrollIntervalId);
+    <!-- Features Section -->
+    <div class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:text-center">
+                <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">Why Packly.gg</h2>
+                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                    The best way to collect
+                </p>
+            </div>
 
-  container.style.scrollBehavior = "auto";
-  let scrollPos = 0;
+            <div class="mt-10">
+                <div class="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
+                    <div class="text-center">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white mx-auto">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">100% Authentic Items</h3>
+                        <p class="mt-2 text-base text-gray-500">
+                            Every item is verified from trusted sources like StockX and official retailers. Real gear, guaranteed.
+                        </p>
+                    </div>
 
-  scrollIntervalId = setInterval(() => {
-    scrollPos += speed;
-    if (scrollPos >= container.scrollWidth - container.clientWidth) {
-      scrollPos = 0;
-    }
-    container.scrollLeft = scrollPos;
-  }, 16); // ~60fps
-}
-</script>
-  
-<script>
+                    <div class="text-center">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white mx-auto">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Exchange or Re-Roll</h3>
+                        <p class="mt-2 text-base text-gray-500">
+                            Don't want it? Instantly trade or sell back for coins. No fees. No wait.
+                        </p>
+                    </div>
 
-function playRaritySound(rarity) {
-  const audio = audioMap[rarity.toLowerCase()];
-  if (audio) {
-    audio.currentTime = 0; // restart sound
-    audio.play().catch(err => console.warn("Sound error:", err));
-  }
-}
-const filterToggle = document.getElementById("filter-toggle");
-const filterPanel = document.getElementById("filter-panel");
+                    <div class="text-center">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white mx-auto">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Fast Global Shipping</h3>
+                        <p class="mt-2 text-base text-gray-500">
+                            We ship worldwide. Or keep it digital by converting items into coin instantly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-if (filterToggle && filterPanel) {
-  // Ensure button starts in correct state based on classes
-  const isHidden = filterPanel.classList.contains("hidden");
-  filterToggle.textContent = isHidden ? "Show Filters" : "Hide Filters";
+    <!-- Payment Methods -->
+    <div class="bg-gray-50 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 class="text-center text-sm font-medium text-gray-500">Accepted Payment Methods</h3>
+            <div class="flex justify-center mt-6 space-x-8">
+                <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/349/349221.png" alt="Visa">
+                <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/11378/11378185.png" alt="MasterCard">
+                <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/179/179431.png" alt="Amex">
+                <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/5968/5968279.png" alt="Apple Pay">
+                <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/6124/6124998.png" alt="Google Pay">
+            </div>
+        </div>
+    </div>
 
-  filterToggle.addEventListener("click", () => {
-    filterPanel.classList.toggle("hidden");
-    const nowHidden = filterPanel.classList.contains("hidden");
-    filterToggle.textContent = nowHidden ? "Show Filters" : "Hide Filters";
-  });
-}
-  </script>
-<!-- Core Functional Scripts -->
-<script type="module" src="scripts/auth.js"></script>
-<script src="scripts/navbar.js"></script>
-<script src="scripts/hero.js"></script>
-<script type="module" src="scripts/hero-spinner.js"></script>
-<script src="scripts/features.js"></script>
-<script type="module" src="scripts/packs.js"></script>
-  <script type="module">
-  import { renderDailyQuests } from './scripts/quests.js';
-  window.renderDailyQuests = renderDailyQuests; // Make it globally accessible
-</script>
-<script type="module" src="scripts/wins.js"></script>
-<script src="scripts/popups.js"></script>
-<script src="scripts/footer.js"></script>
-<script src="scripts/topup.js"></script>
+    <!-- Footer -->
+    <footer class="bg-white">
+        <div class="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
+            <nav class="-mx-5 -my-2 flex flex-wrap justify-center" aria-label="Footer">
+                <div class="px-5 py-2">
+                    <a href="#" class="text-base text-gray-500 hover:text-gray-900">FAQ</a>
+                </div>
+                <div class="px-5 py-2">
+                    <a href="#" class="text-base text-gray-500 hover:text-gray-900">Terms & Conditions</a>
+                </div>
+                <div class="px-5 py-2">
+                    <a href="#" class="text-base text-gray-500 hover:text-gray-900">Contact</a>
+                </div>
+                <div class="px-5 py-2">
+                    <a href="#" class="text-base text-gray-500 hover:text-gray-900">Instagram</a>
+                </div>
+            </nav>
+            <div class="mt-8 flex justify-center space-x-6">
+                <a href="#" class="text-gray-400 hover:text-gray-500">
+                    <span class="sr-only">Facebook</span>
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-gray-500">
+                    <span class="sr-only">Twitter</span>
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-gray-500">
+                    <span class="sr-only">Instagram</span>
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-gray-500">
+                    <span class="sr-only">Discord</span>
+                    <i class="fab fa-discord"></i>
+                </a>
+            </div>
+            <p class="mt-8 text-center text-base text-gray-400">
+                © 2025 Packly.gg. All rights reserved.
+            </p>
+            <p class="mt-2 text-center text-sm text-gray-500">
+                Packly.gg – Where virtual packs ignite real hype  ❤️
+            </p>
+        </div>
+    </footer>
 
-  <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const menuToggle = document.getElementById("menu-toggle");
-  const mobileDropdown = document.getElementById("mobile-dropdown");
+    <!-- Free Pack Modal -->
+    <div id="freePackModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black opacity-50"></div>
+        <div class="relative bg-white rounded-lg max-w-md w-full mx-4 p-6">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <div class="text-center">
+                <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ChatGPT%20Image%20Aug%2010%2C%202025%2C%2011_08_17%20PM.png?alt=media&token=4950e6a0-1cf9-4c7b-aa56-686dc42693a8" class="h-24 w-24 mx-auto mb-4" alt="Mascot">
+                <h3 class="text-lg font-medium text-gray-900">Get a FREE pack</h3>
+                <p class="mt-2 text-sm text-gray-500">
+                    Find out how it works and get a FREE pack! All you have to do is sign up to claim it!
+                </p>
+                <div class="mt-6 flex justify-center space-x-4">
+                    <button onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        No thanks
+                    </button>
+                    <a href="#" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                        Sign Up
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  if (menuToggle && mobileDropdown) {
-    menuToggle.addEventListener("click", (e) => {
-      e.stopPropagation();
-      mobileDropdown.classList.toggle("hidden");
-    });
+    <!-- Add Coins Modal -->
+    <div id="addCoinsModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black opacity-50"></div>
+        <div class="relative bg-white rounded-lg max-w-md w-full mx-4 p-6">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 text-center">Add Coins</h3>
+                <p class="mt-2 text-sm text-gray-500 text-center">Choose a package</p>
+                
+                <div class="mt-6 grid grid-cols-1 gap-4">
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
+                        <div class="flex items-center">
+                            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-6 w-6 coin-icon mr-2" alt="Coins">
+                            <span class="font-medium">2,000</span>
+                        </div>
+                        <div class="mt-2 text-right">
+                            <span class="text-lg font-bold">$20.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
+                        <div class="flex items-center">
+                            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-6 w-6 coin-icon mr-2" alt="Coins">
+                            <span class="font-medium">3,000</span>
+                        </div>
+                        <div class="mt-2 text-right">
+                            <span class="text-lg font-bold">$30.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
+                        <div class="flex items-center">
+                            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-6 w-6 coin-icon mr-2" alt="Coins">
+                            <span class="font-medium">5,000</span>
+                        </div>
+                        <div class="mt-2 text-right">
+                            <span class="text-lg font-bold">$50.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
+                        <div class="flex items-center">
+                            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-6 w-6 coin-icon mr-2" alt="Coins">
+                            <span class="font-medium">10,000</span>
+                        </div>
+                        <div class="mt-2 text-right">
+                            <span class="text-lg font-bold">$100.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
+                        <div class="flex items-center">
+                            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-6 w-6 coin-icon mr-2" alt="Coins">
+                            <span class="font-medium">15,000 +1,500 Bonus</span>
+                        </div>
+                        <div class="mt-2 text-right">
+                            <span class="text-lg font-bold">$150.00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-xs text-gray-500">Payments processed securely by</p>
+                    <img src="https://stripe.com/img/v3/home/social.png" class="h-8 mx-auto mt-2" alt="Stripe">
+                </div>
+            </div>
+        </div>
+    </div>
 
-    document.addEventListener("click", (event) => {
-      if (
-        !mobileDropdown.classList.contains("hidden") &&
-        !mobileDropdown.contains(event.target) &&
-        !menuToggle.contains(event.target)
-      ) {
-        mobileDropdown.classList.add("hidden");
-      }
-    });
-  }
-    startAutoScrollCarousel("recent-wins-carousel", 0.5);
-});
-</script>
-  <script src="scripts/header.js"></script>
-</body>
+    <script>
+        // Show free pack modal after 3 seconds
+        setTimeout(() => {
+            document.getElementById('freePackModal').classList.remove('hidden');
+        }, 3000);
+        
+        function closeModal() {
+            document.getElementById('freePackModal').classList.add('hidden');
+            document.getElementById('addCoinsModal').classList.add('hidden');
+        }
+        
+        function showAddCoinsModal() {
+            document.getElementById('addCoinsModal').classList.remove('hidden');
+        }
+        
+        // Mobile menu toggle functionality would go here
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=jaydan1/packly-light" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
 </html>
+
