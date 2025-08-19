@@ -8,8 +8,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background-color: #111827;
-      color: #ffffff;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: #f8fafc;
       z-index: 9999;
       transition: opacity 0.5s ease;
     }
@@ -25,6 +25,7 @@
     #preloader-progress {
       font-size: 1.5rem;
       font-weight: 700;
+      color: #f8fafc;
     }
     @keyframes bounce {
       0%, 100% {
