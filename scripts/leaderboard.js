@@ -109,14 +109,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="text-sm">Packs: ${data.packsOpened || 0}</div>
           </div>`;
       } else {
-        tbody.innerHTML += `
-          <tr class="border-b border-gray-700 hover:bg-gray-700/40 transition">
-            <td class="py-2 px-4 text-center">${rank}</td>
-            <td class="py-2 px-4">${data.username || 'Anonymous'}</td>
-            <td class="py-2 px-4 text-center">${data.packsOpened || 0}</td>
-            <td class="py-2 px-4 text-center">${(data.cardValue || 0).toLocaleString()}</td>
-            <td class="py-2 px-4 text-center">${wins} Win${wins === 1 ? '' : 's'}</td>
-          </tr>`;
+          tbody.innerHTML += `
+            <tr class="border-b border-gray-200 hover:bg-gray-100 transition">
+              <td class="py-2 px-4 text-center">${rank}</td>
+              <td class="py-2 px-4">${data.username || 'Anonymous'}</td>
+              <td class="py-2 px-4 text-center">${data.packsOpened || 0}</td>
+              <td class="py-2 px-4 text-center">${(data.cardValue || 0).toLocaleString()}</td>
+              <td class="py-2 px-4 text-center">${wins} Win${wins === 1 ? '' : 's'}</td>
+            </tr>`;
       }
       rank++;
     });

@@ -43,14 +43,14 @@ function renderPack(data) {
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g,'');
     const color = rarityColors[rarity] || '#a1a1aa';
     return `
-      <div class="prize-card relative rounded-xl p-4 bg-gray-800 border-2 text-white text-center shadow-sm transition-transform duration-200 hover:scale-105" style="border-color:${color}">
-        <img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-black/20 rounded-lg" />
+      <div class="prize-card relative rounded-xl p-4 bg-white border-2 text-gray-900 text-center shadow-sm transition-transform duration-200 hover:scale-105" style="border-color:${color}">
+        <img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-gray-100 rounded-lg" />
         <div class="font-semibold text-sm clamp-2 mb-8">${prize.name}</div>
-        <div class="absolute bottom-2 left-2 flex items-center gap-1 text-yellow-300 font-medium text-xs">
+        <div class="absolute bottom-2 left-2 flex items-center gap-1 text-yellow-600 font-medium text-xs">
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
           ${(prize.value || 0).toLocaleString()}
         </div>
-        <div class="absolute bottom-2 right-2 text-white/70 bg-black/40 px-2 py-[2px] text-xs rounded-full">
+        <div class="absolute bottom-2 right-2 text-gray-600 bg-gray-100 px-2 py-[2px] text-xs rounded-full">
           ${(prize.odds || 0).toFixed(1)}%
         </div>
       </div>

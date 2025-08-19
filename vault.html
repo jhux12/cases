@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Packly.gg | Pickem</title>
+  <title>Packly.gg | Vault</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://js.stripe.com/v3/"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,17 +19,6 @@
       -webkit-line-clamp: 1;
       -webkit-box-orient: vertical;
       overflow: hidden;
-    }
-  </style>
-  <style>
-    #particle-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      pointer-events: none;
     }
   </style>
   <style>
@@ -74,26 +63,25 @@
       .legendary-spark::after{--sx:30px;--sy:-30px;}
     </style>
   </head>
-  <body class="bg-gradient-to-br from-black via-gray-900 to-black text-white overflow-x-hidden">
+  <body class="min-h-screen bg-gray-50 text-gray-900 overflow-x-hidden">
 <script src="scripts/preloader.js"></script>
-  <canvas id="particle-canvas"></canvas>
   <header></header>
 
   <section id="pack-section" class="relative pt-32 pb-10 px-4">
     <div class="relative z-10 mb-6">
-      <div class="flex items-center justify-between px-4 py-2 bg-black/40 backdrop-blur-md rounded-full shadow-lg">
+      <div class="flex items-center justify-between px-4 py-2 bg-white rounded-full shadow border border-gray-200">
         <a id="back-btn" href="pickem.html" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 text-white hover:scale-110 transition-transform" aria-label="Back to packs">
           <i class="fas fa-arrow-left"></i>
         </a>
-        <h2 id="pack-name" class="flex-1 text-center text-xl sm:text-2xl font-bold mx-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 bg-clip-text text-transparent leading-none">Loading...</h2>
+        <h2 id="pack-name" class="flex-1 text-center text-xl sm:text-2xl font-bold mx-4 gradient-text leading-none">Loading...</h2>
       </div>
       <div id="case-spice" class="text-center text-xs mt-2"></div>
     </div>
 
     <div id="pack-display" class="flex flex-col items-center gap-4 mt-6">
       <div class="relative w-28 h-28 sm:w-40 sm:h-40">
-        <img id="top-card-1" class="hidden absolute z-0 -left-8 sm:-left-10 top-1/2 w-16 h-24 sm:w-20 sm:h-28 object-contain rounded-lg bg-black/40 border-2 shadow-lg transform -translate-y-1/2 -rotate-12" />
-        <img id="top-card-2" class="hidden absolute z-0 -right-8 sm:-right-10 top-1/2 w-16 h-24 sm:w-20 sm:h-28 object-contain rounded-lg bg-black/40 border-2 shadow-lg transform -translate-y-1/2 rotate-12" />
+        <img id="top-card-1" class="hidden absolute z-0 -left-8 sm:-left-10 top-1/2 w-16 h-24 sm:w-20 sm:h-28 object-contain rounded-lg bg-white border-2 shadow-lg transform -translate-y-1/2 -rotate-12" />
+        <img id="top-card-2" class="hidden absolute z-0 -right-8 sm:-right-10 top-1/2 w-16 h-24 sm:w-20 sm:h-28 object-contain rounded-lg bg-white border-2 shadow-lg transform -translate-y-1/2 rotate-12" />
         <img id="main-pack-image" class="relative z-10 w-full h-full object-contain" alt="Pack" />
       </div>
       <button id="open-pack" class="shining-button animate-pulse relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-105 focus:outline-none overflow-hidden">
@@ -104,8 +92,8 @@
         </span>
       </button>
       <div class="flex justify-center mt-2">
-        <button id="pf-info" class="flex items-center gap-2 text-sm font-semibold text-green-400 hover:text-green-300 transition cursor-pointer">
-          <i class="fa-solid fa-shield-halved text-green-400 text-base drop-shadow"></i>
+        <button id="pf-info" class="flex items-center gap-2 text-sm font-semibold text-green-600 hover:text-green-500 transition cursor-pointer">
+          <i class="fa-solid fa-shield-halved text-green-600 text-base drop-shadow"></i>
           <span>Provably Fair</span>
         </button>
       </div>
@@ -113,7 +101,7 @@
 
     <div id="card-container" class="hidden flex flex-wrap justify-center gap-2 sm:gap-4 mt-10"></div>
 
-    <div class="bg-black/30 backdrop-blur-md rounded-2xl shadow-md border border-white/10 p-6 hover:shadow-purple-500/20 transition-all duration-300 mt-10 relative">
+    <div class="bg-white rounded-2xl shadow-md border border-gray-200 p-6 transition-all duration-300 mt-10 relative">
       <img class="case-pack-image absolute -top-10 left-0 -translate-x-1/2 w-64 opacity-20 z-0 pointer-events-none -rotate-12" alt="Pack Art" />
       <img class="case-pack-image absolute -top-10 right-0 translate-x-1/2 w-64 opacity-20 z-0 pointer-events-none rotate-12" alt="Pack Art" />
       <div class="relative z-10">
@@ -122,7 +110,7 @@
             <img src="https://cdn-icons-png.flaticon.com/128/5172/5172637.png" alt="Rewards Icon" class="w-5 h-5" />
             <span class="text-sm font-bold uppercase tracking-wider text-white">Rewards Table</span>
           </div>
-          <p class="mt-2 text-sm text-gray-300">Each pack contains a mix of prizes with different rarities and values.</p>
+          <p class="mt-2 text-sm text-gray-600">Each pack contains a mix of prizes with different rarities and values.</p>
         </div>
         <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 text-sm"></div>
       </div>
@@ -130,13 +118,13 @@
   </section>
 
   <div id="win-popup" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center z-50">
-    <div id="popup-card" class="premium-popup popup-box border-2 rounded-2xl p-6 w-full max-w-sm text-center relative text-white">
-      <button id="close-popup" class="absolute top-2 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
+    <div id="popup-card" class="premium-popup popup-box border rounded-2xl p-6 w-full max-w-sm text-center relative bg-white text-gray-900">
+      <button id="close-popup" class="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
       <img id="popup-image" src="" alt="Prize" class="w-48 h-48 object-contain mx-auto mb-4 rounded-lg premium-glow" />
       <h3 id="popup-name" class="text-lg font-semibold mb-1"></h3>
       <div id="popup-rarity" class="text-xs uppercase tracking-wider mb-1"></div>
-      <div class="text-yellow-300 font-bold mb-1"><span id="popup-value"></span> coins</div>
-      <div class="text-gray-400 text-xs mb-4"><span id="popup-odds"></span> chance</div>
+      <div class="text-yellow-600 font-bold mb-1"><span id="popup-value"></span> coins</div>
+      <div class="text-gray-600 text-xs mb-4"><span id="popup-odds"></span> chance</div>
       <div class="flex justify-center gap-4">
         <button id="keep-btn" class="px-4 py-2 rounded-xl premium-button text-sm">Keep</button>
         <button id="sell-btn" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold">Sell for <span id="sell-value"></span></button>
@@ -146,20 +134,20 @@
 
   <!-- Provably Fair Modal -->
   <div id="provably-fair-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-    <div class="bg-gray-900 p-4 rounded-xl w-full max-w-sm text-white relative border border-white/10">
-      <button onclick="document.getElementById('provably-fair-modal').classList.add('hidden')" class="absolute top-2 right-3 text-white text-xl">&times;</button>
+    <div class="bg-white p-4 rounded-xl w-full max-w-sm text-gray-900 relative border border-gray-200">
+      <button onclick="document.getElementById('provably-fair-modal').classList.add('hidden')" class="absolute top-2 right-3 text-gray-500 text-xl">&times;</button>
       <h3 class="text-lg font-bold mb-3">Provably Fair</h3>
-      <p class="text-xs text-gray-300 mb-4">All outcomes are generated using your client seed, our server seed, and a nonce. The resulting roll is compared against the case odds to decide the prize, ensuring every spin is fair and verifiable.</p>
-      <div class="text-left text-xs space-y-2 font-mono text-gray-100 break-words">
+      <p class="text-xs text-gray-600 mb-4">All outcomes are generated using your client seed, our server seed, and a nonce. The resulting roll is compared against the case odds to decide the prize, ensuring every spin is fair and verifiable.</p>
+      <div class="text-left text-xs space-y-2 font-mono text-gray-800 break-words">
         <div><strong>Server Seed:</strong> <span id="pf-server-seed">...</span></div>
         <div><strong>Client Seed:</strong> <span id="pf-client-seed">...</span></div>
         <div><strong>Nonce:</strong> <span id="pf-nonce">...</span></div>
       </div>
       <div class="mt-4 space-y-2 text-xs">
-        <input id="client-seed-input" type="text" placeholder="New client seed" class="w-full px-2 py-1 rounded bg-gray-800 text-white" />
+        <input id="client-seed-input" type="text" placeholder="New client seed" class="w-full px-2 py-1 rounded bg-gray-100 text-gray-900" />
         <button id="update-client-seed" class="w-full bg-green-600 hover:bg-green-500 rounded py-2 text-white">Update Client Seed</button>
         <button id="new-server-seed" class="w-full bg-purple-600 hover:bg-purple-500 rounded py-2 text-white">New Server Seed</button>
-        <a href="verify.html" class="block text-center text-blue-400 hover:underline mt-2">Verify a roll</a>
+        <a href="verify.html" class="block text-center text-blue-600 hover:underline mt-2">Verify a roll</a>
       </div>
     </div>
   </div>
@@ -171,50 +159,6 @@
   <script src="scripts/navbar.js"></script>
   <script src="scripts/topup.js"></script>
   <script src="scripts/vault.js"></script>
-
-  <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const canvas = document.getElementById('particle-canvas');
-  const ctx = canvas.getContext('2d');
-  const particles = [];
-  const count = 50;
-
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  for (let i = 0; i < count; i++) {
-    particles.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 3 + 1,
-      dx: (Math.random() - 0.5) * 0.3,
-      dy: (Math.random() - 0.5) * 0.3
-    });
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (const p of particles) {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.5)';
-      ctx.fill();
-      p.x += p.dx;
-      p.y += p.dy;
-      if (p.x < 0) p.x = canvas.width;
-      if (p.x > canvas.width) p.x = 0;
-      if (p.y < 0) p.y = canvas.height;
-      if (p.y > canvas.height) p.y = 0;
-    }
-    requestAnimationFrame(draw);
-  }
-  draw();
-});
-  </script>
 </body>
 </html>
 
