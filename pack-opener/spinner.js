@@ -23,7 +23,7 @@
         const tile=document.createElement('div');
         tile.className='tile';
         tile.dataset.id=item.id;
-        const priceHtml=item.value!==undefined?`<div class="price"><i class='fa-solid fa-gem'></i>${item.value}</div>`:'';
+        const priceHtml=item.value!==undefined?`<div class="price">${item.value}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin"/></div>`:'';
         tile.innerHTML=`<img src="${item.image}" alt="${item.name}"/><div class="tile-info"><div class="name">${item.name}</div>${priceHtml}</div>`;
         frag.appendChild(tile);
       });
@@ -70,15 +70,17 @@
 
   function spinToIndex(index,opts={}){
     if(state.isSpinning||!state.root) return;
-    render();
+    const startX=getCurrentX();
     const duration=opts.durationMs||2400;state.isSpinning=true;
+    render();
+    state.root.style.transform=`translate3d(${startX}px,0,0)`;
     if(opts.nearMiss){
       const tiles=state.root.children;const midStart=state.items.length*2;
       const highIndex=state.items.findIndex(it=>['legendary','ultra','rare'].includes(it.rarity)&&state.items.indexOf(it)!==index);
       if(highIndex>=0){
         const clone=document.createElement('div');const it=state.items[highIndex];
         clone.className='tile';
-        const priceHtml=it.value!==undefined?`<div class="price"><i class='fa-solid fa-gem'></i>${it.value}</div>`:'';
+        const priceHtml=it.value!==undefined?`<div class="price">${it.value}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin"/></div>`:'';
         clone.innerHTML=`<img src="${it.image}" alt="${it.name}"/><div class=\"tile-info\"><div class=\"name\">${it.name}</div>${priceHtml}</div>`;
         tiles[midStart+index+1].replaceWith(clone);
       }
@@ -88,21 +90,29 @@
     const centerOffset=containerWidth/2 - state.tileWidth/2;
     const targetIndex=state.items.length*2 + index;
     const finalX=-(targetIndex*state.tileWidth - centerOffset);
+    const distance=finalX-startX;
     const accDur=duration*0.25, cruiseDur=duration*0.35, decelDur=duration-accDur-cruiseDur;
-    const accDist=finalX*0.25, cruiseDist=finalX*0.5, decelDist=finalX-accDist-cruiseDist;
+    const accDist=distance*0.25, cruiseDist=distance*0.5, decelDist=distance-accDist-cruiseDist;
     let lastTick=0;emit('start');
     function easeOutCubic(t){return 1-Math.pow(1-t,3);}function easeInQuart(t){return t*t*t*t;}
     function animate(now,start){
-      const elapsed=now-start;let pos=0;
-      if(elapsed<accDur){pos=easeOutCubic(elapsed/accDur)*accDist;}
-      else if(elapsed<accDur+cruiseDur){const t=(elapsed-accDur)/cruiseDur;pos=accDist+t*cruiseDist+Math.sin(t*3.1415*4)*1.5;if(!state.cruiseEmitted){emit('cruise');state.cruiseEmitted=true;}}
-      else if(elapsed<duration){const t=(elapsed-accDur-cruiseDur)/decelDur;pos=accDist+cruiseDist+easeInQuart(t)*decelDist;}
-      else{pos=finalX;}
-      state.root.style.transform=`translate3d(${pos}px,0,0)`;
+      const elapsed=now-start;let delta=0;
+      if(elapsed<accDur){delta=easeOutCubic(elapsed/accDur)*accDist;}
+      else if(elapsed<accDur+cruiseDur){const t=(elapsed-accDur)/cruiseDur;delta=accDist+t*cruiseDist;if(!state.cruiseEmitted){emit('cruise');state.cruiseEmitted=true;}}
+      else if(elapsed<duration){const t=(elapsed-accDur-cruiseDur)/decelDur;delta=accDist+cruiseDist+easeInQuart(t)*decelDist;}
+      else{delta=distance;}
+      const pos=startX+delta;
+      state.root.style.transform=`translate3d(${Math.round(pos)}px,0,0)`;
       if(now-lastTick>120){playTick();lastTick=now;}
       if(elapsed<duration){requestAnimationFrame(t=>animate(t,start));}
-      else{state.root.style.transform=`translate3d(${finalX}px,0,0)`;state.isSpinning=false;state.cruiseEmitted=false;const item=state.items[index];state.root.children[targetIndex].classList.add('win');stinger(item.rarity);burstConfetti();emit('reveal',item);opts.onReveal&&opts.onReveal(item);emit('finish',item);} }
+      else{state.root.style.transform=`translate3d(${Math.round(finalX)}px,0,0)`;state.isSpinning=false;state.cruiseEmitted=false;const item=state.items[index];state.root.children[targetIndex].classList.add('win');stinger(item.rarity);burstConfetti();emit('reveal',item);opts.onReveal&&opts.onReveal(item);emit('finish',item);} }
     requestAnimationFrame(t=>animate(t,t));
+  }
+
+  function getCurrentX(){
+    const style=getComputedStyle(state.root);
+    const matrix=new DOMMatrixReadOnly(style.transform);
+    return matrix.m41;
   }
 
   global.PackOpener={init,setItems,isSpinning,spinToIndex,on,setMuted,_state:state};

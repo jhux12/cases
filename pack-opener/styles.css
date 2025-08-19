@@ -13,7 +13,7 @@ body {
   position: relative;
   overflow: hidden;
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto 1.5rem;
   border: 1px solid #2a2f3a;
   border-radius: 12px;
@@ -27,8 +27,8 @@ body {
 }
 
 .tile {
-  flex: 0 0 150px;
-  margin: 0 8px;
+  flex: 0 0 170px;
+  margin: 0 10px;
   position: relative;
   background: #2a2f3a;
   border: 1px solid #3a4050;
@@ -39,8 +39,8 @@ body {
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .tile img {
-  width: 120px;
-  height: 160px;
+  width: 150px;
+  height: 210px;
   object-fit: cover;
   border-radius: 8px;
 }
@@ -63,8 +63,8 @@ body {
   border-bottom-right-radius:12px;
 }
 .tile-info .name { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.tile-info .price { margin-top:2px; display:flex; align-items:center; justify-content:center; gap:2px; color:#38bdf8; }
-.tile-info .price i { font-size:0.75rem; }
+.tile-info .price { margin-top:2px; display:flex; align-items:center; justify-content:center; gap:2px; color:#fbbf24; }
+.tile-info .price img { width:0.75rem; height:0.75rem; }
 
 .center-marker {
   position: absolute;

@@ -40,7 +40,7 @@
       position: relative;
       overflow: hidden;
       width: 100%;
-      max-width: 640px;
+      max-width: 900px;
       margin: 0 auto;
       border: 1px solid #2a2f3a;
       border-radius: 12px;
@@ -48,8 +48,8 @@
     }
     .reel { display: flex; will-change: transform; padding: 1rem 0; }
     .tile {
-      flex: 0 0 120px;
-      margin: 0 6px;
+      flex: 0 0 170px;
+      margin: 0 10px;
       position: relative;
       background: #2a2f3a;
       border: 1px solid #3a4050;
@@ -59,7 +59,7 @@
       color: #f1f5f9;
       transition: transform 0.2s, box-shadow 0.2s;
     }
-    .tile img { width: 100px; height: 140px; object-fit: cover; border-radius: 8px; }
+    .tile img { width: 150px; height: 210px; object-fit: cover; border-radius: 8px; }
     .tile:hover { transform: translateY(-4px); box-shadow: 0 4px 8px rgba(0,0,0,0.6); }
     .tile.win { box-shadow: 0 0 0 3px #FFD36E; animation: flash 0.6s; }
     @keyframes flash {0%,100%{filter:brightness(1);}50%{filter:brightness(1.8);}}
@@ -78,8 +78,8 @@
       border-bottom-right-radius: 12px;
     }
     .tile-info .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .tile-info .price { margin-top: 2px; display:flex; align-items:center; justify-content:center; gap:2px; color:#38bdf8; }
-    .tile-info .price i { font-size:0.75rem; }
+    .tile-info .price { margin-top: 2px; display:flex; align-items:center; justify-content:center; gap:2px; color:#fbbf24; }
+    .tile-info .price img { width:0.75rem; height:0.75rem; }
     .center-marker {
       position: absolute;
       top: 0;
