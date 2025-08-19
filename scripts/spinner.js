@@ -94,12 +94,9 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
   if (!targetCard) return Promise.resolve();
 
   const containerEl = spinnerWheel.parentElement;
-  const targetRect = targetCard.getBoundingClientRect();
-  const containerRect = containerEl.getBoundingClientRect();
-  const cardCenter = targetRect.left + targetRect.width / 2;
-  const containerCenter = containerRect.left + containerRect.width / 2;
 
-  // Adjust for any scale transform applied to the container
+  // Determine scaling applied to the container so calculations can occur in
+  // the unscaled coordinate space used by transforms.
   let scale = 1;
   const transform = window.getComputedStyle(containerEl).transform;
   if (transform && transform !== 'none') {
@@ -108,6 +105,20 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
       scale = parseFloat(match[1]) || 1;
     }
   }
+
+  const targetRect = targetCard.getBoundingClientRect();
+  const containerRect = containerEl.getBoundingClientRect();
+  const containerCenter = containerRect.left + containerRect.width / 2;
+  const cardCenter = targetRect.left + targetRect.width / 2;
+
+  // Precompute each card's center relative to the container center in the
+  // same coordinate space as the transform so we avoid layout work every frame.
+  const cardCenters = Array.from(cards).map(card => {
+    const rect = card.getBoundingClientRect();
+    return (rect.left + rect.width / 2 - containerCenter) / scale;
+  });
+  const step = cardCenters[1] - cardCenters[0];
+  const firstCenter = cardCenters[0];
 
   const finalOffset = (cardCenter - containerCenter) / scale;
   let targetOffset = finalOffset;
@@ -134,97 +145,97 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
   }
 
   const spinDuration = 4 + Math.random() * 2; // 4-6 seconds for a snappier feel
-  requestAnimationFrame(() => {
-    spinnerWheel.style.willChange = 'transform';
-    spinnerWheel.style.transition = `transform ${spinDuration}s cubic-bezier(0.33, 1, 0.68, 1)`;
-    spinnerWheel.style.transform = `translate3d(-${targetOffset}px,0,0)`;
-  });
+  const borderEl = document.getElementById(`spinner-border-${id}`);
+  let currentOffset = 0;
 
-  let animationFrame;
-
-  function trackCenterPrize() {
-    const cards = spinnerWheel.querySelectorAll(".item");
-    const containerRect = spinnerWheel.parentElement.getBoundingClientRect();
-    const centerX = containerRect.left + containerRect.width / 2;
-    let closestCard = null;
-    let minDistance = Infinity;
-
-    cards.forEach(card => {
-      const rect = card.getBoundingClientRect();
-      const cardCenter = rect.left + rect.width / 2;
-      const distance = Math.abs(centerX - cardCenter);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestCard = card;
-      }
-    });
-
-    if (closestCard) {
-      const indexAttr = closestCard.getAttribute("data-index");
-      const prize = spinnerPrizesMap[id][indexAttr];
-      const rarity = (prize?.rarity || "common").toLowerCase().replace(/\s+/g, '');
-      const color = getRarityColor(rarity);
-
-      const borderEl = document.getElementById(`spinner-border-${id}`);
-      if (borderEl) borderEl.style.borderColor = color;
-    }
-
-    animationFrame = requestAnimationFrame(trackCenterPrize);
+  let lastIndex = -1;
+  function highlight(offset) {
+    const index = Math.max(0, Math.min(cardCenters.length - 1, Math.round((offset - firstCenter) / step)));
+    if (index === lastIndex) return;
+    lastIndex = index;
+    const prize = spinnerPrizesMap[id][index];
+    const rarity = (prize?.rarity || 'common').toLowerCase().replace(/\s+/g, '');
+    const color = getRarityColor(rarity);
+    if (borderEl) borderEl.style.borderColor = color;
   }
 
-  trackCenterPrize();
+  function animate(offset, duration, done) {
+    const startOffset = currentOffset;
+    const animation = spinnerWheel.animate(
+      [
+        { transform: `translate3d(-${startOffset}px,0,0)` },
+        { transform: `translate3d(-${offset}px,0,0)` }
+      ],
+      {
+        duration: duration * 1000,
+        easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
+        fill: 'forwards'
+      }
+    );
+
+    function step() {
+      currentOffset = startOffset + (offset - startOffset) * (animation.currentTime / (duration * 1000));
+      highlight(currentOffset);
+      if (animation.playState === 'running') requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+
+    animation.addEventListener('finish', () => {
+      currentOffset = offset;
+      highlight(currentOffset);
+      spinnerWheel.style.transform = `translate3d(-${offset}px,0,0)`;
+      if (done) done();
+    });
+  }
+
+  spinnerWheel.style.willChange = 'transform';
 
   return new Promise(resolve => {
-    function onTransitionEnd() {
-      cancelAnimationFrame(animationFrame);
+    function finish() {
       spinnerWheel.style.willChange = '';
 
-    // If we performed a close-call overshoot, correct to the final prize now
-    if (closeCallDir !== 0) {
-      const nearMissIndex = closeCallDir === -1 ? targetIndex - 1 : targetIndex + 1;
-      const nearMissCard = spinnerWheel.querySelector(`.item[data-index="${nearMissIndex}"]`);
-      if (nearMissCard) nearMissCard.classList.add("near-miss-flash");
+      const prize = spinnerPrizesMap[id][targetIndex];
+      const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
 
-      closeCallDir = 0; // prevent looping
-      requestAnimationFrame(() => {
-        spinnerWheel.style.transition = 'transform 0.4s ease-out';
-        spinnerWheel.style.transform = `translate3d(-${finalOffset}px,0,0)`;
-      });
-      return;
+      const spinnerResultText = document.getElementById("spinner-result");
+      if (spinnerResultText) {
+        spinnerResultText.textContent = `You won: ${prize.name}!`;
+        spinnerResultText.classList.remove("hidden");
+      }
+
+      if (showPopup) {
+        document.getElementById("popup-image").src = prize.image;
+        document.getElementById("popup-name").textContent = prize.name;
+        document.getElementById("popup-value").textContent = prize.value;
+        document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
+        document.getElementById("win-popup").classList.remove("hidden");
+      } else {
+        const popup = document.getElementById("win-popup");
+        if (popup) popup.classList.add("hidden");
+      }
+
+      if (targetCard) {
+        const glowClass = `glow-${rarity}`;
+        targetCard.classList.add(glowClass, "ring-4", "ring-white");
+      }
+
+      if (callback) callback(prize);
+      resolve(prize);
     }
 
-    // Final landing: award the prize
-    const prize = spinnerPrizesMap[id][targetIndex];
-    const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-
-    const spinnerResultText = document.getElementById("spinner-result");
-    if (spinnerResultText) {
-      spinnerResultText.textContent = `You won: ${prize.name}!`;
-      spinnerResultText.classList.remove("hidden");
+    function startFinal() {
+      if (closeCallDir !== 0) {
+        const nearMissIndex = closeCallDir === -1 ? targetIndex - 1 : targetIndex + 1;
+        const nearMissCard = spinnerWheel.querySelector(`.item[data-index="${nearMissIndex}"]`);
+        if (nearMissCard) nearMissCard.classList.add("near-miss-flash");
+        closeCallDir = 0;
+        animate(finalOffset, 0.4, finish);
+      } else {
+        finish();
+      }
     }
 
-    if (showPopup) {
-      document.getElementById("popup-image").src = prize.image;
-      document.getElementById("popup-name").textContent = prize.name;
-      document.getElementById("popup-value").textContent = prize.value;
-      document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
-      document.getElementById("win-popup").classList.remove("hidden");
-    } else {
-      const popup = document.getElementById("win-popup");
-      if (popup) popup.classList.add("hidden");
-    }
-
-    if (targetCard) {
-      const glowClass = `glow-${rarity}`;
-      targetCard.classList.add(glowClass, "ring-4", "ring-white");
-    }
-
-    if (callback) callback(prize);
-    resolve(prize);
-    spinnerWheel.removeEventListener('transitionend', onTransitionEnd);
-  }
-
-    spinnerWheel.addEventListener('transitionend', onTransitionEnd);
+    animate(targetOffset, spinDuration, startFinal);
   });
 }
 
