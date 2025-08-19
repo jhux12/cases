@@ -46,23 +46,23 @@
     .legendary-spark::after { --sx:30px; --sy:-30px; }
   </style>
 </head>
-<body class="bg-gradient-to-br from-black via-gray-900 to-black min-h-screen text-white">
+<body class="min-h-screen bg-gray-50 text-gray-900">
 <script src="scripts/preloader.js"></script>
   <header></header>
   <section class="pt-32 pb-20 max-w-4xl mx-auto px-4">
     <div class="text-center mb-8">
-      <h1 class="text-4xl font-bold">Pickem</h1>
-      <p class="text-gray-300 mt-2">Exclusive limited-time packs where you pick one of five cards to win its coin value.</p>
+      <h1 class="text-4xl font-bold gradient-text">Pickem</h1>
+      <p class="text-gray-600 mt-2">Exclusive limited-time packs where you pick one of five cards to win its coin value.</p>
     </div>
-      <div id="active-pick" class="relative p-8 bg-black/40 backdrop-blur rounded-3xl border border-yellow-500/40 shadow-2xl flex flex-col items-center text-center">
-        <h2 id="pack-name" class="text-3xl font-bold mb-4"></h2>
+      <div id="active-pick" class="relative p-8 bg-white rounded-3xl border border-gray-200 shadow-lg flex flex-col items-center text-center">
+        <h2 id="pack-name" class="text-3xl font-bold mb-4 text-gray-900"></h2>
         <div class="relative w-56 sm:w-72 mx-auto mb-4">
           <img id="pack-image" alt="Pickem" class="relative z-10 w-full h-auto object-contain mx-auto drop-shadow-xl transform transition-transform duration-300 hover:scale-105">
           <div id="pickem-timer" class="timer-badge absolute -top-4 -right-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">30:00</div>
         </div>
         <div class="flex justify-center mb-4">
-          <button id="pf-info" class="flex items-center gap-2 text-sm font-semibold text-green-400 hover:text-green-300 transition cursor-pointer">
-            <i class="fa-solid fa-shield-halved text-green-400 text-base drop-shadow"></i>
+          <button id="pf-info" class="flex items-center gap-2 text-sm font-semibold text-green-600 hover:text-green-500 transition cursor-pointer">
+            <i class="fa-solid fa-shield-halved text-green-600 text-base drop-shadow"></i>
             <span>Provably Fair</span>
           </button>
         </div>
@@ -75,20 +75,20 @@
   </section>
   <!-- Provably Fair Modal -->
   <div id="provably-fair-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-    <div class="bg-gray-900 p-4 rounded-xl w-full max-w-sm text-white relative border border-white/10">
-      <button onclick="document.getElementById('provably-fair-modal').classList.add('hidden')" class="absolute top-2 right-3 text-white text-xl">&times;</button>
+    <div class="bg-white p-4 rounded-xl w-full max-w-sm text-gray-900 relative border border-gray-200">
+      <button onclick="document.getElementById('provably-fair-modal').classList.add('hidden')" class="absolute top-2 right-3 text-gray-500 text-xl">&times;</button>
       <h3 class="text-lg font-bold mb-3">Provably Fair</h3>
-      <p class="text-xs text-gray-300 mb-4">All outcomes are generated using your client seed, our server seed, and a nonce. The resulting roll is compared against the case odds to decide the prize, ensuring every spin is fair and verifiable.</p>
-      <div class="text-left text-xs space-y-2 font-mono text-gray-100 break-words">
+      <p class="text-xs text-gray-600 mb-4">All outcomes are generated using your client seed, our server seed, and a nonce. The resulting roll is compared against the case odds to decide the prize, ensuring every spin is fair and verifiable.</p>
+      <div class="text-left text-xs space-y-2 font-mono text-gray-800 break-words">
         <div><strong>Server Seed:</strong> <span id="pf-server-seed">...</span></div>
         <div><strong>Client Seed:</strong> <span id="pf-client-seed">...</span></div>
         <div><strong>Nonce:</strong> <span id="pf-nonce">...</span></div>
       </div>
       <div class="mt-4 space-y-2 text-xs">
-        <input id="client-seed-input" type="text" placeholder="New client seed" class="w-full px-2 py-1 rounded bg-gray-800 text-white" />
+        <input id="client-seed-input" type="text" placeholder="New client seed" class="w-full px-2 py-1 rounded bg-gray-100 text-gray-900" />
         <button id="update-client-seed" class="w-full bg-green-600 hover:bg-green-500 rounded py-2 text-white">Update Client Seed</button>
         <button id="new-server-seed" class="w-full bg-purple-600 hover:bg-purple-500 rounded py-2 text-white">New Server Seed</button>
-        <a href="verify.html" class="block text-center text-blue-400 hover:underline mt-2">Verify a roll</a>
+        <a href="verify.html" class="block text-center text-blue-600 hover:underline mt-2">Verify a roll</a>
       </div>
     </div>
   </div>
