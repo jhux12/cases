@@ -36,7 +36,54 @@
     .coin-icon {
       filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.7));
     }
+    .reel-wrapper {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      border-radius: 8px;
+      background: #1d2129;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.6);
+    }
+    .reel { display: flex; will-change: transform; padding: 1rem 0; }
+    .tile {
+      flex: 0 0 120px;
+      margin: 0 6px;
+      text-align: center;
+      background: #2a2f3a;
+      border-radius: 8px;
+      padding: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      transition: transform 0.2s;
+    }
+    .tile img { width: 100px; height: 140px; object-fit: cover; border-radius: 4px; }
+    .tile:hover { transform: translateY(-4px); }
+    .tile.win { box-shadow: 0 0 10px 4px rgba(255,211,110,0.7); animation: flash 0.6s; }
+    @keyframes flash {0%,100%{filter:brightness(1);}50%{filter:brightness(1.8);}}
+    .tile.skeleton { position:relative; overflow:hidden; }
+    .tile.skeleton::after { content:""; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent); animation:shimmer 1.5s infinite; }
+    @keyframes shimmer {100%{transform:translateX(100%);}}
+    .center-marker {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background: linear-gradient(#8b5cf6,#3b82f6);
+      box-shadow: 0 0 6px #8b5cf6;
+      transform: translateX(-50%);
+    }
+    .confetti { position:absolute; width:6px; height:6px; background:#FFD36E; animation:fall 0.7s forwards; }
+    @keyframes fall { to { transform: translateY(60px) rotate(360deg); opacity:0; } }
+    .pill { display:inline-block; padding:2px 6px; border-radius:4px; font-size:0.75rem; margin-top:4px; }
+    .pill.common { background:#2a2f3a; color:#b6bdc9; }
+    .pill.uncommon { background:#103a33; color:#8FE3C9; }
+    .pill.rare { background:#0f2746; color:#A6C8FF; }
+    .pill.ultra { background:#2a1650; color:#C9A7FF; }
+    .pill.legendary { background:#3b2b05; color:#FFD36E; }
   </style>
+  <script src="pack-opener/spinner.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 overflow-x-hidden">
   <script src="scripts/preloader.js"></script>
@@ -57,7 +104,12 @@
     </div>
     <div id="case-spice" class="text-center text-xs mt-2"></div>
   </div>
-    <div id="spinners-wrapper" class="my-8 flex flex-wrap gap-4 justify-center"></div>
+    <div class="my-8 flex justify-center">
+      <div class="reel-wrapper">
+        <div id="reel" class="reel"></div>
+        <div class="center-marker"></div>
+      </div>
+    </div>
     <div class="flex justify-center items-center gap-4 mt-6">
       <select id="spin-count" class="bg-white text-gray-700 border border-gray-300 rounded px-3 py-2">
         <option value="1">1x</option>
@@ -105,43 +157,7 @@
   </section>
   <!-- Main logic -->
 <script type="module">
-import { renderSpinner, spinToPrize } from './scripts/spinner.js';
 import { updateMilestones } from './scripts/quests.js';
-
-function setupSpinners(count) {
-  const wrapper = document.getElementById('spinners-wrapper');
-  if (!wrapper) return;
-  wrapper.innerHTML = '';
-  for (let i = 0; i < count; i++) {
-    const border = document.createElement('div');
-    border.id = `spinner-border-${i}`;
-    border.className = `border-4 border-gray-200 rounded-lg bg-white transition-colors duration-300 ${count === 1 ? 'w-full sm:w-2/3 md:w-1/2' : 'w-full sm:w-1/2 md:w-1/3'}`;
-
-    const inner = document.createElement('div');
-    let heightClass;
-    if (count === 1) {
-      heightClass = 'h-[250px] sm:h-[300px]';
-    } else {
-      // slightly larger spinners on mobile when multiple are shown
-      heightClass = 'h-[150px] sm:h-[180px]';
-    }
-    inner.className = `relative ${heightClass} overflow-hidden`;
-
-    const line = document.createElement('div');
-    line.className = 'absolute top-0 bottom-0 w-1 bg-indigo-500 left-1/2 transform -translate-x-1/2 z-10';
-    const container = document.createElement('div');
-    container.id = `spinner-container-${i}`;
-    container.className = 'w-full h-full transform';
-    if (count > 1) {
-      // make additional spinners a bit bigger on mobile while still shrinking overall
-      container.classList.add('scale-[0.6]', 'sm:scale-75', 'md:scale-90', 'lg:scale-100');
-    }
-    inner.appendChild(line);
-    inner.appendChild(container);
-    border.appendChild(inner);
-    wrapper.appendChild(border);
-  }
-}
 
 const formatCoins = (num) => {
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
@@ -278,6 +294,7 @@ function showMultiWinPopup(prizes) {
 let isMuted = false;
 function applyMuteState() {
   document.querySelectorAll('audio').forEach(a => { a.muted = isMuted; });
+  if (window.PackOpener) PackOpener.setMuted(isMuted);
 }
 document.getElementById('mute-toggle').addEventListener('click', () => {
   isMuted = !isMuted;
@@ -406,16 +423,16 @@ const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
   return (b.value || 0) - (a.value || 0); // secondary sort by value
 });
 
-const previewPrizes = prizeList.slice(0, 30);
-setupSpinners(1);
-renderSpinner(previewPrizes, null, true, 0); // show preview spinner
+const openerItems = prizeList.map((p, i) => ({
+  id: i,
+  name: p.name,
+  image: p.image,
+  rarity: (p.rarity || 'common').toLowerCase().replace(/\s+/g,'')
+}));
+PackOpener.init({ root: document.getElementById('reel'), items: openerItems });
 if (spinSelect) {
   spinSelect.addEventListener('change', (e) => {
     const count = parseInt(e.target.value) || 1;
-    setupSpinners(count);
-    for (let i = 0; i < count; i++) {
-      renderSpinner(previewPrizes, null, true, i);
-    }
     if (!isFreeCase) updatePriceDisplay(count);
   });
 }
@@ -513,13 +530,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   }
   const { nonce } = fairData;
 
-  setupSpinners(spinCount);
-
-  const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
-  const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
-
   const winnings = [];
-  let completed = 0;
 
   if (!isFreeCase) {
     const newBalance = balance - totalPrice;
@@ -527,7 +538,6 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   }
 
   for (let s = 0; s < spinCount; s++) {
-    // Request a cryptographically secure spin result from the server
     const res = await fetch('/api/spin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -557,62 +567,53 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     }
     winnings[s] = { ...winningPrize, key: invRef.key, levelResult };
 
-    const spinnerPrizes = [];
-    for (let i = 0; i < 30; i++) {
-      const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
-      spinnerPrizes.push(randomPrize);
+    const winIndex = openerItems.findIndex(p => p.name === winningPrize.name);
+    await new Promise(resolve => {
+      PackOpener.spinToIndex(winIndex, { durationMs: 2400, nearMiss: true, onReveal: () => resolve() });
+    });
+
+    const lr = winnings[s].levelResult;
+    if (lr.leveledUp) {
+      showToast(`Level ${lr.level}! +${formatCoins(lr.reward)} coins`, 'bg-green-600');
     }
-    spinnerPrizes[15] = winningPrize;
-
-    renderSpinner(spinnerPrizes, winningPrize, false, s);
-    setTimeout(() => {
-      spinToPrize(async () => {
-        const lr = winnings[s].levelResult;
-        if (lr.leveledUp) {
-          showToast(`Level ${lr.level}! +${formatCoins(lr.reward)} coins`, 'bg-green-600');
-        }
-        completed++;
-        if (completed === spinCount) {
-          if (isFreeCase) {
-            await firebase.database().ref('users/' + user.uid + '/freeCaseOpened').set(true);
-          }
-          const questUpdates = {
-            'openPacks/progress': firebase.database.ServerValue.increment(spinCount)
-          };
-          if (!isFreeCase) {
-            questUpdates['spendCoins/progress'] = firebase.database.ServerValue.increment(totalPrice);
-          }
-          const rareHits = winnings.filter(p => ['rare', 'ultra rare', 'legendary'].includes((p.rarity || '').toLowerCase())).length;
-          if (rareHits > 0) {
-            questUpdates['pullRare/progress'] = firebase.database.ServerValue.increment(rareHits);
-          }
-          await firebase.database().ref('users/' + user.uid + '/weeklyQuests').update(questUpdates);
-          await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + spinCount });
-
-          btn.disabled = false;
-          btn.classList.remove('cursor-not-allowed', 'opacity-60');
-          btn.innerHTML = isFreeCase
-            ? '<span class="relative z-10">Open for Free</span>'
-            : `<div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50 z-0 animate-spin-slow"></div>
-              <span class="relative z-10 flex items-center gap-2">
-                Open for
-                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
-                <span id="button-price">${formatCoins(caseData.price)}</span>
-              </span>`;
-          if (!isFreeCase) updatePriceDisplay(spinCount);
-          if (spinSelect) spinSelect.disabled = false;
-
-          const topPrize = winnings.reduce((best, p) =>
-            (rarityOrder[p.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) >
-            (rarityOrder[best.rarity?.toLowerCase().replace(/\s+/g,'')] || 0)
-              ? p : best
-          , winnings[0]);
-          playRaritySound(topPrize.rarity);
-          showMultiWinPopup(winnings);
-        }
-      }, false, s);
-    }, 150);
   }
+
+  if (isFreeCase) {
+    await firebase.database().ref('users/' + user.uid + '/freeCaseOpened').set(true);
+  }
+  const questUpdates = {
+    'openPacks/progress': firebase.database.ServerValue.increment(spinCount)
+  };
+  if (!isFreeCase) {
+    questUpdates['spendCoins/progress'] = firebase.database.ServerValue.increment(totalPrice);
+  }
+  const rareHits = winnings.filter(p => ['rare', 'ultra rare', 'legendary'].includes((p.rarity || '').toLowerCase())).length;
+  if (rareHits > 0) {
+    questUpdates['pullRare/progress'] = firebase.database.ServerValue.increment(rareHits);
+  }
+  await firebase.database().ref('users/' + user.uid + '/weeklyQuests').update(questUpdates);
+  await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + spinCount });
+
+  btn.disabled = false;
+  btn.classList.remove('cursor-not-allowed', 'opacity-60');
+  btn.innerHTML = isFreeCase
+    ? '<span class="relative z-10">Open for Free</span>'
+    : `<div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50 z-0 animate-spin-slow"></div>
+      <span class="relative z-10 flex items-center gap-2">
+        Open for
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+        <span id="button-price">${formatCoins(caseData.price)}</span>
+      </span>`;
+  if (!isFreeCase) updatePriceDisplay(spinCount);
+  if (spinSelect) spinSelect.disabled = false;
+
+  const topPrize = winnings.reduce((best, p) =>
+    (rarityOrder[p.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) >
+    (rarityOrder[best.rarity?.toLowerCase().replace(/\s+/g,'')] || 0)
+      ? p : best
+  , winnings[0]);
+  playRaritySound(topPrize.rarity);
+  showMultiWinPopup(winnings);
 });
 
 
@@ -649,35 +650,32 @@ document.getElementById("open-case-button").addEventListener("click", async () =
           demoPrizes.push(demoPrize);
         }
 
-        setupSpinners(spinCountDemo);
-
-        demoPrizes.forEach((demoPrize, idx) => {
-          const spinnerPrizes = [];
-          for (let i = 0; i < 30; i++) {
-            const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
-            spinnerPrizes.push(randomPrize);
-          }
-          spinnerPrizes[15] = demoPrize;
-          renderSpinner(spinnerPrizes, demoPrize, false, idx);
-        });
-
-        setTimeout(() => {
-          // Spin without showing the win popup in demo mode
-          const promises = demoPrizes.map((_, idx) => spinToPrize(() => {}, false, idx));
-          Promise.all(promises).then(results => {
-            btn.disabled = false;
-            btn.classList.remove("cursor-not-allowed", "opacity-60");
-            btn.innerHTML = '<span class="relative z-10">Try for Free</span>';
-            const names = results.map(p => p.name).join(', ');
-            const topPrize = results.reduce((best, p) =>
-              (rarityOrder[p.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) >
-              (rarityOrder[best.rarity?.toLowerCase().replace(/\s+/g,'')] || 0)
-                ? p : best
-            , results[0]);
-            playRaritySound(topPrize.rarity);
-            showToast(`You would have won ${names}!`, "bg-blue-600");
-          });
-        }, 150);
+        let index = 0;
+        const results = [];
+        function spinDemo() {
+          const prize = demoPrizes[index];
+          const winIdx = openerItems.findIndex(p => p.name === prize.name);
+          PackOpener.spinToIndex(winIdx, { durationMs: 2400, nearMiss: true, onReveal: () => {
+            results.push(prize);
+            index++;
+            if (index < demoPrizes.length) {
+              spinDemo();
+            } else {
+              btn.disabled = false;
+              btn.classList.remove("cursor-not-allowed", "opacity-60");
+              btn.innerHTML = '<span class="relative z-10">Try for Free</span>';
+              const names = results.map(p => p.name).join(', ');
+              const topPrize = results.reduce((best, p) =>
+                (rarityOrder[p.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) >
+                (rarityOrder[best.rarity?.toLowerCase().replace(/\s+/g,'')] || 0)
+                  ? p : best
+              , results[0]);
+              playRaritySound(topPrize.rarity);
+              showToast(`You would have won ${names}!`, "bg-blue-600");
+            }
+          }});
+        }
+        spinDemo();
       });
   document.getElementById("pf-info").addEventListener("click", async () => {
     const user = firebase.auth().currentUser;
