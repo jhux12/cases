@@ -30,6 +30,7 @@
       });
     }
     state.root.appendChild(frag);
+    state.root.style.transition='none';
     state.root.style.transform='translate3d(0,0,0)';
     const firstTile=state.root.querySelector('.tile');
     if(firstTile){
@@ -92,10 +93,15 @@
     const containerWidth=container.clientWidth;
     const centerOffset=containerWidth/2 - state.tileWidth/2;
     const targetIndex=state.items.length*2 + index;
-    const finalX=-(targetIndex*state.tileWidth - centerOffset);
+    const perfectX=-(targetIndex*state.tileWidth - centerOffset);
+    // random near-miss offset so result isn't always perfectly centered
+    const missChance=opts.misalignChance!==undefined?opts.misalignChance:0.7;
+    const missOffset=Math.random()<missChance? (Math.random()*state.tileWidth*0.4 - state.tileWidth*0.2):0;
+    const finalX=perfectX+missOffset;
     const distance=finalX-startX;
-    const accDur=duration*0.3, decelDur=duration*0.3, cruiseDur=duration-accDur-decelDur;
-    const accDist=distance*0.3, decelDist=distance*0.3, cruiseDist=distance-accDist-decelDist;
+    // heavier deceleration for slower end spin
+    const accDur=duration*0.25, decelDur=duration*0.45, cruiseDur=duration-accDur-decelDur;
+    const accDist=distance*(accDur/duration), decelDist=distance*(decelDur/duration), cruiseDist=distance-accDist-decelDist;
     let lastTick=0, start=null;emit('start');
     function easeInCubic(t){return t*t*t;}
     function easeOutQuart(t){return 1-Math.pow(1-t,4);}
@@ -120,6 +126,12 @@
         winTile.style.setProperty('--win-color',rarityColors[item.rarity]||'#FFD36E');
         winTile.classList.add('win');
         stinger(item.rarity);burstConfetti();emit('reveal',item);
+        // snap the reel to center after a brief near-miss pause
+        setTimeout(()=>{
+          state.root.style.transition='transform 150ms';
+          state.root.style.transform=`translate3d(${perfectX}px,0,0)`;
+          setTimeout(()=>state.root.style.transition='none',160);
+        },150);
         opts.onReveal&&opts.onReveal(item);emit('finish',item);
       }
     }
