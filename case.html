@@ -115,6 +115,19 @@
     .pill.rare { background:#eff6ff; color:#1e3a8a; }
     .pill.ultra { background:#f5f3ff; color:#5b21b6; }
     .pill.legendary { background:#fef3c7; color:#92400e; }
+    #best-drops-track { display:flex; will-change:transform; }
+    .best-drop-card {
+      flex: 0 0 60px;
+      height: 84px;
+      margin-right: 6px;
+      background: #2a2f3a;
+      border: 1px solid #3a4050;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .best-drop-card img { width:100%; height:100%; object-fit:cover; }
+    .vertical-rl { writing-mode: vertical-rl; transform: rotate(180deg); }
   </style>
   <script src="pack-opener/spinner.js"></script>
 </head>
@@ -133,6 +146,17 @@
       </div>
     </div>
     <div id="case-spice" class="text-center text-xs mt-2"></div>
+  </div>
+  <div id="best-drops-wrapper" class="w-full max-w-[1100px] mx-auto mb-6">
+    <div class="flex items-center bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700 rounded-lg shadow px-3 py-2 overflow-hidden">
+      <div class="flex flex-col items-center text-blue-400 mr-3">
+        <i class="fa-solid fa-droplet mb-1"></i>
+        <span class="vertical-rl text-[10px] font-bold tracking-widest text-gray-100">BEST DROPS</span>
+      </div>
+      <div class="overflow-hidden flex-1">
+        <div id="best-drops-track"></div>
+      </div>
+    </div>
   </div>
     <div class="my-8 flex justify-center">
       <div class="reel-wrapper">
@@ -198,6 +222,43 @@ const formatOdds = (odds) => {
   const decimals = odds < 1 ? 3 : 1;
   return parseFloat((odds || 0).toFixed(decimals));
 };
+
+function initBestDropsCarousel(items) {
+  const track = document.getElementById('best-drops-track');
+  if (!track || !items.length) return;
+  track.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  items.forEach((it) => {
+    const card = document.createElement('div');
+    card.className = 'best-drop-card';
+    card.innerHTML = `<img src="${it.image}" alt="${it.name}"/>`;
+    frag.appendChild(card);
+  });
+  // duplicate for seamless loop
+  items.forEach((it) => {
+    const card = document.createElement('div');
+    card.className = 'best-drop-card';
+    card.innerHTML = `<img src="${it.image}" alt="${it.name}"/>`;
+    frag.appendChild(card);
+  });
+  track.appendChild(frag);
+  const first = track.querySelector('.best-drop-card');
+  if (!first) return;
+  const cardWidth = first.getBoundingClientRect().width + parseFloat(getComputedStyle(first).marginRight);
+  let index = 0;
+  setInterval(() => {
+    index++;
+    track.style.transition = 'transform 0.5s';
+    track.style.transform = `translateX(-${index * cardWidth}px)`;
+    if (index >= items.length) {
+      setTimeout(() => {
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(0)';
+        index = 0;
+      }, 500);
+    }
+  }, 2500);
+}
 
 async function sellPrize(prize) {
   const user = firebase.auth().currentUser;
@@ -388,6 +449,17 @@ const openerItems = prizeList.map((p, i) => ({
 }));
 PackOpener.init({ root: document.getElementById('reel'), items: openerItems });
 PackOpener.setMuted(false);
+const bestDrops = openerItems.filter(it => it.rarity === 'legendary' || it.rarity === 'ultrarare');
+const repeatedBestDrops = [];
+while (bestDrops.length && repeatedBestDrops.length < 10) {
+  repeatedBestDrops.push(...bestDrops);
+}
+if (repeatedBestDrops.length) {
+  initBestDropsCarousel(repeatedBestDrops.slice(0, 10));
+} else {
+  const wrapper = document.getElementById('best-drops-wrapper');
+  if (wrapper) wrapper.style.display = 'none';
+}
       const rarityColors = {
         common: "#a1a1aa",
         uncommon: "#4ade80",
