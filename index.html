@@ -120,6 +120,20 @@
             border-bottom-right-radius: 12px;
         }
 
+        .tile-info .price {
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            color: #fbbf24;
+        }
+
+        .tile-info .price img {
+            width: 0.6rem;
+            height: 0.6rem;
+        }
+
         .center-marker {
             position: absolute;
             top: 0;
@@ -518,6 +532,7 @@
                 const items = Object.values(data.prizes || {});
                 if (!items.length) return;
                 PackOpener.init({ root, items });
+                PackOpener.setMuted(true);
 
                 function loop() {
                     const winIndex = Math.floor(Math.random() * items.length);
