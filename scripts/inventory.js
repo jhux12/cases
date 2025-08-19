@@ -141,9 +141,9 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML += `
           <div class="item-card rounded-2xl p-6 text-center h-full">
             <img src="${data.image}" class="mx-auto mb-4 h-24 object-contain rounded shadow-lg" />
-            <h2 class="font-bold text-xl text-yellow-300 truncate">${data.name}</h2>
-            <p class="text-sm text-pink-200 mb-1">Status: ${data.status}</p>
-            <p class="text-sm text-pink-200 mt-auto">Shipping Info: ${data.shippingInfo?.name}</p>
+            <h2 class="font-semibold text-lg text-gray-800 truncate">${data.name}</h2>
+            <p class="text-sm text-gray-600 mb-1 capitalize">Status: ${data.status}</p>
+            <p class="text-sm text-gray-600 mt-auto">Shipping Info: ${data.shippingInfo?.name || ''}</p>
           </div>`;
       });
     });
@@ -201,19 +201,24 @@ function renderItems(items) {
   items.forEach(item => {
     const refund = Math.floor((item.value || 0) * 0.8);
     const checked = selectedItems.has(item.key) ? 'checked' : '';
+    const rarityClassMap = { 'common': 'common', 'uncommon': 'uncommon', 'rare': 'rare', 'ultra rare': 'ultra', 'legendary': 'legendary' };
+    const rarityClass = rarityClassMap[item.rarity] || 'common';
     container.innerHTML += `
       <div class="item-card rounded-2xl p-6 text-center h-full">
-        <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-3 accent-pink-500" ${item.shipped || item.requested ? 'disabled' : ''} />
+        <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-3 accent-indigo-600" ${item.shipped || item.requested ? 'disabled' : ''} />
         <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}')" class="mx-auto mb-4 h-32 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
-        <h2 class="font-bold text-xl text-yellow-300 truncate">${item.name}</h2>
-        <p class="text-sm text-pink-200 mb-1">Rarity: ${item.rarity}</p>
-        <p class="text-sm text-pink-200 mb-3">Value: ${item.value || 0} coins</p>
-        <div class="flex justify-center gap-3 mt-auto">
-          <button onclick="sellBack('${item.key}', ${item.value || 0})" ${item.shipped || item.requested ? 'disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full flex items-center space-x-1"' : 'class="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 hover:from-pink-600 hover:to-red-500 rounded-full flex items-center space-x-1"'}>
+        <h2 class="font-semibold text-gray-800 text-lg truncate">${item.name}</h2>
+        <span class="pill ${rarityClass}">${item.rarity}</span>
+        <p class="text-sm text-gray-600 mb-3 flex items-center justify-center gap-1">
+          <span>Value: ${item.value || 0}</span>
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" class="coin-icon" />
+        </p>
+        <div class="flex justify-center gap-2 mt-auto">
+          <button onclick="sellBack('${item.key}', ${item.value || 0})" ${item.shipped || item.requested ? 'disabled class="px-4 py-2 bg-gray-300 text-gray-500 cursor-not-allowed rounded-full flex items-center gap-1"' : 'class="px-4 py-2 text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-600 rounded-full flex items-center gap-1"'}>
             <span>Sell for ${refund}</span>
-            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" />
+            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" class="coin-icon" />
           </button>
-          <button onclick="shipItem('${item.key}')" ${item.shipped || item.requested ? 'disabled class="px-4 py-2 bg-gray-600 cursor-not-allowed rounded-full"' : 'class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-emerald-600 hover:to-green-500 rounded-full"'}>Ship</button>
+          <button onclick="shipItem('${item.key}')" ${item.shipped || item.requested ? 'disabled class="px-4 py-2 bg-gray-300 text-gray-500 cursor-not-allowed rounded-full"' : 'class="px-4 py-2 text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 rounded-full"'}>Ship</button>
         </div>
       </div>`;
   });
