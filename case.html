@@ -533,11 +533,15 @@ document.getElementById("open-case-button").addEventListener("click", async () =
 
   for (let s = 0; s < spinCount; s++) {
     // Request a cryptographically secure spin result from the server
+    const token = await firebase.auth().currentUser.getIdToken();
     const res = await fetch('/api/spin', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
       credentials: 'include',
-      body: JSON.stringify({ caseId, prizes: prizeList })
+      body: JSON.stringify({ caseId })
     });
     if (!res.ok) {
       console.error('Spin request failed');
