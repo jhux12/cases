@@ -4,6 +4,7 @@
     items: [],
     isSpinning: false,
     listeners: {},
+    muted: false,
     tileWidth: 132,
     cruiseEmitted: false,
     animationId: null,
@@ -78,6 +79,49 @@
     return state.isSpinning;
   }
 
+  function setMuted(v) {
+    state.muted = v;
+  }
+
+  function playTick() {
+    if (state.muted) return;
+    const ctx = getCtx();
+    const osc = ctx.createOscillator();
+    osc.type = "triangle";
+    osc.frequency.value = 800;
+    const gain = ctx.createGain();
+    gain.gain.value = 0.02;
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.05);
+  }
+
+  let audioCtx;
+  function getCtx() {
+    return (
+      audioCtx || (audioCtx = new (window.AudioContext || window.webkitAudioContext)())
+    );
+  }
+
+  function stinger(rarity) {
+    if (state.muted) return;
+    const freq =
+      { common: 400, uncommon: 500, rare: 600, ultra: 700, ultrarare: 700, legendary: 800 }[
+        rarity
+      ] || 500;
+    const ctx = getCtx();
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.value = freq;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.1, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+  }
+
   function burstConfetti() {
     const container = document.createElement("div");
     container.style.position = "absolute";
@@ -148,7 +192,8 @@
       decelDist = distance * (decelDur / duration),
       cruiseDist = distance - accDist - decelDist;
 
-    let start = null;
+    let lastTick = 0,
+      start = null;
     emit("start");
 
     function easeInCubic(t) {
@@ -181,6 +226,10 @@
 
       const pos = startX + delta;
       state.root.style.transform = `translate3d(${pos}px,0,0)`;
+      if (timestamp - lastTick > 120) {
+        playTick();
+        lastTick = timestamp;
+      }
 
       if (elapsed < duration) {
         state.animationId = requestAnimationFrame(step);
@@ -197,7 +246,7 @@
           rarityColors[item.rarity] || "#FFD36E"
         );
         winTile.classList.add("win");
-
+        stinger(item.rarity);
         burstConfetti();
         emit("reveal", item);
         opts.onReveal && opts.onReveal(item);
@@ -230,6 +279,7 @@
     isSpinning,
     spinToIndex,
     on,
+    setMuted,
     _state: state,
   };
 })(window);

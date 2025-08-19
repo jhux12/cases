@@ -299,6 +299,7 @@ function showMultiWinPopup(prizes) {
 
   popup.classList.remove('hidden');
   render(current);
+}
 
     const rarityOrder = { legendary: 5, ultrarare: 4, rare: 3, uncommon: 2, common: 1 };
 
@@ -386,6 +387,7 @@ const openerItems = prizeList.map((p, i) => ({
   rarity: (p.rarity || 'common').toLowerCase().replace(/\s+/g,'')
 }));
 PackOpener.init({ root: document.getElementById('reel'), items: openerItems });
+PackOpener.setMuted(false);
       const rarityColors = {
         common: "#a1a1aa",
         uncommon: "#4ade80",
@@ -413,6 +415,7 @@ PackOpener.init({ root: document.getElementById('reel'), items: openerItems });
   </div>`;
         })
         .join("");
+    enablePrizePopups();
 document.getElementById("open-case-button").addEventListener("click", async () => {
   const btn = document.getElementById("open-case-button");
   btn.disabled = true;

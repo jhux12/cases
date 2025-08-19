@@ -84,7 +84,7 @@ function renderCases(caseList, reset = true) {
         <div class="relative">
           ${tagHTML}
           ${pepperHTML}
-          <img src="${packImg}" id="${imgIdDesktop}" class="case-card-img w-full h-48 object-contain p-6 transition-all duration-300">
+          <img src="${packImg}" id="${imgIdDesktop}" class="case-card-img w-full h-64 object-contain p-6 transition-all duration-300">
         </div>
         <div class="p-4">
           <h3 class="text-lg font-medium text-gray-900">${c.name}</h3>
@@ -101,7 +101,7 @@ function renderCases(caseList, reset = true) {
           <div class="relative">
             ${tagHTML}
             ${pepperHTML}
-            <img src="${packImg}" id="${imgIdMobile}" class="case-card-img w-full h-48 object-contain p-6 transition-all duration-300">
+            <img src="${packImg}" id="${imgIdMobile}" class="case-card-img w-full h-64 object-contain p-6 transition-all duration-300">
           </div>
           <div class="p-4">
             <h3 class="text-lg font-medium text-gray-900">${c.name}</h3>

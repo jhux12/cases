@@ -78,6 +78,7 @@
             display: flex;
             will-change: transform;
             padding: 1rem 0;
+            align-items: center;
         }
 
         .tile {
@@ -89,6 +90,9 @@
             border-radius: 12px;
             padding: 6px;
             color: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .tile img {
@@ -118,6 +122,21 @@
             padding: 2px 4px;
             border-bottom-left-radius: 12px;
             border-bottom-right-radius: 12px;
+            text-align: center;
+        }
+
+        .tile-info .price {
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            color: #fbbf24;
+        }
+
+        .tile-info .price img {
+            width: 0.6rem;
+            height: 0.6rem;
         }
 
         .center-marker {
@@ -301,9 +320,9 @@
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     <!-- Drop 1 -->
                     <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover">
-                        <div class="flex p-4">
+                        <div class="flex p-4 items-center">
                             <img class="w-24 h-32 object-contain" src="https://tcgplayer-cdn.tcgplayer.com/product/284302_in_1000x1000.jpg" alt="Pikachu VMAX">
-                            <img class="w-24 h-32 object-contain ml-2" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Pika Pika pack">
+                            <img class="w-32 h-44 object-contain ml-2" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Pika Pika pack">
                         </div>
                         <div class="p-4 border-t border-gray-200">
                             <h3 class="text-lg font-medium text-gray-900">Pikachu VMAX (Secret)</h3>
@@ -313,9 +332,9 @@
                     
                     <!-- Drop 2 -->
                     <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover">
-                        <div class="flex p-4">
+                        <div class="flex p-4 items-center">
                             <img class="w-24 h-32 object-contain" src="https://tcgplayer-cdn.tcgplayer.com/product/201352_in_1000x1000.jpg" alt="Pikachu">
-                            <img class="w-24 h-32 object-contain ml-2" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Pika Pika pack">
+                            <img class="w-32 h-44 object-contain ml-2" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Pika Pika pack">
                         </div>
                         <div class="p-4 border-t border-gray-200">
                             <h3 class="text-lg font-medium text-gray-900">Pikachu (Secret) SM</h3>
@@ -325,9 +344,9 @@
                     
                     <!-- Drop 3 -->
                     <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover">
-                        <div class="flex p-4">
+                        <div class="flex p-4 items-center">
                             <img class="w-24 h-32 object-contain" src="https://boxed.gg/_next/image?url=https%3A%2F%2Fproduct-images.tcgplayer.com%2F623594.jpg&w=640&q=75" alt="N's Reshiram">
-                            <img class="w-24 h-32 object-contain ml-2" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FChatGPT_Image_Aug_10__2025__11_20_09_PM-removebg-preview.png?alt=media&token=34a17fd5-2a05-4c2c-899c-c4ac0484a152" alt="Twin Dragons pack">
+                            <img class="w-32 h-44 object-contain ml-2" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FChatGPT_Image_Aug_10__2025__11_20_09_PM-removebg-preview.png?alt=media&token=34a17fd5-2a05-4c2c-899c-c4ac0484a152" alt="Twin Dragons pack">
                         </div>
                         <div class="p-4 border-t border-gray-200">
                             <h3 class="text-lg font-medium text-gray-900">N's Reshiram</h3>
@@ -518,12 +537,17 @@
                 const items = Object.values(data.prizes || {});
                 if (!items.length) return;
                 PackOpener.init({ root, items });
+                PackOpener.setMuted(true);
+                const legendaryIndices = items.reduce((arr, it, idx) => {
+                    if (it.rarity === 'legendary') arr.push(idx);
+                    return arr;
+                }, []);
+                if (!legendaryIndices.length) return;
 
                 function loop() {
-                    const winIndex = Math.floor(Math.random() * items.length);
+                    const winIndex = legendaryIndices[Math.floor(Math.random() * legendaryIndices.length)];
                     PackOpener.spinToIndex(winIndex, {
                         durationMs: 2400,
-                        nearMiss: true,
                         onReveal: () => setTimeout(loop, 1500)
                     });
                 }
