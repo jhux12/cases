@@ -1,5 +1,5 @@
 (function(global){
-  const state={root:null,items:[],isSpinning:false,listeners:{},muted:false,tileWidth:132,cruiseEmitted:false,animationId:null};
+  const state={root:null,items:[],isSpinning:false,listeners:{},tileWidth:132,cruiseEmitted:false,animationId:null};
   const rarityColors={common:'#b6bdc9',uncommon:'#8FE3C9',rare:'#A6C8FF',ultra:'#C9A7FF',ultrarare:'#C9A7FF',legendary:'#FFD36E'};
 
   function emit(name,data){(state.listeners[name]||[]).forEach(fn=>fn(data));}
@@ -43,24 +43,6 @@
   function init({root,items}){state.root=root;setItems(items||[]);}
   function setItems(items){state.items=items.slice();render();}
   function isSpinning(){return state.isSpinning;}
-  function setMuted(v){state.muted=v;}
-
-  function playTick(){
-    if(state.muted) return; const ctx=getCtx();
-    const osc=ctx.createOscillator();osc.type='triangle';osc.frequency.value=800;
-    const gain=ctx.createGain();gain.gain.value=0.02;
-    osc.connect(gain).connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+0.05);
-  }
-  let audioCtx;function getCtx(){return audioCtx||(audioCtx=new (window.AudioContext||window.webkitAudioContext)());}
-
-  function stinger(rarity){
-    if(state.muted) return;const freq={common:400,uncommon:500,rare:600,ultra:700,legendary:800}[rarity]||500;
-    const ctx=getCtx();const osc=ctx.createOscillator();osc.type='sine';osc.frequency.value=freq;
-    const gain=ctx.createGain();gain.gain.setValueAtTime(0.001,ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.1,ctx.currentTime+0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.5);
-    osc.connect(gain).connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+0.5);
-  }
 
   function burstConfetti(){
     const container=document.createElement('div');
@@ -103,7 +85,7 @@
     // heavier deceleration for slower end spin
     const accDur=duration*0.25, decelDur=duration*0.45, cruiseDur=duration-accDur-decelDur;
     const accDist=distance*(accDur/duration), decelDist=distance*(decelDur/duration), cruiseDist=distance-accDist-decelDist;
-    let lastTick=0, start=null;emit('start');
+    let start=null;emit('start');
     function easeInCubic(t){return t*t*t;}
     function easeOutQuart(t){return 1-Math.pow(1-t,4);}
     function step(timestamp){
@@ -116,7 +98,6 @@
       else{delta=distance;}
       const pos=startX+delta;
       state.root.style.transform=`translate3d(${pos}px,0,0)`;
-      if(timestamp-lastTick>120){playTick();lastTick=timestamp;}
       if(elapsed<duration){state.animationId=requestAnimationFrame(step);}
       else{
         state.animationId=null;
@@ -126,7 +107,7 @@
         const winTile=state.root.children[targetIndex];
         winTile.style.setProperty('--win-color',rarityColors[item.rarity]||'#FFD36E');
         winTile.classList.add('win');
-        stinger(item.rarity);burstConfetti();emit('reveal',item);
+        burstConfetti();emit('reveal',item);
         opts.onReveal&&opts.onReveal(item);emit('finish',item);
         if(offset!==0){
           setTimeout(()=>{
@@ -146,5 +127,5 @@
     return matrix.m41;
   }
 
-  global.PackOpener={init,setItems,isSpinning,spinToIndex,on,setMuted,_state:state};
+  global.PackOpener={init,setItems,isSpinning,spinToIndex,on,_state:state};
 })(window);

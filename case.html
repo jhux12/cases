@@ -130,9 +130,6 @@
       <h2 id="case-name" class="flex-1 text-center text-xl sm:text-2xl font-bold mx-4 gradient-text leading-none">Loading...</h2>
       <div class="flex items-center gap-2">
         <img id="case-image" class="w-12 h-12 sm:w-16 sm:h-16 object-contain rounded-full bg-white p-2 border border-gray-200 shadow-md transition-transform hover:rotate-6 hover:scale-105" alt="" />
-        <button id="mute-toggle" aria-label="Toggle sound" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow hover:scale-110 transition-transform">
-          <i id="mute-icon" class="fas fa-volume-up"></i>
-        </button>
       </div>
     </div>
     <div id="case-spice" class="text-center text-xs mt-2"></div>
@@ -302,17 +299,7 @@ function showMultiWinPopup(prizes) {
 
   popup.classList.remove('hidden');
   render(current);
-}
-let isMuted = false;
-function applyMuteState() {
-  if (window.PackOpener) PackOpener.setMuted(isMuted);
-}
-document.getElementById('mute-toggle').addEventListener('click', () => {
-  isMuted = !isMuted;
-  applyMuteState();
-  const icon = document.getElementById('mute-icon');
-  if (icon) icon.className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
-});
+
     const rarityOrder = { legendary: 5, ultrarare: 4, rare: 3, uncommon: 2, common: 1 };
 
 function showToast(message, color = 'bg-red-600') {

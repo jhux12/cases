@@ -512,28 +512,24 @@
         document.addEventListener('DOMContentLoaded', () => {
             const root = document.getElementById('demo-spinner');
             if (!root) return;
-            const moonbreonItems = [
-                { id: 'mb1', name: 'Moonbreon Common', image: 'https://tcgplayer-cdn.tcgplayer.com/product/509963_in_1000x1000.jpg', rarity: 'common' },
-                { id: 'mb2', name: 'Moonbreon Uncommon', image: 'https://tcgplayer-cdn.tcgplayer.com/product/534484_in_1000x1000.jpg', rarity: 'uncommon' },
-                { id: 'mb3', name: 'Moonbreon Rare', image: 'https://tcgplayer-cdn.tcgplayer.com/product/534483_in_1000x1000.jpg', rarity: 'rare' },
-                { id: 'mb4', name: 'Moonbreon Legendary', image: 'https://tcgplayer-cdn.tcgplayer.com/product/250320_in_1000x1000.jpg', rarity: 'legendary' }
-            ];
+            const demoCaseId = '-OPd7bkeviB4Xq_1Ea6i';
+            firebase.database().ref('cases/' + demoCaseId).once('value').then(snap => {
+                const data = snap.val() || {};
+                const items = Object.values(data.prizes || {});
+                if (!items.length) return;
+                PackOpener.init({ root, items });
 
-            PackOpener.init({ root, items: moonbreonItems });
+                function loop() {
+                    const winIndex = Math.floor(Math.random() * items.length);
+                    PackOpener.spinToIndex(winIndex, {
+                        durationMs: 2400,
+                        nearMiss: true,
+                        onReveal: () => setTimeout(loop, 1500)
+                    });
+                }
 
-            function loop() {
-                const legendaryIndexes = moonbreonItems
-                    .map((item, i) => (item.rarity === 'legendary' ? i : null))
-                    .filter(i => i !== null);
-                const winIndex = legendaryIndexes[Math.floor(Math.random() * legendaryIndexes.length)];
-                PackOpener.spinToIndex(winIndex, {
-                    durationMs: 2400,
-                    nearMiss: true,
-                    onReveal: () => setTimeout(loop, 1500)
-                });
-            }
-
-            loop();
+                loop();
+            });
         });
     </script>
     <script src="scripts/navbar.js"></script>

@@ -21,7 +21,6 @@
     <section class="controls" aria-label="Pack controls">
       <button id="openBtn" class="btn primary">Open Pack</button>
       <label class="toggle"><input type="checkbox" id="fastToggle" /> Fast Open</label>
-      <label class="toggle"><input type="checkbox" id="muteToggle" /> Mute</label>
     </section>
 
     <section class="drop-table">
@@ -92,9 +91,6 @@
       });
     });
 
-    document.getElementById('muteToggle').addEventListener('change', (e)=>{
-      PackOpener.setMuted(e.target.checked);
-    });
 
     function showResult(item) {
       const modal = document.getElementById('resultModal');

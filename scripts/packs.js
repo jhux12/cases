@@ -39,8 +39,13 @@ function calculateCasesPerPage() {
 function renderCases(caseList, reset = true) {
   const casesContainer = document.getElementById("cases-container");
   const casesCarousel = document.getElementById("cases-carousel");
+  const isMobile = window.matchMedia('(max-width: 639px)').matches;
   casesContainer.innerHTML = "";
-  if (casesCarousel) casesCarousel.innerHTML = "";
+  if (casesCarousel) {
+    casesCarousel.innerHTML = "";
+    if (!isMobile) casesCarousel.classList.add('hidden');
+    else casesCarousel.classList.remove('hidden');
+  }
 
   const freeCases = caseList.filter(c => c.isFree);
   const paidCases = caseList.filter(c => !c.isFree);
@@ -90,8 +95,7 @@ function renderCases(caseList, reset = true) {
           </div>
         </div>
       </div>`;
-
-    if (casesCarousel) {
+    if (casesCarousel && isMobile) {
       casesCarousel.innerHTML += `
         <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card w-64 flex-shrink-0">
           <div class="relative">
