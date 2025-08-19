@@ -25,25 +25,30 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
           <div class="hidden md:ml-6 md:flex md:items-center">
-            <div id="user-balance" class="hidden flex items-center mr-4">
-              <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon mr-1" alt="Coins">
-              <span id="balance-amount" class="font-medium text-gray-700">0</span>
-              <button id="topup-button" class="ml-2 text-sm text-indigo-600 hover:text-indigo-800 hidden"><i class="fas fa-wallet"></i></button>
+            <div id="auth-buttons" class="flex items-center space-x-4">
+              <a href="auth.html" class="text-sm font-medium text-gray-700 hover:text-gray-900">Sign In</a>
+              <a href="auth.html#register" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
             </div>
-            <div class="ml-4 relative flex-shrink-0">
-              <button id="dropdown-toggle" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-50 focus:outline-none">
-                <span id="username-display">User</span>
-                <svg class="w-5 h-5 ml-2 -mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </button>
-              <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                <div class="py-1">
-                  <a href="inventory.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Inventory</a>
-                  <a href="profile.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-                  <a href="how-it-works.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">How It Works</a>
-                  <a id="signin-desktop" href="auth.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign In</a>
-                  <a id="logout-desktop" href="#" class="hidden block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+            <div id="user-area" class="hidden md:flex md:items-center">
+              <div id="user-balance" class="hidden flex items-center mr-4">
+                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon mr-1" alt="Coins">
+                <span id="balance-amount" class="font-medium text-gray-700">0</span>
+                <button id="topup-button" class="ml-2 text-sm text-indigo-600 hover:text-indigo-800 hidden"><i class="fas fa-wallet"></i></button>
+              </div>
+              <div class="ml-4 relative flex-shrink-0">
+                <button id="dropdown-toggle" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-50 focus:outline-none">
+                  <span id="username-display">User</span>
+                  <svg class="w-5 h-5 ml-2 -mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                  <div class="py-1">
+                    <a href="inventory.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Inventory</a>
+                    <a href="profile.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                    <a href="how-it-works.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">How It Works</a>
+                    <a id="logout-desktop" href="#" class="hidden block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -76,10 +81,10 @@ document.addEventListener("DOMContentLoaded", () => {
             <a href="profile.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Profile</a>
             <a href="how-it-works.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">How It Works</a>
             <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Sign In</a>
+            <a id="mobile-register-button" href="auth.html#register" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Register</a>
           </div>
         </div>
       </div>
     </nav>
   `;
 });
-
