@@ -6,8 +6,8 @@
   <title>Packly.gg | Case Opening</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://js.stripe.com/v3/"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
   <!-- Firebase compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -15,144 +15,68 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
+
   <!-- Your config file -->
   <script src="./scripts/firebase-config.js"></script>
 
   <!-- Optional styles -->
   <link rel="stylesheet" href="styles/main.css">
-  <style>
+    <style>
     .clamp-2 {
       display: -webkit-box;
       -webkit-line-clamp: 1;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-    .gradient-text {
-      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .coin-icon {
-      filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.7));
-    }
-    .reel-wrapper {
-      position: relative;
-      overflow: hidden;
-      width: 100%;
-      max-width: 1100px;
-      margin: 0 auto;
-      border: 1px solid #2a2f3a;
-      border-radius: 12px;
-      background: linear-gradient(180deg, #1e2333, #151820);
-      padding: 1rem 0;
-      min-height: 260px;
-    }
-    .reel { display: flex; will-change: transform; padding: 1rem 0; }
-    .tile {
-      flex: 0 0 170px;
-      margin: 0 10px;
-      position: relative;
-      background: #2a2f3a;
-      border: 1px solid #3a4050;
-      border-radius: 12px;
-      padding: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-      color: #f1f5f9;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .tile img { width: 150px; height: 210px; object-fit: cover; border-radius: 8px; }
-    .tile:hover { transform: translateY(-4px); box-shadow: 0 4px 8px rgba(0,0,0,0.6); }
-    .tile.win { box-shadow: 0 0 0 3px #FFD36E; animation: flash 0.6s; }
-    @keyframes flash {0%,100%{filter:brightness(1);}50%{filter:brightness(1.8);}}
-    .tile.skeleton { position:relative; overflow:hidden; }
-    .tile.skeleton::after { content:""; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent); animation:shimmer 1.5s infinite; }
-    @keyframes shimmer {100%{transform:translateX(100%);}}
-    .tile-info {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.6);
-      font-size: 0.75rem;
-      padding: 2px 4px;
-      border-bottom-left-radius: 12px;
-      border-bottom-right-radius: 12px;
-    }
-    .tile-info .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .tile-info .price { margin-top: 2px; display:flex; align-items:center; justify-content:center; gap:2px; color:#fbbf24; }
-    .tile-info .price img { width:0.6rem; height:0.6rem; }
-    .center-marker {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      pointer-events: none;
-    }
-    .center-marker .marker-line {
-      flex: 1;
-      width: 2px;
-      background: linear-gradient(#8b5cf6,#3b82f6);
-      box-shadow: 0 0 6px #8b5cf6;
-    }
-    .center-marker .marker-arrow {
-      width: 0;
-      height: 0;
-      border-left: 12px solid transparent;
-      border-right: 12px solid transparent;
-    }
-    .center-marker .marker-arrow.top { border-top: 12px solid #cbd5e1; }
-    .center-marker .marker-arrow.bottom { border-bottom: 12px solid #cbd5e1; }
-    .confetti { position:absolute; width:6px; height:6px; background:#FFD36E; animation:fall 0.7s forwards; }
-    @keyframes fall { to { transform: translateY(60px) rotate(360deg); opacity:0; } }
-    .pill { display:inline-block; padding:2px 6px; border-radius:4px; font-size:0.75rem; margin-top:4px; }
-    .pill.common { background:#f1f5f9; color:#475569; }
-    .pill.uncommon { background:#ecfdf5; color:#065f46; }
-    .pill.rare { background:#eff6ff; color:#1e3a8a; }
-    .pill.ultra { background:#f5f3ff; color:#5b21b6; }
-    .pill.legendary { background:#fef3c7; color:#92400e; }
+    </style>
+  <style>
+  #particle-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+  }
   </style>
-  <script src="pack-opener/spinner.js"></script>
+
 </head>
-<body class="bg-gray-50 text-gray-900 overflow-x-hidden">
-  <script src="scripts/preloader.js"></script>
-  <header></header>
+  <body class="bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white overflow-x-hidden">
+<script src="scripts/preloader.js"></script>
+      <canvas id="particle-canvas"></canvas>
+      <header></header>
 <section id="case-content" class="relative pt-32 pb-10 px-4">
   <div class="relative z-10 mb-6">
-    <div class="flex items-center justify-between px-4 py-2 bg-white border border-gray-200 rounded-full shadow">
-      <a href="index.html" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:scale-110 transition-transform" aria-label="Back to packs">
+    <div class="flex items-center justify-between px-4 py-2 bg-black/40 backdrop-blur-md rounded-full shadow-lg">
+      <a href="index.html" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 text-white hover:scale-110 transition-transform" aria-label="Back to packs">
         <i class="fas fa-arrow-left"></i>
       </a>
-      <h2 id="case-name" class="flex-1 text-center text-xl sm:text-2xl font-bold mx-4 gradient-text leading-none">Loading...</h2>
+      <h2 id="case-name" class="flex-1 text-center text-xl sm:text-2xl font-bold mx-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 bg-clip-text text-transparent leading-none">Loading...</h2>
       <div class="flex items-center gap-2">
-        <img id="case-image" class="w-12 h-12 sm:w-16 sm:h-16 object-contain rounded-full bg-white p-2 border border-gray-200 shadow-md transition-transform hover:rotate-6 hover:scale-105" alt="" />
+        <img id="case-image" class="w-12 h-12 sm:w-16 sm:h-16 object-contain rounded-full bg-black/40 p-2 border border-white/20 shadow-md transition-transform hover:rotate-6 hover:scale-105" alt="" />
+        <button id="mute-toggle" aria-label="Toggle sound" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg hover:scale-110 transition-transform">
+          <i id="mute-icon" class="fas fa-volume-up"></i>
+        </button>
       </div>
     </div>
     <div id="case-spice" class="text-center text-xs mt-2"></div>
   </div>
-    <div class="my-8 flex justify-center">
-      <div class="reel-wrapper">
-        <div id="reel" class="reel"></div>
-        <div class="center-marker">
-          <span class="marker-arrow top"></span>
-          <span class="marker-line"></span>
-          <span class="marker-arrow bottom"></span>
-        </div>
-      </div>
-    </div>
+    <div id="spinners-wrapper" class="my-8 flex flex-wrap gap-4 justify-center"></div>
     <div class="flex justify-center items-center gap-4 mt-6">
-      <button id="open-case-button" class="relative px-6 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-extrabold flex items-center justify-center gap-2 shadow transition-transform transform hover:scale-105 focus:outline-none overflow-hidden">
+      <select id="spin-count" class="bg-gray-800 text-white rounded px-3 py-2">
+        <option value="1">1x</option>
+        <option value="2">2x</option>
+        <option value="3">3x</option>
+      </select>
+      <button id="open-case-button" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 text-white font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform transform hover:scale-105 animate-pulse focus:outline-none overflow-hidden">
         <span class="relative z-10 flex items-center gap-2">
           Open for
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 coin-icon" />
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
           <span id="button-price">...</span>
         </span>
       </button>
-      <button id="try-free-button" class="relative px-6 py-3 rounded-full bg-gradient-to-r from-green-400 to-teal-500 text-white font-extrabold shadow transition-transform transform hover:scale-105 focus:outline-none overflow-hidden">
+      <button id="try-free-button" class="shining-button relative px-6 py-3 rounded-full bg-gradient-to-r from-green-400 via-teal-500 to-blue-500 text-white font-extrabold shadow-lg transition-transform transform hover:scale-105 focus:outline-none overflow-hidden">
         <span class="relative z-10">Try for Free</span>
       </button>
     </div>
@@ -160,8 +84,8 @@
 
 <!-- Provably Fair Display -->
 <div class="flex justify-center mt-2">
-  <button id="pf-info" class="flex items-center gap-2 text-sm font-semibold text-green-600 hover:text-green-500 transition cursor-pointer">
-    <i class="fa-solid fa-shield-halved text-green-600 text-base drop-shadow"></i>
+  <button id="pf-info" class="flex items-center gap-2 text-sm font-semibold text-green-400 hover:text-green-300 transition cursor-pointer">
+    <i class="fa-solid fa-shield-halved text-green-400 text-base drop-shadow"></i>
     <span>Provably Fair</span>
   </button>
 </div>
@@ -169,16 +93,16 @@
 
 
 
-  <div class="bg-white rounded-2xl shadow border border-gray-200 p-6 hover:shadow-lg transition-all duration-300 mt-10 relative">
-    <img class="case-pack-image absolute -top-10 left-0 -translate-x-1/2 w-64 opacity-20 z-0 pointer-events-none -rotate-12" alt="Case Pack" />
-    <img class="case-pack-image absolute -top-10 right-0 translate-x-1/2 w-64 opacity-20 z-0 pointer-events-none rotate-12" alt="Case Pack" />
+    <div class="bg-black/30 backdrop-blur-md rounded-2xl shadow-md border border-white/10 p-6 hover:shadow-purple-500/20 transition-all duration-300 mt-10 relative">
+      <img class="case-pack-image absolute -top-10 left-0 -translate-x-1/2 w-64 opacity-20 z-0 pointer-events-none -rotate-12" alt="Case Pack" />
+      <img class="case-pack-image absolute -top-10 right-0 translate-x-1/2 w-64 opacity-20 z-0 pointer-events-none rotate-12" alt="Case Pack" />
     <div class="relative z-10">
       <div class="text-center mb-6">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 shadow">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 shadow-md">
           <img src="https://cdn-icons-png.flaticon.com/128/5172/5172637.png" alt="Rewards Icon" class="w-5 h-5" />
           <span class="text-sm font-bold uppercase tracking-wider text-white">Rewards Table</span>
         </div>
-        <p class="mt-2 text-sm text-gray-600">Each case contains a mix of prizes with different rarities and values.</p>
+        <p class="mt-2 text-sm text-gray-300">Each case contains a mix of prizes with different rarities and values.</p>
       </div>
       <div id="prizes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 text-sm"></div>
     </div>
@@ -186,7 +110,43 @@
   </section>
   <!-- Main logic -->
 <script type="module">
+import { renderSpinner, spinToPrize } from './scripts/spinner.js';
 import { updateMilestones } from './scripts/quests.js';
+
+function setupSpinners(count) {
+  const wrapper = document.getElementById('spinners-wrapper');
+  if (!wrapper) return;
+  wrapper.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const border = document.createElement('div');
+    border.id = `spinner-border-${i}`;
+    border.className = `border-4 border-gray-800 rounded-lg bg-black/20 transition-colors duration-300 ${count === 1 ? 'w-full sm:w-2/3 md:w-1/2' : 'w-full sm:w-1/2 md:w-1/3'}`;
+
+    const inner = document.createElement('div');
+    let heightClass;
+    if (count === 1) {
+      heightClass = 'h-[250px] sm:h-[300px]';
+    } else {
+      // slightly larger spinners on mobile when multiple are shown
+      heightClass = 'h-[150px] sm:h-[180px]';
+    }
+    inner.className = `relative ${heightClass} overflow-hidden`;
+
+    const line = document.createElement('div');
+    line.className = 'absolute top-0 bottom-0 w-1 bg-pink-500 left-1/2 transform -translate-x-1/2 z-10';
+    const container = document.createElement('div');
+    container.id = `spinner-container-${i}`;
+    container.className = 'w-full h-full transform';
+    if (count > 1) {
+      // make additional spinners a bit bigger on mobile while still shrinking overall
+      container.classList.add('scale-[0.6]', 'sm:scale-75', 'md:scale-90', 'lg:scale-100');
+    }
+    inner.appendChild(line);
+    inner.appendChild(container);
+    border.appendChild(inner);
+    wrapper.appendChild(border);
+  }
+}
 
 const formatCoins = (num) => {
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
@@ -208,6 +168,8 @@ async function sellPrize(prize) {
   const currentBalance = balanceSnap.val() || 0;
   await balanceRef.set(currentBalance + sellAmount);
   await firebase.database().ref('users/' + user.uid + '/inventory/' + prize.key).remove();
+  const sellSound = document.getElementById('sell-sound');
+  if (sellSound) sellSound.play();
 }
 
 function showMultiWinPopup(prizes) {
@@ -216,13 +178,19 @@ function showMultiWinPopup(prizes) {
   const countEl = document.getElementById('win-count');
   const prevBtn = document.getElementById('prev-win');
   const nextBtn = document.getElementById('next-win');
+  const sellAllBtn = document.getElementById('sell-all-btn');
+  const sellAllValue = document.getElementById('sell-all-value');
+  sellAllBtn.disabled = false;
   const processed = new Set();
   let current = 0;
+
+  const totalSell = prizes.reduce((sum, p) => sum + Math.floor(p.value * 0.8), 0);
+  sellAllValue.textContent = formatCoins(totalSell);
 
   function render(index) {
     const prize = prizes[index];
     itemContainer.innerHTML = `
-      <div class="prize-card bg-white rounded-xl p-4 flex flex-col items-center text-gray-900">
+      <div class="prize-card bg-gray-800 rounded-xl p-4 flex flex-col items-center">
         <img src="${prize.image}" class="w-32 h-32 object-contain mb-2 rounded-lg shadow-md" />
         <div class="text-sm font-semibold mb-1">${prize.name}</div>
         <div class="flex items-center gap-1 text-yellow-300 text-sm mb-2"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />${formatCoins(prize.value)}</div>
@@ -297,11 +265,69 @@ function showMultiWinPopup(prizes) {
     }
   });
 
+  sellAllBtn.onclick = async () => {
+    if (sellAllBtn.disabled) return;
+    sellAllBtn.disabled = true;
+    for (let i = 0; i < prizes.length; i++) {
+      if (!processed.has(i)) {
+        await sellPrize(prizes[i]);
+        processed.add(i);
+      }
+    }
+    popup.classList.add('hidden');
+  };
+
   popup.classList.remove('hidden');
   render(current);
+}
+let isMuted = false;
+function applyMuteState() {
+  document.querySelectorAll('audio').forEach(a => { a.muted = isMuted; });
+}
+document.getElementById('mute-toggle').addEventListener('click', () => {
+  isMuted = !isMuted;
+  applyMuteState();
+  const icon = document.getElementById('mute-icon');
+  if (icon) icon.className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+});
+document.addEventListener("click", async () => {
+  const ids = ["sound-common", "sound-rare", "sound-ultrarare", "sound-legendary", "sell-sound"];
+  for (const id of ids) {
+    const audio = document.getElementById(id);
+    if (audio) {
+      audio.muted = true;
+      try {
+        await audio.play();
+      } catch (e) {}
+      audio.pause();
+      audio.currentTime = 0;
+    }
+  }
+  applyMuteState();
+}, { once: true });
 
     const rarityOrder = { legendary: 5, ultrarare: 4, rare: 3, uncommon: 2, common: 1 };
 
+  function playRaritySound(rarity) {
+  const soundMap = {
+    "common": "sound-common",
+    "uncommon": "sound-rare",
+    "rare": "sound-rare",
+    "ultra rare": "sound-ultrarare",
+    "ultrarare": "sound-ultrarare",
+    "legendary": "sound-legendary"
+  };
+
+  const key = rarity?.toLowerCase().replace(/\s+/g, '') || "common";
+  const audioId = soundMap[rarity?.toLowerCase()] || "sound-common";
+  const audio = document.getElementById(audioId);
+  if (audio) {
+    audio.currentTime = 0;
+    audio.play().catch((e) => {
+      console.warn("Audio playback failed:", e);
+    });
+  }
+}
 function showToast(message, color = 'bg-red-600') {
   const toast = document.getElementById("toast");
   toast.textContent = message;
@@ -349,26 +375,33 @@ function showToast(message, color = 'bg-red-600') {
       }
       const isFreeCase = !!caseData.isFree;
       const spiceMap = {
-  easy: { label: "Easy 🌶️", color: "text-green-600" },
-  medium: { label: "Medium 🌶️🌶️", color: "text-orange-500" },
-  hard: { label: "Hard 🌶️🌶️🌶️", color: "text-red-600" }
+  easy: { label: "Easy 🌶️", color: "text-green-400" },
+  medium: { label: "Medium 🌶️🌶️", color: "text-orange-400" },
+  hard: { label: "Hard 🌶️🌶️🌶️", color: "text-red-500" }
 };
 
 const spice = caseData.spice?.toLowerCase();
 const spiceData = spiceMap[spice];
 
 const spiceHTML = spiceData
-  ? `<span class="${spiceData.color} text-xs font-semibold bg-gray-100 px-2 py-1 rounded-full">${spiceData.label}</span>`
+  ? `<span class="${spiceData.color} text-xs font-semibold bg-black/40 px-2 py-1 rounded-full">${spiceData.label}</span>`
   : "";
 
 document.getElementById("case-name").textContent = caseData.name;
 document.getElementById("case-spice").innerHTML = spiceHTML;
 const openBtn = document.getElementById("open-case-button");
-const priceEl = document.getElementById("button-price");
+const spinSelect = document.getElementById('spin-count');
+function updatePriceDisplay(count) {
+  const total = (caseData.price || 0) * count;
+  const priceEl = document.getElementById("button-price");
+  if (priceEl) priceEl.textContent = formatCoins(total);
+}
+
 if (isFreeCase) {
   openBtn.innerHTML = '<span class="relative z-10">Open for Free</span>';
-} else if (priceEl) {
-  priceEl.textContent = formatCoins(caseData.price || 0);
+  if (spinSelect) spinSelect.remove();
+} else {
+  updatePriceDisplay(1);
 }
 
 const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
@@ -378,14 +411,19 @@ const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
   return (b.value || 0) - (a.value || 0); // secondary sort by value
 });
 
-const openerItems = prizeList.map((p, i) => ({
-  id: i,
-  name: p.name,
-  image: p.image,
-  value: formatCoins(p.value || 0),
-  rarity: (p.rarity || 'common').toLowerCase().replace(/\s+/g,'')
-}));
-PackOpener.init({ root: document.getElementById('reel'), items: openerItems });
+const previewPrizes = prizeList.slice(0, 30);
+setupSpinners(1);
+renderSpinner(previewPrizes, null, true, 0); // show preview spinner
+if (spinSelect) {
+  spinSelect.addEventListener('change', (e) => {
+    const count = parseInt(e.target.value) || 1;
+    setupSpinners(count);
+    for (let i = 0; i < count; i++) {
+      renderSpinner(previewPrizes, null, true, i);
+    }
+    if (!isFreeCase) updatePriceDisplay(count);
+  });
+}
       const rarityColors = {
         common: "#a1a1aa",
         uncommon: "#4ade80",
@@ -393,35 +431,38 @@ PackOpener.init({ root: document.getElementById('reel'), items: openerItems });
         ultrarare: "#c084fc",
         legendary: "#facc15"
       };
-      document.getElementById("prizes-grid").innerHTML = prizeList
-        .map(prize => {
-          const rarity = (prize.rarity || "common")
-            .toLowerCase()
-            .replace(/\s+/g, '');
-          const color = rarityColors[rarity] || "#a1a1aa";
-          return `
-  <div class="prize-card relative rounded-xl p-4 bg-white border-2 text-gray-900 text-center shadow-sm cursor-pointer transition-transform duration-200 hover:scale-105" data-rarity="${rarity}" style="border-color:${color}">
-    <img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-gray-50 rounded-lg" />
+      document.getElementById("prizes-grid").innerHTML = prizeList.map(prize => {
+  const rarity = (prize.rarity || "common").toLowerCase().replace(/\s+/g, '');
+  const color = rarityColors[rarity] || "#a1a1aa";
+
+  return `
+  <div class="prize-card relative rounded-xl p-4 bg-gray-800 border-2 text-white text-center shadow-sm cursor-pointer transition-transform duration-200 hover:scale-105" data-rarity="${rarity}" style="border-color:${color}">
+    <img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-black/20 rounded-lg" />
     <div class="prize-name font-semibold text-sm clamp-2 mb-8">${prize.name}</div>
+
     <div class="absolute bottom-2 left-2 flex items-center gap-1 text-yellow-300 font-medium text-xs">
       <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
       ${formatCoins(prize.value || 0)}
     </div>
-    <div class="absolute bottom-2 right-2 text-gray-600 bg-gray-100 px-2 py-[2px] text-xs rounded-full">
+    <div class="absolute bottom-2 right-2 text-white/70 bg-black/40 px-2 py-[2px] text-xs rounded-full">
       ${formatOdds(prize.odds)}%
     </div>
-  </div>`;
-        })
-        .join("");
+  </div>
+  `;
+}).join("");
+enablePrizePopups();
+
 document.getElementById("open-case-button").addEventListener("click", async () => {
   const btn = document.getElementById("open-case-button");
+  const spinCount = isFreeCase ? 1 : parseInt(spinSelect.value) || 1;
+  if (spinSelect) spinSelect.disabled = true;
   btn.disabled = true;
   btn.classList.add("cursor-not-allowed", "opacity-60");
   btn.innerHTML = `
     <span class="relative z-10 flex items-center gap-2 animate-pulse">
       <svg class="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v8z"></path>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
       </svg>
       Spinning...
     </span>
@@ -429,8 +470,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
 
   const user = firebase.auth().currentUser;
   if (!user) {
-    btn.disabled = false;
-    btn.classList.remove("cursor-not-allowed", "opacity-60");
+    if (spinSelect) spinSelect.disabled = false;
     return alert("Please sign in to open cases.");
   }
 
@@ -438,7 +478,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   const userData = userSnap.val() || {};
   const balance = parseFloat(userData.balance || 0);
   const price = parseFloat(caseData.price || 0);
-  const totalPrice = price;
+  const totalPrice = price * spinCount;
 
   const weeklyReset = 7 * 24 * 60 * 60 * 1000;
   if (Date.now() - (userData.lastWeeklyReset || 0) > weeklyReset) {
@@ -451,6 +491,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     btn.disabled = false;
     btn.classList.remove("cursor-not-allowed", "opacity-60");
     btn.innerHTML = '<span class="relative z-10">Open for Free</span>';
+    if (spinSelect) spinSelect.disabled = false;
     return;
   }
 
@@ -465,32 +506,43 @@ document.getElementById("open-case-button").addEventListener("click", async () =
         <span id="button-price">${formatCoins(caseData.price)}</span>
       </span>
     `;
+    if (spinSelect) spinSelect.disabled = false;
     return;
   }
 
   const fairSnap = await firebase.database().ref('users/' + user.uid + '/provablyFair').once("value");
   const fairData = fairSnap.val();
   if (!fairData) {
-    btn.disabled = false;
-    btn.classList.remove("cursor-not-allowed", "opacity-60");
+    if (spinSelect) spinSelect.disabled = false;
     return alert("Provably fair data missing.");
   }
   const { nonce } = fairData;
 
+  setupSpinners(spinCount);
+
+  const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
+  const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+
   const winnings = [];
+  let completed = 0;
 
   if (!isFreeCase) {
     const newBalance = balance - totalPrice;
     await firebase.database().ref('users/' + user.uid + '/balance').set(newBalance);
   }
 
-  const res = await fetch('/api/spin', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ caseId, prizes: prizeList })
-  });
-  if (res.ok) {
+  for (let s = 0; s < spinCount; s++) {
+    // Request a cryptographically secure spin result from the server
+    const res = await fetch('/api/spin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ caseId, prizes: prizeList })
+    });
+    if (!res.ok) {
+      console.error('Spin request failed');
+      continue;
+    }
     const { prize: winningPrize } = await res.json();
 
     const unboxData = {
@@ -508,53 +560,67 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     if (levelResult.leveledUp) {
       await firebase.database().ref('users/' + user.uid + '/balance').transaction(b => (b || 0) + (levelResult.reward || 0));
     }
-    winnings[0] = { ...winningPrize, key: invRef.key, levelResult };
+    winnings[s] = { ...winningPrize, key: invRef.key, levelResult };
 
-    const winIndex = openerItems.findIndex(p => p.name === winningPrize.name);
-    await new Promise(resolve => {
-      PackOpener.spinToIndex(winIndex, { durationMs: 2400, nearMiss: true, onReveal: () => resolve() });
-    });
-
-    const lr = winnings[0].levelResult;
-    if (lr.leveledUp) {
-      showToast(`Level ${lr.level}! +${formatCoins(lr.reward)} coins`, 'bg-green-600');
+    const spinnerPrizes = [];
+    for (let i = 0; i < 30; i++) {
+      const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
+      spinnerPrizes.push(randomPrize);
     }
-  }
+    spinnerPrizes[15] = winningPrize;
 
-  if (isFreeCase) {
-    await firebase.database().ref('users/' + user.uid + '/freeCaseOpened').set(true);
-  }
-  const questUpdates = {
-    'openPacks/progress': firebase.database.ServerValue.increment(1)
-  };
-  if (!isFreeCase) {
-    questUpdates['spendCoins/progress'] = firebase.database.ServerValue.increment(totalPrice);
-  }
-  const rareHits = winnings.filter(p => ['rare', 'ultra rare', 'legendary'].includes((p.rarity || '').toLowerCase())).length;
-  if (rareHits > 0) {
-    questUpdates['pullRare/progress'] = firebase.database.ServerValue.increment(rareHits);
-  }
-  await firebase.database().ref('users/' + user.uid + '/weeklyQuests').update(questUpdates);
-  await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
+    renderSpinner(spinnerPrizes, winningPrize, false, s);
+    setTimeout(() => {
+      spinToPrize(async () => {
+        const lr = winnings[s].levelResult;
+        if (lr.leveledUp) {
+          showToast(`Level ${lr.level}! +${formatCoins(lr.reward)} coins`, 'bg-green-600');
+        }
+        completed++;
+        if (completed === spinCount) {
+          if (isFreeCase) {
+            await firebase.database().ref('users/' + user.uid + '/freeCaseOpened').set(true);
+          }
+          const questUpdates = {
+            'openPacks/progress': firebase.database.ServerValue.increment(spinCount)
+          };
+          if (!isFreeCase) {
+            questUpdates['spendCoins/progress'] = firebase.database.ServerValue.increment(totalPrice);
+          }
+          const rareHits = winnings.filter(p => ['rare', 'ultra rare', 'legendary'].includes((p.rarity || '').toLowerCase())).length;
+          if (rareHits > 0) {
+            questUpdates['pullRare/progress'] = firebase.database.ServerValue.increment(rareHits);
+          }
+          await firebase.database().ref('users/' + user.uid + '/weeklyQuests').update(questUpdates);
+          await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + spinCount });
 
-  btn.disabled = false;
-  btn.classList.remove('cursor-not-allowed', 'opacity-60');
-  btn.innerHTML = isFreeCase
-    ? '<span class="relative z-10">Open for Free</span>'
-    : `<div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50z-0 animate-spin-slow"></div>
-      <span class="relative z-10 flex items-center gap-2">
-        Open for
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
-        <span id="button-price">${formatCoins(caseData.price)}</span>
-      </span>`;
+          btn.disabled = false;
+          btn.classList.remove('cursor-not-allowed', 'opacity-60');
+          btn.innerHTML = isFreeCase
+            ? '<span class="relative z-10">Open for Free</span>'
+            : `<div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50 z-0 animate-spin-slow"></div>
+              <span class="relative z-10 flex items-center gap-2">
+                Open for
+                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+                <span id="button-price">${formatCoins(caseData.price)}</span>
+              </span>`;
+          if (!isFreeCase) updatePriceDisplay(spinCount);
+          if (spinSelect) spinSelect.disabled = false;
 
-  const topPrize = winnings.reduce((best, p) =>
-    (rarityOrder[p.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) >
-    (rarityOrder[best.rarity?.toLowerCase().replace(/\s+/g,'')] || 0)
-      ? p : best
-  , winnings[0]);
-  showMultiWinPopup(winnings);
+          const topPrize = winnings.reduce((best, p) =>
+            (rarityOrder[p.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) >
+            (rarityOrder[best.rarity?.toLowerCase().replace(/\s+/g,'')] || 0)
+              ? p : best
+          , winnings[0]);
+          playRaritySound(topPrize.rarity);
+          showMultiWinPopup(winnings);
+        }
+      }, false, s);
+    }, 150);
+  }
 });
+
+
       document.getElementById("try-free-button").addEventListener("click", () => {
         const btn = document.getElementById("try-free-button");
         btn.disabled = true;
@@ -572,7 +638,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
         const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
         const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
 
-        const spinCountDemo = 1;
+        const spinCountDemo = parseInt(spinSelect?.value) || 1;
         const demoPrizes = [];
         for (let s = 0; s < spinCountDemo; s++) {
           const rand = Math.random() * totalOdds;
@@ -588,38 +654,46 @@ document.getElementById("open-case-button").addEventListener("click", async () =
           demoPrizes.push(demoPrize);
         }
 
-        let index = 0;
-        const results = [];
-        function spinDemo() {
-          const prize = demoPrizes[index];
-          const winIdx = openerItems.findIndex(p => p.name === prize.name);
-          PackOpener.spinToIndex(winIdx, { durationMs: 2400, nearMiss: true, onReveal: () => {
-            results.push(prize);
-            index++;
-            if (index < demoPrizes.length) {
-              spinDemo();
-            } else {
-              btn.disabled = false;
-              btn.classList.remove("cursor-not-allowed", "opacity-60");
-              btn.innerHTML = '<span class="relative z-10">Try for Free</span>';
-              const names = results.map(p => p.name).join(', ');
-              showToast(`You would have won ${names}!`, "bg-blue-600");
-            }
-          }});
-        }
-        spinDemo();
-      });
+        setupSpinners(spinCountDemo);
 
+        demoPrizes.forEach((demoPrize, idx) => {
+          const spinnerPrizes = [];
+          for (let i = 0; i < 30; i++) {
+            const randomPrize = prizeList[Math.floor(Math.random() * prizeList.length)];
+            spinnerPrizes.push(randomPrize);
+          }
+          spinnerPrizes[15] = demoPrize;
+          renderSpinner(spinnerPrizes, demoPrize, false, idx);
+        });
+
+        setTimeout(() => {
+          // Spin without showing the win popup in demo mode
+          const promises = demoPrizes.map((_, idx) => spinToPrize(() => {}, false, idx));
+          Promise.all(promises).then(results => {
+            btn.disabled = false;
+            btn.classList.remove("cursor-not-allowed", "opacity-60");
+            btn.innerHTML = '<span class="relative z-10">Try for Free</span>';
+            const names = results.map(p => p.name).join(', ');
+            const topPrize = results.reduce((best, p) =>
+              (rarityOrder[p.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) >
+              (rarityOrder[best.rarity?.toLowerCase().replace(/\s+/g,'')] || 0)
+                ? p : best
+            , results[0]);
+            playRaritySound(topPrize.rarity);
+            showToast(`You would have won ${names}!`, "bg-blue-600");
+          });
+        }, 150);
+      });
   document.getElementById("pf-info").addEventListener("click", async () => {
     const user = firebase.auth().currentUser;
     if (!user) return;
 
-    const fairSnap = await firebase.database().ref(`users/${user.uid}/provablyFair`).once("value");
-    const fairData = fairSnap.val();
+  const fairSnap = await firebase.database().ref(`users/${user.uid}/provablyFair`).once("value");
+  const fairData = fairSnap.val();
 
-    document.getElementById("pf-server-seed").textContent = fairData?.serverSeed || "Not found";
-    document.getElementById("pf-client-seed").textContent = fairData?.clientSeed || "Not found";
-    document.getElementById("pf-nonce").textContent = fairData?.nonce ?? "Not found";
+  document.getElementById("pf-server-seed").textContent = fairData?.serverSeed || "Not found";
+  document.getElementById("pf-client-seed").textContent = fairData?.clientSeed || "Not found";
+  document.getElementById("pf-nonce").textContent = fairData?.nonce ?? "Not found";
 
     document.getElementById("provably-fair-modal").classList.remove("hidden");
   });
@@ -659,7 +733,7 @@ function enablePrizePopups() {
         const image = card.querySelector("img")?.src;
         const name = card.querySelector(".prize-name")?.textContent.trim();
         const value = card.querySelector(".text-yellow-300")?.textContent.trim();
-        const odds = card.querySelector(".bg-gray-100")?.textContent.trim();
+        const odds = card.querySelector(".bg-black\\/40")?.textContent.trim();
 
         document.getElementById("prize-popup-image").src = image;
         document.getElementById("prize-popup-name").textContent = name;
@@ -694,21 +768,21 @@ async function sha256(message) {
 }
   </script>
   <!-- Provably Fair Modal -->
-<div id="provably-fair-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-white p-4 rounded-xl w-full max-w-sm text-gray-900 relative border border-gray-200">
-    <button onclick="document.getElementById('provably-fair-modal').classList.add('hidden')" class="absolute top-2 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+<div id="provably-fair-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+  <div class="bg-gray-900 p-4 rounded-xl w-full max-w-sm text-white relative border border-white/10">
+    <button onclick="document.getElementById('provably-fair-modal').classList.add('hidden')" class="absolute top-2 right-3 text-white text-xl">&times;</button>
     <h3 class="text-lg font-bold mb-3">Provably Fair</h3>
-    <p class="text-xs text-gray-600 mb-4">All outcomes are generated using your client seed, our server seed, and a nonce. The resulting roll is compared against the case odds to decide the prize, ensuring every spin is fair and verifiable.</p>
-    <div class="text-left text-xs space-y-2 font-mono text-gray-700 break-words">
+    <p class="text-xs text-gray-300 mb-4">All outcomes are generated using your client seed, our server seed, and a nonce. The resulting roll is compared against the case odds to decide the prize, ensuring every spin is fair and verifiable.</p>
+    <div class="text-left text-xs space-y-2 font-mono text-gray-100 break-words">
       <div><strong>Server Seed:</strong> <span id="pf-server-seed">...</span></div>
       <div><strong>Client Seed:</strong> <span id="pf-client-seed">...</span></div>
       <div><strong>Nonce:</strong> <span id="pf-nonce">...</span></div>
     </div>
     <div class="mt-4 space-y-2 text-xs">
-      <input id="client-seed-input" type="text" placeholder="New client seed" class="w-full px-2 py-1 rounded bg-gray-100 text-gray-900 border border-gray-300" />
+      <input id="client-seed-input" type="text" placeholder="New client seed" class="w-full px-2 py-1 rounded bg-gray-800 text-white" />
       <button id="update-client-seed" class="w-full bg-green-600 hover:bg-green-500 rounded py-2 text-white">Update Client Seed</button>
       <button id="new-server-seed" class="w-full bg-purple-600 hover:bg-purple-500 rounded py-2 text-white">New Server Seed</button>
-      <a href="verify.html" class="block text-center text-indigo-600 hover:underline mt-2">Verify a roll</a>
+      <a href="verify.html" class="block text-center text-blue-400 hover:underline mt-2">Verify a roll</a>
     </div>
   </div>
 </div>
@@ -732,36 +806,88 @@ document.addEventListener("DOMContentLoaded", () => {
 });
     </script>
 
+<audio id="sound-common" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/common.wav?alt=media&token=98a37c37-e55d-4440-8b2b-c4b40a444dc5"></audio>
+<audio id="sound-rare" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/rare.wav?alt=media&token=71a3f80d-56c5-44a2-a7a1-670d7d5df3d8"></audio>
+<audio id="sound-ultrarare" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ultrarare.wav?alt=media&token=9b95d4a2-ef5a-44ae-bc89-74a76d9630de"></audio>
+<audio id="sound-legendary" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/legendary.wav?alt=media&token=3e6845f3-fd00-4cea-8140-0464cb08d4a0"></audio>
 <!-- Winning Prize Popup -->
-<div id="win-popup" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden">
-  <div class="bg-white rounded-2xl p-6 w-full max-w-sm sm:max-w-md shadow-2xl text-center relative border border-gray-200">
-    <div class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 cursor-pointer text-xl" id="close-popup">&times;</div>
+<div id="win-popup" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden">
+  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 w-full max-w-sm sm:max-w-md shadow-2xl text-center relative border border-white/10">
+    <div class="absolute top-3 right-3 text-gray-400 hover:text-white cursor-pointer text-xl" id="close-popup">&times;</div>
     <div id="win-carousel" class="relative mb-4">
       <div id="win-item"></div>
-      <button id="prev-win" class="absolute left-0 top-1/2 -translate-y-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-chevron-left"></i></button>
-      <button id="next-win" class="absolute right-0 top-1/2 -translate-y-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-chevron-right"></i></button>
+      <button id="prev-win" class="absolute left-0 top-1/2 -translate-y-1/2 bg-gray-700/60 hover:bg-gray-700 text-white rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-chevron-left"></i></button>
+      <button id="next-win" class="absolute right-0 top-1/2 -translate-y-1/2 bg-gray-700/60 hover:bg-gray-700 text-white rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-chevron-right"></i></button>
     </div>
-    <div id="win-count" class="text-sm text-gray-600 mb-2"></div>
+    <div id="win-count" class="text-sm text-gray-400 mb-2"></div>
+    <button id="sell-all-btn" class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 hover:brightness-110 text-white font-extrabold text-sm shadow-lg shadow-red-800/30 transition-all duration-200">
+      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+      Sell All for <span id="sell-all-value">0</span> coins
+    </button>
   </div>
 </div>
-<!-- Prize Detail Popup -->
-<div id="prize-popup" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
-  <div id="prize-popup-card" class="bg-white p-6 rounded-xl w-full max-w-sm text-center relative text-gray-900">
-    <button id="close-prize-popup" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+    <!-- Prize Detail Popup -->
+<div id="prize-popup" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center">
+  <div id="prize-popup-card" class="bg-gray-900 p-6 rounded-xl w-full max-w-sm text-center relative">
+    <button id="close-prize-popup" class="absolute top-3 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
     <img id="prize-popup-image" src="" alt="Prize" class="w-48 h-48 object-contain mx-auto mb-4" />
     <h3 id="prize-popup-name" class="text-lg font-semibold mb-4"></h3>
     <div class="flex items-center justify-center gap-6 text-sm">
       <div class="flex items-center gap-1 text-yellow-300">
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 coin-icon" />
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
         <span id="prize-popup-value">0</span>
       </div>
-      <div class="text-gray-600">
+      <div class="text-gray-300">
         <span id="prize-popup-odds">0%</span> chance
       </div>
     </div>
   </div>
 </div>
+    <audio id="sell-sound" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/coin-drops-and-spins-272429.mp3?alt=media&token=e867f5db-1646-4548-8403-6d1fce220c71"></audio>
     <!-- Toast Notification -->
 <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 px-5 py-3 rounded-xl text-white font-bold text-sm z-[9999] bg-red-600 shadow-lg hidden transition-all duration-300 opacity-0"></div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  const particles = [];
+  const count = 50;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 3 + 1,
+      dx: (Math.random() - 0.5) * 0.3,
+      dy: (Math.random() - 0.5) * 0.3
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const p of particles) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.fill();
+      p.x += p.dx;
+      p.y += p.dy;
+      if (p.x < 0) p.x = canvas.width;
+      if (p.x > canvas.width) p.x = 0;
+      if (p.y < 0) p.y = canvas.height;
+      if (p.y > canvas.height) p.y = 0;
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+});
+</script>
 </body>
 </html>

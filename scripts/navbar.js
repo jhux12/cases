@@ -12,53 +12,23 @@ document.addEventListener("DOMContentLoaded", () => {
     observer.observe(document.body, { childList: true, subtree: true });
   };
 
-  // Pickem countdown timer in nav
-  const initNavTimer = () => {
-    const timerEls = [
-      document.getElementById('pickem-nav-timer'),
-      document.getElementById('pickem-nav-timer-desktop')
-    ].filter(Boolean);
-    if (!timerEls.length) return;
-    const HALF_HOUR = 30 * 60 * 1000;
-    const update = () => {
-      const diff = HALF_HOUR - (Date.now() % HALF_HOUR);
-      const mins = Math.floor(diff / 60000);
-      const secs = Math.floor((diff % 60000) / 1000);
-      timerEls.forEach(el => {
-        el.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-      });
-    };
-    update();
-    setInterval(update, 1000);
-  };
-  initNavTimer();
-
   // Firebase user info injection AFTER header is rendered
   waitForElement("#username-display", () => {
-    const usernameEl = document.getElementById("username-display");
-    const balanceEl = document.getElementById("balance-amount");
-    const balanceMobile = document.getElementById("balance-amount-mobile");
-    const balanceDropdown = document.getElementById("balance-amount-mobile-dropdown");
-    const popupBalance = document.getElementById("popup-balance");
-    const mobileAuthBtn = document.getElementById("mobile-auth-button");
-    const mobileRegisterBtn = document.getElementById("mobile-register-button");
-    const logoutBtn = document.getElementById("logout-desktop");
-    const authButtons = document.getElementById("auth-buttons");
-    const userArea = document.getElementById("user-area");
-    const balanceContainer = document.getElementById("user-balance");
-    const balanceMobileHeader = document.getElementById("user-balance-mobile-header");
-    const topupBtn = document.getElementById("topup-button");
-    const topupMobile = document.getElementById("topup-button-mobile");
-
-    if (!usernameEl || !balanceEl) return;
-
-    let userRef;
-    let handler;
-
     firebase.auth().onAuthStateChanged((user) => {
+      const usernameEl = document.getElementById("username-display");
+      const balanceEl = document.getElementById("balance-amount");
+      const balanceMobile = document.getElementById("balance-amount-mobile");
+      const balanceDropdown = document.getElementById("balance-amount-mobile-dropdown");
+      const popupBalance = document.getElementById("popup-balance");
+      const mobileAuthBtn = document.getElementById("mobile-auth-button");
+      const logoutBtn = document.getElementById("logout-desktop");
+      const signinBtn = document.getElementById("signin-desktop");
+
+      if (!usernameEl || !balanceEl) return;
+
       if (user) {
-        userRef = firebase.database().ref("users/" + user.uid);
-        handler = (snap) => {
+        const userRef = firebase.database().ref("users/" + user.uid);
+        userRef.once("value").then((snap) => {
           const data = snap.val() || {};
           const balance = data.balance || 0;
           const username = user.displayName || data.username || user.email;
@@ -69,55 +39,35 @@ document.addEventListener("DOMContentLoaded", () => {
           if (balanceMobile) balanceMobile.innerText = balanceFormatted;
           if (balanceDropdown) balanceDropdown.innerText = balanceFormatted;
           if (popupBalance) popupBalance.innerText = `${balanceFormatted} coins`;
-        };
-        userRef.on("value", handler);
 
-        if (authButtons) authButtons.classList.add("hidden");
-        if (userArea) userArea.classList.remove("hidden");
-        if (balanceContainer) balanceContainer.classList.remove("hidden");
-        if (balanceMobileHeader) balanceMobileHeader.classList.remove("hidden");
-        if (topupBtn) topupBtn.classList.remove("hidden");
-        if (topupMobile) topupMobile.classList.remove("hidden");
-        if (mobileRegisterBtn) mobileRegisterBtn.classList.add("hidden");
+          if (logoutBtn) {
+            logoutBtn.style.display = "block";
+            logoutBtn.onclick = (e) => {
+              e.preventDefault();
+              firebase.auth().signOut().then(() => location.reload());
+            };
+          }
 
-        if (logoutBtn) {
-          logoutBtn.style.display = "block";
-          logoutBtn.onclick = (e) => {
-            e.preventDefault();
-            firebase.auth().signOut().then(() => location.reload());
-          };
-        }
+          if (signinBtn) signinBtn.style.display = "none";
 
-        if (mobileAuthBtn) {
-          mobileAuthBtn.innerText = "Logout";
-          mobileAuthBtn.href = "#";
-          mobileAuthBtn.onclick = (e) => {
-            e.preventDefault();
-            firebase.auth().signOut().then(() => location.reload());
-          };
-        }
+          if (mobileAuthBtn) {
+            mobileAuthBtn.innerText = "Logout";
+            mobileAuthBtn.href = "#";
+            mobileAuthBtn.onclick = (e) => {
+              e.preventDefault();
+              firebase.auth().signOut().then(() => location.reload());
+            };
+          }
+        });
       } else {
-        if (userRef && handler) {
-          userRef.off("value", handler);
-          userRef = null;
-          handler = null;
-        }
-
         usernameEl.innerText = "User";
         balanceEl.innerText = "0";
         if (balanceMobile) balanceMobile.innerText = "0";
         if (balanceDropdown) balanceDropdown.innerText = "0";
         if (popupBalance) popupBalance.innerText = "0 coins";
 
-        if (authButtons) authButtons.classList.remove("hidden");
-        if (userArea) userArea.classList.add("hidden");
-        if (balanceContainer) balanceContainer.classList.add("hidden");
-        if (balanceMobileHeader) balanceMobileHeader.classList.add("hidden");
-        if (topupBtn) topupBtn.classList.add("hidden");
-        if (topupMobile) topupMobile.classList.add("hidden");
-        if (mobileRegisterBtn) mobileRegisterBtn.classList.remove("hidden");
-
         if (logoutBtn) logoutBtn.style.display = "none";
+        if (signinBtn) signinBtn.style.display = "block";
 
         if (mobileAuthBtn) {
           mobileAuthBtn.innerText = "Sign In";

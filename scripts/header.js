@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const header = document.querySelector("header");
   if (!header) return;
 
+  // Ensure the neon navigation styles are available on every page
   if (!document.querySelector('link[href="styles/main.css"]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
@@ -10,85 +11,382 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   header.innerHTML = `
-    <nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200 backdrop-blur bg-white/80">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex items-center">
-            <a href="index.html" class="flex-shrink-0 flex items-center">
-              <span class="text-2xl font-bold gradient-text">Packly.gg</span>
-            </a>
-            <div class="hidden md:ml-6 md:flex md:space-x-8">
-              <a href="index.html" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Open Packs</a>
-              <a href="pickem.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Pickem <span id="pickem-nav-timer-desktop" class="ml-1 bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-0.5 rounded-full">--:--</span></a>
-              <a href="leaderboard.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Leaderboard</a>
-              <a href="marketplace.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Marketplace</a>
-            </div>
+    <nav class="navbar crazy-nav fixed w-full z-50 py-3 px-6 flex items-center justify-between" style="min-height: 72px; background-color: #111117;">
+      <div class="flex items-center gap-4">
+        <a href="index.html" class="nav-link logo-link">
+          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(29).png?alt=media&token=51dc030a-b05d-46ec-b1ab-c2fd1824d74e" class="h-10">
+        </a>
+      </div>
+      <div class="hidden items-center gap-6 relative">
+        <a href="pickem.html" class="nav-link text-yellow-400"><i class="fas fa-clone"></i><span>Pickem</span><span id="pickem-nav-timer-desktop" class="ml-1 text-xs">--:--</span></a>
+        <a href="leaderboard.html" class="nav-link text-blue-400"><i class="fas fa-trophy"></i><span>Leaderboard</span></a>
+        <a href="marketplace.html" class="nav-link text-pink-400"><i class="fas fa-store"></i><span>Marketplace</span></a>
+        <div id="user-balance" class="hidden flex items-center neon-balance rounded-full overflow-hidden text-sm">
+          <div class="flex items-center gap-1 px-3 py-1">
+            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
+            <span id="balance-amount">0</span>
           </div>
-          <div class="hidden md:ml-6 md:flex md:items-center">
-            <div id="auth-buttons" class="flex items-center space-x-4">
-              <a href="auth.html" class="text-sm font-medium text-gray-700 hover:text-gray-900">Sign In</a>
-              <a href="auth.html#register" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
-            </div>
-            <div id="user-area" class="hidden md:flex md:items-center">
-              <div id="user-balance" class="hidden flex items-center mr-4">
-                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon mr-1" alt="Coins">
-                <span id="balance-amount" class="font-medium text-gray-700">0</span>
-                <button id="topup-button" class="ml-2 text-sm text-indigo-600 hover:text-indigo-800 hidden"><i class="fas fa-wallet"></i></button>
-              </div>
-              <div class="ml-4 relative flex-shrink-0">
-                <button id="dropdown-toggle" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-50 focus:outline-none">
-                  <span id="username-display">User</span>
-                  <svg class="w-5 h-5 ml-2 -mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-                <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                  <div class="py-1">
-                    <a href="inventory.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Inventory</a>
-                    <a href="profile.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-                    <a href="how-it-works.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">How It Works</a>
-                    <a id="logout-desktop" href="#" class="hidden block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="-mr-2 flex items-center md:hidden">
-            <div id="user-balance-mobile-header" class="hidden flex items-center mr-3">
-              <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon mr-1" alt="Coins">
-              <span id="balance-amount-mobile" class="font-medium text-gray-700">0</span>
-              <button id="topup-button-mobile" class="ml-2 text-sm text-indigo-600 hover:text-indigo-800 hidden"><i class="fas fa-wallet"></i></button>
-            </div>
-            <button id="menu-toggle" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none" aria-expanded="false">
-              <span class="sr-only">Open main menu</span>
-              <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+          <button id="topup-button" class="px-3 py-1 border-l flex items-center"><i class="fas fa-wallet"></i></button>
+        </div>
+        <div class="relative">
+          <button id="dropdown-toggle" class="nav-link flex items-center space-x-2 text-white">
+            <i class="fas fa-user-circle text-xl"></i>
+            <span id="username-display">User</span>
+            <i class="fas fa-chevron-down text-xs"></i>
+          </button>
+          <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg hidden z-[60]">
+            <a href="index.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-cube mr-2"></i> Open Packs</a>
+            <a href="inventory.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-box-open mr-2"></i> Inventory</a>
+            <a href="profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-user mr-2"></i> Profile</a>
+              <a href="how-it-works.html" class="how-it-works-link block px-4 py-2 text-sm text-white hover:bg-gray-700"><i class="fas fa-question-circle mr-2"></i> How It Works</a>
+            <a id="signin-desktop" href="auth.html" class="block px-4 py-2 text-sm text-green-400 hover:bg-gray-700"><i class="fas fa-sign-in-alt mr-2"></i> Sign In</a>
+            <a id="logout-desktop" href="#" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
           </div>
         </div>
       </div>
-      <div id="mobile-dropdown" class="md:hidden hidden">
-        <div class="pt-2 pb-3 space-y-1">
-          <a href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-indigo-500 text-base font-medium text-indigo-700 bg-indigo-50">Open Packs</a>
-          <a href="pickem.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300">Pickem <span id="pickem-nav-timer" class="ml-1 bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-0.5 rounded-full">--:--</span></a>
-          <a href="leaderboard.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300">Leaderboard</a>
-          <a href="marketplace.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300">Marketplace</a>
+      <div class="flex items-center gap-2">
+        <div id="user-balance-mobile-header" class="hidden flex items-center neon-balance rounded-full overflow-hidden text-sm">
+          <div class="flex items-center gap-1 px-3 py-1">
+            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
+            <span id="balance-amount-mobile">0</span>
+          </div>
+          <button id="topup-button-mobile-header" class="px-3 py-1 border-l flex items-center"><i class="fas fa-wallet"></i></button>
         </div>
-        <div class="pt-4 pb-3 border-t border-gray-200">
-          <div class="flex items-center px-4 mb-3">
-            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon mr-1" alt="Coins">
-            <span id="balance-amount-mobile-dropdown" class="font-medium text-gray-700">0</span>
-          </div>
-          <div class="space-y-1">
-            <a href="inventory.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Inventory</a>
-            <a href="profile.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Profile</a>
-            <a href="how-it-works.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">How It Works</a>
-            <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Sign In</a>
-            <a id="mobile-register-button" href="auth.html#register" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Register</a>
-          </div>
+        <div id="auth-buttons-mobile-header" class="hidden items-center gap-2">
+          <a id="signin-mobile-header" href="auth.html" class="px-3 py-1 rounded bg-green-600 text-white text-sm">Sign In</a>
+          <a id="register-mobile-header" href="auth.html?register=true" class="px-3 py-1 rounded bg-blue-600 text-white text-sm">Register</a>
         </div>
       </div>
     </nav>
-  `;
+      <div id="drawer-overlay" class="fixed inset-0 bg-black/50 hidden z-40"></div>
+      <aside id="mobile-drawer" class="fixed top-0 left-0 h-full w-64 bg-gray-900 border-r border-gray-800 transform -translate-x-full transition-transform duration-300 z-[100]">
+        <div class="p-4 h-full overflow-y-auto pb-24 space-y-4">
+        <div
+            id="drawer-user-info"
+            class="hidden flex flex-col items-center text-center text-white space-y-1 pb-4 border-b border-gray-800"
+          >
+            <span id="drawer-username" class="font-semibold"></span>
+            <div class="flex items-center gap-2 text-xs">
+              <div id="drawer-badge" class="px-2 py-0.5 rounded-full bg-purple-600"></div>
+              <span class="text-gray-400">Lvl <span id="drawer-level"></span></span>
+            </div>
+            <div class="w-full mt-2 px-4">
+              <div class="relative w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div id="drawer-xp-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-pink-500 via-yellow-400 to-purple-500 rounded-full transition-all duration-300" style="width:0%"></div>
+              </div>
+              <div id="drawer-progress-text" class="text-[10px] text-gray-400 mt-1"></div>
+              <div id="drawer-next-reward" class="text-[10px] text-yellow-400"></div>
+            </div>
+          </div>
+          <div id="drawer-balance-section" class="flex items-center justify-between text-white">
+            <div class="flex items-center gap-2">
+              <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
+              <span id="drawer-balance-amount">0</span>
+            </div>
+            <button id="topup-button-mobile-drawer" class="text-yellow-400 hover:text-yellow-300">
+              <i class="fas fa-wallet text-xl"></i>
+            </button>
+          </div>
+          <div id="drawer-auth-buttons" class="flex flex-col gap-2">
+            <a id="drawer-signin" href="auth.html" class="w-full text-center py-2 bg-green-600 rounded text-white">Sign In</a>
+            <a id="drawer-register" href="auth.html?register=true" class="w-full text-center py-2 bg-blue-600 rounded text-white">Register</a>
+          </div>
+          <nav class="flex flex-col gap-2">
+            <div class="text-gray-400 text-xs uppercase px-4 mt-2">Navigation</div>
+            <a href="index.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-cube"></i> Open Packs</a>
+            <a href="pickem.html" class="block px-4 py-2 text-sm text-yellow-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-clone"></i> Pickem</a>
+            <a href="leaderboard.html" class="block px-4 py-2 text-sm text-blue-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-trophy"></i> Leaderboard</a>
+            <a href="marketplace.html" class="block px-4 py-2 text-sm text-pink-400 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-store"></i> Marketplace</a>
+            <div class="text-gray-400 text-xs uppercase px-4 mt-4">Account</div>
+            <a id="drawer-inventory-link" href="inventory.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-box-open"></i> Inventory</a>
+            <a id="drawer-profile-link" href="profile.html" class="block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-user"></i> Profile</a>
+            <a href="how-it-works.html" class="how-it-works-link block px-4 py-2 text-sm text-white rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-question-circle"></i> How It Works</a>
+            <a id="drawer-logout" href="#" class="block px-4 py-2 text-sm text-red-400 rounded hover:bg-gray-800 flex items-center gap-2 hidden"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </nav>
+        </div>
+      </aside>
+      <nav id="mobile-bottom-nav" class="crazy-bottom-nav fixed bottom-0 left-0 right-0 flex justify-around py-2 z-50" style="background-color: #111117;">
+        <button id="drawer-menu-button" type="button" class="flex flex-col items-center text-xs text-white">
+          <i class="fas fa-bars text-lg"></i>
+          <span>Menu</span>
+        </button>
+        <a id="inventory-link" href="inventory.html" class="flex flex-col items-center text-xs text-white hidden">
+          <i class="fas fa-box-open text-lg"></i>
+          <span>Inventory</span>
+        </a>
+        <a href="index.html" class="flex flex-col items-center text-xs text-white">
+          <i class="fas fa-cube text-lg"></i>
+          <span>Open Packs</span>
+        </a>
+        <a href="pickem.html" class="flex flex-col items-center text-xs text-yellow-400">
+          <i class="fas fa-clone text-lg"></i>
+          <span>Pickem</span>
+          <span id="pickem-nav-timer" class="text-[10px]">--:--</span>
+        </a>
+      </nav>
+    `; // <-- closing backtick and semicolon!
+  const drawerMenuButton = document.getElementById("drawer-menu-button");
+  const mobileDrawer = document.getElementById("mobile-drawer");
+  const drawerOverlay = document.getElementById("drawer-overlay");
+
+  // Prevent drawer animation on initial load
+  if (mobileDrawer) {
+    mobileDrawer.style.transition = "none";
+    requestAnimationFrame(() => {
+      mobileDrawer.style.transition = "";
+    });
+  }
+
+  if (drawerMenuButton && mobileDrawer && drawerOverlay) {
+    const toggleDrawer = () => {
+      mobileDrawer.classList.toggle("-translate-x-full");
+      drawerOverlay.classList.toggle("hidden");
+    };
+    drawerMenuButton.onclick = toggleDrawer;
+    drawerOverlay.onclick = toggleDrawer;
+  }
+
+  // Firebase auth logic
+  firebase.auth().onAuthStateChanged(async (user) => {
+    const drawerAuthButtons = document.getElementById("drawer-auth-buttons");
+    const drawerBalanceSection = document.getElementById("drawer-balance-section");
+    const authButtonsMobileHeader = document.getElementById("auth-buttons-mobile-header");
+    const userBalanceMobileHeader = document.getElementById("user-balance-mobile-header");
+    const drawerInventoryLink = document.getElementById("drawer-inventory-link");
+    const drawerProfileLink = document.getElementById("drawer-profile-link");
+    const drawerLogout = document.getElementById("drawer-logout");
+    const inventoryLink = document.getElementById("inventory-link");
+    const drawerUserInfo = document.getElementById("drawer-user-info");
+    const drawerBadge = document.getElementById("drawer-badge");
+    const drawerUsername = document.getElementById("drawer-username");
+    const drawerLevel = document.getElementById("drawer-level");
+    const drawerXpBar = document.getElementById("drawer-xp-bar");
+    const drawerProgressText = document.getElementById("drawer-progress-text");
+    const drawerNextReward = document.getElementById("drawer-next-reward");
+
+    if (!user) {
+      if (authButtonsMobileHeader) authButtonsMobileHeader.classList.remove("hidden");
+      if (userBalanceMobileHeader) userBalanceMobileHeader.classList.add("hidden");
+      if (drawerAuthButtons) drawerAuthButtons.classList.remove("hidden");
+      if (drawerBalanceSection) drawerBalanceSection.classList.add("hidden");
+      if (drawerInventoryLink) drawerInventoryLink.classList.add("hidden");
+      if (drawerProfileLink) drawerProfileLink.classList.add("hidden");
+      if (drawerLogout) drawerLogout.classList.add("hidden");
+      if (inventoryLink) inventoryLink.classList.add("hidden");
+      if (drawerUserInfo) drawerUserInfo.classList.add("hidden");
+      return;
+    }
+
+    if (authButtonsMobileHeader) authButtonsMobileHeader.classList.add("hidden");
+    if (userBalanceMobileHeader) userBalanceMobileHeader.classList.remove("hidden");
+    if (drawerAuthButtons) drawerAuthButtons.classList.add("hidden");
+    if (drawerBalanceSection) drawerBalanceSection.classList.remove("hidden");
+    if (drawerInventoryLink) drawerInventoryLink.classList.remove("hidden");
+    if (drawerProfileLink) drawerProfileLink.classList.remove("hidden");
+    if (drawerLogout) drawerLogout.classList.remove("hidden");
+    if (inventoryLink) inventoryLink.classList.remove("hidden");
+    if (drawerUserInfo) drawerUserInfo.classList.remove("hidden");
+
+    const db = firebase.database();
+    const userRef = db.ref("users/" + user.uid);
+
+    // Load username and balance continuously
+    let prevBalance = null;
+    userRef.on("value", (snapshot) => {
+      const data = snapshot.val() || {};
+      const balance = data.balance || 0;
+
+      const balanceDesktop = document.getElementById("balance-amount");
+      const balanceMobile = document.getElementById("balance-amount-mobile");
+      const balanceDrawer = document.getElementById("drawer-balance-amount");
+      const userBalanceDiv = document.getElementById("user-balance");
+      const usernameDisplay = document.getElementById("username-display");
+      const signinDesktop = document.getElementById("signin-desktop");
+      const logoutDesktop = document.getElementById("logout-desktop");
+
+      const formatted = parseInt(balance, 10).toLocaleString();
+      if (balanceDesktop) balanceDesktop.innerText = formatted;
+      if (balanceMobile) balanceMobile.innerText = formatted;
+      if (balanceDrawer) balanceDrawer.innerText = formatted;
+      if (userBalanceDiv) userBalanceDiv.classList.remove("hidden");
+      if (drawerBalanceSection) drawerBalanceSection.classList.remove("hidden");
+
+      if (prevBalance !== balance) {
+        [userBalanceDiv, userBalanceMobileHeader, drawerBalanceSection].forEach((el) => {
+          if (el) {
+            el.classList.add("pulse-balance");
+            el.addEventListener(
+              "animationend",
+              () => el.classList.remove("pulse-balance"),
+              { once: true }
+            );
+          }
+        });
+        prevBalance = balance;
+      }
+      const uname = user.displayName || data.username || user.email || "User";
+      if (usernameDisplay) usernameDisplay.innerText = uname;
+      if (drawerUsername) drawerUsername.innerText = uname;
+      if (signinDesktop) signinDesktop.classList.add("hidden");
+      if (logoutDesktop) logoutDesktop.classList.remove("hidden");
+      if (logoutDesktop) {
+        logoutDesktop.onclick = (e) => {
+          e.preventDefault();
+          firebase.auth().signOut().then(() => location.reload());
+        };
+      }
+      if (drawerLogout) {
+        drawerLogout.onclick = (e) => {
+          e.preventDefault();
+          firebase.auth().signOut().then(() => location.reload());
+        };
+      }
+    });
+
+    // Load level and badge info
+    const [lbDoc, badgeSnap, levelSnap] = await Promise.all([
+      firebase.firestore().collection("leaderboard").doc(user.uid).get(),
+      db.ref("milestoneConfig/badges").once("value"),
+      db.ref("milestoneConfig/levels").once("value"),
+    ]);
+    const lbData = lbDoc.data() || {};
+    const packsOpened = lbData.packsOpened || 0;
+    const cardValue = lbData.cardValue || 0;
+    const badgeCfg = badgeSnap.val() || [];
+    let currentBadge = null;
+    if (Array.isArray(badgeCfg)) {
+      badgeCfg.forEach((b) => {
+        const threshold = b.threshold || 0;
+        const type = b.type || "packs";
+        if (
+          (type === "packs" && packsOpened >= threshold) ||
+          (type === "value" && cardValue >= threshold)
+        ) {
+          if (!currentBadge || threshold > (currentBadge.threshold || 0)) {
+            currentBadge = b;
+          }
+        }
+      });
+    }
+    const levelConfig = levelSnap.val() || [];
+    const levelInfo = determineLevel(packsOpened, levelConfig);
+    if (drawerLevel) drawerLevel.innerText = levelInfo.level;
+    if (drawerBadge) {
+      if (currentBadge) {
+        drawerBadge.innerText = currentBadge.name;
+        drawerBadge.style.backgroundColor = currentBadge.color || "#9333ea";
+        drawerBadge.classList.remove("hidden");
+      } else {
+        drawerBadge.classList.add("hidden");
+      }
+    }
+
+    if (drawerXpBar) {
+      let pct = 100;
+      if (levelInfo.nextThreshold > levelInfo.prevThreshold) {
+        pct =
+          ((packsOpened - levelInfo.prevThreshold) /
+            (levelInfo.nextThreshold - levelInfo.prevThreshold)) * 100;
+        const remaining = levelInfo.nextThreshold - packsOpened;
+        if (drawerProgressText)
+          drawerProgressText.textContent = `${remaining} packs to next level`;
+        const nextCfg = Array.isArray(levelConfig)
+          ? levelConfig[levelInfo.level]
+          : null;
+        const reward =
+          typeof nextCfg === "object" ? nextCfg.reward || 0 : 0;
+        if (drawerNextReward && nextCfg) {
+          drawerNextReward.textContent = `Reward: +${reward.toLocaleString()} coins`;
+        } else if (drawerNextReward) {
+          drawerNextReward.textContent = "";
+        }
+      } else {
+        if (drawerProgressText)
+          drawerProgressText.textContent = "Max level achieved";
+        if (drawerNextReward) drawerNextReward.textContent = "";
+      }
+      drawerXpBar.style.width = pct + "%";
+    }
+  });
+
+  function determineLevel(packs, levels) {
+    if (!Array.isArray(levels) || levels.length === 0) {
+      const level = Math.floor(packs / 10) + 1;
+      const prev = (level - 1) * 10;
+      const next = level * 10;
+      return { level, prevThreshold: prev, nextThreshold: next };
+    }
+    let lvl = 1;
+    let prev = 0;
+    let next = null;
+    levels.forEach((entry, idx) => {
+      const t = typeof entry === 'object' ? entry.threshold : entry;
+      if (packs >= t) {
+        lvl = idx + 1;
+        prev = t;
+      } else if (next === null) {
+        next = t;
+      }
+    });
+    if (next === null) next = prev;
+    return { level: lvl, prevThreshold: prev, nextThreshold: next };
+  }
+
+  function updatePickemNavTimer() {
+    const timerEls = [
+      document.getElementById('pickem-nav-timer'),
+      document.getElementById('pickem-nav-timer-desktop')
+    ].filter(Boolean);
+    if (!timerEls.length) return;
+    const HALF_HOUR = 30 * 60 * 1000;
+    function render() {
+      const now = Date.now();
+      const diff = HALF_HOUR - (now % HALF_HOUR);
+      const mins = Math.floor(diff / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      const text = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+      timerEls.forEach(el => el.textContent = text);
+    }
+    render();
+    setInterval(render, 1000);
+  }
+
+  // Popup prompting users to sign up after a delay if not signed in
+  const signupPopupHtml = `
+    <div id="signup-popup" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-11/12 max-w-md bg-gray-800 text-white rounded-lg shadow-lg p-4 z-[1000] hidden">
+      <div class="flex justify-between items-start">
+        <div class="flex items-center gap-3">
+          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ChatGPT%20Image%20Aug%2010%2C%202025%2C%2011_08_17%20PM.png?alt=media&token=4950e6a0-1cf9-4c7b-aa56-686dc42693a8" alt="Mascot" class="w-8 h-8 rounded-full" />
+          <span class="font-semibold">Get a FREE pack</span>
+        </div>
+        <button id="signup-popup-close" class="text-gray-400 hover:text-white">×</button>
+      </div>
+      <p class="mt-2 text-sm">Find out how it works and get a FREE pack! All you have to do is sign up to claim it!</p>
+      <div class="mt-4 flex justify-end gap-3">
+        <button id="signup-popup-dismiss" class="px-4 py-2 text-sm text-gray-300 border border-gray-600 rounded hover:bg-gray-700">No thanks</button>
+        <a href="auth.html?register=true" class="px-4 py-2 text-sm bg-yellow-400 text-black rounded font-semibold hover:bg-yellow-300">Sign Up</a>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML('beforeend', signupPopupHtml);
+
+  const signupPopup = document.getElementById('signup-popup');
+  const closeSignup = () => {
+    signupPopup.classList.add('hidden');
+    sessionStorage.setItem('signupPopupClosed', 'true');
+  };
+  document.getElementById('signup-popup-close')?.addEventListener('click', closeSignup);
+  document.getElementById('signup-popup-dismiss')?.addEventListener('click', closeSignup);
+
+  firebase.auth().onAuthStateChanged(user => {
+    if (!user && !sessionStorage.getItem('signupPopupClosed')) {
+      setTimeout(() => {
+        if (!firebase.auth().currentUser && !sessionStorage.getItem('signupPopupClosed')) {
+          signupPopup.classList.remove('hidden');
+        }
+      }, 7000);
+    }
+  });
+
+  updatePickemNavTimer();
 });
+

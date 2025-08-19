@@ -17,18 +17,6 @@ function getPepperHTML(spiceLevel) {
   const { class: cls } = map[spiceLevel];
   return `<div class="${cls}" aria-label="${spiceLevel} pepper"><i class="fa-solid fa-pepper-hot"></i></div>`;
 }
-
-function getTagHTML(tag) {
-  if (!tag) return "";
-  const lower = tag.toLowerCase();
-  let cls = "bg-indigo-100 text-indigo-800";
-  if (lower.includes('hot')) {
-    cls = "bg-red-100 text-red-800";
-  } else if (lower.includes('new')) {
-    cls = "bg-blue-100 text-blue-800";
-  }
-  return `<span class="absolute top-2 left-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cls}">${tag}</span>`;
-}
 function calculateCasesPerPage() {
   const container = document.getElementById("cases-container");
   if (!container) return ROW_LIMIT * 5;
@@ -38,14 +26,7 @@ function calculateCasesPerPage() {
 
 function renderCases(caseList, reset = true) {
   const casesContainer = document.getElementById("cases-container");
-  const casesCarousel = document.getElementById("cases-carousel");
-  const isMobile = window.matchMedia('(max-width: 639px)').matches;
   casesContainer.innerHTML = "";
-  if (casesCarousel) {
-    casesCarousel.innerHTML = "";
-    if (!isMobile) casesCarousel.classList.add('hidden');
-    else casesCarousel.classList.remove('hidden');
-  }
 
   const freeCases = caseList.filter(c => c.isFree);
   const paidCases = caseList.filter(c => !c.isFree);
@@ -60,78 +41,43 @@ function renderCases(caseList, reset = true) {
   const toRender = currentCases.slice(0, displayLimit);
 
   toRender.forEach(c => {
-    const tagHTML = getTagHTML(c.tag);
+    const tagHTML = c.tag ? `<div class="pack-tag">${c.tag}</div>` : "";
     const pepperHTML = getPepperHTML(c.spiceLevel);
 
     const price = parseFloat(c.price) || 0;
     const priceLabel = c.isFree ? "Free" : price.toLocaleString();
-    const priceIcon = c.isFree
-      ? ""
-      : '<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coins" class="h-4 w-4 ml-1 coin-icon">';
+    const priceIcon = c.isFree ? "" : '<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coin" class="w-4 h-4 inline-block">';
 
     const prizes = Object.values(c.prizes || {});
     const topPrize = prizes.sort((a, b) => (b.value || 0) - (a.value || 0))[0];
     const packImg = c.image;
     const topPrizeImg = topPrize?.image || packImg;
 
-    const imgIdDesktop = `img-${c.id}`;
-    const imgIdMobile = `img-${c.id}-m`;
+    const imgId = `img-${c.id}`;
 
     const openLink = `case.html?id=${c.id}`;
 
     casesContainer.innerHTML += `
-      <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card">
-        <div class="relative">
-          ${tagHTML}
-          ${pepperHTML}
-          <img src="${packImg}" id="${imgIdDesktop}" class="case-card-img w-full h-48 object-contain p-6 transition-all duration-300">
-        </div>
-        <div class="p-4">
-          <h3 class="text-lg font-medium text-gray-900">${c.name}</h3>
-          <div class="mt-4">
-            <a href="${openLink}" class="open-button glow-button text-sm whitespace-nowrap">
-              Open for ${priceLabel} ${priceIcon}
-            </a>
-          </div>
-        </div>
-      </div>`;
-    if (casesCarousel && isMobile) {
-      casesCarousel.innerHTML += `
-        <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card w-64 flex-shrink-0">
-          <div class="relative">
-            ${tagHTML}
-            ${pepperHTML}
-            <img src="${packImg}" id="${imgIdMobile}" class="case-card-img w-full h-48 object-contain p-6 transition-all duration-300">
-          </div>
-          <div class="p-4">
-            <h3 class="text-lg font-medium text-gray-900">${c.name}</h3>
-            <div class="mt-4">
-              <a href="${openLink}" class="open-button glow-button text-sm whitespace-nowrap">
-                Open for ${priceLabel} ${priceIcon}
-              </a>
-            </div>
-          </div>
+      <div class="relative p-3 sm:p-4 bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition">
+        ${tagHTML}
+        ${pepperHTML}
+        <img src="${packImg}" id="${imgId}" class="case-card-img mb-2 transition-all duration-300">
+        <h3 class="mt-2 font-semibold text-white text-sm sm:text-base">${c.name}</h3>
+        <a href="${openLink}" class="open-button glow-button text-xs sm:text-sm whitespace-nowrap">
+    Open for ${priceLabel}
+    ${priceIcon}
+  </a>
         </div>`;
-    }
 
     // Add hover effect after rendering
     setTimeout(() => {
-      const imgElDesktop = document.getElementById(imgIdDesktop);
-      if (imgElDesktop && topPrizeImg !== packImg) {
-        imgElDesktop.addEventListener("mouseenter", () => {
-          imgElDesktop.src = topPrizeImg;
+      const imgEl = document.getElementById(imgId);
+      if (imgEl && topPrizeImg !== packImg) {
+        imgEl.addEventListener("mouseenter", () => {
+          imgEl.src = topPrizeImg;
         });
-        imgElDesktop.addEventListener("mouseleave", () => {
-          imgElDesktop.src = packImg;
-        });
-      }
-      const imgElMobile = document.getElementById(imgIdMobile);
-      if (imgElMobile && topPrizeImg !== packImg) {
-        imgElMobile.addEventListener("mouseenter", () => {
-          imgElMobile.src = topPrizeImg;
-        });
-        imgElMobile.addEventListener("mouseleave", () => {
-          imgElMobile.src = packImg;
+        imgEl.addEventListener("mouseleave", () => {
+          imgEl.src = packImg;
         });
       }
     }, 0);

@@ -1,23 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
   const footer = document.querySelector('footer');
-  if (!footer) return;
-  const year = new Date().getFullYear();
-  footer.innerHTML = `
-    <div class="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
-      <nav class="-mx-5 -my-2 flex flex-wrap justify-center" aria-label="Footer">
-        <div class="px-5 py-2"><a href="faq.html" class="text-base text-gray-500 hover:text-gray-900">FAQ</a></div>
-        <div class="px-5 py-2"><a href="termsandconditions.html" class="text-base text-gray-500 hover:text-gray-900">Terms &amp; Conditions</a></div>
-        <div class="px-5 py-2"><a href="contact.html" class="text-base text-gray-500 hover:text-gray-900">Contact</a></div>
-        <div class="px-5 py-2"><a href="https://instagram.com/packly.gg" class="text-base text-gray-500 hover:text-gray-900" target="_blank">Instagram</a></div>
-      </nav>
-      <div class="mt-8 flex justify-center space-x-6">
-        <a href="#" class="text-gray-400 hover:text-gray-500"><span class="sr-only">Facebook</span><i class="fab fa-facebook-f"></i></a>
-        <a href="#" class="text-gray-400 hover:text-gray-500"><span class="sr-only">Twitter</span><i class="fab fa-twitter"></i></a>
-        <a href="#" class="text-gray-400 hover:text-gray-500"><span class="sr-only">Instagram</span><i class="fab fa-instagram"></i></a>
-        <a href="#" class="text-gray-400 hover:text-gray-500"><span class="sr-only">Discord</span><i class="fab fa-discord"></i></a>
-      </div>
-      <p class="mt-8 text-center text-base text-gray-400">© ${year} Packly.gg. All rights reserved.</p>
-      <p class="mt-2 text-center text-sm text-gray-500">Packly.gg – Where virtual packs ignite real hype ❤️</p>
-    </div>
-  `;
-});
+    if (footer) {
+      const year = new Date().getFullYear();
+      footer.className = 'crazy-footer text-white py-8 px-6';
+      footer.innerHTML = `
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+
+          <div class="text-sm text-gray-400 text-center md:text-left">
+            &copy; ${year} Packly.gg. All rights reserved.
+          </div>
+
+          <div class="flex flex-wrap justify-center md:justify-end items-center gap-6 text-sm">
+            <a href="faq.html" class="nav-link text-pink-400"><i class="fas fa-question-circle"></i><span>FAQ</span></a>
+            <a href="termsandconditions.html" class="nav-link text-yellow-400"><i class="fas fa-scroll"></i><span>Terms & Conditions</span></a>
+            <a href="contact.html" class="nav-link text-blue-400"><i class="fas fa-envelope"></i><span>Contact</span></a>
+            <a href="https://instagram.com/packly.gg" target="_blank" class="nav-link text-purple-400">
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5a4.25 4.25 0 0 0 4.25-4.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm5.5-.88a.88.88 0 1 1-1.75 0 .88.88 0 0 1 1.75 0Z"/></svg>
+              <span>Instagram</span>
+            </a>
+          </div>
+
+        </div>
+
+        <div class="text-center mt-6 text-sm text-gray-400">
+          Packly.gg – Where virtual packs ignite real hype ❤️
+        </div>
+      `;
+    }
+  });

@@ -2,8 +2,8 @@
 
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: #f8fafc;
-  color: #1f2937;
+  background-color: #0f0f12;
+  color: white;
 }
 
 .case-card-img {
@@ -60,13 +60,13 @@ body {
 }
 
 .glow-button {
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.7), 0 0 20px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 10px rgba(236, 72, 153, 0.7), 0 0 20px rgba(147, 51, 234, 0.5);
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .glow-button:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.9), 0 0 30px rgba(139, 92, 246, 0.7);
+  box-shadow: 0 0 15px rgba(236, 72, 153, 0.9), 0 0 30px rgba(147, 51, 234, 0.7);
 }
 
 .frost-hero {
@@ -84,7 +84,7 @@ body {
 
 .case-card-img:hover {
   transform: scale(1.03) rotate(-1deg);
-  box-shadow: 0 0 14px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.15);
 }
 
 .coin-box {
@@ -431,18 +431,6 @@ body {
   scrollbar-width: none; /* Firefox */
 }
 #recent-wins-carousel::-webkit-scrollbar {
-  display: none;
-}
-
-#hot-cards,
-#cases-carousel {
-  display: flex;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-}
-#hot-cards::-webkit-scrollbar,
-#cases-carousel::-webkit-scrollbar {
   display: none;
 }
 
@@ -811,6 +799,19 @@ html {
 }
 
 /* Cross-browser styles for dynamic pack labels and buttons */
+.pack-tag {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background-color: #db2777;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  z-index: 10;
+}
+
 .spice-label {
   position: absolute;
   top: 0.5rem;
@@ -837,12 +838,16 @@ html {
   color: #fff;
   font-weight: 600;
   border-radius: 0.5rem;
-  background: #3b82f6;
-  background: -webkit-linear-gradient(left, #3b82f6, #8b5cf6);
-  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  background: #db2777;
+  background: -webkit-linear-gradient(left, #9333ea, #ec4899);
+  background: linear-gradient(to right, #9333ea, #ec4899);
 }
 
 @media (max-width: 640px) {
+  .pack-tag {
+    font-size: 0.65rem;
+    padding: 0.125rem 0.375rem;
+  }
   .spice-label i {
     font-size: 0.75rem;
   }
@@ -900,24 +905,13 @@ html {
 }
 
 .nav-link:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .neon-balance {
-  background: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: none;
-}
-
-.coin-icon {
-  filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.7));
-}
-
-.gradient-text {
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 10px rgba(236, 72, 153, 0.3), 0 0 20px rgba(147, 51, 234, 0.2);
 }
 
 .crazy-bottom-nav {
