@@ -642,6 +642,7 @@ function cancelEdit() {
             <button onclick="deleteUser('${child.key}')" class="px-2 py-1 bg-red-600 hover:bg-red-700 rounded">Delete</button>
           </div>
           <p class="font-semibold mt-4">Unbox History:</p>
+          <button onclick="loadHistory('${child.key}', this)" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded mb-2">Load History</button>
           <div class="overflow-x-auto mb-2">
             <table class="min-w-full text-xs text-gray-300">
               <thead class="bg-gray-700">
@@ -655,39 +656,51 @@ function cancelEdit() {
                   <th class="px-2 py-1 text-left">Timestamp</th>
                 </tr>
               </thead>
-              <tbody id="unbox-${child.key}"><tr><td colspan="7" class="px-2 py-1">Loading...</td></tr></tbody>
+              <tbody id="unbox-${child.key}"><tr><td colspan="7" class="px-2 py-1">History not loaded.</td></tr></tbody>
             </table>
           </div>
         `;
         resultsDiv.appendChild(div);
+      }
+    });
 
-        const unboxList = document.getElementById(`unbox-${child.key}`);
-        Promise.all([
-          firebase.database().ref(`users/${child.key}/unboxHistory`).once('value'),
-          firebase.database().ref(`users/${child.key}/inventory`).once('value')
-        ]).then(([histSnap, invSnap]) => {
-          const itemMap = new Map();
-          if (histSnap.exists()) {
-            histSnap.forEach(item => {
-              itemMap.set(item.key, item.val());
-            });
-          }
-          if (invSnap.exists()) {
-            invSnap.forEach(item => {
-              if (!itemMap.has(item.key)) itemMap.set(item.key, item.val());
-            });
-          }
-          const items = Array.from(itemMap.values());
-          if (items.length) {
-            unboxList.innerHTML = '';
-            items
-              .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
-              .forEach(winData => {
-                const date = winData.timestamp ? new Date(winData.timestamp).toLocaleString() : '';
-                const status = winData.sold ? 'Sold' : 'Owned';
-                const unboxBal = `${winData.balanceBefore ?? '-'}→${winData.balanceAfter ?? '-'}`;
-                const saleBal = winData.sold ? `${winData.saleBalanceBefore ?? '-'}→${winData.saleBalanceAfter ?? '-'}` : '-';
-                unboxList.innerHTML += `<tr>
+    if (!found) resultsDiv.innerHTML = 'No users found.';
+  });
+}
+
+function loadHistory(uid, btn) {
+  const unboxList = document.getElementById(`unbox-${uid}`);
+  if (!unboxList) return;
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Loading...';
+  }
+  Promise.all([
+    firebase.database().ref(`users/${uid}/unboxHistory`).once('value'),
+    firebase.database().ref(`users/${uid}/inventory`).once('value')
+  ]).then(([histSnap, invSnap]) => {
+    const itemMap = new Map();
+    if (histSnap.exists()) {
+      histSnap.forEach(item => {
+        itemMap.set(item.key, item.val());
+      });
+    }
+    if (invSnap.exists()) {
+      invSnap.forEach(item => {
+        if (!itemMap.has(item.key)) itemMap.set(item.key, item.val());
+      });
+    }
+    const items = Array.from(itemMap.values());
+    if (items.length) {
+      unboxList.innerHTML = '';
+      items
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+        .forEach(winData => {
+          const date = winData.timestamp ? new Date(winData.timestamp).toLocaleString() : '';
+          const status = winData.sold ? 'Sold' : 'Owned';
+          const unboxBal = `${winData.balanceBefore ?? '-'}→${winData.balanceAfter ?? '-'}`;
+          const saleBal = winData.sold ? `${winData.saleBalanceBefore ?? '-'}→${winData.saleBalanceAfter ?? '-'}` : '-';
+          unboxList.innerHTML += `<tr>
                   <td class="px-2 py-1">${winData.name}</td>
                   <td class="px-2 py-1">${winData.rarity || ''}</td>
                   <td class="px-2 py-1">$${winData.value || 0}</td>
@@ -696,15 +709,12 @@ function cancelEdit() {
                   <td class="px-2 py-1">${saleBal}</td>
                   <td class="px-2 py-1 text-xs">${date}</td>
                 </tr>`;
-              });
-          } else {
-            unboxList.innerHTML = '<tr><td colspan="7" class="px-2 py-1">No history found.</td></tr>';
-          }
         });
-      }
-    });
-
-    if (!found) resultsDiv.innerHTML = 'No users found.';
+    } else {
+      unboxList.innerHTML = '<tr><td colspan="7" class="px-2 py-1">No history found.</td></tr>';
+    }
+  }).finally(() => {
+    if (btn) btn.remove();
   });
 }
 
