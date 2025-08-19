@@ -94,10 +94,7 @@
     const centerOffset=containerWidth/2 - state.tileWidth/2;
     const targetIndex=state.items.length*2 + index;
     const perfectX=-(targetIndex*state.tileWidth - centerOffset);
-    // random near-miss offset so result isn't always perfectly centered
-    const missChance=opts.misalignChance!==undefined?opts.misalignChance:0.7;
-    const missOffset=Math.random()<missChance? (Math.random()*state.tileWidth*0.4 - state.tileWidth*0.2):0;
-    const finalX=perfectX+missOffset;
+    const finalX=perfectX;
     const distance=finalX-startX;
     // heavier deceleration for slower end spin
     const accDur=duration*0.25, decelDur=duration*0.45, cruiseDur=duration-accDur-decelDur;
@@ -126,12 +123,6 @@
         winTile.style.setProperty('--win-color',rarityColors[item.rarity]||'#FFD36E');
         winTile.classList.add('win');
         stinger(item.rarity);burstConfetti();emit('reveal',item);
-        // snap the reel to center after a brief near-miss pause
-        setTimeout(()=>{
-          state.root.style.transition='transform 150ms';
-          state.root.style.transform=`translate3d(${perfectX}px,0,0)`;
-          setTimeout(()=>state.root.style.transition='none',160);
-        },150);
         opts.onReveal&&opts.onReveal(item);emit('finish',item);
       }
     }

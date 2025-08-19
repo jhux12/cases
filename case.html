@@ -88,30 +88,25 @@
       bottom: 0;
       left: 50%;
       transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
     }
-    .center-marker::before {
-      content:'';
-      position:absolute;
-      bottom:0;
-      left:50%;
-      transform:translateX(-50%);
-      width:0;
-      height:0;
-      border-left:12px solid transparent;
-      border-right:12px solid transparent;
-      border-top:12px solid #cbd5e1;
+    .center-marker .marker-line {
+      flex: 1;
+      width: 2px;
+      background: linear-gradient(#8b5cf6,#3b82f6);
+      box-shadow: 0 0 6px #8b5cf6;
     }
-    .center-marker::after {
-      content:'';
-      position:absolute;
-      top:0;
-      bottom:12px;
-      left:50%;
-      width:2px;
-      transform:translateX(-50%);
-      background:linear-gradient(#8b5cf6,#3b82f6);
-      box-shadow:0 0 6px #8b5cf6;
+    .center-marker .marker-arrow {
+      width: 0;
+      height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
     }
+    .center-marker .marker-arrow.top { border-bottom: 12px solid #cbd5e1; }
+    .center-marker .marker-arrow.bottom { border-top: 12px solid #cbd5e1; }
     .confetti { position:absolute; width:6px; height:6px; background:#FFD36E; animation:fall 0.7s forwards; }
     @keyframes fall { to { transform: translateY(60px) rotate(360deg); opacity:0; } }
     .pill { display:inline-block; padding:2px 6px; border-radius:4px; font-size:0.75rem; margin-top:4px; }
@@ -145,7 +140,11 @@
     <div class="my-8 flex justify-center">
       <div class="reel-wrapper">
         <div id="reel" class="reel"></div>
-        <div class="center-marker"></div>
+        <div class="center-marker">
+          <span class="marker-arrow top"></span>
+          <span class="marker-line"></span>
+          <span class="marker-arrow bottom"></span>
+        </div>
       </div>
     </div>
     <div class="flex justify-center items-center gap-4 mt-6">

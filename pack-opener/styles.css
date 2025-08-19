@@ -74,30 +74,25 @@ body {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
 }
-.center-marker::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+.center-marker .marker-line {
+  flex: 1;
+  width: 2px;
+  background: linear-gradient(#8b5cf6,#3b82f6);
+  box-shadow: 0 0 6px #8b5cf6;
+}
+.center-marker .marker-arrow {
   width: 0;
   height: 0;
   border-left: 12px solid transparent;
   border-right: 12px solid transparent;
-  border-top: 12px solid #cbd5e1;
 }
-.center-marker::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 12px;
-  left: 50%;
-  width: 2px;
-  transform: translateX(-50%);
-  background: linear-gradient(#8b5cf6,#3b82f6);
-  box-shadow: 0 0 6px #8b5cf6;
-}
+.center-marker .marker-arrow.top { border-bottom: 12px solid #cbd5e1; }
+.center-marker .marker-arrow.bottom { border-top: 12px solid #cbd5e1; }
 
 .controls { display: flex; gap: 1rem; justify-content: center; margin-bottom: 1.5rem; }
 .btn {
