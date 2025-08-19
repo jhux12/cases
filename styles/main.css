@@ -1010,3 +1010,29 @@ html {
   pointer-events: none;
 }
 
+/* Dark mode styles */
+.dark body {
+  background-color: #1f2937;
+  color: #f8fafc;
+}
+
+.dark .navbar {
+  background-color: rgba(31, 41, 55, 0.8);
+  border-color: #374151;
+}
+
+.dark .navbar a {
+  color: #f8fafc;
+}
+
+.dark #user-dropdown,
+.dark #mobile-dropdown {
+  background-color: #1f2937;
+  color: #f8fafc;
+}
+
+.dark #user-dropdown a,
+.dark #mobile-dropdown a {
+  color: #f8fafc;
+}
+
