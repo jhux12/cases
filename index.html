@@ -59,6 +59,105 @@
         .floating {
             animation: float 3s ease-in-out infinite;
         }
+
+        /* Demo spinner styles */
+        .reel-wrapper {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #2a2f3a;
+            border-radius: 12px;
+            background: linear-gradient(180deg,#1e2333,#151820);
+            padding: 1rem 0;
+        }
+
+        .reel {
+            display: flex;
+            will-change: transform;
+            padding: 1rem 0;
+        }
+
+        .tile {
+            flex: 0 0 150px;
+            margin: 0 8px;
+            position: relative;
+            background: #2a2f3a;
+            border: 1px solid #3a4050;
+            border-radius: 12px;
+            padding: 6px;
+            color: #f1f5f9;
+        }
+
+        .tile img {
+            width: 138px;
+            height: 184px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .tile.win {
+            box-shadow: 0 0 0 3px var(--win-color,#FFD36E);
+            animation: flash 0.6s;
+        }
+
+        @keyframes flash {
+            0%,100% { filter: brightness(1); }
+            50% { filter: brightness(1.8); }
+        }
+
+        .tile-info {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            font-size: 0.75rem;
+            padding: 2px 4px;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .center-marker {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .center-marker .marker-line {
+            flex: 1;
+            width: 2px;
+            background: linear-gradient(#8b5cf6,#3b82f6);
+            box-shadow: 0 0 6px #8b5cf6;
+        }
+
+        .center-marker .marker-arrow {
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+        }
+
+        .center-marker .marker-arrow.top { border-top: 12px solid #cbd5e1; }
+        .center-marker .marker-arrow.bottom { border-bottom: 12px solid #cbd5e1; }
+
+        .confetti {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            animation: fall 0.7s forwards;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(60px) rotate(360deg); opacity: 0; }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -102,8 +201,15 @@
                 </main>
             </div>
         </div>
-        <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-            <img class="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full floating" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(26).png?alt=media&token=891ee223-90bd-4125-85e4-6a85dcb0f57b" alt="Heat Check pack">
+        <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 flex items-center justify-center p-4">
+            <div class="reel-wrapper h-56 sm:h-72 md:h-96 lg:h-full">
+                <div id="demo-spinner" class="reel"></div>
+                <div class="center-marker">
+                    <span class="marker-arrow top"></span>
+                    <span class="marker-line"></span>
+                    <span class="marker-arrow bottom"></span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -400,6 +506,49 @@
         </div>
     </div>
 
+    <script src="pack-opener/spinner.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const root = document.getElementById('demo-spinner');
+            if (!root) return;
+            const demoPacks = [
+                {
+                    items: [
+                        { id: 'p1c', name: 'Common Pull', image: 'https://tcgplayer-cdn.tcgplayer.com/product/509963_in_1000x1000.jpg', rarity: 'common' },
+                        { id: 'p1u', name: 'Uncommon Pull', image: 'https://tcgplayer-cdn.tcgplayer.com/product/534484_in_1000x1000.jpg', rarity: 'uncommon' },
+                        { id: 'p1r', name: 'Rare Pull', image: 'https://tcgplayer-cdn.tcgplayer.com/product/534483_in_1000x1000.jpg', rarity: 'rare' },
+                        { id: 'p1l', name: 'Legendary Pull', image: 'https://tcgplayer-cdn.tcgplayer.com/product/250320_in_1000x1000.jpg', rarity: 'legendary' }
+                    ]
+                },
+                {
+                    items: [
+                        { id: 'p2c', name: 'Common Hit', image: 'https://tcgplayer-cdn.tcgplayer.com/product/535090_in_1000x1000.jpg', rarity: 'common' },
+                        { id: 'p2u', name: 'Uncommon Hit', image: 'https://tcgplayer-cdn.tcgplayer.com/product/219233_in_1000x1000.jpg', rarity: 'uncommon' },
+                        { id: 'p2r', name: 'Rare Hit', image: 'https://tcgplayer-cdn.tcgplayer.com/product/201352_in_1000x1000.jpg', rarity: 'rare' },
+                        { id: 'p2l', name: 'Legendary Hit', image: 'https://tcgplayer-cdn.tcgplayer.com/product/284302_in_1000x1000.jpg', rarity: 'legendary' }
+                    ]
+                }
+            ];
+
+            PackOpener.init({ root, items: demoPacks[0].items });
+
+            function loop() {
+                const pack = demoPacks[Math.floor(Math.random() * demoPacks.length)];
+                PackOpener.setItems(pack.items);
+                const legendaryIndexes = pack.items
+                    .map((item, i) => (item.rarity === 'legendary' ? i : null))
+                    .filter(i => i !== null);
+                const winIndex = legendaryIndexes[Math.floor(Math.random() * legendaryIndexes.length)];
+                PackOpener.spinToIndex(winIndex, {
+                    durationMs: 2400,
+                    nearMiss: true,
+                    onReveal: () => setTimeout(loop, 1500)
+                });
+            }
+
+            loop();
+        });
+    </script>
     <script src="scripts/navbar.js"></script>
     <script>
         // Show free pack modal after 3 seconds
