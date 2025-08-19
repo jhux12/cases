@@ -91,8 +91,8 @@ body {
   border-left: 12px solid transparent;
   border-right: 12px solid transparent;
 }
-.center-marker .marker-arrow.top { border-bottom: 12px solid #cbd5e1; }
-.center-marker .marker-arrow.bottom { border-top: 12px solid #cbd5e1; }
+.center-marker .marker-arrow.top { border-top: 12px solid #cbd5e1; }
+.center-marker .marker-arrow.bottom { border-bottom: 12px solid #cbd5e1; }
 
 .controls { display: flex; gap: 1rem; justify-content: center; margin-bottom: 1.5rem; }
 .btn {

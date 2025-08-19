@@ -105,8 +105,8 @@
       border-left: 12px solid transparent;
       border-right: 12px solid transparent;
     }
-    .center-marker .marker-arrow.top { border-bottom: 12px solid #cbd5e1; }
-    .center-marker .marker-arrow.bottom { border-top: 12px solid #cbd5e1; }
+    .center-marker .marker-arrow.top { border-top: 12px solid #cbd5e1; }
+    .center-marker .marker-arrow.bottom { border-bottom: 12px solid #cbd5e1; }
     .confetti { position:absolute; width:6px; height:6px; background:#FFD36E; animation:fall 0.7s forwards; }
     @keyframes fall { to { transform: translateY(60px) rotate(360deg); opacity:0; } }
     .pill { display:inline-block; padding:2px 6px; border-radius:4px; font-size:0.75rem; margin-top:4px; }
@@ -148,11 +148,6 @@
       </div>
     </div>
     <div class="flex justify-center items-center gap-4 mt-6">
-      <select id="spin-count" class="bg-white text-gray-700 border border-gray-300 rounded px-3 py-2">
-        <option value="1">1x</option>
-        <option value="2">2x</option>
-        <option value="3">3x</option>
-      </select>
       <button id="open-case-button" class="relative px-6 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-extrabold flex items-center justify-center gap-2 shadow transition-transform transform hover:scale-105 focus:outline-none overflow-hidden">
         <span class="relative z-10 flex items-center gap-2">
           Open for
@@ -224,14 +219,8 @@ function showMultiWinPopup(prizes) {
   const countEl = document.getElementById('win-count');
   const prevBtn = document.getElementById('prev-win');
   const nextBtn = document.getElementById('next-win');
-  const sellAllBtn = document.getElementById('sell-all-btn');
-  const sellAllValue = document.getElementById('sell-all-value');
-  sellAllBtn.disabled = false;
   const processed = new Set();
   let current = 0;
-
-  const totalSell = prizes.reduce((sum, p) => sum + Math.floor(p.value * 0.8), 0);
-  sellAllValue.textContent = formatCoins(totalSell);
 
   function render(index) {
     const prize = prizes[index];
@@ -311,18 +300,6 @@ function showMultiWinPopup(prizes) {
     }
   });
 
-  sellAllBtn.onclick = async () => {
-    if (sellAllBtn.disabled) return;
-    sellAllBtn.disabled = true;
-    for (let i = 0; i < prizes.length; i++) {
-      if (!processed.has(i)) {
-        await sellPrize(prizes[i]);
-        processed.add(i);
-      }
-    }
-    popup.classList.add('hidden');
-  };
-
   popup.classList.remove('hidden');
   render(current);
 }
@@ -400,18 +377,11 @@ const spiceHTML = spiceData
 document.getElementById("case-name").textContent = caseData.name;
 document.getElementById("case-spice").innerHTML = spiceHTML;
 const openBtn = document.getElementById("open-case-button");
-const spinSelect = document.getElementById('spin-count');
-function updatePriceDisplay(count) {
-  const total = (caseData.price || 0) * count;
-  const priceEl = document.getElementById("button-price");
-  if (priceEl) priceEl.textContent = formatCoins(total);
-}
-
+const priceEl = document.getElementById("button-price");
 if (isFreeCase) {
   openBtn.innerHTML = '<span class="relative z-10">Open for Free</span>';
-  if (spinSelect) spinSelect.remove();
-} else {
-  updatePriceDisplay(1);
+} else if (priceEl) {
+  priceEl.textContent = formatCoins(caseData.price || 0);
 }
 
 const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
@@ -429,12 +399,6 @@ const openerItems = prizeList.map((p, i) => ({
   rarity: (p.rarity || 'common').toLowerCase().replace(/\s+/g,'')
 }));
 PackOpener.init({ root: document.getElementById('reel'), items: openerItems });
-if (spinSelect) {
-  spinSelect.addEventListener('change', (e) => {
-    const count = parseInt(e.target.value) || 1;
-    if (!isFreeCase) updatePriceDisplay(count);
-  });
-}
       const rarityColors = {
         common: "#a1a1aa",
         uncommon: "#4ade80",
@@ -457,16 +421,7 @@ if (spinSelect) {
     </div>
     <div class="absolute bottom-2 right-2 text-gray-600 bg-gray-100 px-2 py-[2px] text-xs rounded-full">
       ${formatOdds(prize.odds)}%
-    </div>
-  </div>
-  `;
-}).join("");
-enablePrizePopups();
-
-document.getElementById("open-case-button").addEventListener("click", async () => {
   const btn = document.getElementById("open-case-button");
-  const spinCount = isFreeCase ? 1 : parseInt(spinSelect.value) || 1;
-  if (spinSelect) spinSelect.disabled = true;
   btn.disabled = true;
   btn.classList.add("cursor-not-allowed", "opacity-60");
   btn.innerHTML = `
@@ -481,7 +436,8 @@ document.getElementById("open-case-button").addEventListener("click", async () =
 
   const user = firebase.auth().currentUser;
   if (!user) {
-    if (spinSelect) spinSelect.disabled = false;
+    btn.disabled = false;
+    btn.classList.remove("cursor-not-allowed", "opacity-60");
     return alert("Please sign in to open cases.");
   }
 
@@ -489,7 +445,32 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   const userData = userSnap.val() || {};
   const balance = parseFloat(userData.balance || 0);
   const price = parseFloat(caseData.price || 0);
-  const totalPrice = price * spinCount;
+document.getElementById("open-case-button").addEventListener("click", async () => {
+  const btn = document.getElementById("open-case-button");
+  btn.disabled = true;
+  btn.classList.add("cursor-not-allowed", "opacity-60");
+  btn.innerHTML = `
+    <span class="relative z-10 flex items-center gap-2 animate-pulse">
+      <svg class="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v8z"></path>
+      </svg>
+      Spinning...
+    </span>
+  `;
+
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    btn.disabled = false;
+    btn.classList.remove("cursor-not-allowed", "opacity-60");
+    return alert("Please sign in to open cases.");
+  }
+
+  const userSnap = await firebase.database().ref('users/' + user.uid).once("value");
+  const userData = userSnap.val() || {};
+  const balance = parseFloat(userData.balance || 0);
+  const price = parseFloat(caseData.price || 0);
+  const totalPrice = price;
 
   const weeklyReset = 7 * 24 * 60 * 60 * 1000;
   if (Date.now() - (userData.lastWeeklyReset || 0) > weeklyReset) {
@@ -502,7 +483,6 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     btn.disabled = false;
     btn.classList.remove("cursor-not-allowed", "opacity-60");
     btn.innerHTML = '<span class="relative z-10">Open for Free</span>';
-    if (spinSelect) spinSelect.disabled = false;
     return;
   }
 
@@ -517,14 +497,14 @@ document.getElementById("open-case-button").addEventListener("click", async () =
         <span id="button-price">${formatCoins(caseData.price)}</span>
       </span>
     `;
-    if (spinSelect) spinSelect.disabled = false;
     return;
   }
 
   const fairSnap = await firebase.database().ref('users/' + user.uid + '/provablyFair').once("value");
   const fairData = fairSnap.val();
   if (!fairData) {
-    if (spinSelect) spinSelect.disabled = false;
+    btn.disabled = false;
+    btn.classList.remove("cursor-not-allowed", "opacity-60");
     return alert("Provably fair data missing.");
   }
   const { nonce } = fairData;
@@ -536,17 +516,13 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     await firebase.database().ref('users/' + user.uid + '/balance').set(newBalance);
   }
 
-  for (let s = 0; s < spinCount; s++) {
-    const res = await fetch('/api/spin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ caseId, prizes: prizeList })
-    });
-    if (!res.ok) {
-      console.error('Spin request failed');
-      continue;
-    }
+  const res = await fetch('/api/spin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ caseId, prizes: prizeList })
+  });
+  if (res.ok) {
     const { prize: winningPrize } = await res.json();
 
     const unboxData = {
@@ -564,14 +540,14 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     if (levelResult.leveledUp) {
       await firebase.database().ref('users/' + user.uid + '/balance').transaction(b => (b || 0) + (levelResult.reward || 0));
     }
-    winnings[s] = { ...winningPrize, key: invRef.key, levelResult };
+    winnings[0] = { ...winningPrize, key: invRef.key, levelResult };
 
     const winIndex = openerItems.findIndex(p => p.name === winningPrize.name);
     await new Promise(resolve => {
       PackOpener.spinToIndex(winIndex, { durationMs: 2400, nearMiss: true, onReveal: () => resolve() });
     });
 
-    const lr = winnings[s].levelResult;
+    const lr = winnings[0].levelResult;
     if (lr.leveledUp) {
       showToast(`Level ${lr.level}! +${formatCoins(lr.reward)} coins`, 'bg-green-600');
     }
@@ -581,7 +557,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     await firebase.database().ref('users/' + user.uid + '/freeCaseOpened').set(true);
   }
   const questUpdates = {
-    'openPacks/progress': firebase.database.ServerValue.increment(spinCount)
+    'openPacks/progress': firebase.database.ServerValue.increment(1)
   };
   if (!isFreeCase) {
     questUpdates['spendCoins/progress'] = firebase.database.ServerValue.increment(totalPrice);
@@ -591,20 +567,18 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     questUpdates['pullRare/progress'] = firebase.database.ServerValue.increment(rareHits);
   }
   await firebase.database().ref('users/' + user.uid + '/weeklyQuests').update(questUpdates);
-  await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + spinCount });
+  await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
 
   btn.disabled = false;
   btn.classList.remove('cursor-not-allowed', 'opacity-60');
   btn.innerHTML = isFreeCase
     ? '<span class="relative z-10">Open for Free</span>'
-    : `<div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50 z-0 animate-spin-slow"></div>
+    : `<div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50z-0 animate-spin-slow"></div>
       <span class="relative z-10 flex items-center gap-2">
         Open for
         <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
         <span id="button-price">${formatCoins(caseData.price)}</span>
       </span>`;
-  if (!isFreeCase) updatePriceDisplay(spinCount);
-  if (spinSelect) spinSelect.disabled = false;
 
   const topPrize = winnings.reduce((best, p) =>
     (rarityOrder[p.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) >
@@ -613,8 +587,6 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   , winnings[0]);
   showMultiWinPopup(winnings);
 });
-
-
       document.getElementById("try-free-button").addEventListener("click", () => {
         const btn = document.getElementById("try-free-button");
         btn.disabled = true;
@@ -632,7 +604,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
         const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
         const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
 
-        const spinCountDemo = parseInt(spinSelect?.value) || 1;
+        const spinCountDemo = 1;
         const demoPrizes = [];
         for (let s = 0; s < spinCountDemo; s++) {
           const rand = Math.random() * totalOdds;
@@ -669,7 +641,6 @@ document.getElementById("open-case-button").addEventListener("click", async () =
         }
         spinDemo();
       });
-  document.getElementById("pf-info").addEventListener("click", async () => {
     const user = firebase.auth().currentUser;
     if (!user) return;
 
@@ -801,10 +772,6 @@ document.addEventListener("DOMContentLoaded", () => {
       <button id="next-win" class="absolute right-0 top-1/2 -translate-y-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-chevron-right"></i></button>
     </div>
     <div id="win-count" class="text-sm text-gray-600 mb-2"></div>
-    <button id="sell-all-btn" class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 hover:brightness-110 text-white font-extrabold text-sm shadow-lg shadow-red-800/30 transition-all duration-200">
-      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 coin-icon" />
-      Sell All for <span id="sell-all-value">0</span> coins
-    </button>
   </div>
 </div>
 <!-- Prize Detail Popup -->

@@ -90,7 +90,7 @@
         const priceHtml=it.value!==undefined?`<div class="price">${it.value}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin"/></div>`:'';
         clone.innerHTML=`<img src="${it.image}" alt="${it.name}"/><div class=\"tile-info\"><div class=\"name\">${it.name}</div>${priceHtml}</div>`;
         tiles[midStart+index+(dir===1?-1:1)].replaceWith(clone);
-        offset=state.tileWidth*0.1*dir;
+        offset=state.tileWidth*0.35*dir;
       }
     }
     const container=state.root.parentElement;
@@ -128,6 +128,13 @@
         winTile.classList.add('win');
         stinger(item.rarity);burstConfetti();emit('reveal',item);
         opts.onReveal&&opts.onReveal(item);emit('finish',item);
+        if(offset!==0){
+          setTimeout(()=>{
+            state.root.style.transition='transform 0.25s';
+            state.root.style.transform=`translate3d(${perfectX}px,0,0)`;
+            setTimeout(()=>{state.root.style.transition='none';},300);
+          },300);
+        }
       }
     }
     state.animationId=requestAnimationFrame(step);
