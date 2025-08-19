@@ -48,11 +48,65 @@ async function initHeroSpinner() {
       )
     );
 
-    await spinToPrize(() => {}, false, 'hero');
-    setTimeout(spin, 2500);
+    const prize = await spinToPrize(() => {}, false, 'hero');
+    await demoAnimation(prize);
+    setTimeout(spin, 1000);
   }
 
   spin();
+}
+
+async function demoAnimation(prize) {
+  const border = document.getElementById('spinner-border-hero');
+  const wrapper = border?.parentElement;
+  const sellDest = document.getElementById('demo-sell-dest');
+  const shipDest = document.getElementById('demo-ship-dest');
+  const labelEl = document.getElementById('demo-label');
+  if (!wrapper || !sellDest || !shipDest || !prize || !labelEl) return;
+
+  await animateTo(shipDest, 'Ship to you');
+  await animateTo(sellDest, 'Sell back for coins');
+
+  function animateTo(destEl, text) {
+    return new Promise(resolve => {
+      const card = document.createElement('img');
+      card.src = prize.image || '';
+      card.className = 'demo-card absolute rounded-lg shadow-lg';
+      const width = 80;
+      const height = 100;
+      const wrapperRect = wrapper.getBoundingClientRect();
+      card.style.width = `${width}px`;
+      card.style.height = `${height}px`;
+      card.style.left = `${wrapperRect.width / 2 - width / 2}px`;
+      card.style.top = `${wrapperRect.height / 2 - height / 2}px`;
+      card.style.opacity = '1';
+      wrapper.appendChild(card);
+
+      labelEl.textContent = text;
+      labelEl.style.opacity = '1';
+      destEl.classList.add('animate-pulse');
+
+      requestAnimationFrame(() => {
+        const destRect = destEl.getBoundingClientRect();
+        const latestWrapperRect = wrapper.getBoundingClientRect();
+        const dx = destRect.left + destRect.width / 2 - (latestWrapperRect.left + latestWrapperRect.width / 2);
+        const dy = destRect.top + destRect.height / 2 - (latestWrapperRect.top + latestWrapperRect.height / 2);
+        card.style.transform = `translate(${dx}px, ${dy}px) scale(0.5)`;
+        card.style.opacity = '0';
+      });
+
+      card.addEventListener(
+        'transitionend',
+        () => {
+          destEl.classList.remove('animate-pulse');
+          labelEl.style.opacity = '0';
+          card.remove();
+          setTimeout(resolve, 500);
+        },
+        { once: true }
+      );
+    });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', initHeroSpinner);
