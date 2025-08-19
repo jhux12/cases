@@ -622,15 +622,17 @@ document.getElementById("open-case-button").addEventListener("click", async () =
         }
         spinDemo();
       });
+
+  document.getElementById("pf-info").addEventListener("click", async () => {
     const user = firebase.auth().currentUser;
     if (!user) return;
 
-  const fairSnap = await firebase.database().ref(`users/${user.uid}/provablyFair`).once("value");
-  const fairData = fairSnap.val();
+    const fairSnap = await firebase.database().ref(`users/${user.uid}/provablyFair`).once("value");
+    const fairData = fairSnap.val();
 
-  document.getElementById("pf-server-seed").textContent = fairData?.serverSeed || "Not found";
-  document.getElementById("pf-client-seed").textContent = fairData?.clientSeed || "Not found";
-  document.getElementById("pf-nonce").textContent = fairData?.nonce ?? "Not found";
+    document.getElementById("pf-server-seed").textContent = fairData?.serverSeed || "Not found";
+    document.getElementById("pf-client-seed").textContent = fairData?.clientSeed || "Not found";
+    document.getElementById("pf-nonce").textContent = fairData?.nonce ?? "Not found";
 
     document.getElementById("provably-fair-modal").classList.remove("hidden");
   });
