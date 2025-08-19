@@ -6,6 +6,11 @@ body {
   color: #1f2937;
 }
 
+.navbar {
+  backdrop-filter: blur(10px);
+  background-color: #ffffff;
+}
+
 .case-card-img {
   height: 256px;
   width: 100%;
@@ -1008,5 +1013,80 @@ html {
   font-size: 0.625rem;
   line-height: 1;
   pointer-events: none;
+}
+
+/* Dark mode styles */
+.dark body {
+  background-color: #1f2937;
+  color: #f8fafc;
+}
+
+.dark .navbar {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+.dark .navbar a {
+  color: #f8fafc;
+}
+
+.dark #user-dropdown,
+.dark #mobile-dropdown {
+  background-color: #1f2937;
+  color: #f8fafc;
+}
+
+.dark #user-dropdown a,
+.dark #mobile-dropdown a {
+  color: #f8fafc;
+}
+
+/* Generic dark mode overrides for common utility classes */
+.dark .bg-white,
+.dark .bg-gray-50,
+.dark .bg-gray-100 {
+  background-color: #1f2937;
+}
+
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-gray-700,
+.dark .text-gray-600 {
+  color: #f8fafc;
+}
+
+.dark .text-gray-500 {
+  color: #d1d5db;
+}
+
+.dark .text-gray-400 {
+  color: #9ca3af;
+}
+
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: #4b5563;
+}
+
+.dark .bg-indigo-100 {
+  background-color: #3730a3;
+}
+
+.dark .text-indigo-700,
+.dark .text-indigo-800 {
+  color: #c7d2fe;
+}
+
+.dark .bg-gray-300 {
+  background-color: #4b5563;
+}
+
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-gray-100:hover {
+  background-color: #374151;
+}
+
+.dark .hover\:text-gray-500:hover {
+  color: #d1d5db;
 }
 

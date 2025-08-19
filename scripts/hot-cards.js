@@ -39,10 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
       cardEl.innerHTML = `
         <img class="w-full h-48 object-contain p-4" src="${card.image}" alt="${card.name}">
         <div class="p-4">
-          <p class="text-sm font-semibold text-center truncate mb-2" title="${displayName}">${truncatedName}</p>
+          <p class="text-sm font-semibold text-center truncate mb-2 text-black dark:text-white" title="${displayName}">${truncatedName}</p>
           <div class="flex items-center justify-center gap-1">
             <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon" alt="Coins">
-            <span class="text-gray-900 font-medium">${price}</span>
+            <span class="font-medium text-black dark:text-white">${price}</span>
           </div>
         </div>`;
       container.appendChild(cardEl);
