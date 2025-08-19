@@ -78,15 +78,19 @@
     state.root.style.transform='translate3d(0,0,0)';
     const startX=0;
     const duration=opts.durationMs||2400;state.isSpinning=true;
-    if(opts.nearMiss){
-      const tiles=state.root.children;const midStart=state.items.length*2;
-      const highIndex=state.items.findIndex(it=>['legendary','ultra','ultrarare','rare'].includes(it.rarity)&&state.items.indexOf(it)!==index);
-      if(highIndex>=0){
-        const clone=document.createElement('div');const it=state.items[highIndex];
+    const tiles=state.root.children;const midStart=state.items.length*2;
+    let offset=0;
+    if(opts.nearMiss&&Math.random()<0.25){
+      const dir=Math.random()<0.5?1:-1;
+      const candidates=state.items.filter((it,i)=>i!==index&&['legendary','ultra','ultrarare'].includes(it.rarity));
+      const it=candidates[Math.floor(Math.random()*candidates.length)];
+      if(it){
+        const clone=document.createElement('div');
         clone.className='tile';
         const priceHtml=it.value!==undefined?`<div class="price">${it.value}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin"/></div>`:'';
         clone.innerHTML=`<img src="${it.image}" alt="${it.name}"/><div class=\"tile-info\"><div class=\"name\">${it.name}</div>${priceHtml}</div>`;
-        tiles[midStart+index+1].replaceWith(clone);
+        tiles[midStart+index+(dir===1?-1:1)].replaceWith(clone);
+        offset=state.tileWidth*0.1*dir;
       }
     }
     const container=state.root.parentElement;
@@ -94,7 +98,7 @@
     const centerOffset=containerWidth/2 - state.tileWidth/2;
     const targetIndex=state.items.length*2 + index;
     const perfectX=-(targetIndex*state.tileWidth - centerOffset);
-    const finalX=perfectX;
+    const finalX=perfectX+offset;
     const distance=finalX-startX;
     // heavier deceleration for slower end spin
     const accDur=duration*0.25, decelDur=duration*0.45, cruiseDur=duration-accDur-decelDur;
