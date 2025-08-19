@@ -87,7 +87,7 @@ function renderCases(caseList, reset = true) {
           <img src="${packImg}" id="${imgIdDesktop}" class="case-card-img w-full h-64 object-contain p-6 transition-all duration-300">
         </div>
         <div class="p-4">
-          <h3 class="text-lg font-medium text-gray-900">${c.name}</h3>
+          <h3 class="text-lg font-medium text-black dark:text-white">${c.name}</h3>
           <div class="mt-4">
             <a href="${openLink}" class="open-button glow-button text-sm whitespace-nowrap">
               Open for ${priceLabel} ${priceIcon}
@@ -104,7 +104,7 @@ function renderCases(caseList, reset = true) {
             <img src="${packImg}" id="${imgIdMobile}" class="case-card-img w-full h-64 object-contain p-6 transition-all duration-300">
           </div>
           <div class="p-4">
-            <h3 class="text-lg font-medium text-gray-900">${c.name}</h3>
+            <h3 class="text-lg font-medium text-black dark:text-white">${c.name}</h3>
             <div class="mt-4">
               <a href="${openLink}" class="open-button glow-button text-sm whitespace-nowrap">
                 Open for ${priceLabel} ${priceIcon}
