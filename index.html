@@ -558,14 +558,27 @@
     </script>
     <script src="scripts/navbar.js"></script>
     <script>
-        // Show free pack modal after 3 seconds
-        setTimeout(() => {
-            document.getElementById('freePackModal').classList.remove('hidden');
-        }, 3000);
+        // Show free pack modal 7 seconds after load for signed-out users
+        let freePackTimeout;
+        firebase.auth().onAuthStateChanged(user => {
+            if (!user && !sessionStorage.getItem('freePackDismissed')) {
+                freePackTimeout = setTimeout(() => {
+                    const modal = document.getElementById('freePackModal');
+                    if (modal) modal.classList.remove('hidden');
+                }, 7000);
+            } else {
+                clearTimeout(freePackTimeout);
+            }
+        });
 
         function closeModal() {
-            document.getElementById('freePackModal').classList.add('hidden');
-            document.getElementById('addCoinsModal').classList.add('hidden');
+            const freePackModal = document.getElementById('freePackModal');
+            const addCoinsModal = document.getElementById('addCoinsModal');
+            if (freePackModal && !freePackModal.classList.contains('hidden')) {
+                sessionStorage.setItem('freePackDismissed', 'true');
+            }
+            if (freePackModal) freePackModal.classList.add('hidden');
+            if (addCoinsModal) addCoinsModal.classList.add('hidden');
         }
 
         function showAddCoinsModal() {
