@@ -40,11 +40,13 @@
       position: relative;
       overflow: hidden;
       width: 100%;
-      max-width: 900px;
+      max-width: 1100px;
       margin: 0 auto;
       border: 1px solid #2a2f3a;
       border-radius: 12px;
       background: linear-gradient(180deg, #1e2333, #151820);
+      padding: 1rem 0;
+      min-height: 260px;
     }
     .reel { display: flex; will-change: transform; padding: 1rem 0; }
     .tile {
@@ -79,7 +81,7 @@
     }
     .tile-info .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .tile-info .price { margin-top: 2px; display:flex; align-items:center; justify-content:center; gap:2px; color:#fbbf24; }
-    .tile-info .price img { width:0.75rem; height:0.75rem; }
+    .tile-info .price img { width:0.6rem; height:0.6rem; }
     .center-marker {
       position: absolute;
       top: 0;
@@ -155,7 +157,7 @@
       <button id="open-case-button" class="relative px-6 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-extrabold flex items-center justify-center gap-2 shadow transition-transform transform hover:scale-105 focus:outline-none overflow-hidden">
         <span class="relative z-10 flex items-center gap-2">
           Open for
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 coin-icon" />
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 coin-icon" />
           <span id="button-price">...</span>
         </span>
       </button>

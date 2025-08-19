@@ -70,10 +70,9 @@
 
   function spinToIndex(index,opts={}){
     if(state.isSpinning||!state.root) return;
-    const startX=getCurrentX();
-    const duration=opts.durationMs||2400;state.isSpinning=true;
     render();
-    state.root.style.transform=`translate3d(${startX}px,0,0)`;
+    const startX=0;
+    const duration=opts.durationMs||2400;state.isSpinning=true;
     if(opts.nearMiss){
       const tiles=state.root.children;const midStart=state.items.length*2;
       const highIndex=state.items.findIndex(it=>['legendary','ultra','rare'].includes(it.rarity)&&state.items.indexOf(it)!==index);
