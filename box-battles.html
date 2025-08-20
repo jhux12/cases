@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Box Battles | Packly.gg</title>
+
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase compat (assumes app is initialized elsewhere on the page/app) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+
+  <!-- Site global UI loaders (adjust paths if needed) -->
+  <script defer src="scripts/header.js"></script>
+  <script defer src="scripts/navbar.js"></script>
+  <script defer src="scripts/footer.js"></script>
+  <!-- PackOpener spinner library -->
+  <script defer src="pack-opener/spinner.js"></script>
+
+  <style>
+    /* Minimal reel host styles; rest via Tailwind */
+    .reel-host { position: relative; overflow: hidden; }
+    .center-marker::after{
+      content:""; position:absolute; top:0; bottom:0; left:50%; width:2px; transform:translateX(-50%);
+      background: linear-gradient(to bottom, transparent, rgba(255,255,255,.6), transparent);
+    }
+    .pill{border-radius:9999px;padding:.25rem .6rem;border:1px solid rgba(255,255,255,.1);font-size:.75rem}
+    .pill.live{border-color:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,.2) inset}
+    dialog[open]{animation:fadeIn .12s ease-out}
+    @keyframes fadeIn{from{opacity:.0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
+    /* Spinner item sizing */
+    .reel-host .reel{display:flex;will-change:transform}
+    .reel-host .reel .tile{flex:0 0 132px;margin:0 6px;position:relative;background:#1f2937;border:1px solid #334155;border-radius:8px;padding:4px;color:#f1f5f9}
+    .reel-host .reel .tile img{width:96px;height:128px;object-fit:cover;border-radius:4px}
+    .reel-host .reel .tile-info{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);font-size:.625rem;padding:2px 4px;border-bottom-left-radius:8px;border-bottom-right-radius:8px;text-align:center}
+    .reel-host .reel .tile-info .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.625rem}
+    .reel-host .reel .tile-info .price{margin-top:2px;display:flex;align-items:center;justify-content:center;gap:2px;color:#fbbf24}
+    .reel-host .reel .tile-info .price img{width:.5rem;height:.5rem}
+  </style>
+</head>
+<body class="min-h-screen bg-[#0b0e19] text-white selection:bg-indigo-500/40">
+  <!-- Header / Nav injected -->
+  <div id="header"></div>
+  <div id="navbar"></div>
+
+  <main class="mx-auto max-w-6xl px-4 py-8 space-y-8">
+    <!-- Hero -->
+    <section class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Box Battles</h1>
+        <p class="text-white/70 mt-1">Winner takes all. Spin across N rounds — highest total wins the pot.</p>
+        <p id="stage-status" class="text-indigo-300/80 mt-1" aria-live="polite"></p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="create-battle-btn" class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-400 hover:to-blue-400 shadow-lg shadow-indigo-500/20">
+          + Create Battle
+        </button>
+        <a href="#previous-battles" class="text-white/75 hover:text-white underline underline-offset-4">Previous Battles</a>
+      </div>
+    </section>
+
+    <!-- Two-column lists -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Open Battles -->
+      <div class="lg:col-span-2 bg-[#0f1220] border border-white/10 rounded-2xl p-4">
+        <header class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-semibold">Open Battles</h2>
+          <form id="filters-form" class="hidden md:flex items-center gap-2 text-sm">
+            <input class="bg-white/5 rounded-lg px-3 py-1.5 placeholder-white/40" placeholder="Min value"/>
+            <select class="bg-white/5 rounded-lg px-3 py-1.5">
+              <option>Any seats</option><option>2</option><option>3</option><option>4</option>
+            </select>
+          </form>
+        </header>
+        <div id="battle-list" class="space-y-3"></div>
+      </div>
+
+      <!-- My Battles -->
+      <aside class="bg-[#0f1220] border border-white/10 rounded-2xl p-4">
+        <header class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-semibold">My Battles</h2>
+          <span id="my-battles-count" class="text-sm text-white/60"></span>
+        </header>
+        <div id="my-battles" class="space-y-3"></div>
+      </aside>
+    </section>
+
+    <!-- Battle Stage (appears when joined/created) -->
+    <section id="battle-stage" class="hidden bg-[#0f1220] border border-white/10 rounded-2xl p-4">
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Reel -->
+        <div class="reel-host relative grow rounded-xl border border-white/10 bg-black/20 p-3 overflow-x-auto">
+          <div id="stage-reel" class="reel h-40 md:h-48 flex items-center"></div>
+        </div>
+
+        <!-- Scoreboard -->
+        <div class="w-full lg:w-80">
+          <h3 class="text-base font-semibold mb-2">Scoreboard</h3>
+          <div id="stage-scoreboard" class="space-y-2"></div>
+          <aside id="join-aside" class="mt-4"></aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- Previous Battles -->
+    <section id="previous-battles" class="bg-[#0f1220] border border-white/10 rounded-2xl p-4">
+      <header class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold">Previous Battles</h2>
+        <span class="text-sm text-white/60">Latest 5</span>
+      </header>
+      <div id="previous-battles-list" class="space-y-3"></div>
+    </section>
+  </main>
+
+  <!-- Footer injected -->
+  <div id="footer"></div>
+
+  <!-- Create Battle Modal -->
+  <dialog id="battle-form" class="bg-[#0f1220] text-white border border-white/10 rounded-2xl p-0 w-[min(720px,calc(100vw-2rem))]">
+    <form method="dialog" class="p-5">
+      <header class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-semibold">Create Battle</h3>
+        <button class="px-2 py-1 text-white/70 hover:text-white" value="cancel">✕</button>
+      </header>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="md:col-span-2">
+          <label class="text-sm text-white/70">Choose Packs</label>
+          <div id="pack-grid" class="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto max-h-72"></div>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <label class="text-sm text-white/70">Rounds (spins)</label>
+            <input id="spin-count" type="number" min="1" max="20" value="10"
+                   class="mt-1 w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2"/>
+          </div>
+          <div>
+            <label class="text-sm text-white/70">Players</label>
+            <select id="player-count" class="mt-1 w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+              <option value="2">2</option><option value="3">3</option><option value="4" selected>4</option>
+            </select>
+          </div>
+          <button id="create-lobby" class="w-full mt-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-400 hover:to-blue-400">
+            Create Lobby
+          </button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Rewatch Modal -->
+  <dialog id="rewatch-modal" class="bg-[#0f1220] text-white border border-white/10 rounded-2xl p-0 w-[min(840px,calc(100vw-2rem))]">
+    <form method="dialog" class="p-5">
+      <header class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-semibold">Rewatch Battle</h3>
+        <button class="px-2 py-1 text-white/70 hover:text-white" value="cancel">✕</button>
+      </header>
+      <div id="rewatch-stage" class="reel-host rounded-xl border border-white/10 bg-black/20 p-3">
+        <div id="rewatch-reel" class="reel h-40 md:h-48 flex items-center"></div>
+        <div class="center-marker pointer-events-none absolute inset-0"></div>
+      </div>
+      <div class="mt-4 flex items-center gap-3">
+        <button id="rewatch-play" class="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/15">Play</button>
+        <input id="rewatch-progress" type="range" min="0" value="0" class="w-full"/>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Page logic -->
+  <script>
+    /***** DESCRIPTION FOR CODEX *****
+     - Build a Winner-Takes-All Box Battles page that:
+       1) Lists open battles (#battle-list) and my battles (#my-battles).
+       2) Lets user create a lobby via #battle-form (choose packs, spinCount, playerCount).
+       3) On join, if seats < max at countdown end, fill with bots.
+       4) Run N rounds turn-by-turn using existing PackOpener spinner:
+          - For each turn: set items to current pack prizes, compute deterministic index,
+            call PackOpener.spinToIndex(index, {durationMs: 1600, nearMiss: true, onReveal}),
+            update player's total and store pull to Firestore.
+       5) After last round, highest total wins the pot. Persist winner + pulls.
+       6) Previous Battles list shows last 20 finished; Rewatch modal replays stored indexes quickly.
+     - Keep Firebase compat. Assume firebase.initializeApp(...) already exists globally.
+     - DO NOT rename these hook IDs: 
+       #create-battle-btn #battle-form #pack-grid #spin-count #player-count
+       #battle-list #my-battles #previous-battles #rewatch-modal #rewatch-stage
+       #battle-stage #stage-reel #stage-scoreboard #stage-status #join-aside #filters-form
+     *********************************/
+
+    // --- Shortcuts
+    const firestore = firebase.firestore();
+    const battlesRef = firestore.collection('battles');
+
+    // Resolve the current user via Firebase Auth (fallback guest during development).
+    function currentUser(){
+      const u = firebase.auth().currentUser;
+      if (u) return { uid: u.uid, displayName: u.displayName || (u.email||'User').split('@')[0], avatarUrl: u.photoURL || '' };
+      // Fallback guest (dev only)
+      return { uid: 'guest-' + Math.random().toString(36).slice(2,8), displayName: 'Guest', avatarUrl: '' };
+    }
+
+    // Fetch available packs + prizes from Firestore with a Realtime Database fallback.
+    let _packsCache;
+    async function fetchAvailablePacks(){
+      if (_packsCache) return _packsCache;
+      try {
+        let packs = [];
+
+        // Primary: Firestore "packs" collection (or legacy "cases" collection)
+        let snap = await firestore.collection('packs').get();
+        let docs = snap.docs;
+        if (docs.length === 0){
+          snap = await firestore.collection('cases').get();
+          docs = snap.docs;
+        }
+        if (docs.length){
+          packs = await Promise.all(docs.map(async doc => {
+            const data = doc.data() || {};
+            const pack = { id: doc.id, name: data.name, image: data.image, price: data.price, prizes: [] };
+            if (Array.isArray(data.prizes) && data.prizes.length){
+              pack.prizes = data.prizes;
+            }else{
+              const prizesSnap = await doc.ref.collection('prizes').get();
+              pack.prizes = prizesSnap.docs.map(p=> ({ id: p.id, ...p.data() }));
+            }
+            return pack;
+          }));
+        }
+
+        // Fallback: Realtime Database "cases" node (mirrors packs.js)
+        if (!packs.length){
+          const snapRT = await firebase.database().ref('cases').once('value');
+          const data = snapRT.val() || {};
+          packs = Object.entries(data).map(([id, val]) => ({
+            id,
+            name: val.name,
+            image: val.image,
+            price: val.price,
+            prizes: Object.entries(val.prizes || {}).map(([pid, pv]) => ({
+              id: pid,
+              name: pv.name,
+              image: pv.image,
+              value: pv.value,
+              rarity: pv.rarity || pv.tier || ''
+            }))
+          }));
+        }
+
+        _packsCache = packs;
+        return packs;
+      } catch(err){
+        console.error('fetchAvailablePacks failed', err);
+        return [];
+      }
+    }
+
+    // Deterministic index helper (provably fair or fallback hash).
+    const _legacyIndexHelper = window.provablyFairIndex || window.getWinningIndex;
+    window.getWinningIndex = function(pack, serverSeed, clientSeed, nonce){
+      if (typeof _legacyIndexHelper === 'function'){
+        return _legacyIndexHelper(pack, serverSeed, clientSeed, nonce);
+      }
+      const str = [serverSeed, clientSeed, nonce, pack.id].join('|');
+      let h = 2166136261;
+      for (let i=0; i<str.length; i++){
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      const x = (h>>>0) / 2**32;
+      return Math.floor(x * pack.prizes.length);
+    };
+    const getWinningIndex = window.getWinningIndex;
+
+    // Utilities
+    const $ = (s, r=document) => r.querySelector(s);
+    const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+    const sleep = (ms) => new Promise(r=>setTimeout(r, ms));
+
+    // Render helpers
+    function pill(text, extra=''){ return `<span class="pill bg-white/5 ${extra}">${text}</span>`; }
+    function avatar(name){
+      const init = (name||'U')[0]?.toUpperCase() || 'U';
+      return `<div class="w-8 h-8 rounded-full bg-white/10 grid place-items-center text-sm font-semibold">${init}</div>`;
+    }
+    function rowCard(inner){ return `<div class="rounded-xl border border-white/10 bg-white/5 p-3">${inner}</div>`; }
+
+    // --- Pack chooser UI
+    async function populatePackGrid(){
+      const packs = await fetchAvailablePacks();
+      const grid = $('#pack-grid'); grid.innerHTML = '';
+      packs.forEach(p=>{
+        const el = document.createElement('button');
+        el.type = 'button';
+        el.className = 'group relative rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 p-2 text-left';
+        el.dataset.id = p.id;
+        el.innerHTML = `
+          <img src="${p.image}" class="w-16 h-20 object-cover rounded-md mx-auto"/>
+          <div class="mt-2 text-xs flex items-center justify-between">
+            <span class="truncate">${p.name}</span>
+            <span class="text-white/60">${p.price}</span>
+          </div>
+          <span class="absolute top-2 right-2 hidden group-[.selected]:inline-flex pill bg-indigo-500/20 border-indigo-400/30">Selected</span>
+        `;
+        el.addEventListener('click', ()=>{
+          el.classList.toggle('selected');
+          el.classList.contains('selected') ? el.classList.add('ring-2','ring-indigo-500/50') : el.classList.remove('ring-2','ring-indigo-500/50');
+        });
+        grid.appendChild(el);
+      });
+    }
+
+    // --- Open/My/Previous lists
+    function renderBattleRow(b){
+      const live = b.status === 'spinning' ? pill('LIVE','live') : '';
+      const packs = (b.packs||[]).map(p=>`<img src="${p.image}" class="w-10 h-12 object-cover rounded-md border border-white/10"/>`).join('');
+      const players = (b.players||[]).map(p=>`<div class="flex items-center gap-1">${avatar(p.displayName)}<span class="hidden md:inline text-sm">${p.displayName||'Player'}</span></div>`).join('');
+      const canJoin = (b.status==='lobby' || b.status==='countdown') && (b.players?.length||0) < b.maxPlayers;
+
+      return rowCard(`
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full grid place-items-center bg-white/5">${b.spinCount}</div>
+            <div class="flex items-center gap-2">${packs}</div>
+          </div>
+          <div class="flex items-center gap-3">
+            ${live}
+            <div class="text-sm text-white/80">Pot: <span class="font-semibold">${b.potValue||0}</span></div>
+            <div class="flex items-center gap-2">${players}</div>
+            <div class="flex items-center gap-2">
+              ${canJoin ? `<button class="join-btn px-3 py-1.5 rounded-lg bg-indigo-500/80 hover:bg-indigo-500" data-id="${b.id}">Join</button>` : ''}
+              <button class="watch-btn px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15" data-id="${b.id}">Watch</button>
+            </div>
+          </div>
+        </div>
+      `);
+    }
+
+    function renderPreviousRow(b){
+      const winner = b.winner?.displayName || '—';
+      const packs = (b.packs||[]).slice(0,6).map(p=>`<img src="${p.image}" class="w-8 h-10 object-cover rounded-md border border-white/10"/>`).join('');
+      return rowCard(`
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">${packs}</div>
+          <div class="text-sm text-white/70">Rounds: ${b.spinCount} • Players: ${b.maxPlayers}</div>
+          <div class="text-sm">Winner: <span class="font-semibold">${winner}</span></div>
+          <div class="text-sm text-white/80">Pot: ${b.potValue||0}</div>
+          <button class="rewatch-btn px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15" data-id="${b.id}">Rewatch</button>
+        </div>
+      `);
+    }
+
+    // --- Stage (spinner + scoreboard) — SINGLE shared spinner for live battle
+    let countdownInterval, botInterval;
+
+    function ensureStage() {
+      const host = $('#stage-reel');
+      if (!host._spinnerReady) {
+        PackOpener.init({ root: host, items: [] });
+        host._spinnerReady = true;
+      }
+    }
+    function setStageItems(prizes) {
+      ensureStage();
+      PackOpener.setItems(prizes);
+    }
+    function highlightTurn(idx) {
+      $$('#stage-scoreboard .player').forEach((el, i) => {
+        el.classList.toggle('ring-2', i === idx);
+        el.classList.toggle('ring-indigo-500/50', i === idx);
+      });
+    }
+    function renderScoreboard(players) {
+      const html = players.map(p => `
+        <div class="player rounded-xl border border-white/10 bg-white/5 p-3 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-white/10 grid place-items-center text-sm font-semibold">
+              ${(p.displayName||'U').slice(0,1).toUpperCase()}
+            </div>
+            <div>
+              <div class="font-semibold">${p.displayName || 'Player'}${p.isBot ? ' (Bot)' : ''}</div>
+              <div class="text-xs text-white/60">Total: ${p.total || 0}</div>
+            </div>
+          </div>
+          <div class="text-xs text-white/60">${(p.pulls||[]).length} pulls</div>
+        </div>
+      `).join('');
+      $('#stage-scoreboard').innerHTML = html;
+    }
+
+    function startCountdownTimer(b) {
+      clearInterval(countdownInterval);
+      function tick() {
+        const secs = Math.max(0, Math.ceil((b.countdownEndsAt?.toDate() - new Date()) / 1000));
+        $('#join-aside').innerHTML = `<div class="text-sm">Starting in <span class="font-semibold">${secs}</span>s</div>`;
+        $('#stage-status').textContent = `Starting in ${secs}s`;
+        if (secs <= 0) { clearInterval(countdownInterval); maybeFillBotsAndStart(b); }
+      }
+      tick();
+      countdownInterval = setInterval(tick, 1000);
+    }
+    function startBotTimer(b) {
+      clearInterval(botInterval);
+      if (!b.botFillAt) return;
+      function tick() {
+        const secs = Math.max(0, Math.ceil((b.botFillAt.toDate() - new Date()) / 1000));
+        $('#join-aside').innerHTML = `Waiting for players… Auto-filling in <span class="font-semibold">${secs}</span>s`;
+        if (secs <= 0) { clearInterval(botInterval); maybeFillBotsAndStart(b); }
+      }
+      tick();
+      botInterval = setInterval(tick, 1000);
+    }
+
+    // --- Live listeners
+    function subscribeLists(){
+      battlesRef.orderBy('createdAt','desc').limit(20).onSnapshot(snap=>{
+        const me = currentUser();
+        const open = []; const mine = []; const finished = [];
+        snap.forEach(doc=>{
+          const b = {id:doc.id, ...doc.data()};
+          if (b.status==='finished') finished.push(b);
+          else open.push(b);
+          if ((b.players||[]).some(p=>p.uid===me.uid)) mine.push(b);
+        });
+
+        $('#battle-list').innerHTML = open.slice(0,5).map(renderBattleRow).join('') || '<div class="text-white/60">No open battles right now.</div>';
+        $('#my-battles').innerHTML = mine.slice(0,5).map(renderBattleRow).join('') || '<div class="text-white/60">You are not in any battles.</div>';
+        $('#my-battles-count').textContent = mine.length ? `${mine.length}` : '';
+        $('#previous-battles-list').innerHTML = finished.slice(0,5).map(renderPreviousRow).join('') || '<div class="text-white/60">Nothing yet — be the first!</div>';
+
+        // Buttons
+        $$('.join-btn').forEach(btn=> btn.onclick = ()=> joinBattle(btn.dataset.id));
+        $$('.watch-btn').forEach(btn=> btn.onclick = ()=> showBattle(btn.dataset.id));
+        $$('.rewatch-btn').forEach(btn=> btn.onclick = ()=> openRewatch(btn.dataset.id));
+      });
+    }
+
+    // --- Create / Join / Watch
+    async function openCreateModal(){
+      await populatePackGrid();
+      $('#battle-form').showModal();
+    }
+
+    async function createLobby(){
+      const me = currentUser();
+      const spinCount = Math.max(1, Math.min(20, parseInt($('#spin-count').value||10)));
+      const maxPlayers = parseInt($('#player-count').value||4);
+      const selected = $$('#pack-grid .selected').map(el=> el.dataset.id);
+      if (!selected.length){ alert('Pick at least one pack'); return; }
+      const all = await fetchAvailablePacks();
+      const packs = all.filter(p=> selected.includes(p.id));
+
+      // Compute pot (players * rounds * pack price average)
+      const avgPrice = Math.round(packs.reduce((s,p)=>s+p.price,0) / packs.length);
+      const potValue = avgPrice * spinCount * maxPlayers;
+
+      const b = {
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdBy: me,
+        packs: packs.map(p=>({id:p.id, name:p.name, image:p.image, price:p.price})),
+        spinCount, maxPlayers, mode:'winner_takes_all',
+        players: [{...me, total:0, pulls:[]}],
+        potValue, status:'lobby',
+        botFillAt: firebase.firestore.Timestamp.fromDate(new Date(Date.now()+60000))
+      };
+
+      const docRef = await battlesRef.add(b);
+      $('#battle-form').close();
+      showBattle(docRef.id);
+    }
+
+    async function joinBattle(battleId){
+      const me = currentUser();
+      const docRef = battlesRef.doc(battleId);
+      await firestore.runTransaction(async (tx)=>{
+        const snap = await tx.get(docRef);
+        if (!snap.exists) throw new Error('Battle missing');
+        const b = snap.data();
+        if (b.status!=='lobby' && b.status!=='countdown') return;
+        const exists = (b.players||[]).some(p=>p.uid===me.uid);
+        if (!exists && (b.players?.length||0) < b.maxPlayers){
+          b.players.push({...me, total:0, pulls:[]});
+        }
+        if (b.players.length === b.maxPlayers){
+          b.status='countdown';
+          b.countdownEndsAt = firebase.firestore.Timestamp.fromDate(new Date(Date.now()+5000));
+          delete b.botFillAt;
+        }else{
+          b.botFillAt = firebase.firestore.Timestamp.fromDate(new Date(Date.now()+60000));
+        }
+        tx.set(docRef, b, {merge:true});
+      });
+      showBattle(battleId);
+    }
+
+    function showBattle(battleId) {
+      // Focus the battle stage and hide other sections so the spinner and
+      // scoreboard are front and center for the host and joining players.
+      $$('main > section').forEach(sec => {
+        if (sec.id !== 'battle-stage') sec.classList.add('hidden');
+      });
+      $('#battle-stage').classList.remove('hidden');
+      ensureStage();
+      $('#stage-scoreboard').innerHTML = '';
+
+      battlesRef.doc(battleId).onSnapshot(async snap => {
+        if (!snap.exists) return;
+        const b = { id: snap.id, ...snap.data() };
+        $('#stage-status').textContent = renderStatus(b);
+
+        renderScoreboard(b.players || []);
+
+        if (b.status === 'lobby') startBotTimer(b);
+        else if (b.status === 'countdown') startCountdownTimer(b);
+        else { clearInterval(botInterval); clearInterval(countdownInterval); $('#join-aside').innerHTML = ''; }
+
+        if (b.status === 'spinning' && !window._battleLoopActive) {
+          window._battleLoopActive = true;
+          await runBattleLoop(b.id);             // runs until finished
+          window._battleLoopActive = false;
+        }
+      });
+    }
+
+    function renderStatus(b){
+      if (b.status==='lobby') return 'Waiting for players…';
+      if (b.status==='countdown') return 'Countdown to start…';
+      if (b.status==='spinning'){
+        return `Round ${(b.roundIndex||0)+1} of ${b.spinCount}`;
+      }
+      if (b.status==='finished') return `Winner: ${b.winner?.displayName || '—'}`;
+      return '';
+    }
+
+    async function maybeFillBotsAndStart(b){
+      const docRef = battlesRef.doc(b.id);
+      await firestore.runTransaction(async (tx)=>{
+        const snap = await tx.get(docRef);
+        const data = snap.data();
+        if (!data) return;
+        const now = new Date();
+        if (data.status==='lobby' && data.botFillAt && data.botFillAt.toDate() <= now){
+          while ((data.players?.length||0) < data.maxPlayers){
+            data.players.push({ uid:'bot-'+Math.random().toString(36).slice(2,8), displayName:'Bot', isBot:true, total:0, pulls:[] });
+          }
+          data.status = 'countdown';
+          data.countdownEndsAt = firebase.firestore.Timestamp.fromDate(new Date(Date.now()+5000));
+        } else if (data.status==='countdown' && data.countdownEndsAt && data.countdownEndsAt.toDate() <= now){
+          while ((data.players?.length||0) < data.maxPlayers){
+            data.players.push({ uid:'bot-'+Math.random().toString(36).slice(2,8), displayName:'Bot', isBot:true, total:0, pulls:[] });
+          }
+          data.status='spinning';
+          data.roundIndex = 0;
+        } else {
+          return;
+        }
+        tx.set(docRef, data, {merge:true});
+      });
+    }
+
+    // --- Round-robin engine
+    async function runBattleLoop(battleId) {
+      const docRef = battlesRef.doc(battleId);
+
+      for (;;) {
+        const snap = await docRef.get();
+        if (!snap.exists) return;
+        const b = { id: snap.id, ...snap.data() };
+        if (b.status !== 'spinning') break;
+
+        const round = b.roundIndex || 0;
+        const turn = b.turnIndex || 0;
+        const players = b.players || [];
+        const packs = b.packs || [];
+        const player = players[turn];
+
+        // Choose current pack (cycle)
+        const packMeta = packs[round % packs.length];
+        const all = await fetchAvailablePacks();
+        const full = all.find(x => x.id === packMeta.id) || packMeta;
+
+        // Prepare reel for this turn
+        setStageItems(full.prizes);
+        highlightTurn(turn);
+
+        // Deterministic index (replace seeds with your real PF setup)
+        const index = getWinningIndex(full, 'serverSeed', player.uid, `${round}-${turn}`);
+
+        // Spin
+        await new Promise(resolve => {
+          PackOpener.spinToIndex(index, { durationMs: 1600, nearMiss: true, onReveal: resolve });
+        });
+
+        // Commit pull + advance pointers (transaction)
+        await firestore.runTransaction(async tx => {
+          const s = await tx.get(docRef);
+          const d = s.data(); if (!d || d.status !== 'spinning') return;
+
+          const P = d.players[turn];
+          const prize = full.prizes[index];
+          const pull = {
+            round,
+            packId: full.id,
+            prizeId: prize.id,
+            value: prize.value,
+            index,
+            at: firebase.firestore.Timestamp.now()
+          };
+          P.pulls = (P.pulls || []).concat([pull]);
+          P.total = (P.total || 0) + (prize.value || 0);
+          d.players[turn] = P;
+
+          let nextTurn = (turn + 1) % d.players.length;
+          let nextRound = round;
+          if (nextTurn === 0) nextRound++;
+
+          if (nextRound >= d.spinCount) {
+            // Winner: highest total, tie-break by highest single pull, then earliest join
+            const ranked = d.players.map((p, i) => ({
+              ...p,
+              highestPull: Math.max(0, ...(p.pulls || []).map(x => x.value || 0)),
+              joinOrder: i
+            })).sort((a, b) =>
+              (b.total || 0) - (a.total || 0) ||
+              (b.highestPull || 0) - (a.highestPull || 0) ||
+              (a.joinOrder || 0) - (b.joinOrder || 0)
+            );
+            const top = ranked[0];
+            d.winner = { uid: top.uid, displayName: top.displayName, total: top.total };
+            d.status = 'finished';
+            d.finishedAt = firebase.firestore.FieldValue.serverTimestamp();
+          } else {
+            d.turnIndex = nextTurn;
+            d.roundIndex = nextRound;
+          }
+
+          tx.set(docRef, d, { merge: true });
+        });
+
+        await sleep(150); // small pacing
+      }
+    }
+
+    // --- Rewatch
+    async function openRewatch(id) {
+      const snap = await battlesRef.doc(id).get();
+      if (!snap.exists) return;
+      const b = { id: snap.id, ...snap.data() };
+      const all = await fetchAvailablePacks();
+
+      const reel = $('#rewatch-reel');
+      if (!reel._spinnerReady) { PackOpener.init({ root: reel, items: [] }); reel._spinnerReady = true; }
+
+      $('#rewatch-modal').showModal();
+
+      // Chronological sequence by round then join order
+      const seq = [];
+      for (let r = 0; r < (b.spinCount || 0); r++) {
+        for (let t = 0; t < (b.players || []).length; t++) {
+          const pl = (b.players[t].pulls || []).find(p => p.round === r);
+          if (pl) {
+            const pack = all.find(x => x.id === pl.packId);
+            seq.push({ pack, index: pl.index });
+          }
+        }
+      }
+
+      let i = 0;
+      $('#rewatch-play').onclick = async (e) => {
+        e.preventDefault();
+        for (; i < seq.length; i++) {
+          const step = seq[i];
+          PackOpener.setItems(step.pack.prizes);
+          await new Promise(r => PackOpener.spinToIndex(step.index, { durationMs: 900, nearMiss: false, onReveal: r }));
+          $('#rewatch-progress').value = i + 1;
+          await sleep(120);
+        }
+      };
+      $('#rewatch-progress').max = seq.length;
+      $('#rewatch-progress').value = 0;
+    }
+
+    // --- Wire up UI
+    window.addEventListener('DOMContentLoaded', ()=>{
+      subscribeLists();
+      $('#create-battle-btn').onclick = openCreateModal;
+      $('#create-lobby').onclick = (e)=>{ e.preventDefault(); createLobby(); };
+      // Clicking outside dialog to close (optional)
+      ['battle-form','rewatch-modal'].forEach(id=>{
+        const d = document.getElementById(id);
+        d?.addEventListener('click',(e)=>{ if(e.target===d) d.close(); });
+      });
+    });
+  </script>
+</body>
+</html>
