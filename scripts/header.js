@@ -18,11 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
               <span class="text-2xl font-bold gradient-text">Packly.gg</span>
             </a>
             <div class="hidden md:ml-6 md:flex md:space-x-8">
-              <a href="index.html" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"><i class="fas fa-clone mr-1"></i>Open Packs</a>
-              <a href="pickem.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Pickem <span id="pickem-nav-timer-desktop" class="ml-1 bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-0.5 rounded-full">--:--</span></a>
+              <a href="index.html" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"><i class="fas fa-box-open mr-1"></i>Open Packs</a>
+              <a href="box-battles.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"><i class="fas fa-sword mr-1"></i><i class="fas fa-shield-alt mr-2"></i> Battles</a>
               <a href="leaderboard.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Leaderboard</a>
               <a href="marketplace.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Marketplace</a>
-              <a href="box-battles.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"><i class="fas fa-shield-alt mr-1"></i><i class="fas fa-sword mr-1"></i>Box Battles</a>
             </div>
           </div>
           <div class="hidden md:ml-6 md:flex md:items-center">
@@ -71,11 +70,10 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
       <div id="mobile-dropdown" class="md:hidden hidden">
         <div class="pt-2 pb-3 space-y-1">
-          <a href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-indigo-500 text-base font-medium text-indigo-700 bg-indigo-50"><i class="fas fa-clone mr-2"></i>Open Packs</a>
-          <a href="pickem.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300">Pickem <span id="pickem-nav-timer" class="ml-1 bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-0.5 rounded-full">--:--</span></a>
+          <a href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-indigo-500 text-base font-medium text-indigo-700 bg-indigo-50"><i class="fas fa-box-open mr-2"></i>Open Packs</a>
+          <a href="box-battles.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-sword mr-1"></i><i class="fas fa-shield-alt mr-2"></i> Battles</a>
           <a href="leaderboard.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300">Leaderboard</a>
           <a href="marketplace.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300">Marketplace</a>
-          <a href="box-battles.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-shield-alt mr-2"></i><i class="fas fa-sword mr-2"></i>Box Battles</a>
         </div>
         <div class="pt-4 pb-3 border-t border-gray-200">
           <div class="flex items-center px-4 mb-3">

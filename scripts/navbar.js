@@ -12,27 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
     observer.observe(document.body, { childList: true, subtree: true });
   };
 
-  // Pickem countdown timer in nav
-  const initNavTimer = () => {
-    const timerEls = [
-      document.getElementById('pickem-nav-timer'),
-      document.getElementById('pickem-nav-timer-desktop')
-    ].filter(Boolean);
-    if (!timerEls.length) return;
-    const HALF_HOUR = 30 * 60 * 1000;
-    const update = () => {
-      const diff = HALF_HOUR - (Date.now() % HALF_HOUR);
-      const mins = Math.floor(diff / 60000);
-      const secs = Math.floor((diff % 60000) / 1000);
-      timerEls.forEach(el => {
-        el.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-      });
-    };
-    update();
-    setInterval(update, 1000);
-  };
-  initNavTimer();
-
   // Firebase user info injection AFTER header is rendered
   waitForElement("#username-display", () => {
     const usernameEl = document.getElementById("username-display");
