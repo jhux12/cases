@@ -305,9 +305,18 @@
     const $ = (s, r=document) => r.querySelector(s);
     const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
     const sleep = (ms) => new Promise(r=>setTimeout(r, ms));
-    function triggerBattleRunner(id){
-      fetch(`/api/run-battle?battleId=${encodeURIComponent(id)}`).catch(()=>{});
+    function triggerBattleRunner(id, beacon=false){
+      const url = `/api/run-battle?battleId=${encodeURIComponent(id)}`;
+      if (beacon && navigator.sendBeacon){
+        navigator.sendBeacon(url);
+      } else {
+        fetch(url).catch(()=>{});
+      }
     }
+    let activeBattleId = null;
+    window.addEventListener('pagehide', () => {
+      if (activeBattleId) triggerBattleRunner(activeBattleId, true);
+    });
 
     // Render helpers
     function pill(text, extra=''){ return `<span class="pill bg-white/5 ${extra}">${text}</span>`; }
@@ -596,6 +605,7 @@
     }
 
     function showBattle(battleId) {
+      activeBattleId = battleId;
       // Focus the battle stage and hide other sections so the spinner and
       // scoreboard are front and center for the host and joining players.
       $$('main > section').forEach(sec => {
@@ -608,6 +618,7 @@
       battlesRef.doc(battleId).onSnapshot(async snap => {
         if (!snap.exists) return;
         const b = { id: snap.id, ...snap.data() };
+        if (b.status === 'finished') activeBattleId = null;
         $('#stage-status').textContent = renderStatus(b);
 
         renderScoreboard(b.players || []);
