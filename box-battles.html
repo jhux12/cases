@@ -34,9 +34,6 @@
     .pill.live{border-color:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,.2) inset}
     dialog[open]{animation:fadeIn .12s ease-out}
     @keyframes fadeIn{from{opacity:.0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
-    #stage-reel{display:flex;gap:1rem}
-    .player-reel{flex:1;position:relative}
-
     /* Spinner item sizing */
     .reel-host .reel{display:flex;will-change:transform}
     .reel-host .reel .tile{flex:0 0 132px;margin:0 6px;position:relative;background:#1f2937;border:1px solid #334155;border-radius:8px;padding:4px;color:#f1f5f9}
@@ -99,7 +96,7 @@
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- Reel -->
         <div class="reel-host relative grow rounded-xl border border-white/10 bg-black/20 p-3 overflow-x-auto">
-          <div id="stage-reel"></div>
+          <div id="stage-reel" class="reel h-40 md:h-48 flex items-center"></div>
         </div>
 
         <!-- Scoreboard -->
@@ -357,65 +354,65 @@
       `);
     }
 
-    // --- Stage (spinner + scoreboard)
+    // --- Stage (spinner + scoreboard) — SINGLE shared spinner for live battle
     let countdownInterval, botInterval;
-    let reelInstances = [];
-    let spinnerSource;
-    async function makeSpinner(root){
-      if (!spinnerSource){
-        spinnerSource = await fetch('scripts/spinner.js').then(r=>r.text());
-      }
-      const factory = new Function(`${spinnerSource}; return PackOpener;`);
-      const inst = factory();
-      inst.init({ root, items: [] });
-      return inst;
-    }
-    async function renderReels(players){
+
+    function ensureStage() {
       const host = $('#stage-reel');
-      if (host.childElementCount === players.length) return;
-      host.innerHTML = '';
-      reelInstances = [];
-      for (let i=0;i<players.length;i++){
-        const wrap = document.createElement('div');
-        wrap.className = 'reel-host flex-1';
-        wrap.innerHTML = `<div id="player-reel-${i}" class="reel h-40 md:h-48 flex items-center"></div><div class="center-marker pointer-events-none absolute inset-0"></div>`;
-        host.appendChild(wrap);
-        reelInstances[i] = await makeSpinner(document.getElementById(`player-reel-${i}`));
+      if (!host._spinnerReady) {
+        PackOpener.init({ root: host, items: [] });
+        host._spinnerReady = true;
       }
     }
-    function renderScoreboard(players){
-      const html = players.map(p=>`
+    function setStageItems(prizes) {
+      ensureStage();
+      PackOpener.setItems(prizes);
+    }
+    function highlightTurn(idx) {
+      $$('#stage-scoreboard .player').forEach((el, i) => {
+        el.classList.toggle('ring-2', i === idx);
+        el.classList.toggle('ring-indigo-500/50', i === idx);
+      });
+    }
+    function renderScoreboard(players) {
+      const html = players.map(p => `
         <div class="player rounded-xl border border-white/10 bg-white/5 p-3 flex items-center justify-between">
-          <div class="flex items-center gap-2">${avatar(p.displayName)}<div>
-            <div class="font-semibold">${p.displayName}${p.isBot? ' (Bot)':''}</div>
-            <div class="text-xs text-white/60">Total: ${p.total||0}</div>
-          </div></div>
-          <div class="text-xs text-white/60">${p.pulls?.length||0} pulls</div>
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-white/10 grid place-items-center text-sm font-semibold">
+              ${(p.displayName||'U').slice(0,1).toUpperCase()}
+            </div>
+            <div>
+              <div class="font-semibold">${p.displayName || 'Player'}${p.isBot ? ' (Bot)' : ''}</div>
+              <div class="text-xs text-white/60">Total: ${p.total || 0}</div>
+            </div>
+          </div>
+          <div class="text-xs text-white/60">${(p.pulls||[]).length} pulls</div>
         </div>
       `).join('');
       $('#stage-scoreboard').innerHTML = html;
     }
-    function startCountdownTimer(b){
+
+    function startCountdownTimer(b) {
       clearInterval(countdownInterval);
-      function tick(){
-        const secs = Math.max(0, Math.ceil((b.countdownEndsAt?.toDate() - new Date())/1000));
+      function tick() {
+        const secs = Math.max(0, Math.ceil((b.countdownEndsAt?.toDate() - new Date()) / 1000));
         $('#join-aside').innerHTML = `<div class="text-sm">Starting in <span class="font-semibold">${secs}</span>s</div>`;
         $('#stage-status').textContent = `Starting in ${secs}s`;
-        if (secs<=0){ clearInterval(countdownInterval); maybeFillBotsAndStart(b); }
+        if (secs <= 0) { clearInterval(countdownInterval); maybeFillBotsAndStart(b); }
       }
       tick();
-      countdownInterval = setInterval(tick,1000);
+      countdownInterval = setInterval(tick, 1000);
     }
-    function startBotTimer(b){
+    function startBotTimer(b) {
       clearInterval(botInterval);
       if (!b.botFillAt) return;
-      function tick(){
-        const secs = Math.max(0, Math.ceil((b.botFillAt.toDate() - new Date())/1000));
-        $('#join-aside').innerHTML = `<div class="text-sm">Waiting for players… Auto-filling in <span class="font-semibold">${secs}</span>s</div>`;
-        if (secs<=0){ clearInterval(botInterval); maybeFillBotsAndStart(b); }
+      function tick() {
+        const secs = Math.max(0, Math.ceil((b.botFillAt.toDate() - new Date()) / 1000));
+        $('#join-aside').innerHTML = `Waiting for players… Auto-filling in <span class="font-semibold">${secs}</span>s`;
+        if (secs <= 0) { clearInterval(botInterval); maybeFillBotsAndStart(b); }
       }
       tick();
-      botInterval = setInterval(tick,1000);
+      botInterval = setInterval(tick, 1000);
     }
 
     // --- Live listeners
@@ -500,31 +497,25 @@
       showBattle(battleId);
     }
 
-    function showBattle(battleId){
+    function showBattle(battleId) {
       $('#battle-stage').classList.remove('hidden');
-      $('#stage-reel').innerHTML = '';
+      ensureStage();
       $('#stage-scoreboard').innerHTML = '';
 
-      battlesRef.doc(battleId).onSnapshot(async snap=>{
+      battlesRef.doc(battleId).onSnapshot(async snap => {
         if (!snap.exists) return;
-        const b = {id:snap.id, ...snap.data()};
+        const b = { id: snap.id, ...snap.data() };
         $('#stage-status').textContent = renderStatus(b);
 
-        await renderReels(b.players||[]);
-        renderScoreboard(b.players||[]);
+        renderScoreboard(b.players || []);
 
-        if (b.status==='lobby'){
-          startBotTimer(b);
-        } else if (b.status==='countdown'){
-          startCountdownTimer(b);
-        } else {
-          clearInterval(botInterval); clearInterval(countdownInterval);
-          $('#join-aside').innerHTML = '';
-        }
+        if (b.status === 'lobby') startBotTimer(b);
+        else if (b.status === 'countdown') startCountdownTimer(b);
+        else { clearInterval(botInterval); clearInterval(countdownInterval); $('#join-aside').innerHTML = ''; }
 
-        if (b.status==='spinning' && !window._battleLoopActive){
+        if (b.status === 'spinning' && !window._battleLoopActive) {
           window._battleLoopActive = true;
-          await runBattleLoop(b.id); // runs until finished
+          await runBattleLoop(b.id);             // runs until finished
           window._battleLoopActive = false;
         }
       });
@@ -566,105 +557,122 @@
       });
     }
 
-    // --- Main loop: spin through N rounds simultaneously
-    async function runBattleLoop(battleId){
+    // --- Round-robin engine
+    async function runBattleLoop(battleId) {
       const docRef = battlesRef.doc(battleId);
 
-      for(;;){
+      for (;;) {
         const snap = await docRef.get();
         if (!snap.exists) return;
-        const b = {id:snap.id, ...snap.data()};
-        if (b.status!=='spinning') break;
+        const b = { id: snap.id, ...snap.data() };
+        if (b.status !== 'spinning') break;
 
         const round = b.roundIndex || 0;
-        const players = b.players||[];
-        const packs = b.packs||[];
+        const turn = b.turnIndex || 0;
+        const players = b.players || [];
+        const packs = b.packs || [];
+        const player = players[turn];
 
+        // Choose current pack (cycle)
         const packMeta = packs[round % packs.length];
         const all = await fetchAvailablePacks();
-        const full = all.find(x=>x.id===packMeta.id) || packMeta;
+        const full = all.find(x => x.id === packMeta.id) || packMeta;
 
-        const results = await Promise.all(players.map((player, idx)=>{
-          const spinner = reelInstances[idx];
-          if (!spinner) return null;
-          spinner.setItems(full.prizes);
-          const index = getWinningIndex(full, 'serverSeed', player.uid, round+'-'+idx);
-          return new Promise(res=>{
-            spinner.spinToIndex(index, { durationMs:1600, nearMiss:true, onReveal:()=>res({idx,index}) });
-          }).then(r=> ({...r, prize: full.prizes[r.index] }));
-        }));
+        // Prepare reel for this turn
+        setStageItems(full.prizes);
+        highlightTurn(turn);
 
-        await firestore.runTransaction(async (tx)=>{
+        // Deterministic index (replace seeds with your real PF setup)
+        const index = getWinningIndex(full, 'serverSeed', player.uid, `${round}-${turn}`);
+
+        // Spin
+        await new Promise(resolve => {
+          PackOpener.spinToIndex(index, { durationMs: 1600, nearMiss: true, onReveal: resolve });
+        });
+
+        // Commit pull + advance pointers (transaction)
+        await firestore.runTransaction(async tx => {
           const s = await tx.get(docRef);
-          const d = s.data(); if (!d || d.status!=='spinning') return;
-          const round = d.roundIndex || 0;
-          results.forEach(r=>{
-            if (!r) return;
-            const P = d.players[r.idx];
-            const prize = r.prize;
-            const pull = { round, packId: full.id, prizeId: prize.id, value: prize.value, index: r.index, at: firebase.firestore.Timestamp.now() };
-            P.pulls = (P.pulls||[]).concat([pull]);
-            P.total = (P.total||0) + (prize.value||0);
-            d.players[r.idx] = P;
-          });
+          const d = s.data(); if (!d || d.status !== 'spinning') return;
 
-          const nextRound = round + 1;
-          if (nextRound >= d.spinCount){
-            const players = d.players.map((p,i)=>{
-              const highestPull = Math.max(0, ...(p.pulls||[]).map(x=>x.value||0));
-              return { ...p, highestPull, joinOrder: i };
-            });
-            players.sort((a,b)=>
-              (b.total||0) - (a.total||0) ||
-              (b.highestPull||0) - (a.highestPull||0) ||
-              (a.joinOrder||0) - (b.joinOrder||0)
+          const P = d.players[turn];
+          const prize = full.prizes[index];
+          const pull = {
+            round,
+            packId: full.id,
+            prizeId: prize.id,
+            value: prize.value,
+            index,
+            at: firebase.firestore.FieldValue.serverTimestamp()
+          };
+          P.pulls = (P.pulls || []).concat([pull]);
+          P.total = (P.total || 0) + (prize.value || 0);
+          d.players[turn] = P;
+
+          let nextTurn = (turn + 1) % d.players.length;
+          let nextRound = round;
+          if (nextTurn === 0) nextRound++;
+
+          if (nextRound >= d.spinCount) {
+            // Winner: highest total, tie-break by highest single pull, then earliest join
+            const ranked = d.players.map((p, i) => ({
+              ...p,
+              highestPull: Math.max(0, ...(p.pulls || []).map(x => x.value || 0)),
+              joinOrder: i
+            })).sort((a, b) =>
+              (b.total || 0) - (a.total || 0) ||
+              (b.highestPull || 0) - (a.highestPull || 0) ||
+              (a.joinOrder || 0) - (b.joinOrder || 0)
             );
-            const top = players[0];
+            const top = ranked[0];
             d.winner = { uid: top.uid, displayName: top.displayName, total: top.total };
             d.status = 'finished';
             d.finishedAt = firebase.firestore.FieldValue.serverTimestamp();
-          }else{
+          } else {
+            d.turnIndex = nextTurn;
             d.roundIndex = nextRound;
           }
-          tx.set(docRef, d, {merge:true});
+
+          tx.set(docRef, d, { merge: true });
         });
 
-        await sleep(200);
+        await sleep(150); // small pacing
       }
     }
 
     // --- Rewatch
-    async function openRewatch(id){
+    async function openRewatch(id) {
       const snap = await battlesRef.doc(id).get();
       if (!snap.exists) return;
-      const b = {id:snap.id, ...snap.data()};
+      const b = { id: snap.id, ...snap.data() };
       const all = await fetchAvailablePacks();
+
       const reel = $('#rewatch-reel');
-      if (!reel._spinner){ reel._spinner = await makeSpinner(reel); }
+      if (!reel._spinnerReady) { PackOpener.init({ root: reel, items: [] }); reel._spinnerReady = true; }
 
       $('#rewatch-modal').showModal();
 
-      // Build chronological sequence by round and join order
+      // Chronological sequence by round then join order
       const seq = [];
-      for (let r = 0; r < (b.spinCount || 0); r++){
-        for (let t = 0; t < (b.players || []).length; t++){
+      for (let r = 0; r < (b.spinCount || 0); r++) {
+        for (let t = 0; t < (b.players || []).length; t++) {
           const pl = (b.players[t].pulls || []).find(p => p.round === r);
-          if (pl){
-            const pack = all.find(x=>x.id===pl.packId);
+          if (pl) {
+            const pack = all.find(x => x.id === pl.packId);
             seq.push({ pack, index: pl.index });
           }
         }
       }
 
       let i = 0;
-      $('#rewatch-play').onclick = async (e)=> {
+      $('#rewatch-play').onclick = async (e) => {
         e.preventDefault();
-        for (; i<seq.length; i++){
+        for (; i < seq.length; i++) {
           const step = seq[i];
-          reel._spinner.setItems(step.pack.prizes);
-          await new Promise(r=> reel._spinner.spinToIndex(step.index, {durationMs: 900, nearMiss:false, onReveal:r}));
-          $('#rewatch-progress').value = i+1;
-          await sleep(150);
+          PackOpener.setItems(step.pack.prizes);
+          await new Promise(r => PackOpener.spinToIndex(step.index, { durationMs: 900, nearMiss: false, onReveal: r }));
+          $('#rewatch-progress').value = i + 1;
+          await sleep(120);
         }
       };
       $('#rewatch-progress').max = seq.length;
