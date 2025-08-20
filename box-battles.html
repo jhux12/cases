@@ -19,11 +19,8 @@
   <script defer src="scripts/header.js"></script>
   <script defer src="scripts/navbar.js"></script>
   <script defer src="scripts/footer.js"></script>
-  <!-- PackOpener spinner (ES module adapter) -->
-  <script type="module">
-    import * as Spinner from "./scripts/spinner.js";
-    window.PackOpener = Spinner.default ?? Spinner.PackOpener ?? Spinner;
-  </script>
+  <!-- PackOpener spinner library -->
+  <script defer src="pack-opener/spinner.js"></script>
 
   <style>
     /* Minimal reel host styles; rest via Tailwind */
