@@ -82,14 +82,15 @@
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- Reel -->
         <div class="reel-host relative grow rounded-xl border border-white/10 bg-black/20 p-3">
-          <div id="stage-reel" class="reel h-40 md:h-48 flex items-center"></div>
-          <div class="center-marker z-10">
+          <div id="stage-reel" class="reel h-40 md:h-48 flex items-center z-0"></div>
+          <div id="pack-preview" class="absolute inset-0 flex items-center justify-center gap-2 z-10 transition-opacity duration-500"></div>
+          <div class="center-marker z-20">
             <span class="marker-arrow top"></span>
             <span class="marker-line"></span>
             <span class="marker-arrow bottom"></span>
           </div>
         </div>
-
+        
         <!-- Scoreboard -->
         <div class="w-full lg:w-80">
           <h3 class="text-base font-semibold mb-2">Scoreboard</h3>
@@ -466,6 +467,18 @@
       $('#stage-scoreboard').innerHTML = html;
     }
 
+    function renderPackPreview(packs) {
+      const overlay = $('#pack-preview');
+      overlay.innerHTML = packs.map(p => `<img src="${p.image}" alt="${p.name}" class="w-16 h-20 object-cover rounded-md border border-white/10"/>`).join('');
+      overlay.classList.remove('opacity-0','pointer-events-none');
+    }
+
+    function hidePackPreview() {
+      const overlay = $('#pack-preview');
+      overlay.classList.add('opacity-0','pointer-events-none');
+      setTimeout(() => { overlay.innerHTML = ''; }, 500);
+    }
+
     function startCountdownTimer(b) {
       clearInterval(countdownInterval);
       function tick() {
@@ -629,9 +642,20 @@
 
         renderScoreboard(b.players || [], b.winner?.uid);
 
-        if (b.status === 'lobby') startBotTimer(b);
-        else if (b.status === 'countdown') startCountdownTimer(b);
-        else { clearInterval(botInterval); clearInterval(countdownInterval); $('#join-aside').innerHTML = ''; }
+        if (b.status === 'lobby') {
+          renderPackPreview(b.packs || []);
+          startBotTimer(b);
+        }
+        else if (b.status === 'countdown') {
+          renderPackPreview(b.packs || []);
+          startCountdownTimer(b);
+        }
+        else {
+          hidePackPreview();
+          clearInterval(botInterval);
+          clearInterval(countdownInterval);
+          $('#join-aside').innerHTML = '';
+        }
 
         if (b.status === 'spinning' && !window._battleLoopActive) {
           window._battleLoopActive = true;
