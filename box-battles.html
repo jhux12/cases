@@ -642,7 +642,7 @@
       ensureStage();
       $('#stage-scoreboard').innerHTML = '';
       $('#battle-stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
+      let replayed = false;
       battlesRef.doc(battleId).onSnapshot(async snap => {
         if (!snap.exists) return;
         const b = { id: snap.id, ...snap.data() };
@@ -668,8 +668,14 @@
 
         if (b.status === 'spinning' && !window._battleLoopActive) {
           window._battleLoopActive = true;
+          replayed = true;
           await runBattleLoop(b.id);             // runs until finished
           window._battleLoopActive = false;
+        }
+
+        if (b.status === 'finished' && !replayed) {
+          replayed = true;
+          await replayBattleOnStage(b);
         }
       });
     }
@@ -818,6 +824,27 @@
 
         await sleep(1000); // expanded pacing between spins
       }
+    }
+
+    async function replayBattleOnStage(b) {
+      const all = await fetchAvailablePacks();
+      const seq = [];
+      for (let r = 0; r < (b.spinCount || 0); r++) {
+        for (let t = 0; t < (b.players || []).length; t++) {
+          const pl = (b.players[t].pulls || []).find(p => p.round === r);
+          if (pl) {
+            const pack = all.find(x => x.id === pl.packId);
+            seq.push({ pack, index: pl.index, playerIndex: t });
+          }
+        }
+      }
+      for (const step of seq) {
+        setStageItems(step.pack.prizes);
+        highlightTurn(step.playerIndex);
+        await new Promise(r => PackOpener.spinToIndex(step.index, { durationMs: 900, nearMiss: false, onReveal: r }));
+        await sleep(120);
+      }
+      highlightTurn(-1);
     }
 
     // --- Rewatch
