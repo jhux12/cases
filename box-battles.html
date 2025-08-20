@@ -497,6 +497,11 @@
     }
 
     function showBattle(battleId) {
+      // Focus the battle stage and hide other sections so the spinner and
+      // scoreboard are front and center for the host and joining players.
+      $$('main > section').forEach(sec => {
+        if (sec.id !== 'battle-stage') sec.classList.add('hidden');
+      });
       $('#battle-stage').classList.remove('hidden');
       ensureStage();
       $('#stage-scoreboard').innerHTML = '';
