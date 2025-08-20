@@ -314,8 +314,12 @@
       }
     }
     let activeBattleId = null;
-    window.addEventListener('pagehide', () => {
+    function pingRunner(){
       if (activeBattleId) triggerBattleRunner(activeBattleId, true);
+    }
+    window.addEventListener('pagehide', pingRunner);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') pingRunner();
     });
 
     // Render helpers

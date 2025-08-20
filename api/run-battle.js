@@ -10,17 +10,14 @@ module.exports = async (req, res) => {
     res.end(JSON.stringify({ error: 'battleId required' }));
     return;
   }
-  try {
-    await processBattle(battleId);
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ ok: true }));
-  } catch (err) {
-    console.error('run-battle error', err);
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ error: err.message }));
-  }
+
+  // Kick off the battle runner but respond immediately so the
+  // countdown/bot timer can continue even if the caller disconnects.
+  processBattle(battleId).catch(err => console.error('run-battle error', err));
+
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify({ ok: true }));
 };
 
 async function processBattle(id) {
@@ -101,7 +98,7 @@ async function runLoop(ref) {
 
       const P = d.players[turn];
       const prize = full.prizes[index];
-      const pull = { round, packId: full.id, prizeId: prize.id, value: prize.value, index, at: admin.firestore.FieldValue.serverTimestamp() };
+      const pull = { round, packId: full.id, prizeId: prize.id, value: prize.value, index, at: admin.firestore.Timestamp.now() };
       P.pulls = (P.pulls || []).concat([pull]);
       P.total = (P.total || 0) + (prize.value || 0);
       d.players[turn] = P;
