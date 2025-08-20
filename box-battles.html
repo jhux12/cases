@@ -601,13 +601,18 @@
       if (!reel._ready){ PackOpener.init({ root: reel, items: [] }); reel._ready = true; }
 
       $('#rewatch-modal').showModal();
-      const pulls = (b.players||[]).flatMap(p=> p.pulls||[]).sort((a,b)=> (a.round??0)-(b.round??0));
 
-      // build a quick sequence of {pack, index}
-      const seq = pulls.map(pl=>{
-        const pack = all.find(x=>x.id===pl.packId);
-        return { pack, index: pl.index };
-      });
+      // Build chronological sequence by round and join order
+      const seq = [];
+      for (let r = 0; r < (b.spinCount || 0); r++){
+        for (let t = 0; t < (b.players || []).length; t++){
+          const pl = (b.players[t].pulls || []).find(p => p.round === r);
+          if (pl){
+            const pack = all.find(x=>x.id===pl.packId);
+            seq.push({ pack, index: pl.index });
+          }
+        }
+      }
 
       let i = 0;
       $('#rewatch-play').onclick = async (e)=> {
