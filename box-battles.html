@@ -677,6 +677,7 @@
     // --- Round-robin engine
     async function runBattleLoop(battleId) {
       const docRef = battlesRef.doc(battleId);
+      const packCache = await fetchAvailablePacks();
 
       for (;;) {
         const snap = await docRef.get();
@@ -692,8 +693,7 @@
 
         // Choose pack for this round
         const packMeta = packs[round];
-        const all = await fetchAvailablePacks();
-        const full = all.find(x => x.id === packMeta.id) || packMeta;
+        const full = packCache.find(x => x.id === packMeta.id) || packMeta;
 
         // Prepare reel for this turn
         setStageItems(full.prizes);
@@ -708,6 +708,8 @@
         });
 
         // Commit pull + advance pointers (transaction)
+        let grantUid = null;
+        let winnerPlayer = null;
         await firestore.runTransaction(async tx => {
           const s = await tx.get(docRef);
           const d = s.data(); if (!d || d.status !== 'spinning') return;
@@ -745,6 +747,11 @@
             d.winner = { uid: top.uid, displayName: top.displayName, total: top.total };
             d.status = 'finished';
             d.finishedAt = firebase.firestore.FieldValue.serverTimestamp();
+            if (!top.isBot && !d.inventoryGranted) {
+              d.inventoryGranted = true;
+              grantUid = top.uid;
+              winnerPlayer = top;
+            }
           } else {
             d.turnIndex = nextTurn;
             d.roundIndex = nextRound;
@@ -752,6 +759,24 @@
 
           tx.set(docRef, d, { merge: true });
         });
+
+        if (grantUid && winnerPlayer) {
+          const pulls = winnerPlayer.pulls || [];
+          for (const pl of pulls) {
+            const pack = packCache.find(p => p.id === pl.packId);
+            const prize = pack?.prizes?.find(pr => pr.id === pl.prizeId);
+            if (prize) {
+              await firebase.database().ref(`users/${grantUid}/inventory`).push({
+                name: prize.name,
+                image: prize.image,
+                rarity: prize.rarity,
+                value: prize.value,
+                timestamp: Date.now(),
+                sold: false
+              });
+            }
+          }
+        }
 
         await sleep(150); // small pacing
       }

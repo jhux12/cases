@@ -70,6 +70,7 @@ async function processBattle(id) {
 }
 
 async function runLoop(ref) {
+  const packCache = new Map();
   for (;;) {
     const snap = await ref.get();
     const data = snap.data();
@@ -82,11 +83,17 @@ async function runLoop(ref) {
     const player = players[turn];
     const packMeta = packs[round % packs.length];
 
-    const packDoc = await db.collection('packs').doc(packMeta.id).get();
-    const full = { id: packMeta.id, prizes: packDoc.get('prizes') || [] };
+    let full = packCache.get(packMeta.id);
+    if (!full) {
+      const packDoc = await db.collection('packs').doc(packMeta.id).get();
+      full = { id: packMeta.id, prizes: packDoc.get('prizes') || [] };
+      packCache.set(packMeta.id, full);
+    }
 
     const index = getWinningIndex(full, 'serverSeed', player.uid, `${round}-${turn}`);
 
+    let grantUid = null;
+    let winnerPlayer = null;
     await db.runTransaction(async tx => {
       const s = await tx.get(ref);
       const d = s.data();
@@ -117,6 +124,11 @@ async function runLoop(ref) {
         d.winner = { uid: top.uid, displayName: top.displayName, total: top.total };
         d.status = 'finished';
         d.finishedAt = admin.firestore.FieldValue.serverTimestamp();
+        if (!top.isBot && !d.inventoryGranted) {
+          d.inventoryGranted = true;
+          grantUid = top.uid;
+          winnerPlayer = top;
+        }
       } else {
         d.turnIndex = nextTurn;
         d.roundIndex = nextRound;
@@ -124,6 +136,29 @@ async function runLoop(ref) {
 
       tx.set(ref, d, { merge: true });
     });
+
+    if (grantUid && winnerPlayer) {
+      const pulls = winnerPlayer.pulls || [];
+      for (const pl of pulls) {
+        let pack = packCache.get(pl.packId);
+        if (!pack) {
+          const doc = await db.collection('packs').doc(pl.packId).get();
+          pack = { id: pl.packId, prizes: doc.get('prizes') || [] };
+          packCache.set(pl.packId, pack);
+        }
+        const prize = pack.prizes.find(pr => pr.id === pl.prizeId);
+        if (prize) {
+          await admin.database().ref(`users/${grantUid}/inventory`).push({
+            name: prize.name,
+            image: prize.image,
+            rarity: prize.rarity,
+            value: prize.value,
+            timestamp: Date.now(),
+            sold: false
+          });
+        }
+      }
+    }
   }
 }
 
