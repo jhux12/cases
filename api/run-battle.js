@@ -11,8 +11,9 @@ module.exports = async (req, res) => {
     return;
   }
 
-  // Kick off the battle runner but respond immediately so the
-  // countdown/bot timer can continue even if the caller disconnects.
+  // Progress the battle to completion in the background. We don't await the
+  // runner so the HTTP request can return immediately; the event loop stays
+  // alive via the pending async work.
   processBattle(battleId).catch(err => console.error('run-battle error', err));
 
   res.statusCode = 200;
@@ -20,50 +21,49 @@ module.exports = async (req, res) => {
   res.end(JSON.stringify({ ok: true }));
 };
 
-// Progress a battle until it reaches the next wait state, then schedule
-// another tick so the match can continue even without any connected clients.
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// Progress a battle until it finishes, waiting out lobby/countdown timers and
+// spinning all rounds without requiring additional HTTP pings.
 async function processBattle(id) {
   const ref = db.collection('battles').doc(id);
-  const snap = await ref.get();
-  if (!snap.exists) return;
-  const b = snap.data();
-  const now = new Date();
 
-  if (b.status === 'lobby') {
-    const wait = b.botFillAt ? b.botFillAt.toDate() - now : 0;
-    if (wait > 0) {
-      setTimeout(() => processBattle(id).catch(console.error), wait);
+  for (;;) {
+    const snap = await ref.get();
+    if (!snap.exists) return;
+    const b = snap.data();
+    const now = new Date();
+
+    if (b.status === 'lobby') {
+      const wait = b.botFillAt ? b.botFillAt.toDate() - now : 0;
+      if (wait > 0) await sleep(wait);
+      const players = b.players || [];
+      while (players.length < b.maxPlayers) {
+        players.push({ uid: 'bot-' + Math.random().toString(36).slice(2,8), displayName: 'Bot', isBot: true, total: 0, pulls: [] });
+      }
+      const countdownEndsAt = admin.firestore.Timestamp.fromDate(new Date(Date.now() + 5000));
+      await ref.set({ players, status: 'countdown', countdownEndsAt }, { merge: true });
+      continue;
+    }
+
+    if (b.status === 'countdown') {
+      const wait = b.countdownEndsAt ? b.countdownEndsAt.toDate() - now : 0;
+      if (wait > 0) await sleep(wait);
+      const players = b.players || [];
+      while (players.length < b.maxPlayers) {
+        players.push({ uid: 'bot-' + Math.random().toString(36).slice(2,8), displayName: 'Bot', isBot: true, total: 0, pulls: [] });
+      }
+      await ref.set({ players, status: 'spinning', roundIndex: 0, turnIndex: 0 }, { merge: true });
+      continue;
+    }
+
+    if (b.status === 'spinning') {
+      await runLoop(ref);
       return;
     }
-    while ((b.players || []).length < b.maxPlayers) {
-      b.players.push({ uid: 'bot-' + Math.random().toString(36).slice(2,8), displayName: 'Bot', isBot: true, total: 0, pulls: [] });
-    }
-    b.status = 'countdown';
-    b.countdownEndsAt = admin.firestore.Timestamp.fromDate(new Date(Date.now() + 5000));
-    await ref.set(b, { merge: true });
-    setTimeout(() => processBattle(id).catch(console.error), 5000);
-    return;
-  }
 
-  if (b.status === 'countdown') {
-    const wait = b.countdownEndsAt ? b.countdownEndsAt.toDate() - now : 0;
-    if (wait > 0) {
-      setTimeout(() => processBattle(id).catch(console.error), wait);
-      return;
-    }
-    while ((b.players || []).length < b.maxPlayers) {
-      b.players.push({ uid: 'bot-' + Math.random().toString(36).slice(2,8), displayName: 'Bot', isBot: true, total: 0, pulls: [] });
-    }
-    b.status = 'spinning';
-    b.roundIndex = 0;
-    b.turnIndex = 0;
-    await ref.set(b, { merge: true });
-    setTimeout(() => processBattle(id).catch(console.error), 0);
+    // Finished or unknown state
     return;
-  }
-
-  if (b.status === 'spinning') {
-    await runLoop(ref);
   }
 }
 
