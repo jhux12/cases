@@ -167,5 +167,13 @@ function getWinningIndex(pack, serverSeed, clientSeed, nonce) {
     h = Math.imul(h, 16777619);
   }
   const x = (h >>> 0) / 2 ** 32;
-  return Math.floor(x * pack.prizes.length);
+  const prizes = pack.prizes || [];
+  const total = prizes.reduce((sum, p) => sum + (p.odds || 1), 0);
+  let accum = 0;
+  const target = x * total;
+  for (let i = 0; i < prizes.length; i++) {
+    accum += prizes[i].odds || 1;
+    if (target < accum) return i;
+  }
+  return prizes.length ? prizes.length - 1 : 0;
 }
