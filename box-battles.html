@@ -186,8 +186,8 @@
      *********************************/
 
     // --- Shortcuts
-    const db = firebase.firestore();
-    const battlesRef = db.collection('battles');
+    const firestore = firebase.firestore();
+    const battlesRef = firestore.collection('battles');
 
     // Resolve the current user via Firebase Auth (fallback guest during development).
     function currentUser(){
@@ -199,7 +199,7 @@
 
     // Fetch available packs + prizes from Firestore.
     async function fetchAvailablePacks(){
-      const snap = await db.collection('packs').get();
+      const snap = await firestore.collection('packs').get();
       const packs = [];
       for (const doc of snap.docs){
         const data = doc.data() || {};
@@ -396,7 +396,7 @@
     async function joinBattle(battleId){
       const me = currentUser();
       const docRef = battlesRef.doc(battleId);
-      await db.runTransaction(async (tx)=>{
+      await firestore.runTransaction(async (tx)=>{
         const snap = await tx.get(docRef);
         if (!snap.exists) throw new Error('Battle missing');
         const b = snap.data();
@@ -459,7 +459,7 @@
 
     async function maybeFillBotsAndStart(b){
       const docRef = battlesRef.doc(b.id);
-      await db.runTransaction(async (tx)=>{
+      await firestore.runTransaction(async (tx)=>{
         const snap = await tx.get(docRef);
         const data = snap.data();
         if (data.status!=='countdown') return;
@@ -513,7 +513,7 @@
         });
 
         // Update Firestore with the pull + totals + advance turn
-        await db.runTransaction(async (tx)=>{
+        await firestore.runTransaction(async (tx)=>{
           const s = await tx.get(docRef);
           const d = s.data(); if (!d || d.status!=='spinning') return;
 
