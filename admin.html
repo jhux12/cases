@@ -8,6 +8,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
@@ -19,6 +20,7 @@
       appId: "1:22502548396:web:aac335672c21f07524d009"
     };
     firebase.initializeApp(firebaseConfig);
+    const firestore = firebase.firestore();
     const allowedAdmins = [
       "jhuxf12@outlook.com" // Add more admin emails as needed
     ];
@@ -59,6 +61,7 @@
   </nav>
 
   <main id="admin-panel" class="p-6" style="display: none;">
+    <button id="clear-battles" class="mb-6 px-4 py-2 rounded bg-red-600 hover:bg-red-500">Clear Stuck Battles</button>
     <!-- Cases Section -->
     <section id="cases-section">
       <h1 class="text-3xl font-bold mb-6">Manage Cases</h1>
@@ -941,6 +944,16 @@ document.getElementById('milestone-config-form').addEventListener('submit', e =>
     if (!isNaN(threshold)) levels.push({ threshold, reward });
   });
   firebase.database().ref('milestoneConfig').set({ badges, levels }).then(() => showToast('✅ Milestone config saved'));
+});
+
+document.getElementById('clear-battles').addEventListener('click', () => {
+  firestore.collection('battles').get().then(snap => {
+    const batch = firestore.batch();
+    snap.forEach(doc => {
+      if ((doc.data().status || '') !== 'finished') batch.delete(doc.ref);
+    });
+    return batch.commit();
+  }).then(() => showToast('✅ Battles cleared'));
 });
 
   </script>
