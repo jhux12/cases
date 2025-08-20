@@ -34,6 +34,8 @@
     .pill.live{border-color:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,.2) inset}
     dialog[open]{animation:fadeIn .12s ease-out}
     @keyframes fadeIn{from{opacity:.0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
+    #stage-reel{display:flex;gap:1rem}
+    .player-reel{flex:1;position:relative}
   </style>
 </head>
 <body class="min-h-screen bg-[#0b0e19] text-white selection:bg-indigo-500/40">
@@ -87,9 +89,8 @@
     <section id="battle-stage" class="hidden bg-[#0f1220] border border-white/10 rounded-2xl p-4">
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- Reel -->
-        <div class="reel-host relative grow rounded-xl border border-white/10 bg-black/20 p-3">
-          <div id="stage-reel" class="reel h-40 md:h-48 flex items-center"></div>
-          <div class="center-marker pointer-events-none absolute inset-0"></div>
+        <div class="reel-host relative grow rounded-xl border border-white/10 bg-black/20 p-3 overflow-x-auto">
+          <div id="stage-reel"></div>
         </div>
 
         <!-- Scoreboard -->
@@ -348,16 +349,21 @@
     }
 
     // --- Stage (spinner + scoreboard)
-    function ensureStage(){
+    let countdownInterval, botInterval;
+    function renderReels(players){
       const host = $('#stage-reel');
-      if (!host._packlySpinnerReady){
-        PackOpener.init({ root: host, items: [] });
-        host._packlySpinnerReady = true;
-      }
+      if (host.childElementCount === players.length) return;
+      host.innerHTML = '';
+      players.forEach((p,i)=>{
+        const el = document.createElement('div');
+        el.id = `player-reel-${i}`;
+        el.className = 'reel player-reel center-marker h-40 md:h-48 flex items-center';
+        host.appendChild(el);
+      });
     }
-    function setStageItems(prizes){ ensureStage(); PackOpener.setItems(prizes); }
     function highlightTurn(idx){
       $$('#stage-scoreboard .player').forEach((el,i)=> el.classList.toggle('ring-2', i===idx));
+      $$('#stage-reel .player-reel').forEach((el,i)=> el.classList.toggle('ring-2', i===idx));
     }
     function renderScoreboard(players){
       const html = players.map(p=>`
@@ -370,6 +376,28 @@
         </div>
       `).join('');
       $('#stage-scoreboard').innerHTML = html;
+    }
+    function startCountdownTimer(b){
+      clearInterval(countdownInterval);
+      function tick(){
+        const secs = Math.max(0, Math.ceil((b.countdownEndsAt?.toDate() - new Date())/1000));
+        $('#join-aside').innerHTML = `<div class="text-sm">Starting in <span class="font-semibold">${secs}</span>s</div>`;
+        $('#stage-status').textContent = `Starting in ${secs}s`;
+        if (secs<=0){ clearInterval(countdownInterval); maybeFillBotsAndStart(b); }
+      }
+      tick();
+      countdownInterval = setInterval(tick,1000);
+    }
+    function startBotTimer(b){
+      clearInterval(botInterval);
+      if (!b.botFillAt) return;
+      function tick(){
+        const secs = Math.max(0, Math.ceil((b.botFillAt.toDate() - new Date())/1000));
+        $('#join-aside').innerHTML = `<div class="text-sm">Waiting for players… Auto-filling in <span class="font-semibold">${secs}</span>s</div>`;
+        if (secs<=0){ clearInterval(botInterval); maybeFillBotsAndStart(b); }
+      }
+      tick();
+      botInterval = setInterval(tick,1000);
     }
 
     // --- Live listeners
@@ -421,7 +449,8 @@
         packs: packs.map(p=>({id:p.id, name:p.name, image:p.image, price:p.price})),
         spinCount, maxPlayers, mode:'winner_takes_all',
         players: [{...me, total:0, pulls:[]}],
-        potValue, status:'lobby'
+        potValue, status:'lobby',
+        botFillAt: firebase.firestore.Timestamp.fromDate(new Date(Date.now()+60000))
       };
 
       const docRef = await battlesRef.add(b);
@@ -441,10 +470,12 @@
         if (!exists && (b.players?.length||0) < b.maxPlayers){
           b.players.push({...me, total:0, pulls:[]});
         }
-        // If full -> start countdown in 5s
         if (b.players.length === b.maxPlayers){
           b.status='countdown';
           b.countdownEndsAt = firebase.firestore.Timestamp.fromDate(new Date(Date.now()+5000));
+          delete b.botFillAt;
+        }else{
+          b.botFillAt = firebase.firestore.Timestamp.fromDate(new Date(Date.now()+60000));
         }
         tx.set(docRef, b, {merge:true});
       });
@@ -453,24 +484,24 @@
 
     function showBattle(battleId){
       $('#battle-stage').classList.remove('hidden');
-      ensureStage();
+      $('#stage-reel').innerHTML = '';
+      $('#stage-scoreboard').innerHTML = '';
 
-      // live subscribe to this battle
       battlesRef.doc(battleId).onSnapshot(async snap=>{
         if (!snap.exists) return;
         const b = {id:snap.id, ...snap.data()};
         $('#stage-status').textContent = renderStatus(b);
 
+        renderReels(b.players||[]);
         renderScoreboard(b.players||[]);
 
         if (b.status==='lobby'){
-          $('#join-aside').innerHTML = `<div class="text-white/70 text-sm">Waiting for players… ${b.players?.length||0}/${b.maxPlayers}</div>`;
-        }
-
-        if (b.status==='countdown'){
-          const secs = Math.max(0, Math.ceil((b.countdownEndsAt?.toDate() - new Date())/1000));
-          $('#join-aside').innerHTML = `<div class="text-sm">Starting in <span class="font-semibold">${secs}</span>s</div>`;
-          if (secs<=0) await maybeFillBotsAndStart(b);
+          startBotTimer(b);
+        } else if (b.status==='countdown'){
+          startCountdownTimer(b);
+        } else {
+          clearInterval(botInterval); clearInterval(countdownInterval);
+          $('#join-aside').innerHTML = '';
         }
 
         if (b.status==='spinning' && !window._battleLoopActive){
@@ -498,14 +529,23 @@
       await firestore.runTransaction(async (tx)=>{
         const snap = await tx.get(docRef);
         const data = snap.data();
-        if (data.status!=='countdown') return;
-
-        // Fill with bots if needed
-        while ((data.players?.length||0) < data.maxPlayers){
-          data.players.push({ uid:'bot-'+Math.random().toString(36).slice(2,8), displayName:'Bot', isBot:true, total:0, pulls:[] });
+        if (!data) return;
+        const now = new Date();
+        if (data.status==='lobby' && data.botFillAt && data.botFillAt.toDate() <= now){
+          while ((data.players?.length||0) < data.maxPlayers){
+            data.players.push({ uid:'bot-'+Math.random().toString(36).slice(2,8), displayName:'Bot', isBot:true, total:0, pulls:[] });
+          }
+          data.status = 'countdown';
+          data.countdownEndsAt = firebase.firestore.Timestamp.fromDate(new Date(Date.now()+5000));
+        } else if (data.status==='countdown' && data.countdownEndsAt && data.countdownEndsAt.toDate() <= now){
+          while ((data.players?.length||0) < data.maxPlayers){
+            data.players.push({ uid:'bot-'+Math.random().toString(36).slice(2,8), displayName:'Bot', isBot:true, total:0, pulls:[] });
+          }
+          data.status='spinning';
+          data.roundIndex = 0; data.turnIndex = 0;
+        } else {
+          return;
         }
-        data.status='spinning';
-        data.roundIndex = 0; data.turnIndex = 0; // progress markers
         tx.set(docRef, data, {merge:true});
       });
     }
@@ -532,7 +572,8 @@
         // Load full prize list for spinner
         const all = await fetchAvailablePacks();
         const full = all.find(x=>x.id===pack.id) || pack;
-        setStageItems(full.prizes);
+        const reelEl = document.getElementById(`player-reel-${turn}`);
+        PackOpener.init({ root: reelEl, items: full.prizes });
 
         // Deterministic index (replace with your server/client seed values)
         const index = getWinningIndex(full, 'serverSeed', player.uid, round+'-'+turn);
