@@ -253,12 +253,10 @@
     }
 
     // Deterministic index helper (provably fair or fallback hash).
-    function getWinningIndex(pack, serverSeed, clientSeed, nonce){
-      if (typeof window.getWinningIndex === 'function'){
-        return window.getWinningIndex(pack, serverSeed, clientSeed, nonce);
-      }
-      if (typeof window.provablyFairIndex === 'function'){
-        return window.provablyFairIndex(pack, serverSeed, clientSeed, nonce);
+    const _legacyIndexHelper = window.provablyFairIndex || window.getWinningIndex;
+    window.getWinningIndex = function(pack, serverSeed, clientSeed, nonce){
+      if (typeof _legacyIndexHelper === 'function'){
+        return _legacyIndexHelper(pack, serverSeed, clientSeed, nonce);
       }
       const str = [serverSeed, clientSeed, nonce, pack.id].join('|');
       let h = 2166136261;
@@ -268,7 +266,8 @@
       }
       const x = (h>>>0) / 2**32;
       return Math.floor(x * pack.prizes.length);
-    }
+    };
+    const getWinningIndex = window.getWinningIndex;
 
     // Utilities
     const $ = (s, r=document) => r.querySelector(s);
