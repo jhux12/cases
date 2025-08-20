@@ -197,31 +197,52 @@
       return { uid: 'guest-' + Math.random().toString(36).slice(2,8), displayName: 'Guest', avatarUrl: '' };
     }
 
-    // Fetch available packs + prizes from Firestore (packs collection or fallback cases).
+    // Fetch available packs + prizes from Firestore with a Realtime Database fallback.
     let _packsCache;
     async function fetchAvailablePacks(){
       if (_packsCache) return _packsCache;
       try {
+        let packs = [];
+
+        // Primary: Firestore "packs" collection (or legacy "cases" collection)
         let snap = await firestore.collection('packs').get();
         let docs = snap.docs;
-
-        // Fallback to "cases" collection if no packs exist (legacy naming).
         if (docs.length === 0){
           snap = await firestore.collection('cases').get();
           docs = snap.docs;
         }
+        if (docs.length){
+          packs = await Promise.all(docs.map(async doc => {
+            const data = doc.data() || {};
+            const pack = { id: doc.id, name: data.name, image: data.image, price: data.price, prizes: [] };
+            if (Array.isArray(data.prizes) && data.prizes.length){
+              pack.prizes = data.prizes;
+            }else{
+              const prizesSnap = await doc.ref.collection('prizes').get();
+              pack.prizes = prizesSnap.docs.map(p=> ({ id: p.id, ...p.data() }));
+            }
+            return pack;
+          }));
+        }
 
-        const packs = await Promise.all(docs.map(async doc => {
-          const data = doc.data() || {};
-          const pack = { id: doc.id, name: data.name, image: data.image, price: data.price, prizes: [] };
-          if (Array.isArray(data.prizes) && data.prizes.length){
-            pack.prizes = data.prizes;
-          }else{
-            const prizesSnap = await doc.ref.collection('prizes').get();
-            pack.prizes = prizesSnap.docs.map(p=> ({ id: p.id, ...p.data() }));
-          }
-          return pack;
-        }));
+        // Fallback: Realtime Database "cases" node (mirrors packs.js)
+        if (!packs.length){
+          const snapRT = await firebase.database().ref('cases').once('value');
+          const data = snapRT.val() || {};
+          packs = Object.entries(data).map(([id, val]) => ({
+            id,
+            name: val.name,
+            image: val.image,
+            price: val.price,
+            prizes: Object.entries(val.prizes || {}).map(([pid, pv]) => ({
+              id: pid,
+              name: pv.name,
+              image: pv.image,
+              value: pv.value,
+              rarity: pv.rarity || pv.tier || ''
+            }))
+          }));
+        }
 
         _packsCache = packs;
         return packs;
