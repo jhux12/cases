@@ -43,13 +43,14 @@
     for (let c = 0; c < copies; c++) {
       state.items.forEach((item) => {
         const tile = document.createElement("div");
-        tile.className = "tile";
+        tile.className = `tile rarity-${item.rarity || "common"}`;
         tile.dataset.id = item.id;
         const priceHtml =
           item.value !== undefined
             ? `<div class="price">${item.value}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin"/></div>`
             : "";
         tile.innerHTML = `<img src="${item.image}" alt="${item.name}"/><div class="tile-info"><div class="name">${item.name}</div>${priceHtml}</div>`;
+        tile.style.borderColor = rarityColors[item.rarity] || "#3a4050";
         frag.appendChild(tile);
       });
     }
