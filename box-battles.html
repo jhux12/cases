@@ -160,17 +160,14 @@
           <div id="pack-grid" class="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto max-h-72"></div>
         </div>
         <div class="space-y-3">
-          <div>
-            <label class="text-sm text-white/70">Rounds (spins)</label>
-            <input id="spin-count" type="number" min="1" max="20" value="10"
-                   class="mt-1 w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2"/>
-          </div>
+          <input id="spin-count" type="hidden" value="0"/>
           <div>
             <label class="text-sm text-white/70">Players</label>
             <select id="player-count" class="mt-1 w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2">
               <option value="2">2</option><option value="3">3</option><option value="4" selected>4</option>
             </select>
           </div>
+          <div id="selection-summary" class="text-sm text-white/70">0 boxes selected — Cost: 0</div>
           <button id="create-lobby" class="w-full mt-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-400 hover:to-blue-400">
             Create Lobby
           </button>
@@ -206,7 +203,7 @@
     /***** DESCRIPTION FOR CODEX *****
      - Build a Winner-Takes-All Box Battles page that:
        1) Lists open battles (#battle-list) and my battles (#my-battles).
-       2) Lets user create a lobby via #battle-form (choose packs, spinCount, playerCount).
+       2) Lets user create a lobby via #battle-form (choose packs; spinCount equals number selected; choose playerCount).
        3) On join, if seats < max at countdown end, fill with bots.
        4) Run N rounds turn-by-turn using existing PackOpener spinner:
           - For each turn: set items to current pack prizes, compute deterministic index,
@@ -325,24 +322,50 @@
       const packs = await fetchAvailablePacks();
       const grid = $('#pack-grid'); grid.innerHTML = '';
       packs.forEach(p=>{
-        const el = document.createElement('button');
-        el.type = 'button';
-        el.className = 'group relative rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 p-2 text-left';
-        el.dataset.id = p.id;
-        el.innerHTML = `
+        const card = document.createElement('div');
+        card.className = 'pack-card rounded-xl border border-white/10 bg-white/5 p-2 text-center';
+        card.dataset.id = p.id;
+        card.dataset.name = p.name;
+        card.dataset.image = p.image;
+        card.dataset.price = p.price;
+        card.innerHTML = `
           <img src="${p.image}" class="w-16 h-20 object-cover rounded-md mx-auto"/>
           <div class="mt-2 text-xs flex items-center justify-between">
             <span class="truncate">${p.name}</span>
             <span class="text-white/60">${p.price}</span>
           </div>
-          <span class="absolute top-2 right-2 hidden group-[.selected]:inline-flex pill bg-indigo-500/20 border-indigo-400/30">Selected</span>
+          <div class="mt-2 flex items-center justify-center gap-2">
+            <button type="button" class="dec w-6 h-6 rounded bg-white/10">-</button>
+            <input type="number" min="0" value="0" class="qty w-8 bg-transparent text-center"/>
+            <button type="button" class="inc w-6 h-6 rounded bg-white/10">+</button>
+          </div>
         `;
-        el.addEventListener('click', ()=>{
-          el.classList.toggle('selected');
-          el.classList.contains('selected') ? el.classList.add('ring-2','ring-indigo-500/50') : el.classList.remove('ring-2','ring-indigo-500/50');
-        });
-        grid.appendChild(el);
+        const qty = card.querySelector('.qty');
+        card.querySelector('.inc').onclick = ()=>{ qty.value = Number(qty.value||0)+1; updatePackSummary(); };
+        card.querySelector('.dec').onclick = ()=>{ qty.value = Math.max(0, Number(qty.value||0)-1); updatePackSummary(); };
+        qty.oninput = updatePackSummary;
+        grid.appendChild(card);
       });
+      updatePackSummary();
+    }
+
+    function gatherSelectedPacks(){
+      const out = [];
+      $$('#pack-grid .pack-card').forEach(card=>{
+        const qty = Number(card.querySelector('.qty').value||0);
+        if (qty>0){
+          const meta = { id:card.dataset.id, name:card.dataset.name, image:card.dataset.image, price:Number(card.dataset.price) };
+          for(let i=0;i<qty;i++) out.push(meta);
+        }
+      });
+      return out;
+    }
+
+    function updatePackSummary(){
+      const packs = gatherSelectedPacks();
+      const total = packs.reduce((s,p)=>s+p.price,0);
+      $('#selection-summary').textContent = `${packs.length} boxes selected — Cost: ${total}`;
+      $('#spin-count').value = packs.length;
     }
 
     // --- Open/My/Previous lists
@@ -479,13 +502,10 @@
     async function createLobby(){
       const me = currentUser();
       if (!me) { alert('Please sign in to create a battle.'); return; }
-      const spinCount = Math.max(1, Math.min(20, parseInt($('#spin-count').value||10)));
       const maxPlayers = parseInt($('#player-count').value||4);
-      const selected = $$('#pack-grid .selected').map(el=> el.dataset.id);
-      if (!selected.length){ alert('Pick at least one pack'); return; }
-      const all = await fetchAvailablePacks();
-      const packs = all.filter(p=> selected.includes(p.id));
-      if (spinCount < packs.length){ alert('Rounds must be at least the number of packs selected'); return; }
+      const packs = gatherSelectedPacks();
+      if (!packs.length){ alert('Pick at least one pack'); return; }
+      const spinCount = packs.length;
 
       const entryCost = packs.reduce((s,p)=> s + (p.price||0), 0);
       const potValue = entryCost * maxPlayers;
@@ -659,8 +679,8 @@
         const packs = b.packs || [];
         const player = players[turn];
 
-        // Choose current pack (cycle)
-        const packMeta = packs[round % packs.length];
+        // Choose pack for this round
+        const packMeta = packs[round];
         const all = await fetchAvailablePacks();
         const full = all.find(x => x.id === packMeta.id) || packMeta;
 
