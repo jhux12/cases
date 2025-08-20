@@ -309,6 +309,9 @@
     const $ = (s, r=document) => r.querySelector(s);
     const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
     const sleep = (ms) => new Promise(r=>setTimeout(r, ms));
+    function triggerBattleRunner(id){
+      fetch(`/api/run-battle?battleId=${encodeURIComponent(id)}`).catch(()=>{});
+    }
 
     // Render helpers
     function pill(text, extra=''){ return `<span class="pill bg-white/5 ${extra}">${text}</span>`; }
@@ -497,15 +500,16 @@
         botFillAt: firebase.firestore.Timestamp.fromDate(new Date(Date.now()+60000))
       };
 
-      const docRef = await battlesRef.add(b);
-      $('#battle-form').close();
-      showBattle(docRef.id);
+        const docRef = await battlesRef.add(b);
+        triggerBattleRunner(docRef.id);
+        $('#battle-form').close();
+        showBattle(docRef.id);
     }
 
     async function joinBattle(battleId){
       const me = currentUser();
       const docRef = battlesRef.doc(battleId);
-      await firestore.runTransaction(async (tx)=>{
+        await firestore.runTransaction(async (tx)=>{
         const snap = await tx.get(docRef);
         if (!snap.exists) throw new Error('Battle missing');
         const b = snap.data();
@@ -523,7 +527,8 @@
         }
         tx.set(docRef, b, {merge:true});
       });
-      showBattle(battleId);
+        triggerBattleRunner(battleId);
+        showBattle(battleId);
     }
 
     function showBattle(battleId) {
@@ -565,31 +570,34 @@
       return '';
     }
 
-    async function maybeFillBotsAndStart(b){
-      const docRef = battlesRef.doc(b.id);
-      await firestore.runTransaction(async (tx)=>{
-        const snap = await tx.get(docRef);
-        const data = snap.data();
-        if (!data) return;
-        const now = new Date();
-        if (data.status==='lobby' && data.botFillAt && data.botFillAt.toDate() <= now){
-          while ((data.players?.length||0) < data.maxPlayers){
-            data.players.push({ uid:'bot-'+Math.random().toString(36).slice(2,8), displayName:'Bot', isBot:true, total:0, pulls:[] });
+      async function maybeFillBotsAndStart(b){
+        const docRef = battlesRef.doc(b.id);
+        let started = false;
+        await firestore.runTransaction(async (tx)=>{
+          const snap = await tx.get(docRef);
+          const data = snap.data();
+          if (!data) return;
+          const now = new Date();
+          if (data.status==='lobby' && data.botFillAt && data.botFillAt.toDate() <= now){
+            while ((data.players?.length||0) < data.maxPlayers){
+              data.players.push({ uid:'bot-'+Math.random().toString(36).slice(2,8), displayName:'Bot', isBot:true, total:0, pulls:[] });
+            }
+            data.status = 'countdown';
+            data.countdownEndsAt = firebase.firestore.Timestamp.fromDate(new Date(Date.now()+5000));
+          } else if (data.status==='countdown' && data.countdownEndsAt && data.countdownEndsAt.toDate() <= now){
+            while ((data.players?.length||0) < data.maxPlayers){
+              data.players.push({ uid:'bot-'+Math.random().toString(36).slice(2,8), displayName:'Bot', isBot:true, total:0, pulls:[] });
+            }
+            data.status='spinning';
+            data.roundIndex = 0;
+            started = true;
+          } else {
+            return;
           }
-          data.status = 'countdown';
-          data.countdownEndsAt = firebase.firestore.Timestamp.fromDate(new Date(Date.now()+5000));
-        } else if (data.status==='countdown' && data.countdownEndsAt && data.countdownEndsAt.toDate() <= now){
-          while ((data.players?.length||0) < data.maxPlayers){
-            data.players.push({ uid:'bot-'+Math.random().toString(36).slice(2,8), displayName:'Bot', isBot:true, total:0, pulls:[] });
-          }
-          data.status='spinning';
-          data.roundIndex = 0;
-        } else {
-          return;
-        }
-        tx.set(docRef, data, {merge:true});
-      });
-    }
+          tx.set(docRef, data, {merge:true});
+        });
+        if (started) triggerBattleRunner(b.id);
+      }
 
     // --- Round-robin engine
     async function runBattleLoop(battleId) {
