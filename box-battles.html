@@ -197,22 +197,38 @@
       return { uid: 'guest-' + Math.random().toString(36).slice(2,8), displayName: 'Guest', avatarUrl: '' };
     }
 
-    // Fetch available packs + prizes from Firestore.
+    // Fetch available packs + prizes from Firestore (packs collection or fallback cases).
+    let _packsCache;
     async function fetchAvailablePacks(){
-      const snap = await firestore.collection('packs').get();
-      const packs = [];
-      for (const doc of snap.docs){
-        const data = doc.data() || {};
-        const pack = { id: doc.id, name: data.name, image: data.image, price: data.price, prizes: [] };
-        if (Array.isArray(data.prizes) && data.prizes.length){
-          pack.prizes = data.prizes;
-        }else{
-          const prizesSnap = await doc.ref.collection('prizes').get();
-          pack.prizes = prizesSnap.docs.map(p=> ({ id: p.id, ...p.data() }));
+      if (_packsCache) return _packsCache;
+      try {
+        let snap = await firestore.collection('packs').get();
+        let docs = snap.docs;
+
+        // Fallback to "cases" collection if no packs exist (legacy naming).
+        if (docs.length === 0){
+          snap = await firestore.collection('cases').get();
+          docs = snap.docs;
         }
-        packs.push(pack);
+
+        const packs = await Promise.all(docs.map(async doc => {
+          const data = doc.data() || {};
+          const pack = { id: doc.id, name: data.name, image: data.image, price: data.price, prizes: [] };
+          if (Array.isArray(data.prizes) && data.prizes.length){
+            pack.prizes = data.prizes;
+          }else{
+            const prizesSnap = await doc.ref.collection('prizes').get();
+            pack.prizes = prizesSnap.docs.map(p=> ({ id: p.id, ...p.data() }));
+          }
+          return pack;
+        }));
+
+        _packsCache = packs;
+        return packs;
+      } catch(err){
+        console.error('fetchAvailablePacks failed', err);
+        return [];
       }
-      return packs;
     }
 
     // Deterministic index helper (provably fair or fallback hash).
