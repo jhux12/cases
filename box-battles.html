@@ -186,8 +186,8 @@
      *********************************/
 
     // --- Shortcuts
-      const firestore = firebase.firestore();
-      const battlesRef = firestore.collection('battles');
+    const db = firebase.firestore();
+    const battlesRef = db.collection('battles');
 
     // Resolve the current user via Firebase Auth (fallback guest during development).
     function currentUser(){
@@ -199,7 +199,7 @@
 
     // Fetch available packs + prizes from Firestore.
     async function fetchAvailablePacks(){
-        const snap = await firestore.collection('packs').get();
+      const snap = await db.collection('packs').get();
       const packs = [];
       for (const doc of snap.docs){
         const data = doc.data() || {};
@@ -351,15 +351,11 @@
         $('#battle-list').innerHTML = open.map(renderBattleRow).join('') || '<div class="text-white/60">No open battles right now.</div>';
         $('#my-battles').innerHTML = mine.map(renderBattleRow).join('') || '<div class="text-white/60">You are not in any battles.</div>';
         $('#my-battles-count').textContent = mine.length ? `${mine.length}` : '';
+        $('#previous-battles-list').innerHTML = finished.slice(0,20).map(renderPreviousRow).join('') || '<div class="text-white/60">Nothing yet — be the first!</div>';
 
         // Buttons
         $$('.join-btn').forEach(btn=> btn.onclick = ()=> joinBattle(btn.dataset.id));
         $$('.watch-btn').forEach(btn=> btn.onclick = ()=> showBattle(btn.dataset.id));
-      });
-
-      battlesRef.where('status','==','finished').orderBy('createdAt','desc').limit(20).onSnapshot(snap=>{
-        const arr = snap.docs.map(d=>({id:d.id, ...d.data()}));
-        $('#previous-battles-list').innerHTML = arr.map(renderPreviousRow).join('') || '<div class="text-white/60">Nothing yet — be the first!</div>';
         $$('.rewatch-btn').forEach(btn=> btn.onclick = ()=> openRewatch(btn.dataset.id));
       });
     }
@@ -400,7 +396,7 @@
     async function joinBattle(battleId){
       const me = currentUser();
       const docRef = battlesRef.doc(battleId);
-      await firestore.runTransaction(async (tx)=>{
+      await db.runTransaction(async (tx)=>{
         const snap = await tx.get(docRef);
         if (!snap.exists) throw new Error('Battle missing');
         const b = snap.data();
@@ -463,7 +459,7 @@
 
     async function maybeFillBotsAndStart(b){
       const docRef = battlesRef.doc(b.id);
-      await firestore.runTransaction(async (tx)=>{
+      await db.runTransaction(async (tx)=>{
         const snap = await tx.get(docRef);
         const data = snap.data();
         if (data.status!=='countdown') return;
@@ -517,7 +513,7 @@
         });
 
         // Update Firestore with the pull + totals + advance turn
-        await firestore.runTransaction(async (tx)=>{
+        await db.runTransaction(async (tx)=>{
           const s = await tx.get(docRef);
           const d = s.data(); if (!d || d.status!=='spinning') return;
 
