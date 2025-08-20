@@ -46,7 +46,7 @@
       <div>
         <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Box Battles</h1>
         <p class="text-white/70 mt-1">Winner takes all. Spin across N rounds — highest total wins the pot.</p>
-        <p id="stage-status" class="text-indigo-300/80 mt-1"></p>
+        <p id="stage-status" class="text-indigo-300/80 mt-1" aria-live="polite"></p>
       </div>
       <div class="flex items-center gap-3">
         <button id="create-battle-btn" class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-400 hover:to-blue-400 shadow-lg shadow-indigo-500/20">
@@ -196,30 +196,38 @@
       return { uid: 'guest-' + Math.random().toString(36).slice(2,8), displayName: 'Guest', avatarUrl: '' };
     }
 
-    // TODO: Wire to your real packs API / Firestore. Must return: [{id,name,image,price,prizes:[{id,name,image,value,rarity}]}]
+    // Fetch available packs + prizes from Firestore.
     async function fetchAvailablePacks(){
-      return [
-        { id:'p1', name:'Starter', image:'https://via.placeholder.com/80x96?text=P1', price:100, prizes: demoPrizes('P1') },
-        { id:'p2', name:'Epic',    image:'https://via.placeholder.com/80x96?text=P2', price:250, prizes: demoPrizes('P2') },
-        { id:'p3', name:'Mythic',  image:'https://via.placeholder.com/80x96?text=P3', price:500, prizes: demoPrizes('P3') },
-      ];
-    }
-    function demoPrizes(tag){
-      return [
-        {id:tag+'-c1',name:'Common A',image:'https://via.placeholder.com/100x140?text='+tag+'-C',value:120,rarity:'common'},
-        {id:tag+'-u1',name:'Uncommon A',image:'https://via.placeholder.com/100x140?text='+tag+'-U',value:260,rarity:'uncommon'},
-        {id:tag+'-r1',name:'Rare A',image:'https://via.placeholder.com/100x140?text='+tag+'-R',value:540,rarity:'rare'},
-        {id:tag+'-ur',name:'Ultra A',image:'https://via.placeholder.com/100x140?text='+tag+'-UR',value:980,rarity:'ultra'},
-        {id:tag+'-l1',name:'Legendary',image:'https://via.placeholder.com/100x140?text='+tag+'-L',value:1500,rarity:'legendary'},
-      ];
+      const snap = await db.collection('packs').get();
+      const packs = [];
+      for (const doc of snap.docs){
+        const data = doc.data() || {};
+        const pack = { id: doc.id, name: data.name, image: data.image, price: data.price, prizes: [] };
+        if (Array.isArray(data.prizes) && data.prizes.length){
+          pack.prizes = data.prizes;
+        }else{
+          const prizesSnap = await doc.ref.collection('prizes').get();
+          pack.prizes = prizesSnap.docs.map(p=> ({ id: p.id, ...p.data() }));
+        }
+        packs.push(pack);
+      }
+      return packs;
     }
 
-    // TODO: Replace with your provably fair index generator.
+    // Deterministic index helper (provably fair or fallback hash).
     function getWinningIndex(pack, serverSeed, clientSeed, nonce){
-      // Deterministic placeholder: use a simple seeded hash
+      if (typeof window.getWinningIndex === 'function'){
+        return window.getWinningIndex(pack, serverSeed, clientSeed, nonce);
+      }
+      if (typeof window.provablyFairIndex === 'function'){
+        return window.provablyFairIndex(pack, serverSeed, clientSeed, nonce);
+      }
       const str = [serverSeed, clientSeed, nonce, pack.id].join('|');
       let h = 2166136261;
-      for (let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h += (h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24); }
+      for (let i=0; i<str.length; i++){
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
       const x = (h>>>0) / 2**32;
       return Math.floor(x * pack.prizes.length);
     }
@@ -444,9 +452,9 @@
       if (b.status==='lobby') return 'Waiting for players…';
       if (b.status==='countdown') return 'Countdown to start…';
       if (b.status==='spinning'){
-        const totalPulls = (b.players||[]).reduce((s,p)=> s+(p.pulls?.length||0), 0);
-        const roundsDone = Math.floor(totalPulls / (b.players?.length||1));
-        return `Round ${Math.min(roundsDone+1, b.spinCount)} of ${b.spinCount}`;
+        const round = b.roundIndex || 0;
+        const player = b.players?.[b.turnIndex || 0];
+        return `Round ${round+1} of ${b.spinCount} — ${player?.displayName || 'Player'} is spinning`;
       }
       if (b.status==='finished') return `Winner: ${b.winner?.displayName || '—'}`;
       return '';
