@@ -602,7 +602,7 @@
             prizeId: prize.id,
             value: prize.value,
             index,
-            at: firebase.firestore.FieldValue.serverTimestamp()
+            at: firebase.firestore.Timestamp.now()
           };
           P.pulls = (P.pulls || []).concat([pull]);
           P.total = (P.total || 0) + (prize.value || 0);
