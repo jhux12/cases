@@ -448,9 +448,9 @@
         el.classList.toggle('ring-indigo-500/50', i === idx);
       });
     }
-    function renderScoreboard(players) {
+    function renderScoreboard(players, winnerUid) {
       const html = players.map(p => `
-        <div class="player rounded-xl border border-white/10 bg-white/5 p-3 flex items-center justify-between">
+        <div class="player rounded-xl border border-white/10 bg-white/5 p-3 flex items-center justify-between ${p.uid===winnerUid ? 'ring-2 ring-yellow-400/80' : ''}">
           <div class="flex items-center gap-2">
             <div class="w-8 h-8 rounded-full bg-white/10 grid place-items-center text-sm font-semibold">
               ${(p.displayName||'U').slice(0,1).toUpperCase()}
@@ -627,7 +627,7 @@
         if (b.status === 'finished') activeBattleId = null;
         $('#stage-status').textContent = renderStatus(b);
 
-        renderScoreboard(b.players || []);
+        renderScoreboard(b.players || [], b.winner?.uid);
 
         if (b.status === 'lobby') startBotTimer(b);
         else if (b.status === 'countdown') startCountdownTimer(b);
@@ -647,7 +647,7 @@
       if (b.status==='spinning'){
         return `Round ${(b.roundIndex||0)+1} of ${b.spinCount}`;
       }
-      if (b.status==='finished') return `Winner: ${b.winner?.displayName || '—'}`;
+      if (b.status==='finished') return `${b.winner?.displayName || ''}`;
       return '';
     }
 
