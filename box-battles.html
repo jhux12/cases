@@ -188,7 +188,7 @@
     const db = firebase.firestore();
     const battlesRef = db.collection('battles');
 
-    // TODO: Wire to your real auth.
+    // Resolve the current user via Firebase Auth (fallback guest during development).
     function currentUser(){
       const u = firebase.auth().currentUser;
       if (u) return { uid: u.uid, displayName: u.displayName || (u.email||'User').split('@')[0], avatarUrl: u.photoURL || '' };
@@ -496,7 +496,7 @@
         // Choose pack for this round (cycle through selected)
         const pack = packs[(round) % packs.length];
 
-        // Load full prize list for spinner (from cached demo or TODO: real data)
+        // Load full prize list for spinner
         const all = await fetchAvailablePacks();
         const full = all.find(x=>x.id===pack.id) || pack;
         setStageItems(full.prizes);
@@ -533,9 +533,17 @@
           if (nextTurn === 0) nextRound++;
 
           if (nextRound >= d.spinCount){
-            // Finish: compute winner
-            const byTotal = [...d.players].sort((a,b)=> (b.total||0)-(a.total||0));
-            const top = byTotal[0]; // TODO tie-breaker by highest pull then earliest join
+            // Finish: compute winner (total desc, highest pull desc, earliest join asc)
+            const players = d.players.map((p,i)=>{
+              const highestPull = Math.max(0, ...(p.pulls||[]).map(x=>x.value||0));
+              return { ...p, highestPull, joinOrder: i };
+            });
+            players.sort((a,b)=>
+              (b.total||0) - (a.total||0) ||
+              (b.highestPull||0) - (a.highestPull||0) ||
+              (a.joinOrder||0) - (b.joinOrder||0)
+            );
+            const top = players[0];
             d.winner = { uid: top.uid, displayName: top.displayName, total: top.total };
             d.status = 'finished';
             d.finishedAt = firebase.firestore.FieldValue.serverTimestamp();
