@@ -390,7 +390,7 @@
 
     // --- Open/My/Previous lists
     function renderBattleRow(b){
-      const live = b.status === 'spinning' ? pill('LIVE','live') : '';
+      const live = (b.status==='lobby' || b.status==='countdown') ? pill('LIVE','live') : '';
       const packs = (b.packs||[]).map(p=>`<img src="${p.image}" class="w-10 h-12 object-cover rounded-md border border-white/10"/>`).join('');
       const players = (b.players||[]).map(p=>`<div class="flex items-center gap-1">${avatar(p.displayName)}<span class="hidden md:inline text-sm">${p.displayName||'Player'}</span></div>`).join('');
       const canJoin = (b.status==='lobby' || b.status==='countdown') && (b.players?.length||0) < b.maxPlayers;
@@ -493,15 +493,15 @@
     function subscribeLists(){
       battlesRef.orderBy('createdAt','desc').limit(20).onSnapshot(snap=>{
         const me = currentUser();
-        const open = []; const mine = []; const finished = [];
+        const all = []; const mine = []; const finished = [];
         snap.forEach(doc=>{
           const b = {id:doc.id, ...doc.data()};
+          all.push(b);
           if (b.status==='finished') finished.push(b);
-          else open.push(b);
           if (me && (b.players||[]).some(p=>p.uid===me.uid)) mine.push(b);
         });
 
-        $('#battle-list').innerHTML = open.slice(0,5).map(renderBattleRow).join('') || '<div class="text-white/60">No open battles right now.</div>';
+        $('#battle-list').innerHTML = all.slice(0,5).map(renderBattleRow).join('') || '<div class="text-white/60">No battles yet.</div>';
         $('#my-battles').innerHTML = mine.slice(0,5).map(renderBattleRow).join('') || '<div class="text-white/60">You are not in any battles.</div>';
         $('#my-battles-count').textContent = me ? (mine.length ? `${mine.length}` : '') : '';
         $('#previous-battles-list').innerHTML = finished.slice(0,5).map(renderPreviousRow).join('') || '<div class="text-white/60">Nothing yet — be the first!</div>';
