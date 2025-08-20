@@ -21,7 +21,7 @@
   <script defer src="scripts/footer.js"></script>
 
   <!-- Spinner logic from case.html (adjust path if needed) -->
-  <script defer src="pack-opener/spinner.js"></script>
+  <script defer src="scripts/spinner.js"></script>
 
   <style>
     /* Minimal reel host styles; rest via Tailwind */
@@ -115,7 +115,7 @@
     <section id="previous-battles" class="bg-[#0f1220] border border-white/10 rounded-2xl p-4">
       <header class="flex items-center justify-between mb-3">
         <h2 class="text-lg font-semibold">Previous Battles</h2>
-        <span class="text-sm text-white/60">Latest 20</span>
+        <span class="text-sm text-white/60">Latest 5</span>
       </header>
       <div id="previous-battles-list" class="space-y-3"></div>
     </section>
@@ -363,7 +363,7 @@
     let spinnerSource;
     async function makeSpinner(root){
       if (!spinnerSource){
-        spinnerSource = await fetch('pack-opener/spinner.js').then(r=>r.text());
+        spinnerSource = await fetch('scripts/spinner.js').then(r=>r.text());
       }
       const factory = new Function(`${spinnerSource}; return PackOpener;`);
       const inst = factory();
@@ -420,7 +420,7 @@
 
     // --- Live listeners
     function subscribeLists(){
-      battlesRef.orderBy('createdAt','desc').limit(50).onSnapshot(snap=>{
+      battlesRef.orderBy('createdAt','desc').limit(20).onSnapshot(snap=>{
         const me = currentUser();
         const open = []; const mine = []; const finished = [];
         snap.forEach(doc=>{
@@ -430,10 +430,10 @@
           if ((b.players||[]).some(p=>p.uid===me.uid)) mine.push(b);
         });
 
-        $('#battle-list').innerHTML = open.map(renderBattleRow).join('') || '<div class="text-white/60">No open battles right now.</div>';
-        $('#my-battles').innerHTML = mine.map(renderBattleRow).join('') || '<div class="text-white/60">You are not in any battles.</div>';
+        $('#battle-list').innerHTML = open.slice(0,5).map(renderBattleRow).join('') || '<div class="text-white/60">No open battles right now.</div>';
+        $('#my-battles').innerHTML = mine.slice(0,5).map(renderBattleRow).join('') || '<div class="text-white/60">You are not in any battles.</div>';
         $('#my-battles-count').textContent = mine.length ? `${mine.length}` : '';
-        $('#previous-battles-list').innerHTML = finished.slice(0,20).map(renderPreviousRow).join('') || '<div class="text-white/60">Nothing yet — be the first!</div>';
+        $('#previous-battles-list').innerHTML = finished.slice(0,5).map(renderPreviousRow).join('') || '<div class="text-white/60">Nothing yet — be the first!</div>';
 
         // Buttons
         $$('.join-btn').forEach(btn=> btn.onclick = ()=> joinBattle(btn.dataset.id));
@@ -602,7 +602,7 @@
             if (!r) return;
             const P = d.players[r.idx];
             const prize = r.prize;
-            const pull = { round, packId: full.id, prizeId: prize.id, value: prize.value, index: r.index, at: firebase.firestore.FieldValue.serverTimestamp() };
+            const pull = { round, packId: full.id, prizeId: prize.id, value: prize.value, index: r.index, at: firebase.firestore.Timestamp.now() };
             P.pulls = (P.pulls||[]).concat([pull]);
             P.total = (P.total||0) + (prize.value||0);
             d.players[r.idx] = P;
