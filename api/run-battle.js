@@ -20,49 +20,50 @@ module.exports = async (req, res) => {
   res.end(JSON.stringify({ ok: true }));
 };
 
+// Progress a battle until it reaches the next wait state, then schedule
+// another tick so the match can continue even without any connected clients.
 async function processBattle(id) {
   const ref = db.collection('battles').doc(id);
-  for (;;) {
-    const snap = await ref.get();
-    if (!snap.exists) return;
-    const b = snap.data();
-    const now = new Date();
+  const snap = await ref.get();
+  if (!snap.exists) return;
+  const b = snap.data();
+  const now = new Date();
 
-    if (b.status === 'lobby') {
-      if (b.botFillAt && b.botFillAt.toDate() > now) {
-        await sleep(b.botFillAt.toDate() - now);
-        continue;
-      }
-      while ((b.players || []).length < b.maxPlayers) {
-        b.players.push({ uid: 'bot-' + Math.random().toString(36).slice(2,8), displayName: 'Bot', isBot: true, total: 0, pulls: [] });
-      }
-      b.status = 'countdown';
-      b.countdownEndsAt = admin.firestore.Timestamp.fromDate(new Date(Date.now()+5000));
-      await ref.set(b, { merge: true });
-      continue;
+  if (b.status === 'lobby') {
+    const wait = b.botFillAt ? b.botFillAt.toDate() - now : 0;
+    if (wait > 0) {
+      setTimeout(() => processBattle(id).catch(console.error), wait);
+      return;
     }
-
-    if (b.status === 'countdown') {
-      if (b.countdownEndsAt && b.countdownEndsAt.toDate() > now) {
-        await sleep(b.countdownEndsAt.toDate() - now);
-        continue;
-      }
-      while ((b.players || []).length < b.maxPlayers) {
-        b.players.push({ uid: 'bot-' + Math.random().toString(36).slice(2,8), displayName: 'Bot', isBot: true, total: 0, pulls: [] });
-      }
-      b.status = 'spinning';
-      b.roundIndex = 0;
-      b.turnIndex = 0;
-      await ref.set(b, { merge: true });
-      continue;
+    while ((b.players || []).length < b.maxPlayers) {
+      b.players.push({ uid: 'bot-' + Math.random().toString(36).slice(2,8), displayName: 'Bot', isBot: true, total: 0, pulls: [] });
     }
+    b.status = 'countdown';
+    b.countdownEndsAt = admin.firestore.Timestamp.fromDate(new Date(Date.now() + 5000));
+    await ref.set(b, { merge: true });
+    setTimeout(() => processBattle(id).catch(console.error), 5000);
+    return;
+  }
 
-    if (b.status === 'spinning') {
-      await runLoop(ref);
-      continue;
+  if (b.status === 'countdown') {
+    const wait = b.countdownEndsAt ? b.countdownEndsAt.toDate() - now : 0;
+    if (wait > 0) {
+      setTimeout(() => processBattle(id).catch(console.error), wait);
+      return;
     }
+    while ((b.players || []).length < b.maxPlayers) {
+      b.players.push({ uid: 'bot-' + Math.random().toString(36).slice(2,8), displayName: 'Bot', isBot: true, total: 0, pulls: [] });
+    }
+    b.status = 'spinning';
+    b.roundIndex = 0;
+    b.turnIndex = 0;
+    await ref.set(b, { merge: true });
+    setTimeout(() => processBattle(id).catch(console.error), 0);
+    return;
+  }
 
-    break;
+  if (b.status === 'spinning') {
+    await runLoop(ref);
   }
 }
 
@@ -168,5 +169,3 @@ function getWinningIndex(pack, serverSeed, clientSeed, nonce) {
   const x = (h >>> 0) / 2 ** 32;
   return Math.floor(x * pack.prizes.length);
 }
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
