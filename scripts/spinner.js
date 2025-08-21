@@ -30,7 +30,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false, id
 
   const spinnerWheel = document.createElement("div");
   spinnerWheel.id = `spinner-wheel-${id}`;
-  spinnerWheel.className = "flex h-full items-center";
+  spinnerWheel.className = "reel flex h-full items-center";
 
   if (isPreview) {
     spinnerWheel.classList.add("animate-scroll-preview");
@@ -216,7 +216,8 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
 
     if (targetCard) {
       const glowClass = `glow-${rarity}`;
-      targetCard.classList.add(glowClass, "ring-4", "ring-white");
+      const flashClass = `glow-flash-${rarity}`;
+      targetCard.classList.add(glowClass, flashClass, "ring-4", "ring-white");
     }
 
     if (callback) callback(prize);

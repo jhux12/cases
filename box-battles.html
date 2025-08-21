@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Box Battles | Packly.gg</title>
 
+  <link rel="stylesheet" href="styles/main.css">
+
   <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -79,7 +81,7 @@
   <main class="mt-24 mx-auto max-w-6xl px-4 py-8 space-y-8">
     <!-- Battle Stage (appears when joined/created) -->
     <section id="battle-stage" class="hidden bg-[#0f1220] border border-white/10 rounded-2xl p-4">
-      <div id="stage-scoreboard" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+      <div id="stage-scoreboard" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
       <aside id="join-aside" class="mt-4"></aside>
     </section>
 
@@ -449,8 +451,13 @@
             </div>
             <div class="flex items-center gap-1 text-xs text-white/60"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>${total}</div>
           </div>
-          <div id="spinner-border-${i}" class="w-full h-40 border-2 border-white/10 rounded-lg overflow-hidden">
-            <div id="spinner-container-${i}" class="h-full flex items-center"></div>
+          <div id="spinner-border-${i}" class="reel-host w-full h-40 border-2 border-white/10 rounded-lg overflow-hidden">
+            <div id="spinner-container-${i}" class="w-full h-full flex items-center"></div>
+            <div class="center-marker">
+              <span class="marker-arrow top"></span>
+              <span class="marker-line"></span>
+              <span class="marker-arrow bottom"></span>
+            </div>
           </div>
         </div>
         `;
