@@ -193,7 +193,7 @@
 
   <!-- Page logic -->
   <script type="module">
-    import { renderSpinner, spinToPrize } from './scripts/spinner.js';
+    import { renderSpinner, spinToPrize, getRarityColor } from './scripts/spinner.js';
     /***** DESCRIPTION FOR CODEX *****
      - Build a Winner-Takes-All Box Battles page that:
        1) Lists open battles (#battle-list) and my battles (#my-battles).
@@ -465,6 +465,31 @@
       $('#stage-scoreboard').innerHTML = html;
     }
 
+    // After the battle ends show only the winner and every card they claimed.
+    async function renderWinnerSummary(b) {
+      const packs = await fetchAvailablePacks();
+      const pulls = (b.players || []).flatMap(p => p.pulls || []);
+      const cards = pulls.map(pl => {
+        const pack = packs.find(pk => pk.id === pl.packId);
+        const prize = pack?.prizes?.find(pr => pr.id === pl.prizeId) || {};
+        const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g,'');
+        const color = getRarityColor(rarity);
+        return `
+          <div class="tile rarity-${rarity}" style="border-color:${color}">
+            <img src="${prize.image}" alt="${prize.name}" class="w-[100px] h-[140px] object-cover rounded-md" />
+            <div class="tile-info">
+              <div class="name">${prize.name || ''}</div>
+              <div class="price"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>${(prize.value||0).toLocaleString()}</div>
+            </div>
+          </div>`;
+      }).join('');
+      $('#stage-scoreboard').innerHTML = `
+        <div class="flex flex-col items-center gap-4 w-full">
+          <div class="text-xl font-semibold">Winner: ${b.winner?.displayName || ''}</div>
+          <div class="reel-host w-full flex flex-wrap justify-center gap-2">${cards}</div>
+        </div>`;
+    }
+
     function renderPackPreview(packs) {
       const overlay = $('#pack-preview');
       if (!overlay) return;
@@ -638,7 +663,11 @@
         if (b.status === 'finished') activeBattleId = null;
         $('#stage-status').textContent = renderStatus(b);
 
-        renderScoreboard(b.players || [], b.winner?.uid);
+        if (b.status === 'finished') {
+          await renderWinnerSummary(b);
+        } else {
+          renderScoreboard(b.players || [], b.winner?.uid);
+        }
 
         if (b.status === 'lobby') {
           renderPackPreview(b.packs || []);
@@ -669,7 +698,7 @@
       if (b.status==='spinning'){
         return `Round ${(b.roundIndex||0)+1} of ${b.spinCount}`;
       }
-      if (b.status==='finished') return `${b.winner?.displayName || ''}`;
+      if (b.status==='finished') return `Winner: ${b.winner?.displayName || ''}`;
       return '';
     }
 
@@ -735,6 +764,7 @@
           }
         }
 
+        await sleep(500); // small pause before spinning
         await Promise.all(players.map((p, i) => spinToPrize(() => {}, false, i)));
 
         let grantUid = null;
@@ -807,7 +837,7 @@
           }
         }
 
-        await sleep(1000);
+        await sleep(2000); // longer break between rounds
       }
     }
 

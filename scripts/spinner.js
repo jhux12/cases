@@ -2,7 +2,8 @@
 const spinnerPrizesMap = {};
 const targetIndex = 15;
 
-function getRarityColor(rarity) {
+// Exported so other modules (like box battles) can reuse the same color map
+export function getRarityColor(rarity) {
   const base = rarity?.toLowerCase().replace(/\s+/g, '');
   switch (base) {
     case 'legendary': return '#facc15';
@@ -78,7 +79,9 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false, id
   }
 }
 
-export function spinToPrize(callback, showPopup = true, id = 0) {
+// Spin the reel to land the pre-rendered winning prize.
+// durationSec ensures multiple spinners can start/stop together.
+export function spinToPrize(callback, showPopup = true, id = 0, durationSec = 5) {
   const spinnerWheel = document.getElementById(`spinner-wheel-${id}`);
   if (!spinnerWheel) return Promise.resolve();
 
@@ -110,34 +113,12 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
   }
 
   const finalOffset = (cardCenter - containerCenter) / scale;
-  let targetOffset = finalOffset;
-  let closeCallDir = 0;
 
-  // Randomly apply a "close call" overshoot so the wheel appears to almost
-  // stop on an adjacent prize before settling on the winner. Bias the
-  // overshoot toward a rare neighbour if one exists to make the near miss
-  // feel more dramatic.
-  const closeCallChance = 0.5; // roughly half the spins
-  const adjacent = [
-    { dir: -1, prize: spinnerPrizesMap[id][targetIndex - 1] },
-    { dir: 1, prize: spinnerPrizesMap[id][targetIndex + 1] }
-  ];
-  if (Math.random() < closeCallChance) {
-    const rareAdjacent = adjacent.filter(a => {
-      const r = (a.prize?.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-      return ['rare', 'ultrarare', 'legendary'].includes(r);
-    });
-    const chosen = (rareAdjacent.length ? rareAdjacent : adjacent)[Math.floor(Math.random() * (rareAdjacent.length ? rareAdjacent.length : adjacent.length))];
-    closeCallDir = chosen.dir;
-    const overshoot = 25 + Math.random() * 35; // 25-60px
-    targetOffset = finalOffset + closeCallDir * overshoot;
-  }
-
-  const spinDuration = 4 + Math.random() * 2; // 4-6 seconds for a snappier feel
+  const spinDuration = durationSec; // uniform spin length for synchronized reels
   requestAnimationFrame(() => {
     spinnerWheel.style.willChange = 'transform';
     spinnerWheel.style.transition = `transform ${spinDuration}s cubic-bezier(0.33, 1, 0.68, 1)`;
-    spinnerWheel.style.transform = `translate3d(-${targetOffset}px,0,0)`;
+    spinnerWheel.style.transform = `translate3d(-${finalOffset}px,0,0)`;
   });
 
   let animationFrame;
@@ -178,20 +159,6 @@ export function spinToPrize(callback, showPopup = true, id = 0) {
     function onTransitionEnd() {
       cancelAnimationFrame(animationFrame);
       spinnerWheel.style.willChange = '';
-
-    // If we performed a close-call overshoot, correct to the final prize now
-    if (closeCallDir !== 0) {
-      const nearMissIndex = closeCallDir === -1 ? targetIndex - 1 : targetIndex + 1;
-      const nearMissCard = spinnerWheel.querySelector(`.item[data-index="${nearMissIndex}"]`);
-      if (nearMissCard) nearMissCard.classList.add("near-miss-flash");
-
-      closeCallDir = 0; // prevent looping
-      requestAnimationFrame(() => {
-        spinnerWheel.style.transition = 'transform 0.4s ease-out';
-        spinnerWheel.style.transform = `translate3d(-${finalOffset}px,0,0)`;
-      });
-      return;
-    }
 
     // Final landing: award the prize
     const prize = spinnerPrizesMap[id][targetIndex];

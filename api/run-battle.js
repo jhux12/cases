@@ -156,7 +156,7 @@ async function runLoop(ref) {
       }
     }
 
-    await sleep(1000);
+    await sleep(2000);
   }
 }
 
