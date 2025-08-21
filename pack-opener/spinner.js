@@ -47,7 +47,7 @@
         tile.dataset.id = item.id;
         const priceHtml =
           item.value !== undefined
-            ? `<div class="price">${item.value}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin"/></div>`
+            ? `<div class="price">${Number(item.value).toLocaleString()}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin"/></div>`
             : "";
         tile.innerHTML = `<img src="${item.image}" alt="${item.name}"/><div class="tile-info"><div class="name">${item.name}</div>${priceHtml}</div>`;
         tile.style.borderColor = rarityColors[item.rarity] || "#3a4050";
@@ -168,7 +168,7 @@
         clone.className = "tile";
         const priceHtml =
           it.value !== undefined
-            ? `<div class="price">${it.value}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin"/></div>`
+            ? `<div class="price">${Number(it.value).toLocaleString()}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin"/></div>`
             : "";
         clone.innerHTML = `<img src="${it.image}" alt="${it.name}"/><div class="tile-info"><div class="name">${it.name}</div>${priceHtml}</div>`;
         tiles[midStart + index + (dir === 1 ? -1 : 1)].replaceWith(clone);
@@ -177,7 +177,7 @@
     }
 
     const container = state.root.parentElement;
-    const containerWidth = container.clientWidth;
+    const containerWidth = container.getBoundingClientRect().width;
     const centerOffset = containerWidth / 2 - state.tileWidth / 2;
 
     const targetIndex = state.items.length * 2 + index;
