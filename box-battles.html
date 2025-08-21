@@ -542,7 +542,7 @@
           <button id="watch-replay" class="px-4 py-2 rounded-lg bg-indigo-500/80 hover:bg-indigo-500">Watch</button>
         </div>`;
 
-      $('#watch-replay').onclick = () => openRewatch(b.id, true);
+      $('#watch-replay').onclick = () => openRewatch(b, true);
     }
 
     function renderPackPreview(packs) {
@@ -901,10 +901,15 @@
     }
 
     // --- Rewatch
-    async function openRewatch(id, embed = false) {
-      const snap = await battlesRef.doc(id).get();
-      if (!snap.exists) return;
-      const b = { id: snap.id, ...snap.data() };
+    async function openRewatch(battleOrId, embed = false) {
+      let b;
+      if (typeof battleOrId === 'string') {
+        const snap = await battlesRef.doc(battleOrId).get();
+        if (!snap.exists) return;
+        b = { id: snap.id, ...snap.data() };
+      } else {
+        b = battleOrId;
+      }
       const all = await fetchAvailablePacks();
 
       if (embed) {
