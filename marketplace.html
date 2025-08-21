@@ -23,15 +23,21 @@
   <section class="pt-32 pb-16 px-4 max-w-7xl mx-auto">
     <div class="text-center mb-12">
       <h1 class="text-5xl font-extrabold gradient-text drop-shadow-sm mb-3">🛒 Marketplace</h1>
-      <p class="text-gray-600 text-sm max-w-xl mx-auto">Browse and buy premium cards with your coins. All purchases go straight to your inventory.</p>
+      <p class="text-gray-600 text-sm max-w-xl mx-auto">Browse and buy premium cards with your <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 coin-icon" alt="Coins">. All purchases go straight to your inventory.</p>
     </div>
 
     <div class="bg-white border border-gray-200 p-4 rounded-lg mb-8 flex flex-wrap items-center gap-4">
       <input type="text" id="search-input" placeholder="Search by name..." class="p-2 rounded bg-gray-100 text-gray-900 border border-gray-300 w-full sm:w-48">
-      <input type="number" id="min-price" placeholder="Min coins" class="p-2 rounded bg-gray-100 text-gray-900 border border-gray-300 w-full sm:w-32">
-      <input type="number" id="max-price" placeholder="Max coins" class="p-2 rounded bg-gray-100 text-gray-900 border border-gray-300 w-full sm:w-32">
+      <div class="flex items-center gap-2 w-full sm:w-32">
+        <input type="number" id="min-price" placeholder="Min" class="p-2 rounded bg-gray-100 text-gray-900 border border-gray-300 w-full">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon" alt="Coins">
+      </div>
+      <div class="flex items-center gap-2 w-full sm:w-32">
+        <input type="number" id="max-price" placeholder="Max" class="p-2 rounded bg-gray-100 text-gray-900 border border-gray-300 w-full">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon" alt="Coins">
+      </div>
       <div class="flex items-center gap-2">
-        <span class="text-sm text-gray-900">Enough coins</span>
+        <span class="text-sm text-gray-900">Enough <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 coin-icon" alt="Coins"></span>
         <label class="inline-flex relative items-center cursor-pointer">
           <input type="checkbox" id="enough-coins" class="sr-only peer">
           <div class="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-indigo-600 transition-all"></div>
@@ -136,12 +142,12 @@
         const clone = template.content.cloneNode(true);
         clone.querySelector("img").src = card.image;
         clone.querySelector(".name").textContent = card.name;
-        clone.querySelector(".value").textContent = `${card.value.toLocaleString()} coins`;
+        clone.querySelector(".value").innerHTML = `${card.value.toLocaleString()} <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 coin-icon" alt="Coins">`;
         clone.querySelector(".rarity").textContent = `Rarity: ${card.rarity}`;
 
         clone.querySelector(".buy-btn").addEventListener("click", async (e) => {
           e.stopPropagation();
-          if (userBalance < card.value) return alert("Not enough coins!");
+          if (userBalance < card.value) return alert("Not enough 🪙!");
           await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/balance").set(userBalance - card.value);
           await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/inventory").push({
             name: card.name,
@@ -153,14 +159,14 @@
           });
           document.getElementById("popup-image").src = card.image;
           document.getElementById("popup-name").textContent = card.name;
-          document.getElementById("popup-value").textContent = `${card.value.toLocaleString()} coins`;
+          document.getElementById("popup-value").innerHTML = `${card.value.toLocaleString()} <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 coin-icon" alt="Coins">`;
           document.getElementById("purchase-popup").classList.remove("hidden");
         });
 
         clone.querySelector(".group").addEventListener("click", () => {
           document.getElementById("item-popup-image").src = card.image;
           document.getElementById("item-popup-name").textContent = card.name;
-          document.getElementById("item-popup-value").textContent = `${card.value.toLocaleString()} coins`;
+          document.getElementById("item-popup-value").innerHTML = `${card.value.toLocaleString()} <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 coin-icon" alt="Coins">`;
           window.selectedCard = card;
           document.getElementById("item-popup").classList.remove("hidden");
         });
@@ -179,7 +185,7 @@
       const userBalance = userData?.balance || 0;
 
       if (userBalance < window.selectedCard.value) {
-        alert("Not enough coins!");
+        alert("Not enough 🪙!");
         return;
       }
 
@@ -196,7 +202,7 @@
       document.getElementById("item-popup").classList.add("hidden");
       document.getElementById("popup-image").src = window.selectedCard.image;
       document.getElementById("popup-name").textContent = window.selectedCard.name;
-      document.getElementById("popup-value").textContent = `${window.selectedCard.value.toLocaleString()} coins`;
+      document.getElementById("popup-value").innerHTML = `${window.selectedCard.value.toLocaleString()} <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 coin-icon" alt="Coins">`;
       document.getElementById("purchase-popup").classList.remove("hidden");
     });
   </script>
