@@ -79,26 +79,8 @@
   <main class="mt-24 mx-auto max-w-6xl px-4 py-8 space-y-8">
     <!-- Battle Stage (appears when joined/created) -->
     <section id="battle-stage" class="hidden bg-[#0f1220] border border-white/10 rounded-2xl p-4">
-      <div class="flex flex-col lg:flex-row gap-6">
-        <!-- Reel -->
-        <div class="reel-host relative grow rounded-xl border border-white/10 bg-black/20 p-3">
-          <div id="stage-reel" class="reel h-40 md:h-48 flex items-center z-0 transition-opacity duration-500"></div>
-          <div id="pack-preview" class="absolute inset-0 flex items-center justify-center gap-2 z-10 transition-opacity duration-500"></div>
-          <div id="battle-results" class="absolute inset-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-3 overflow-y-auto z-10 transition-opacity duration-500 opacity-0 pointer-events-none bg-black/80 justify-center justify-items-center"></div>
-          <div class="center-marker z-20 transition-opacity duration-500">
-            <span class="marker-arrow top"></span>
-            <span class="marker-line"></span>
-            <span class="marker-arrow bottom"></span>
-          </div>
-        </div>
-        
-        <!-- Scoreboard -->
-        <div class="w-full lg:w-80">
-          <h3 class="text-base font-semibold mb-2">Scoreboard</h3>
-          <div id="stage-scoreboard" class="space-y-2"></div>
-          <aside id="join-aside" class="mt-4"></aside>
-        </div>
-      </div>
+      <div id="stage-scoreboard" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+      <aside id="join-aside" class="mt-4"></aside>
     </section>
 
     <!-- Hero -->
@@ -208,23 +190,24 @@
   </dialog>
 
   <!-- Page logic -->
-  <script>
+  <script type="module">
+    import { renderSpinner, spinToPrize } from './scripts/spinner.js';
     /***** DESCRIPTION FOR CODEX *****
      - Build a Winner-Takes-All Box Battles page that:
        1) Lists open battles (#battle-list) and my battles (#my-battles).
        2) Lets user create a lobby via #battle-form (choose packs; spinCount equals number selected; choose playerCount).
        3) On join, if seats < max at countdown end, fill with bots.
-       4) Run N rounds turn-by-turn using existing PackOpener spinner:
-          - For each turn: set items to current pack prizes, compute deterministic index,
-            call PackOpener.spinToIndex(index, {durationMs: 1600, nearMiss: true, onReveal}),
-            update player's total and store pull to Firestore.
+       4) Run N rounds where all players spin simultaneously using individual spinners:
+          - For each round: compute deterministic index for each player,
+            render their spinners and spin together,
+            then update totals and store pulls in Firestore.
        5) After last round, highest total wins the cost. Persist winner + pulls.
        6) Previous Battles list shows last 20 finished; Rewatch modal replays stored indexes quickly.
      - Keep Firebase compat. Assume firebase.initializeApp(...) already exists globally.
      - DO NOT rename these hook IDs: 
        #create-battle-btn #battle-form #pack-grid #spin-count #player-count
        #battle-list #my-battles #previous-battles #rewatch-modal #rewatch-stage
-       #battle-stage #stage-reel #stage-scoreboard #stage-status #join-aside #filters-form
+       #battle-stage #stage-scoreboard #stage-status #join-aside #filters-form
      *********************************/
 
     // --- Shortcuts
@@ -443,28 +426,8 @@
 
     // --- Stage (spinner + scoreboard) — SINGLE shared spinner for live battle
     let countdownInterval, botInterval;
-
-    function ensureStage() {
-      const host = $('#stage-reel');
-      if (!host._spinnerReady) {
-        PackOpener.init({ root: host, items: [] });
-        host._spinnerReady = true;
-      }
-    }
-    function setStageItems(prizes) {
-      ensureStage();
-      PackOpener.setItems(prizes);
-    }
-    function highlightTurn(idx) {
-      $$('#stage-scoreboard .player').forEach((el, i) => {
-        el.classList.toggle('outline', i === idx);
-        el.classList.toggle('outline-2', i === idx);
-        el.classList.toggle('outline-offset-2', i === idx);
-        el.classList.toggle('outline-indigo-500', i === idx);
-      });
-    }
     function renderScoreboard(players, winnerUid) {
-      const html = players.map(p => {
+      const html = players.map((p, i) => {
         const outcome = winnerUid ? (p.uid === winnerUid ? 'winner' : 'loser') : '';
         const ringClass = outcome === 'winner'
           ? 'ring-2 ring-yellow-400/80'
@@ -473,20 +436,22 @@
           : '';
         const total = Number(p.total || 0).toLocaleString();
         return `
-        <div class="player ${ringClass} rounded-xl border border-white/10 bg-white/5 p-3 flex items-center justify-between" data-outcome="${outcome}">
-          <div class="flex items-center gap-2">
-            <div class="relative">
-              <div class="w-8 h-8 rounded-full bg-white/10 grid place-items-center text-sm font-semibold">
-                ${(p.displayName||'U').slice(0,1).toUpperCase()}
+        <div class="player ${ringClass} rounded-xl border border-white/10 bg-white/5 p-3 flex flex-col" data-outcome="${outcome}">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <div class="relative">
+                <div class="w-8 h-8 rounded-full bg-white/10 grid place-items-center text-sm font-semibold">
+                  ${(p.displayName||'U').slice(0,1).toUpperCase()}
+                </div>
+                ${outcome === 'winner' ? '<img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f451.svg" alt="crown" class="w-4 h-4 absolute -top-1 -right-1"/>' : ''}
               </div>
-              ${outcome === 'winner' ? '<img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f451.svg" alt="crown" class="w-4 h-4 absolute -top-1 -right-1"/>' : ''}
-            </div>
-            <div>
               <div class="font-semibold">${p.displayName || 'Player'}${p.isBot ? ' (Bot)' : ''}</div>
-              <div class="flex items-center gap-1 text-xs text-white/60"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>${total}</div>
             </div>
+            <div class="flex items-center gap-1 text-xs text-white/60"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>${total}</div>
           </div>
-          <div class="text-xs text-white/60">${(p.pulls||[]).length} pulls</div>
+          <div id="spinner-border-${i}" class="w-full h-40 border-2 border-white/10 rounded-lg overflow-hidden">
+            <div id="spinner-container-${i}" class="h-full flex items-center"></div>
+          </div>
         </div>
         `;
       }).join('');
@@ -495,12 +460,14 @@
 
     function renderPackPreview(packs) {
       const overlay = $('#pack-preview');
+      if (!overlay) return;
       overlay.innerHTML = packs.map(p => `<img src="${p.image}" alt="${p.name}" class="w-16 h-20 object-cover rounded-md border border-white/10"/>`).join('');
       overlay.classList.remove('opacity-0','pointer-events-none');
     }
 
     function hidePackPreview() {
       const overlay = $('#pack-preview');
+      if (!overlay) return;
       overlay.classList.add('opacity-0','pointer-events-none');
       setTimeout(() => { overlay.innerHTML = ''; }, 500);
     }
@@ -656,10 +623,8 @@
     function showBattle(battleId) {
       activeBattleId = battleId;
       $('#battle-stage').classList.remove('hidden');
-      ensureStage();
       $('#stage-scoreboard').innerHTML = '';
       $('#battle-stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      let replayed = false;
       battlesRef.doc(battleId).onSnapshot(async snap => {
         if (!snap.exists) return;
         const b = { id: snap.id, ...snap.data() };
@@ -685,14 +650,8 @@
 
         if (b.status === 'spinning' && !window._battleLoopActive) {
           window._battleLoopActive = true;
-          replayed = true;
           await runBattleLoop(b.id);             // runs until finished
           window._battleLoopActive = false;
-        }
-
-        if (b.status === 'finished' && !replayed) {
-          replayed = true;
-          await replayBattleOnStage(b);
         }
       });
     }
@@ -748,55 +707,57 @@
         if (b.status !== 'spinning') break;
 
         const round = b.roundIndex || 0;
-        const turn = b.turnIndex || 0;
         const players = b.players || [];
         const packs = b.packs || [];
-        const player = players[turn];
 
-        // Choose pack for this round
         const packMeta = packs[round];
         const full = packCache.find(x => x.id === packMeta.id) || packMeta;
 
-        // Prepare reel for this turn
-        setStageItems(full.prizes);
-        highlightTurn(turn);
+        const indexes = players.map(p => getWinningIndex(full, 'serverSeed', p.uid, `${round}`));
 
-        // Deterministic index (replace seeds with your real PF setup)
-        const index = getWinningIndex(full, 'serverSeed', player.uid, `${round}-${turn}`);
-
-        // Spin
-        await new Promise(resolve => {
-          PackOpener.spinToIndex(index, { durationMs: 1600, nearMiss: true, onReveal: resolve });
+        players.forEach((p, i) => {
+          const prize = full.prizes[indexes[i]];
+          renderSpinner(full.prizes, prize, false, i);
         });
 
-        // Commit pull + advance pointers (transaction)
+        for (let i = 0; i < players.length; i++) {
+          const container = document.getElementById(`spinner-container-${i}`);
+          if (container) {
+            const images = Array.from(container.querySelectorAll('img'));
+            await Promise.all(images.map(img => img.complete ? Promise.resolve() : new Promise(res => { img.onload = img.onerror = res; })));
+          }
+        }
+
+        await Promise.all(players.map((p, i) => spinToPrize(() => {}, false, i)));
+
         let grantUid = null;
         let allPulls = [];
         await firestore.runTransaction(async tx => {
           const s = await tx.get(docRef);
           const d = s.data(); if (!d || d.status !== 'spinning') return;
 
-          const P = d.players[turn];
-          const prize = full.prizes[index];
-          const pull = {
-            round,
-            packId: full.id,
-            prizeId: prize.id,
-            value: prize.value,
-            index,
-            at: firebase.firestore.Timestamp.now()
-          };
-          P.pulls = (P.pulls || []).concat([pull]);
-          P.total = (P.total || 0) + (prize.value || 0);
-          d.players[turn] = P;
+          const currentRound = d.roundIndex || 0;
+          const dPlayers = d.players || [];
 
-          let nextTurn = (turn + 1) % d.players.length;
-          let nextRound = round;
-          if (nextTurn === 0) nextRound++;
+          players.forEach((player, idx) => {
+            const prize = full.prizes[indexes[idx]];
+            const pull = {
+              round: currentRound,
+              packId: full.id,
+              prizeId: prize.id,
+              value: prize.value,
+              index: indexes[idx],
+              at: firebase.firestore.Timestamp.now()
+            };
+            const P = dPlayers[idx];
+            P.pulls = (P.pulls || []).concat([pull]);
+            P.total = (P.total || 0) + (prize.value || 0);
+            dPlayers[idx] = P;
+          });
 
+          const nextRound = currentRound + 1;
           if (nextRound >= d.spinCount) {
-            // Winner: highest total, tie-break by highest single pull, then earliest join
-            const ranked = d.players.map((p, i) => ({
+            const ranked = dPlayers.map((p, i) => ({
               ...p,
               highestPull: Math.max(0, ...(p.pulls || []).map(x => x.value || 0)),
               joinOrder: i
@@ -812,13 +773,13 @@
             if (!top.isBot && !d.inventoryGranted) {
               d.inventoryGranted = true;
               grantUid = top.uid;
-              allPulls = (d.players || []).flatMap(pl => pl.pulls || []);
+              allPulls = (dPlayers || []).flatMap(pl => pl.pulls || []);
             }
           } else {
-            d.turnIndex = nextTurn;
             d.roundIndex = nextRound;
           }
 
+          d.players = dPlayers;
           tx.set(docRef, d, { merge: true });
         });
 
@@ -839,60 +800,8 @@
           }
         }
 
-        await sleep(1000); // expanded pacing between spins
+        await sleep(1000);
       }
-    }
-
-    async function replayBattleOnStage(b) {
-      const all = await fetchAvailablePacks();
-      const resultsEl = $('#battle-results');
-      resultsEl.classList.add('opacity-0','pointer-events-none');
-      resultsEl.innerHTML = '';
-      $('#stage-reel').style.opacity = '1';
-      $('.center-marker').style.opacity = '1';
-
-      const seq = [];
-      for (let r = 0; r < (b.spinCount || 0); r++) {
-        for (let t = 0; t < (b.players || []).length; t++) {
-          const pl = (b.players[t].pulls || []).find(p => p.round === r);
-          if (pl) {
-            const pack = all.find(x => x.id === pl.packId);
-            seq.push({ pack, index: pl.index, playerIndex: t });
-          }
-        }
-      }
-      for (const step of seq) {
-        setStageItems(step.pack.prizes);
-        highlightTurn(step.playerIndex);
-        await new Promise(r => PackOpener.spinToIndex(step.index, { durationMs: 900, nearMiss: false, onReveal: r }));
-        await sleep(120);
-      }
-      highlightTurn(-1);
-
-      // fade out spinner
-      $('#stage-reel').style.opacity = '0';
-      $('.center-marker').style.opacity = '0';
-      await sleep(500);
-
-      // show results
-      const prizes = [];
-      for (const pl of b.players || []) {
-        for (const pull of pl.pulls || []) {
-          const pack = all.find(x => x.id === pull.packId);
-          const prize = pack?.prizes?.[pull.index];
-          if (prize) prizes.push({ ...prize, ownerUid: pl.uid });
-        }
-      }
-      resultsEl.innerHTML = prizes.map(pr => `
-        <div class="tile rarity-${(pr.rarity||'').toLowerCase()}">
-          <img src="${pr.image}" alt="${pr.name}"/>
-          <div class="tile-info">
-            <div class="name">${pr.name}</div>
-            ${pr.value?`<div class="price">${pr.value}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin"/></div>`:''}
-          </div>
-        </div>
-      `).join('');
-      resultsEl.classList.remove('opacity-0','pointer-events-none');
     }
 
     // --- Rewatch
