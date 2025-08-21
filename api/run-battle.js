@@ -53,7 +53,7 @@ async function processBattle(id) {
       while (players.length < b.maxPlayers) {
         players.push({ uid: 'bot-' + Math.random().toString(36).slice(2,8), displayName: 'Bot', isBot: true, total: 0, pulls: [] });
       }
-      await ref.set({ players, status: 'spinning', roundIndex: 0, turnIndex: 0 }, { merge: true });
+      await ref.set({ players, status: 'spinning', roundIndex: 0 }, { merge: true });
       continue;
     }
 
@@ -75,10 +75,8 @@ async function runLoop(ref) {
     if (!data || data.status !== 'spinning') return;
 
     const round = data.roundIndex || 0;
-    const turn = data.turnIndex || 0;
     const players = data.players || [];
     const packs = data.packs || [];
-    const player = players[turn];
     const packMeta = packs[round % packs.length];
 
     let full = packCache.get(packMeta.id);
@@ -88,7 +86,7 @@ async function runLoop(ref) {
       packCache.set(packMeta.id, full);
     }
 
-    const index = getWinningIndex(full, 'serverSeed', player.uid, `${round}-${turn}`);
+    const indexes = players.map(p => getWinningIndex(full, 'serverSeed', p.uid, `${round}`));
 
     let grantUid = null;
     let allPulls = [];
@@ -97,19 +95,20 @@ async function runLoop(ref) {
       const d = s.data();
       if (!d || d.status !== 'spinning') return;
 
-      const P = d.players[turn];
-      const prize = full.prizes[index];
-      const pull = { round, packId: full.id, prizeId: prize.id, value: prize.value, index, at: admin.firestore.Timestamp.now() };
-      P.pulls = (P.pulls || []).concat([pull]);
-      P.total = (P.total || 0) + (prize.value || 0);
-      d.players[turn] = P;
+      const currentRound = d.roundIndex || 0;
+      const dPlayers = d.players || [];
 
-      let nextTurn = (turn + 1) % d.players.length;
-      let nextRound = round;
-      if (nextTurn === 0) nextRound++;
+      dPlayers.forEach((P, i) => {
+        const prize = full.prizes[indexes[i]];
+        const pull = { round: currentRound, packId: full.id, prizeId: prize.id, value: prize.value, index: indexes[i], at: admin.firestore.Timestamp.now() };
+        P.pulls = (P.pulls || []).concat([pull]);
+        P.total = (P.total || 0) + (prize.value || 0);
+        dPlayers[i] = P;
+      });
 
+      const nextRound = currentRound + 1;
       if (nextRound >= d.spinCount) {
-        const ranked = d.players.map((p, i) => ({
+        const ranked = dPlayers.map((p, i) => ({
           ...p,
           highestPull: Math.max(0, ...(p.pulls || []).map(x => x.value || 0)),
           joinOrder: i
@@ -125,13 +124,13 @@ async function runLoop(ref) {
         if (!top.isBot && !d.inventoryGranted) {
           d.inventoryGranted = true;
           grantUid = top.uid;
-          allPulls = (d.players || []).flatMap(pl => pl.pulls || []);
+          allPulls = (dPlayers || []).flatMap(pl => pl.pulls || []);
         }
       } else {
-        d.turnIndex = nextTurn;
         d.roundIndex = nextRound;
       }
 
+      d.players = dPlayers;
       tx.set(ref, d, { merge: true });
     });
 
@@ -156,6 +155,8 @@ async function runLoop(ref) {
         }
       }
     }
+
+    await sleep(2000);
   }
 }
 
