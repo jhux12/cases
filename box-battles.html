@@ -513,11 +513,13 @@
       board.innerHTML = html;
     }
 
-    // After the battle ends show only the winner and every card they claimed.
+    // After the battle ends show only the winner and every card they claimed
+    // from all players.
     async function renderWinnerSummary(b) {
       const packs = await fetchAvailablePacks();
-      const winnerPulls = (b.players || []).find(p => p.uid === b.winner?.uid)?.pulls || [];
-      const cards = winnerPulls.map(pl => {
+      // Winner takes all: flatten pulls from every participant
+      const allPulls = (b.players || []).flatMap(p => p.pulls || []);
+      const cards = allPulls.map(pl => {
         const pack = packs.find(pk => pk.id === pl.packId);
         const prize = pack?.prizes?.find(pr => pr.id === pl.prizeId) || {};
         const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g,'');
