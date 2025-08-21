@@ -389,6 +389,7 @@
       const live = (b.status==='lobby' || b.status==='countdown') ? pill('LIVE','live') : '';
       const packs = (b.packs||[]).map(p=>`<img src="${p.image}" class="w-10 h-12 object-cover rounded-md border border-white/10"/>`).join('');
       const players = (b.players||[]).map(p=>`<div class="flex items-center gap-1">${avatar(p.displayName)}<span class="hidden md:inline text-sm">${p.displayName||'Player'}</span></div>`).join('');
+      const seatCount = `${(b.players?.length || 0)}/${b.maxPlayers}`;
       const canJoin = (b.status==='lobby' || b.status==='countdown') && (b.players?.length||0) < b.maxPlayers;
 
       const cost = Number(b.cost || 0).toLocaleString();
@@ -401,7 +402,7 @@
           <div class="flex flex-wrap items-center gap-3">
             ${live}
             <div class="flex items-center text-sm text-white/80"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}</div>
-            <div class="flex items-center gap-2">${players}</div>
+            <div class="flex items-center gap-2">${players}<span class="text-sm text-white/60">${seatCount}</span></div>
             <div class="flex items-center gap-2">
               ${canJoin ? `<button class="join-btn px-3 py-1.5 rounded-lg bg-indigo-500/80 hover:bg-indigo-500" data-id="${b.id}">Join</button>` : ''}
               <button class="watch-btn px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15" data-id="${b.id}">Watch</button>
@@ -466,12 +467,18 @@
         const textColor = (status === 'lobby' || status === 'countdown') ? (p ? 'text-green-400' : 'text-red-500') : '';
         const statusText = (status === 'lobby' || status === 'countdown') ? (p ? 'Ready' : 'Waiting') : '';
         return `
-        <div class="player rounded-xl border border-white/10 bg-white/5 p-3 flex flex-col${p?'':' opacity-70'}">
-          <div class="flex items-center justify-between mb-2">
-            <div class="relative">
-              <img src="${avatarUrl}" alt="avatar" class="w-8 h-8 rounded-full object-cover"/>
+        <div class="player rounded-xl border border-white/10 bg-white/5 p-3 flex flex-col min-w-0${p?'':' opacity-70'}">
+          <div class="flex items-center justify-between mb-2 gap-2">
+            <div class="flex items-center gap-2 min-w-0">
+              <div class="relative flex-shrink-0">
+                <img src="${avatarUrl}" alt="avatar" class="w-8 h-8 rounded-full object-cover"/>
+              </div>
+              <span class="player-name text-sm truncate">${p?.displayName || ''}</span>
             </div>
-            <div class="flex items-center gap-1 text-xs text-white/60"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/><span class="player-total">${total}</span></div>
+            <div class="flex items-center gap-1 text-xs text-white/60 min-w-0 max-w-[70px]">
+              <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>
+              <span class="player-total truncate">${total}</span>
+            </div>
           </div>
           <div id="spinner-border-${i}" class="reel-host w-full h-40 border-2 border-white/10 rounded-lg overflow-hidden">
             <div id="spinner-container-${i}" class="w-full h-full relative">
@@ -492,20 +499,20 @@
     // After the battle ends show only the winner and every card they claimed.
     async function renderWinnerSummary(b) {
       const packs = await fetchAvailablePacks();
-      const pulls = (b.players || []).flatMap(p => p.pulls || []);
-      const cards = pulls.map(pl => {
+      const winnerPulls = (b.players || []).find(p => p.uid === b.winner?.uid)?.pulls || [];
+      const cards = winnerPulls.map(pl => {
         const pack = packs.find(pk => pk.id === pl.packId);
         const prize = pack?.prizes?.find(pr => pr.id === pl.prizeId) || {};
         const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g,'');
         const color = getRarityColor(rarity);
         return `
-          <div class="relative aspect-square rounded-md border overflow-hidden flex items-center justify-center" style="border-color:${color}" title="${prize.name || ''}">
-            <img src="${prize.image}" alt="${prize.name}" class="w-full h-full object-contain" />
-            <div class="absolute bottom-0 left-0 right-0 bg-black/60 text-[10px] flex items-center justify-center gap-1 py-0.5">
-              <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>
-              ${(prize.value||0).toLocaleString()}
+          <li class="flex items-center gap-2 p-2 rounded-md border" style="border-color:${color}" title="${prize.name || ''}">
+            <img src="${prize.image}" alt="${prize.name}" class="w-10 h-14 object-contain"/>
+            <div class="flex flex-col min-w-0">
+              <span class="text-sm truncate">${prize.name || ''}</span>
+              <span class="text-xs text-white/60 flex items-center gap-1"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>${(prize.value||0).toLocaleString()}</span>
             </div>
-          </div>`;
+          </li>`;
       }).join('');
 
       $('#stage-scoreboard').innerHTML = `
@@ -514,7 +521,7 @@
             <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f451.svg" alt="crown" class="w-6 h-6"/>
             <span>${b.winner?.displayName || ''}</span>
           </div>
-          <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 w-full max-w-sm">${cards}</div>
+          <ul class="w-full max-w-xs space-y-2">${cards}</ul>
           <button id="watch-replay" class="px-4 py-2 rounded-lg bg-indigo-500/80 hover:bg-indigo-500">Watch</button>
         </div>`;
 
