@@ -195,6 +195,7 @@
   <!-- Page logic -->
   <script type="module">
     import { renderSpinner, spinToPrize, getRarityColor } from './scripts/spinner.js';
+    const BOT_AVATAR_URL = 'https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ChatGPT%20Image%20Aug%2010%2C%202025%2C%2011_08_17%20PM.png?alt=media&token=4950e6a0-1cf9-4c7b-aa56-686dc42693a8';
     /***** DESCRIPTION FOR CODEX *****
      - Build a Winner-Takes-All Box Battles page that:
        1) Lists open battles (#battle-list) and my battles (#my-battles).
@@ -328,7 +329,10 @@
 
     // Render helpers
     function pill(text, extra=''){ return `<span class="pill bg-gray-100 ${extra}">${text}</span>`; }
-    function avatar(name){
+    function avatar(u){
+      const name = typeof u === 'string' ? u : (u?.displayName || '');
+      const url = typeof u === 'object' ? (u.isBot ? BOT_AVATAR_URL : u.photoURL) : null;
+      if (url) return `<img src="${url}" alt="avatar" class="w-8 h-8 rounded-full object-cover"/>`;
       const init = (name||'U')[0]?.toUpperCase() || 'U';
       return `<div class="w-8 h-8 rounded-full bg-gray-100 grid place-items-center text-sm font-semibold">${init}</div>`;
     }
@@ -406,7 +410,7 @@
       function renderBattleRow(b){
         const live = (b.status==='lobby' || b.status==='countdown') ? pill('LIVE','live') : '';
         const packs = renderPackIcons(b.packs || [], 'w-10 h-12');
-        const players = (b.players||[]).map(p=>`<div class="flex items-center gap-1">${avatar(p.displayName)}<span class="hidden md:inline text-sm">${p.displayName||'Player'}</span></div>`).join('');
+        const players = (b.players||[]).map(p=>`<div class="flex items-center gap-1">${avatar(p)}<span class="hidden md:inline text-sm">${p.displayName||'Player'}</span></div>`).join('');
       const seatCount = `${(b.players?.length || 0)}/${b.maxPlayers}`;
       const canJoin = (b.status==='lobby' || b.status==='countdown') && (b.players?.length||0) < b.maxPlayers;
 
@@ -480,7 +484,7 @@
       const html = seats.map((p, i) => {
         const total = Number(p?.total || 0).toLocaleString();
         const avatarUrl = p
-          ? (p.photoURL || 'https://cdn-icons-png.flaticon.com/128/847/847970.png')
+          ? (p.isBot ? BOT_AVATAR_URL : (p.photoURL || 'https://cdn-icons-png.flaticon.com/128/847/847970.png'))
           : 'https://cdn-icons-png.flaticon.com/128/847/847969.png';
         const textColor = (status === 'lobby' || status === 'countdown') ? (p ? 'text-green-400' : 'text-red-500') : '';
         const statusText = (status === 'lobby' || status === 'countdown') ? (p ? 'Ready' : 'Waiting') : '';
