@@ -774,7 +774,13 @@
         let allPulls = [];
         await firestore.runTransaction(async tx => {
           const s = await tx.get(docRef);
-          const d = s.data(); if (!d || d.status !== 'spinning') return;
+          const d = s.data();
+          if (!d || d.status !== 'spinning') return;
+
+          // bail if another runner already advanced state or recorded this pull
+          if (d.roundIndex !== round || d.turnIndex !== turn) return;
+          const existing = (d.players?.[turn]?.pulls || []).some(p => p.round === round);
+          if (existing) return;
 
           const P = d.players[turn];
           const prize = full.prizes[index];
