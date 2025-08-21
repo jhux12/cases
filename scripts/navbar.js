@@ -26,8 +26,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const userArea = document.getElementById("user-area");
     const balanceContainer = document.getElementById("user-balance");
     const balanceMobileHeader = document.getElementById("user-balance-mobile-header");
+    const balanceMobileDrawer = document.getElementById("user-balance-mobile-drawer");
     const topupBtn = document.getElementById("topup-button");
-    const topupMobile = document.getElementById("topup-button-mobile");
+    const topupMobileHeader = document.getElementById("topup-button-mobile-header");
+    const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
 
     if (!usernameEl || !balanceEl) return;
 
@@ -55,8 +57,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (userArea) userArea.classList.remove("hidden");
         if (balanceContainer) balanceContainer.classList.remove("hidden");
         if (balanceMobileHeader) balanceMobileHeader.classList.remove("hidden");
+        if (balanceMobileDrawer) balanceMobileDrawer.classList.remove("hidden");
         if (topupBtn) topupBtn.classList.remove("hidden");
-        if (topupMobile) topupMobile.classList.remove("hidden");
+        if (topupMobileHeader) topupMobileHeader.classList.remove("hidden");
+        if (topupMobileDrawer) topupMobileDrawer.classList.remove("hidden");
         if (mobileRegisterBtn) mobileRegisterBtn.classList.add("hidden");
 
         if (logoutBtn) {
@@ -92,8 +96,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (userArea) userArea.classList.add("hidden");
         if (balanceContainer) balanceContainer.classList.add("hidden");
         if (balanceMobileHeader) balanceMobileHeader.classList.add("hidden");
+        if (balanceMobileDrawer) balanceMobileDrawer.classList.add("hidden");
         if (topupBtn) topupBtn.classList.add("hidden");
-        if (topupMobile) topupMobile.classList.add("hidden");
+        if (topupMobileHeader) topupMobileHeader.classList.add("hidden");
+        if (topupMobileDrawer) topupMobileDrawer.classList.add("hidden");
         if (mobileRegisterBtn) mobileRegisterBtn.classList.remove("hidden");
 
         if (logoutBtn) logoutBtn.style.display = "none";
@@ -112,14 +118,16 @@ waitForElement("#topup-button", () => {
   waitForElement("#topup-popup", () => {
     const topupPopup = document.getElementById("topup-popup");
     const topupDesktop = document.getElementById("topup-button");
-    const topupMobile = document.getElementById("topup-button-mobile");
+    const topupMobileHeader = document.getElementById("topup-button-mobile-header");
+    const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
 
     const openTopup = () => {
       topupPopup.classList.remove("hidden");
     };
 
     if (topupDesktop) topupDesktop.addEventListener("click", openTopup);
-    if (topupMobile) topupMobile.addEventListener("click", openTopup);
+    if (topupMobileHeader) topupMobileHeader.addEventListener("click", openTopup);
+    if (topupMobileDrawer) topupMobileDrawer.addEventListener("click", openTopup);
   });
 });
   // Dropdown toggle
