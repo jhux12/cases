@@ -9,6 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
     document.head.appendChild(link);
   }
 
+  if (!document.querySelector('link[href*="font-awesome"]')) {
+    const fa = document.createElement('link');
+    fa.rel = 'stylesheet';
+    fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+    document.head.appendChild(fa);
+  }
+
   header.innerHTML = `
     <nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200 backdrop-blur bg-white/80">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,10 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
               <span class="text-2xl font-bold gradient-text">Packly.gg</span>
             </a>
             <div class="hidden md:ml-6 md:flex md:space-x-8">
-              <a href="index.html" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"><i class="fas fa-box-open mr-1"></i>Open Packs</a>
-              <a href="box-battles.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"><i class="fas fa-sword mr-1"></i><i class="fas fa-shield-alt mr-2"></i> Battles</a>
-              <a href="leaderboard.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"><i class="fas fa-trophy mr-1"></i>Leaderboard</a>
-              <a href="marketplace.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"><i class="fas fa-store mr-1"></i>Marketplace</a>
+              <a data-nav="index.html" href="index.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-box-open mr-1"></i>Open Packs</a>
+              <a data-nav="box-battles.html" href="box-battles.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-sword mr-1"></i><i class="fas fa-shield-alt mr-2"></i> Battles</a>
+              <a data-nav="leaderboard.html" href="leaderboard.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-trophy mr-1"></i>Leaderboard</a>
+              <a data-nav="marketplace.html" href="marketplace.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-store mr-1"></i>Marketplace</a>
             </div>
           </div>
           <div class="hidden md:ml-6 md:flex md:items-center">
@@ -74,10 +81,10 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
       <div id="mobile-dropdown" class="md:hidden hidden">
         <div class="pt-2 pb-3 space-y-1">
-          <a href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-indigo-500 text-base font-medium text-indigo-700 bg-indigo-50"><i class="fas fa-box-open mr-2"></i>Open Packs</a>
-          <a href="box-battles.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-sword mr-1"></i><i class="fas fa-shield-alt mr-2"></i> Battles</a>
-          <a href="leaderboard.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-trophy mr-2"></i>Leaderboard</a>
-          <a href="marketplace.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-store mr-2"></i>Marketplace</a>
+          <a data-nav="index.html" href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-box-open mr-2"></i>Open Packs</a>
+          <a data-nav="box-battles.html" href="box-battles.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-sword mr-1"></i><i class="fas fa-shield-alt mr-2"></i> Battles</a>
+          <a data-nav="leaderboard.html" href="leaderboard.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-trophy mr-2"></i>Leaderboard</a>
+          <a data-nav="marketplace.html" href="marketplace.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-store mr-2"></i>Marketplace</a>
         </div>
         <div class="pt-4 pb-3 border-t border-gray-200">
           <div id="user-balance-mobile-drawer" class="hidden coin-box text-sm mx-4 mb-3">
@@ -98,5 +105,18 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     </nav>
   `;
+
+  const current = window.location.pathname.split('/').pop() || 'index.html';
+  header.querySelectorAll('a[data-nav]').forEach(link => {
+    if (link.getAttribute('data-nav') === current) {
+      if (link.closest('#mobile-dropdown')) {
+        link.classList.add('border-indigo-500', 'text-indigo-700', 'bg-indigo-50');
+        link.classList.remove('border-transparent', 'text-gray-600', 'hover:bg-gray-50', 'hover:border-gray-300');
+      } else {
+        link.classList.add('border-indigo-500', 'text-gray-900');
+        link.classList.remove('border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700');
+      }
+    }
+  });
 });
 

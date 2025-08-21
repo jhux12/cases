@@ -6,6 +6,7 @@
   <title>Box Battles | Packly.gg</title>
 
   <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -14,13 +15,14 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="scripts/firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="scripts/firebase-config.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
 
-  <!-- Site global UI loaders (adjust paths if needed) -->
-  <script defer src="scripts/header.js"></script>
-  <script defer src="scripts/navbar.js"></script>
-  <script defer src="scripts/footer.js"></script>
+    <!-- Site global UI loaders (adjust paths if needed) -->
+    <script defer src="scripts/header.js"></script>
+    <script defer src="scripts/navbar.js"></script>
+    <script defer src="scripts/footer.js"></script>
   <!-- PackOpener spinner library -->
   <script defer src="pack-opener/spinner.js"></script>
 
@@ -52,7 +54,7 @@
     }
     .center-marker .marker-arrow.top { border-top: 12px solid #cbd5e1; }
     .center-marker .marker-arrow.bottom { border-bottom: 12px solid #cbd5e1; }
-    .pill{border-radius:9999px;padding:.25rem .6rem;border:1px solid rgba(255,255,255,.1);font-size:.75rem}
+    .pill{border-radius:9999px;padding:.25rem .6rem;border:1px solid rgba(0,0,0,.1);font-size:.75rem}
     .pill.live{border-color:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,.2) inset}
     dialog[open]{animation:fadeIn .12s ease-out}
     @keyframes fadeIn{from{opacity:.0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
@@ -73,14 +75,13 @@
     .reel-host .tile.rarity-legendary{border-color:#FFD36E;box-shadow:0 0 0 3px #FFD36E,0 2px 4px rgba(0,0,0,0.5)}
   </style>
 </head>
-<body class="min-h-screen bg-[#0b0e19] text-white selection:bg-indigo-500/40">
+<body class="min-h-screen bg-gray-50 text-gray-900 selection:bg-indigo-200/60">
   <!-- Header / Nav injected -->
-  <div id="header"></div>
-  <div id="navbar"></div>
+  <header></header>
 
   <main class="mt-24 mx-auto max-w-6xl px-4 py-8 space-y-8">
     <!-- Battle Stage (appears when joined/created) -->
-    <section id="battle-stage" class="hidden bg-[#0f1220] border border-white/10 rounded-2xl p-4">
+    <section id="battle-stage" class="hidden bg-white border border-gray-200 rounded-2xl p-4">
       <p id="stage-status" class="text-indigo-300/80 mb-2 text-center" aria-live="polite"></p>
       <div id="stage-scoreboard" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
       <aside id="join-aside" class="mt-4"></aside>
@@ -90,25 +91,25 @@
     <section class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
       <div>
         <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Box Battles</h1>
-        <p class="text-white/70 mt-1">Winner takes all. Spin across N rounds — highest total wins the cost.</p>
+        <p class="text-gray-600 mt-1">Winner takes all. Spin across N rounds — highest total wins the cost.</p>
       </div>
       <div class="flex items-center gap-3">
         <button id="create-battle-btn" class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-400 hover:to-blue-400 shadow-lg shadow-indigo-500/20">
           + Create Battle
         </button>
-        <a href="#previous-battles" class="text-white/75 hover:text-white underline underline-offset-4">Previous Battles</a>
+        <a href="#previous-battles" class="text-gray-600 hover:text-gray-900 underline underline-offset-4">Previous Battles</a>
       </div>
     </section>
 
     <!-- Two-column lists -->
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Open Battles -->
-      <div class="lg:col-span-2 bg-[#0f1220] border border-white/10 rounded-2xl p-4">
+      <div class="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-4">
         <header class="flex items-center justify-between mb-3">
           <h2 class="text-lg font-semibold">Open Battles</h2>
           <form id="filters-form" class="hidden md:flex items-center gap-2 text-sm">
-            <input class="bg-white/5 rounded-lg px-3 py-1.5 placeholder-white/40" placeholder="Min value"/>
-            <select class="bg-white/5 rounded-lg px-3 py-1.5">
+            <input class="bg-white rounded-lg px-3 py-1.5 border border-gray-300 placeholder-gray-400" placeholder="Min value"/>
+            <select class="bg-white rounded-lg px-3 py-1.5 border border-gray-300">
               <option>Any seats</option><option>2</option><option>3</option><option>4</option>
             </select>
           </form>
@@ -117,50 +118,50 @@
       </div>
 
       <!-- My Battles -->
-      <aside class="bg-[#0f1220] border border-white/10 rounded-2xl p-4">
+      <aside class="bg-white border border-gray-200 rounded-2xl p-4">
         <header class="flex items-center justify-between mb-3">
           <h2 class="text-lg font-semibold">My Battles</h2>
-          <span id="my-battles-count" class="text-sm text-white/60"></span>
+          <span id="my-battles-count" class="text-sm text-gray-500"></span>
         </header>
         <div id="my-battles" class="space-y-3"></div>
       </aside>
     </section>
 
     <!-- Previous Battles -->
-    <section id="previous-battles" class="bg-[#0f1220] border border-white/10 rounded-2xl p-4">
+    <section id="previous-battles" class="bg-white border border-gray-200 rounded-2xl p-4">
       <header class="flex items-center justify-between mb-3">
         <h2 class="text-lg font-semibold">Previous Battles</h2>
-        <span class="text-sm text-white/60">Latest 5</span>
+        <span class="text-sm text-gray-500">Latest 5</span>
       </header>
       <div id="previous-battles-list" class="space-y-3"></div>
     </section>
   </main>
 
   <!-- Footer injected -->
-  <div id="footer"></div>
+  <footer></footer>
 
   <!-- Create Battle Modal -->
-  <dialog id="battle-form" class="bg-[#0f1220] text-white border border-white/10 rounded-2xl p-0 w-[min(720px,calc(100vw-2rem))]">
+  <dialog id="battle-form" class="bg-white text-gray-900 border border-gray-200 rounded-2xl p-0 w-[min(720px,calc(100vw-2rem))]">
     <form method="dialog" class="p-5">
       <header class="flex items-center justify-between mb-4">
         <h3 class="text-xl font-semibold">Create Battle</h3>
-        <button class="px-2 py-1 text-white/70 hover:text-white" value="cancel">✕</button>
+        <button class="px-2 py-1 text-gray-600 hover:text-gray-900" value="cancel">✕</button>
       </header>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="md:col-span-2">
-          <label class="text-sm text-white/70">Choose Packs</label>
+          <label class="text-sm text-gray-600">Choose Packs</label>
           <div id="pack-grid" class="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto max-h-72"></div>
         </div>
         <div class="space-y-3">
           <input id="spin-count" type="hidden" value="0"/>
           <div>
-            <label class="text-sm text-white/70">Players</label>
-            <select id="player-count" class="mt-1 w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+            <label class="text-sm text-gray-600">Players</label>
+            <select id="player-count" class="mt-1 w-full bg-white border border-gray-300 rounded-lg px-3 py-2">
               <option value="2">2</option><option value="3">3</option><option value="4" selected>4</option>
             </select>
           </div>
-          <div id="selection-summary" class="text-sm text-white/70">0 boxes selected — Cost: 0</div>
+          <div id="selection-summary" class="text-sm text-gray-600">0 boxes selected — Cost: 0</div>
           <button id="create-lobby" class="w-full mt-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-400 hover:to-blue-400">
             Create Lobby
           </button>
@@ -170,13 +171,13 @@
   </dialog>
 
   <!-- Rewatch Modal -->
-  <dialog id="rewatch-modal" class="bg-[#0f1220] text-white border border-white/10 rounded-2xl p-0 w-[min(840px,calc(100vw-2rem))]">
+  <dialog id="rewatch-modal" class="bg-white text-gray-900 border border-gray-200 rounded-2xl p-0 w-[min(840px,calc(100vw-2rem))]">
     <form method="dialog" class="p-5">
       <header class="flex items-center justify-between mb-4">
         <h3 class="text-xl font-semibold">Rewatch Battle</h3>
-        <button class="px-2 py-1 text-white/70 hover:text-white" value="cancel">✕</button>
+        <button class="px-2 py-1 text-gray-600 hover:text-gray-900" value="cancel">✕</button>
       </header>
-      <div id="rewatch-stage" class="reel-host rounded-xl border border-white/10 bg-black/20 p-3">
+      <div id="rewatch-stage" class="reel-host rounded-xl border border-gray-200 bg-gray-100 p-3">
         <div id="rewatch-reel" class="reel h-40 md:h-48 flex items-center"></div>
         <div class="center-marker z-10">
           <span class="marker-arrow top"></span>
@@ -185,7 +186,7 @@
         </div>
       </div>
       <div class="mt-4 flex items-center gap-3">
-        <button id="rewatch-play" class="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/15">Play</button>
+        <button id="rewatch-play" class="px-4 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200">Play</button>
         <input id="rewatch-progress" type="range" min="0" value="0" class="w-full"/>
       </div>
     </form>
@@ -326,12 +327,12 @@
     });
 
     // Render helpers
-    function pill(text, extra=''){ return `<span class="pill bg-white/5 ${extra}">${text}</span>`; }
+    function pill(text, extra=''){ return `<span class="pill bg-gray-100 ${extra}">${text}</span>`; }
     function avatar(name){
       const init = (name||'U')[0]?.toUpperCase() || 'U';
-      return `<div class="w-8 h-8 rounded-full bg-white/10 grid place-items-center text-sm font-semibold">${init}</div>`;
+      return `<div class="w-8 h-8 rounded-full bg-gray-100 grid place-items-center text-sm font-semibold">${init}</div>`;
     }
-  function rowCard(inner){ return `<div class="rounded-xl border border-white/10 bg-white/5 p-3">${inner}</div>`; }
+  function rowCard(inner){ return `<div class="rounded-xl border border-gray-200 bg-white p-3">${inner}</div>`; }
 
   function renderPackIcons(packs, sizeClass, limit){
     const map = {};
@@ -344,7 +345,7 @@
       .slice(0, limit || Object.keys(map).length)
       .map(({pack, count})=>`
         <div class="relative">
-          <img src="${pack.image}" class="${sizeClass} object-cover rounded-md border border-white/10"/>
+          <img src="${pack.image}" class="${sizeClass} object-cover rounded-md border border-gray-200"/>
           ${count>1 ? `<span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-indigo-600 text-white text-[0.625rem] flex items-center justify-center">${count}</span>` : ''}
         </div>`)
       .join('');
@@ -356,7 +357,7 @@
       const grid = $('#pack-grid'); grid.innerHTML = '';
       packs.forEach(p=>{
         const card = document.createElement('div');
-        card.className = 'pack-card rounded-xl border border-white/10 bg-white/5 p-2 text-center';
+        card.className = 'pack-card rounded-xl border border-gray-200 bg-white p-2 text-center';
         card.dataset.id = p.id;
         card.dataset.name = p.name;
         card.dataset.image = p.image;
@@ -365,12 +366,12 @@
           <img src="${p.image}" class="w-16 h-20 object-cover rounded-md mx-auto"/>
           <div class="mt-2 text-xs flex items-center justify-between">
             <span class="truncate">${p.name}</span>
-            <span class="text-white/60">${p.price}</span>
+            <span class="text-gray-500">${p.price}</span>
           </div>
           <div class="mt-2 flex items-center justify-center gap-2">
-            <button type="button" class="dec w-6 h-6 rounded bg-white/10">-</button>
+            <button type="button" class="dec w-6 h-6 rounded bg-gray-100">-</button>
             <input type="number" min="0" value="0" class="qty w-8 bg-transparent text-center"/>
-            <button type="button" class="inc w-6 h-6 rounded bg-white/10">+</button>
+            <button type="button" class="inc w-6 h-6 rounded bg-gray-100">+</button>
           </div>
         `;
         const qty = card.querySelector('.qty');
@@ -413,16 +414,16 @@
       return rowCard(`
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full grid place-items-center bg-white/5">${b.spinCount}</div>
+            <div class="w-10 h-10 rounded-full grid place-items-center bg-gray-100">${b.spinCount}</div>
             <div class="flex items-center gap-2">${packs}</div>
           </div>
           <div class="flex flex-wrap items-center gap-3">
             ${live}
-            <div class="flex items-center text-sm text-white/80"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}</div>
-            <div class="flex items-center gap-2">${players}<span class="text-sm text-white/60">${seatCount}</span></div>
+            <div class="flex items-center text-sm text-gray-700"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}</div>
+            <div class="flex items-center gap-2">${players}<span class="text-sm text-gray-500">${seatCount}</span></div>
             <div class="flex items-center gap-2">
               ${canJoin ? `<button class="join-btn px-3 py-1.5 rounded-lg bg-indigo-500/80 hover:bg-indigo-500" data-id="${b.id}">Join</button>` : ''}
-              <button class="watch-btn px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15" data-id="${b.id}">Watch</button>
+              <button class="watch-btn px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200" data-id="${b.id}">Watch</button>
             </div>
           </div>
         </div>
@@ -436,10 +437,10 @@
       return rowCard(`
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-3">${packs}</div>
-          <div class="text-sm text-white/70">Rounds: ${b.spinCount} • Players: ${b.maxPlayers}</div>
+          <div class="text-sm text-gray-600">Rounds: ${b.spinCount} • Players: ${b.maxPlayers}</div>
           <div class="text-sm">Winner: <span class="font-semibold">${winner}</span></div>
-          <div class="flex items-center text-sm text-white/80"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}</div>
-          <button class="rewatch-btn px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15" data-id="${b.id}">Rewatch</button>
+          <div class="flex items-center text-sm text-gray-700"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}</div>
+          <button class="rewatch-btn px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200" data-id="${b.id}">Rewatch</button>
         </div>
       `);
     }
@@ -484,7 +485,7 @@
         const textColor = (status === 'lobby' || status === 'countdown') ? (p ? 'text-green-400' : 'text-red-500') : '';
         const statusText = (status === 'lobby' || status === 'countdown') ? (p ? 'Ready' : 'Waiting') : '';
         return `
-        <div class="player rounded-xl border border-white/10 bg-white/5 p-3 flex flex-col min-w-0${p?'':' opacity-70'}">
+        <div class="player rounded-xl border border-gray-200 bg-gray-50 p-3 flex flex-col min-w-0${p?'':' opacity-70'}">
           <div class="flex items-center justify-between mb-2 gap-2">
             <div class="flex items-center gap-2 min-w-0">
               <div class="relative flex-shrink-0">
@@ -492,12 +493,12 @@
               </div>
               <span class="player-name text-sm truncate">${p?.displayName || ''}</span>
             </div>
-            <div class="flex items-center gap-1 text-xs text-white/60 min-w-0 max-w-[70px]">
+            <div class="flex items-center gap-1 text-xs text-gray-500 min-w-0 max-w-[70px]">
               <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>
               <span class="player-total truncate">${total}</span>
             </div>
           </div>
-          <div id="spinner-border-${i}" class="reel-host w-full h-40 border-2 border-white/10 rounded-lg overflow-hidden">
+          <div id="spinner-border-${i}" class="reel-host w-full h-40 border-2 border-gray-200 rounded-lg overflow-hidden">
             <div id="spinner-container-${i}" class="w-full h-full relative">
               ${statusText ? '<div class="absolute inset-0 flex items-center justify-center '+textColor+'">'+statusText+'</div>' : ''}
             </div>
@@ -525,11 +526,11 @@
         const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g,'');
         const color = getRarityColor(rarity);
         return `
-          <li class="flex items-center gap-3 p-2 rounded-lg border bg-white/5 w-full" style="border-color:${color}" title="${prize.name || ''}">
+          <li class="flex items-center gap-3 p-2 rounded-lg border bg-gray-50 w-full" style="border-color:${color}" title="${prize.name || ''}">
             <img src="${prize.image}" alt="${prize.name}" class="w-12 h-16 object-contain"/>
             <div class="flex-1 min-w-0">
               <span class="block text-sm truncate">${prize.name || ''}</span>
-              <span class="text-xs text-white/60 flex items-center gap-1"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>${(prize.value||0).toLocaleString()}</span>
+              <span class="text-xs text-gray-500 flex items-center gap-1"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>${(prize.value||0).toLocaleString()}</span>
             </div>
           </li>`;
       }).join('');
@@ -551,7 +552,7 @@
     function renderPackPreview(packs) {
       const overlay = $('#pack-preview');
       if (!overlay) return;
-      overlay.innerHTML = packs.map(p => `<img src="${p.image}" alt="${p.name}" class="w-16 h-20 object-cover rounded-md border border-white/10"/>`).join('');
+      overlay.innerHTML = packs.map(p => `<img src="${p.image}" alt="${p.name}" class="w-16 h-20 object-cover rounded-md border border-gray-200"/>`).join('');
       overlay.classList.remove('opacity-0','pointer-events-none');
     }
 
@@ -597,10 +598,10 @@
           if (me && (b.players||[]).some(p=>p.uid===me.uid)) mine.push(b);
         });
 
-        $('#battle-list').innerHTML = all.slice(0,5).map(renderBattleRow).join('') || '<div class="text-white/60">No battles yet.</div>';
-        $('#my-battles').innerHTML = mine.slice(0,5).map(renderBattleRow).join('') || '<div class="text-white/60">You are not in any battles.</div>';
+        $('#battle-list').innerHTML = all.slice(0,5).map(renderBattleRow).join('') || '<div class="text-gray-500">No battles yet.</div>';
+        $('#my-battles').innerHTML = mine.slice(0,5).map(renderBattleRow).join('') || '<div class="text-gray-500">You are not in any battles.</div>';
         $('#my-battles-count').textContent = me ? (mine.length ? `${mine.length}` : '') : '';
-        $('#previous-battles-list').innerHTML = finished.slice(0,5).map(renderPreviousRow).join('') || '<div class="text-white/60">Nothing yet — be the first!</div>';
+        $('#previous-battles-list').innerHTML = finished.slice(0,5).map(renderPreviousRow).join('') || '<div class="text-gray-500">Nothing yet — be the first!</div>';
 
         // Buttons
         $$('.join-btn').forEach(btn=> btn.onclick = ()=> joinBattle(btn.dataset.id));
