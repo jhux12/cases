@@ -81,6 +81,7 @@
   <main class="mt-24 mx-auto max-w-6xl px-4 py-8 space-y-8">
     <!-- Battle Stage (appears when joined/created) -->
     <section id="battle-stage" class="hidden bg-[#0f1220] border border-white/10 rounded-2xl p-4">
+      <p id="stage-status" class="text-indigo-300/80 mb-2 text-center" aria-live="polite"></p>
       <div id="stage-scoreboard" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
       <aside id="join-aside" class="mt-4"></aside>
     </section>
@@ -90,7 +91,6 @@
       <div>
         <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Box Battles</h1>
         <p class="text-white/70 mt-1">Winner takes all. Spin across N rounds — highest total wins the cost.</p>
-        <p id="stage-status" class="text-indigo-300/80 mt-1" aria-live="polite"></p>
       </div>
       <div class="flex items-center gap-3">
         <button id="create-battle-btn" class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-400 hover:to-blue-400 shadow-lg shadow-indigo-500/20">
@@ -331,7 +331,24 @@
       const init = (name||'U')[0]?.toUpperCase() || 'U';
       return `<div class="w-8 h-8 rounded-full bg-white/10 grid place-items-center text-sm font-semibold">${init}</div>`;
     }
-    function rowCard(inner){ return `<div class="rounded-xl border border-white/10 bg-white/5 p-3">${inner}</div>`; }
+  function rowCard(inner){ return `<div class="rounded-xl border border-white/10 bg-white/5 p-3">${inner}</div>`; }
+
+  function renderPackIcons(packs, sizeClass, limit){
+    const map = {};
+    (packs||[]).forEach(p=>{
+      const key = p.id || p.name;
+      if(!map[key]) map[key] = { pack: p, count: 0 };
+      map[key].count++;
+    });
+    return Object.values(map)
+      .slice(0, limit || Object.keys(map).length)
+      .map(({pack, count})=>`
+        <div class="relative">
+          <img src="${pack.image}" class="${sizeClass} object-cover rounded-md border border-white/10"/>
+          ${count>1 ? `<span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-indigo-600 text-white text-[0.625rem] flex items-center justify-center">${count}</span>` : ''}
+        </div>`)
+      .join('');
+  }
 
     // --- Pack chooser UI
     async function populatePackGrid(){
@@ -385,10 +402,10 @@
     }
 
     // --- Open/My/Previous lists
-    function renderBattleRow(b){
-      const live = (b.status==='lobby' || b.status==='countdown') ? pill('LIVE','live') : '';
-      const packs = (b.packs||[]).map(p=>`<img src="${p.image}" class="w-10 h-12 object-cover rounded-md border border-white/10"/>`).join('');
-      const players = (b.players||[]).map(p=>`<div class="flex items-center gap-1">${avatar(p.displayName)}<span class="hidden md:inline text-sm">${p.displayName||'Player'}</span></div>`).join('');
+      function renderBattleRow(b){
+        const live = (b.status==='lobby' || b.status==='countdown') ? pill('LIVE','live') : '';
+        const packs = renderPackIcons(b.packs || [], 'w-10 h-12');
+        const players = (b.players||[]).map(p=>`<div class="flex items-center gap-1">${avatar(p.displayName)}<span class="hidden md:inline text-sm">${p.displayName||'Player'}</span></div>`).join('');
       const seatCount = `${(b.players?.length || 0)}/${b.maxPlayers}`;
       const canJoin = (b.status==='lobby' || b.status==='countdown') && (b.players?.length||0) < b.maxPlayers;
 
@@ -412,10 +429,10 @@
       `);
     }
 
-    function renderPreviousRow(b){
-      const winner = b.winner?.displayName || '—';
-      const packs = (b.packs||[]).slice(0,6).map(p=>`<img src="${p.image}" class="w-8 h-10 object-cover rounded-md border border-white/10"/>`).join('');
-      const cost = Number(b.cost || 0).toLocaleString();
+      function renderPreviousRow(b){
+        const winner = b.winner?.displayName || '—';
+        const packs = renderPackIcons(b.packs || [], 'w-8 h-10', 6);
+        const cost = Number(b.cost || 0).toLocaleString();
       return rowCard(`
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-3">${packs}</div>
