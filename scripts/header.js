@@ -30,11 +30,11 @@ document.addEventListener("DOMContentLoaded", () => {
               <a href="auth.html#register" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
             </div>
             <div id="user-area" class="hidden md:flex md:items-center">
-              <div id="user-balance" class="hidden items-center gap-1 bg-gray-800 text-white px-3 py-1 rounded-full text-sm mr-4">
+              <div id="user-balance" class="hidden coin-box text-white text-sm mr-4">
                 <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" alt="Coins">
-                <span id="balance-amount">0</span>
-                <span>coins</span>
-                <button id="topup-button" class="text-green-400 font-bold ml-1 hidden"><i class="fas fa-plus"></i></button>
+                <span id="balance-amount" class="font-medium">0</span>
+                <span class="text-gray-300">coins</span>
+                <button id="topup-button" class="hidden ml-2 w-5 h-5 rounded-full bg-green-500 hover:bg-green-400 text-white flex items-center justify-center shadow"><i class="fas fa-plus text-xs"></i></button>
               </div>
               <div class="ml-4 relative flex-shrink-0">
                 <button id="dropdown-toggle" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-50 focus:outline-none">
@@ -55,11 +55,11 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
           <div class="-mr-2 flex items-center md:hidden">
-            <div id="user-balance-mobile-header" class="hidden items-center gap-1 bg-gray-800 text-white px-3 py-1 rounded-full text-sm mr-3">
+            <div id="user-balance-mobile-header" class="hidden coin-box text-white text-sm mr-3">
               <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" alt="Coins">
-              <span id="balance-amount-mobile">0</span>
-              <span>coins</span>
-              <button id="topup-button-mobile-header" class="text-green-400 font-bold ml-1 hidden"><i class="fas fa-plus"></i></button>
+              <span id="balance-amount-mobile" class="font-medium">0</span>
+              <span class="text-gray-300">coins</span>
+              <button id="topup-button-mobile-header" class="hidden ml-2 w-5 h-5 rounded-full bg-green-500 hover:bg-green-400 text-white flex items-center justify-center shadow"><i class="fas fa-plus text-xs"></i></button>
             </div>
             <button id="menu-toggle" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none" aria-expanded="false">
               <span class="sr-only">Open main menu</span>
@@ -78,13 +78,11 @@ document.addEventListener("DOMContentLoaded", () => {
           <a href="marketplace.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-store mr-2"></i>Marketplace</a>
         </div>
         <div class="pt-4 pb-3 border-t border-gray-200">
-          <div id="user-balance-mobile-drawer" class="hidden flex items-center justify-between px-4 mb-3">
-            <div class="flex items-center gap-1">
-              <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" alt="Coins">
-              <span id="balance-amount-mobile-dropdown">0</span>
-              <span>coins</span>
-            </div>
-            <button id="topup-button-mobile-drawer" class="text-green-400 font-bold hidden"><i class="fas fa-plus"></i></button>
+          <div id="user-balance-mobile-drawer" class="hidden coin-box text-white text-sm mx-4 mb-3">
+            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" alt="Coins">
+            <span id="balance-amount-mobile-dropdown" class="font-medium">0</span>
+            <span class="text-gray-300">coins</span>
+            <button id="topup-button-mobile-drawer" class="hidden ml-2 w-5 h-5 rounded-full bg-green-500 hover:bg-green-400 text-white flex items-center justify-center shadow"><i class="fas fa-plus text-xs"></i></button>
           </div>
           <div class="space-y-1">
             <a href="inventory.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Inventory</a>
