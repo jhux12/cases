@@ -916,32 +916,38 @@
       const all = await fetchAvailablePacks();
 
       if (embed) {
+        const board = $('#stage-scoreboard');
+        board.className = 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4';
         const players = (b.players || []).map(p => ({ ...p, total: 0 }));
         renderScoreboard(players, players.length, 'spinning');
 
         for (let r = 0; r < (b.spinCount || 0); r++) {
           $('#stage-status').textContent = `Round ${r + 1} of ${b.spinCount}`;
-          const packMeta = b.packs[r];
-          const pack = all.find(x => x.id === packMeta.id) || packMeta;
-          const pulls = players.map((_, i) => (b.players[i].pulls || []).find(p => p.round === r));
+
+          const pulls = players.map((_, i) => (b.players[i].pulls || []).find(p => p.round === r) || null);
+
+          const packId = pulls.find(pl => pl)?.packId;
+          const packMeta = b.packs?.[r];
+          const pack = all.find(x => x.id === (packId || packMeta?.id)) || packMeta;
+          const prizeList = pack?.prizes || [];
 
           pulls.forEach((pl, i) => {
-            const prize = pack.prizes[pl.index];
-            renderSpinner(pack.prizes, prize, false, i);
+            const prize = prizeList[pl?.index || 0];
+            renderSpinner(prizeList, prize, false, i);
           });
 
           for (let i = 0; i < pulls.length; i++) {
             const container = document.getElementById(`spinner-container-${i}`);
             if (container) {
               const images = Array.from(container.querySelectorAll('img'));
-              await Promise.all(images.map(img => img.complete ? Promise.resolve() : new Promise(res => { img.onload = img.onerror = res; }))); 
+              await Promise.all(images.map(img => img.complete ? Promise.resolve() : new Promise(res => { img.onload = img.onerror = res; })));
             }
           }
 
           await sleep(500);
-          await Promise.all(pulls.map((_, i) => spinToPrize(() => {}, false, i)));
+          await Promise.all(pulls.map((pl, i) => pl ? spinToPrize(() => {}, false, i) : Promise.resolve()));
 
-          pulls.forEach((pl, i) => { players[i].total += pl.value || 0; });
+          pulls.forEach((pl, i) => { if (pl) players[i].total += pl.value || 0; });
           renderScoreboard(players, players.length, 'spinning');
           await sleep(2000);
         }
