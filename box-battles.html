@@ -493,11 +493,14 @@
         const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g,'');
         const color = getRarityColor(rarity);
         return `
-          <div class="tile rarity-${rarity} p-1 border" style="border-color:${color}">
-            <img src="${prize.image}" alt="${prize.name}" class="w-20 h-28 object-cover rounded-md" />
-            <div class="mt-1 text-[0.65rem] text-center flex items-center justify-center gap-1 text-yellow-300">
-              <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>
-              ${(prize.value||0).toLocaleString()}
+          <div class="flex items-center gap-3 p-2 rounded-md border" style="border-color:${color}">
+            <img src="${prize.image}" alt="${prize.name}" class="w-12 h-16 object-cover rounded" />
+            <div class="flex flex-col">
+              <div class="text-sm">${prize.name || ''}</div>
+              <div class="text-xs text-yellow-300 flex items-center gap-1">
+                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>
+                ${(prize.value||0).toLocaleString()}
+              </div>
             </div>
           </div>`;
       }).join('');
@@ -508,7 +511,7 @@
             <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f451.svg" alt="crown" class="w-6 h-6"/>
             <span>${b.winner?.displayName || ''}</span>
           </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 justify-items-center">${cards}</div>
+          <div class="flex flex-col gap-2 w-full">${cards}</div>
           <button id="watch-replay" class="px-4 py-2 rounded-lg bg-indigo-500/80 hover:bg-indigo-500">Watch</button>
         </div>`;
 
@@ -877,23 +880,44 @@
       const b = { id: snap.id, ...snap.data() };
       const all = await fetchAvailablePacks();
 
-      let reel;
       if (embed) {
-        const host = $('#stage-scoreboard');
-        host.innerHTML = `
-          <div class="reel-host rounded-xl border border-white/10 bg-black/20 p-3 w-full">
-            <div id="replay-reel" class="reel h-40 md:h-48 flex items-center"></div>
-            <div class="center-marker">
-              <span class="marker-arrow top"></span>
-              <span class="marker-line"></span>
-              <span class="marker-arrow bottom"></span>
-            </div>
-          </div>`;
-        reel = document.getElementById('replay-reel');
-      } else {
-        reel = document.getElementById('rewatch-reel');
-        $('#rewatch-modal').showModal();
+        const players = (b.players || []).map(p => ({ ...p, total: 0 }));
+        renderScoreboard(players);
+
+        for (let r = 0; r < (b.spinCount || 0); r++) {
+          $('#stage-status').textContent = `Round ${r + 1} of ${b.spinCount}`;
+          const packMeta = b.packs[r];
+          const pack = all.find(x => x.id === packMeta.id) || packMeta;
+          const pulls = players.map((_, i) => (b.players[i].pulls || []).find(p => p.round === r));
+
+          pulls.forEach((pl, i) => {
+            const prize = pack.prizes[pl.index];
+            renderSpinner(pack.prizes, prize, false, i);
+          });
+
+          for (let i = 0; i < pulls.length; i++) {
+            const container = document.getElementById(`spinner-container-${i}`);
+            if (container) {
+              const images = Array.from(container.querySelectorAll('img'));
+              await Promise.all(images.map(img => img.complete ? Promise.resolve() : new Promise(res => { img.onload = img.onerror = res; }))); 
+            }
+          }
+
+          await sleep(500);
+          await Promise.all(pulls.map((_, i) => spinToPrize(() => {}, false, i)));
+
+          pulls.forEach((pl, i) => { players[i].total += pl.value || 0; });
+          renderScoreboard(players);
+          await sleep(2000);
+        }
+
+        $('#stage-status').textContent = `Winner: ${b.winner?.displayName || ''}`;
+        await renderWinnerSummary(b);
+        return;
       }
+
+      const reel = document.getElementById('rewatch-reel');
+      $('#rewatch-modal').showModal();
 
       if (!reel._spinnerReady) { PackOpener.init({ root: reel, items: [] }); reel._spinnerReady = true; }
 
@@ -907,16 +931,6 @@
             seq.push({ pack, index: pl.index });
           }
         }
-      }
-
-      if (embed) {
-        for (let i = 0; i < seq.length; i++) {
-          const step = seq[i];
-          PackOpener.setItems(step.pack.prizes);
-          await new Promise(r => PackOpener.spinToIndex(step.index, { durationMs: 900, nearMiss: false, onReveal: r }));
-          await sleep(120);
-        }
-        return;
       }
 
       let i = 0;
