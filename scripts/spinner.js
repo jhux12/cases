@@ -25,6 +25,8 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false, id
   if (!container) return console.warn("🚫 Spinner container not found");
 
   container.innerHTML = "";
+  // remove any placeholder classes used before the battle starts
+  container.className = "w-full h-full";
 
   const borderEl = document.getElementById(`spinner-border-${id}`);
   if (borderEl) borderEl.style.borderColor = "#1f2937";
@@ -97,22 +99,9 @@ export function spinToPrize(callback, showPopup = true, id = 0, durationSec = 5)
   if (!targetCard) return Promise.resolve();
 
   const containerEl = spinnerWheel.parentElement;
-  const targetRect = targetCard.getBoundingClientRect();
-  const containerRect = containerEl.getBoundingClientRect();
-  const cardCenter = targetRect.left + targetRect.width / 2;
-  const containerCenter = containerRect.left + containerRect.width / 2;
-
-  // Adjust for any scale transform applied to the container
-  let scale = 1;
-  const transform = window.getComputedStyle(containerEl).transform;
-  if (transform && transform !== 'none') {
-    const match = transform.match(/matrix\(([^,]+)/);
-    if (match) {
-      scale = parseFloat(match[1]) || 1;
-    }
-  }
-
-  const finalOffset = (cardCenter - containerCenter) / scale;
+  const cardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
+  const containerCenter = containerEl.clientWidth / 2;
+  const finalOffset = cardCenter - containerCenter;
 
   const spinDuration = durationSec; // uniform spin length for synchronized reels
   requestAnimationFrame(() => {
@@ -156,9 +145,10 @@ export function spinToPrize(callback, showPopup = true, id = 0, durationSec = 5)
   trackCenterPrize();
 
   return new Promise(resolve => {
-    function onTransitionEnd() {
+  function onTransitionEnd() {
       cancelAnimationFrame(animationFrame);
       spinnerWheel.style.willChange = '';
+      spinnerWheel.style.transition = 'none';
 
     // Final landing: award the prize
     const prize = spinnerPrizesMap[id][targetIndex];
