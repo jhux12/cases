@@ -100,6 +100,17 @@
   <script src="scripts/topup.js"></script>
 
   <script>
+  // Remember where the user came from to redirect after login
+  try {
+    const referrer = document.referrer;
+    const url = new URL(referrer);
+    if (url.origin === window.location.origin && !url.pathname.includes('auth.html')) {
+      sessionStorage.setItem('postLoginRedirect', url.href);
+    }
+  } catch (err) {
+    // Ignore invalid or cross-origin referrers
+  }
+
   // Setup invisible reCAPTCHA for phone auth
   window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
     size: 'invisible'
@@ -246,7 +257,9 @@ loginForm.addEventListener('submit', e => {
           return;
         }
         alert('Login successful!');
-        window.location.href = 'index.html';
+        const redirectUrl = sessionStorage.getItem('postLoginRedirect');
+        sessionStorage.removeItem('postLoginRedirect');
+        window.location.href = redirectUrl ? redirectUrl : 'index.html';
       })
       .catch(error => {
         alert(error.message);
