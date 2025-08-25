@@ -798,6 +798,36 @@ html {
   animation: glow 2s ease-in-out infinite;
 }
 
+.best-drops-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 25% 25%, rgba(139, 92, 246, 0.15), transparent 60%), radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.15), transparent 60%);
+  animation: float-bg 12s ease-in-out infinite;
+}
+
+@keyframes float-bg {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0); }
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 9999px;
+  padding: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.carousel-btn:hover {
+  background: #ffffff;
+}
+
+.carousel-btn.prev { left: -1.5rem; }
+.carousel-btn.next { right: -1.5rem; }
+
 .animate-pop {
   animation: pop 0.3s ease-out;
 }
