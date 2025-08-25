@@ -29,12 +29,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const balanceMobileDrawer = document.getElementById("user-balance-mobile-drawer");
     const topupBtn = document.getElementById("topup-button");
     const topupMobileHeader = document.getElementById("topup-button-mobile-header");
-    const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
+      const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
 
-    if (!usernameEl || !balanceEl) return;
+      if (!usernameEl || !balanceEl) return;
 
-    let userRef;
-    let handler;
+      const attachBalanceEffect = (el) => {
+        if (!el) return;
+        let prev = el.textContent;
+        const observer = new MutationObserver(() => {
+          const current = el.textContent;
+          if (current !== prev) {
+            prev = current;
+            el.classList.add("balance-change");
+            el.addEventListener(
+              "animationend",
+              () => el.classList.remove("balance-change"),
+              { once: true }
+            );
+          }
+        });
+        observer.observe(el, { characterData: true, childList: true, subtree: true });
+      };
+
+      [balanceEl, balanceMobile, balanceDropdown].forEach(attachBalanceEffect);
+
+      let userRef;
+      let handler;
 
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {

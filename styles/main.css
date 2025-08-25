@@ -252,6 +252,11 @@ body {
   animation: pulse-balance 0.4s ease;
 }
 
+.balance-change {
+  animation: pulse-balance 0.4s ease;
+  color: #f59e0b;
+}
+
 /* Hero pack cross-fade animation */
 .hero-pack-img {
   position: absolute;
