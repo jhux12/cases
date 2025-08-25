@@ -993,32 +993,29 @@ html {
 }
 
 /* Category tabs */
+
 .category-tab {
-  background-color: #1f2937;
-  color: #ffffff;
-  border: 1px solid #374151;
-  padding: 0.5rem 0.25rem;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  width: 3.5rem;
-  height: 3.5rem;
-  display: flex;
-  flex-direction: column;
+  background-color: #e5e7eb;
+  color: #374151;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.125rem;
+  gap: 0.25rem;
+  white-space: nowrap;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .category-tab:hover {
-  background-color: #374151;
+  background-color: #d1d5db;
 }
 
 .category-tab.active {
-  background-color: #facc15;
-  border-color: #facc15;
-  color: #000;
+  background-color: #4f46e5;
+  color: #ffffff;
 }
 
 .category-tab i {
@@ -1026,8 +1023,7 @@ html {
 }
 
 .category-tab .tab-label {
-  font-size: 0.625rem;
-  line-height: 1;
   pointer-events: none;
 }
+
 

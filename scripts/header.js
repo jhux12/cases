@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div id="user-area" class="hidden md:flex md:items-center">
               <div id="user-balance" class="hidden coin-box text-sm mr-4">
                 <div class="balance">
-                  <img src="https://cdn-icons-png.flaticon.com/128/1490/1490837.png" class="w-4 h-4 object-contain" alt="Coins">
+                  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" alt="Coins">
                   <span id="balance-amount" class="font-medium">0</span>
                 </div>
                 <button id="topup-button" class="hidden topup-btn">REFILL</button>
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="-mr-2 flex items-center md:hidden">
             <div id="user-balance-mobile-header" class="hidden coin-box text-sm mr-3">
               <div class="balance">
-                <img src="https://cdn-icons-png.flaticon.com/128/1490/1490837.png" class="w-4 h-4 object-contain" alt="Coins">
+                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" alt="Coins">
                 <span id="balance-amount-mobile" class="font-medium">0</span>
               </div>
               <button id="topup-button-mobile-header" class="hidden topup-btn">REFILL</button>
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="pt-4 pb-3 border-t border-gray-200">
           <div id="user-balance-mobile-drawer" class="hidden coin-box text-sm mx-4 mb-3">
             <div class="balance">
-              <img src="https://cdn-icons-png.flaticon.com/128/1490/1490837.png" class="w-4 h-4 object-contain" alt="Coins">
+              <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" alt="Coins">
               <span id="balance-amount-mobile-dropdown" class="font-medium">0</span>
             </div>
             <button id="topup-button-mobile-drawer" class="hidden topup-btn">REFILL</button>
