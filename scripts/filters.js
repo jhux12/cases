@@ -13,9 +13,9 @@ export function setupFilters(cases, renderFn, getUserBalanceFn) {
   const inputs = [searchInput, minInput, maxInput, sortSelect];
   inputs.forEach(input => {
     if (!input) return;
-    input.style.border = "1px solid #4b5563";
-    input.style.backgroundColor = "#1f2937";
-    input.style.color = "#ffffff";
+    input.style.border = "1px solid #d1d5db";
+    input.style.backgroundColor = "#ffffff";
+    input.style.color = "#374151";
     input.style.padding = "0.5rem";
     input.style.borderRadius = "0.5rem";
     input.style.transition = "all 0.3s ease";
@@ -31,25 +31,18 @@ export function setupFilters(cases, renderFn, getUserBalanceFn) {
   });
 
   if (clearButton) {
-    clearButton.style.color = "#f87171";
-    clearButton.style.fontWeight = "bold";
-    clearButton.style.transition = "color 0.3s ease";
+    clearButton.style.backgroundColor = "#e5e7eb";
+    clearButton.style.color = "#374151";
+    clearButton.style.fontWeight = "500";
+    clearButton.style.border = "1px solid #d1d5db";
+    clearButton.style.borderRadius = "0.375rem";
+    clearButton.style.transition = "background-color 0.3s ease";
     clearButton.addEventListener("mouseenter", () => {
-      clearButton.style.color = "#fecaca";
+      clearButton.style.backgroundColor = "#d1d5db";
     });
     clearButton.addEventListener("mouseleave", () => {
-      clearButton.style.color = "#f87171";
+      clearButton.style.backgroundColor = "#e5e7eb";
     });
-  }
-
-  // Make filter container responsive
-  const filterContainer = searchInput?.closest(".flex.flex-wrap");
-  if (filterContainer) {
-    filterContainer.style.display = "flex";
-    filterContainer.style.flexWrap = "wrap";
-    filterContainer.style.gap = "0.75rem";
-    filterContainer.style.alignItems = "center";
-    filterContainer.style.justifyContent = "flex-start";
   }
 
   function getRarityValue(rarity) {
