@@ -71,7 +71,7 @@ async function loadPack() {
 async function openPack() {
   if (!currentPack) return;
   const user = firebase.auth().currentUser;
-  if (!user) return alert('You must be logged in.');
+  if (!user) return showToast('You must be logged in.', 'error');
 
   const openBtn = document.getElementById('open-pack');
   openBtn.disabled = true;
@@ -82,14 +82,14 @@ async function openPack() {
   const price = parseFloat(currentPack.price || 0);
   if (balance < price) {
     openBtn.disabled = false;
-    return alert('Not enough coins.');
+    return showToast('Not enough coins.', 'error');
   }
 
   const fairSnap = await firebase.database().ref('users/' + user.uid + '/provablyFair').once('value');
   const fairData = fairSnap.val();
   if (!fairData) {
     openBtn.disabled = false;
-    return alert('Provably fair data missing.');
+    return showToast('Provably fair data missing.', 'error');
   }
   const { nonce } = fairData;
 

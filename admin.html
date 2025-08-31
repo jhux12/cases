@@ -748,22 +748,22 @@ function deleteUser(uid) {
 
 function sendPasswordReset(email) {
   if (!email) {
-    alert('User has no email to reset.');
+    showToast('User has no email to reset.', 'error');
     return;
   }
   firebase.auth().sendPasswordResetEmail(email).then(() => {
     showToast('✅ Reset email sent');
-  }).catch(err => alert(err.message));
+  }).catch(err => showToast(err.message, 'error'));
 }
 firebase.auth().onAuthStateChanged(user => {
   if (!user) {
-    alert("Please log in.");
+    showToast("Please log in.", 'error');
     window.location.href = "/auth.html";
     return;
   }
 
   if (!allowedAdmins.includes(user.email)) {
-    alert("Access denied. Admins only.");
+    showToast("Access denied. Admins only.", 'error');
     window.location.href = "/";
     return;
   }
@@ -785,7 +785,7 @@ document.getElementById("marketplace-form").addEventListener("submit", async (e)
   const value = parseInt(document.getElementById("market-value").value.trim());
   const rarity = document.getElementById("market-rarity").value;
 
-  if (!name || !image || !value || !rarity) return alert("All fields are required!");
+  if (!name || !image || !value || !rarity) return showToast("All fields are required!", 'error');
 
 const form = document.getElementById("marketplace-form");
 const editingKey = form.dataset.editing;

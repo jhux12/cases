@@ -182,10 +182,10 @@ function updateProfile() {
   user.updateProfile({ displayName: newUsername })
     .then(() => firebase.database().ref('users/' + user.uid).update({ username: newUsername }))
     .then(() => {
-      alert('✅ Username updated!');
+      showToast('✅ Username updated!', 'success');
       location.reload();
     })
-    .catch(err => alert('❌ Error: ' + err.message));
+    .catch(err => showToast('❌ Error: ' + err.message, 'error'));
 }
 
 function determineLevel(packs, levels) {
@@ -216,17 +216,17 @@ function changePassword() {
   const newPassword = document.getElementById('new-password').value;
   const user = firebase.auth().currentUser;
   if (!currentPassword || !newPassword) {
-    alert('Please fill out both password fields.');
+    showToast('Please fill out both password fields.', 'error');
     return;
   }
   const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
   user.reauthenticateWithCredential(credential)
     .then(() => user.updatePassword(newPassword))
     .then(() => {
-      alert('✅ Password updated successfully.');
+      showToast('✅ Password updated successfully.', 'success');
       document.getElementById('current-password').value = '';
       document.getElementById('new-password').value = '';
     })
-    .catch(error => alert('❌ ' + error.message));
+    .catch(error => showToast('❌ ' + error.message, 'error'));
 }
 

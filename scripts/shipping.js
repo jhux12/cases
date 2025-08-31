@@ -93,14 +93,14 @@ function submitShipmentRequest() {
   const zip = document.getElementById('ship-zip').value.trim();
   const phone = document.getElementById('ship-phone').value.trim();
 
-  if (!name || !address || !city || !zip) return alert('Please fill out all fields.');
+  if (!name || !address || !city || !zip) return showToast('Please fill out all fields.', 'error');
 
   const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
   const userRef = firebase.database().ref('users/' + user.uid);
 
   userRef.once('value').then(function (snap) {
     const balance = (snap.val() && snap.val().balance) || 0;
-    if (balance < cost) return alert('Insufficient balance.');
+    if (balance < cost) return showToast('Insufficient balance.', 'error');
 
     userRef.update({ balance: balance - cost });
 

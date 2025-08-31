@@ -147,7 +147,7 @@
 
         clone.querySelector(".buy-btn").addEventListener("click", async (e) => {
           e.stopPropagation();
-          if (userBalance < card.value) return alert("Not enough 🪙!");
+          if (userBalance < card.value) return showToast("Not enough 🪙!", 'error');
           await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/balance").set(userBalance - card.value);
           await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/inventory").push({
             name: card.name,
@@ -185,7 +185,7 @@
       const userBalance = userData?.balance || 0;
 
       if (userBalance < window.selectedCard.value) {
-        alert("Not enough 🪙!");
+        showToast("Not enough 🪙!", 'error');
         return;
       }
 
