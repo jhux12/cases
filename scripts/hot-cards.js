@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const cardEl = document.createElement('div');
       cardEl.className = 'bg-white rounded-lg overflow-hidden shadow-md card-hover transition-all duration-300 flex-shrink-0 w-40 border-2';
       cardEl.style.borderColor = color;
+      cardEl.classList.add(`glow-${rarity}`);
       cardEl.innerHTML = `
         <img class="w-full h-48 object-contain p-4" src="${card.image}" alt="${card.name}">
         <div class="p-4">
@@ -47,5 +48,24 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
       container.appendChild(cardEl);
     });
+
+    startAutoScroll();
   });
+
+  function startAutoScroll() {
+    if (container.scrollWidth <= container.clientWidth) return;
+    const card = container.querySelector('div');
+    if (!card) return;
+    const cardWidth = card.getBoundingClientRect().width;
+    const gap = 16; // matches Tailwind's space-x-4
+    const step = cardWidth + gap;
+    setInterval(() => {
+      const maxScrollLeft = container.scrollWidth - container.clientWidth;
+      if (container.scrollLeft >= maxScrollLeft) {
+        container.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        container.scrollBy({ left: step, behavior: 'smooth' });
+      }
+    }, 3000);
+  }
 });
