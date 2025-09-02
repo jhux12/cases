@@ -56,6 +56,7 @@
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('users')">Users</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('marketplace')">Marketplace</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('quests')">Quests</a>
+      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('rewards')">Rewards</a>
     </div>
   </nav>
 
@@ -197,6 +198,15 @@
   </form>
 </section>
 
+<section id="rewards-section" class="hidden">
+  <h1 class="text-3xl font-bold mb-6">Rewards Wheel</h1>
+  <form id="wheel-form" class="space-y-4 max-w-xl bg-gray-800 p-6 rounded-lg">
+    <div id="wheel-rewards" class="space-y-4"></div>
+    <button type="button" id="add-reward" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Add Reward</button>
+    <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded">Save</button>
+  </form>
+</section>
+
 
     <!-- Shipment Management Section -->
     <section id="shipments-section" class="hidden">
@@ -239,7 +249,7 @@
     }
 
   function showSection(id) {
-  const sections = ['cases', 'shipments', 'support', 'users', 'marketplace', 'quests'];
+  const sections = ['cases', 'shipments', 'support', 'users', 'marketplace', 'quests', 'rewards'];
   sections.forEach(section => {
     document.getElementById(section + '-section').classList.add('hidden');
   });
@@ -860,6 +870,39 @@ document.getElementById('quest-config-form').addEventListener('submit', e => {
   };
   firebase.database().ref('questConfig').set(config).then(() => showToast('✅ Quest config saved'));
 });
+
+function addWheelReward(reward = {}) {
+  const div = document.createElement('div');
+  div.className = 'p-4 bg-gray-700 rounded';
+  div.innerHTML = `
+    <div class="flex justify-end"><button onclick="this.parentElement.parentElement.remove()" class="text-red-400 hover:text-red-600 text-sm mb-2">Remove</button></div>
+    <input type="text" placeholder="Label" value="${reward.label || ''}" class="reward-label w-full p-2 rounded mb-2">
+    <input type="number" placeholder="Amount" value="${reward.amount || ''}" class="reward-amount w-full p-2 rounded">
+  `;
+  document.getElementById('wheel-rewards').appendChild(div);
+}
+
+function loadWheelRewards() {
+  const ref = firebase.database().ref('wheelRewards');
+  ref.on('value', snap => {
+    const container = document.getElementById('wheel-rewards');
+    container.innerHTML = '';
+    (snap.val() || []).forEach(r => addWheelReward(r));
+  });
+}
+
+document.getElementById('add-reward').addEventListener('click', () => addWheelReward());
+
+document.getElementById('wheel-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const rewards = Array.from(document.querySelectorAll('#wheel-rewards .p-4')).map(div => ({
+    label: div.querySelector('.reward-label').value,
+    amount: parseInt(div.querySelector('.reward-amount').value) || 0
+  })).filter(r => r.label);
+  firebase.database().ref('wheelRewards').set(rewards).then(() => showToast('✅ Rewards saved'));
+});
+
+loadWheelRewards();
 
 document.getElementById('clear-battles').addEventListener('click', () => {
   firestore.collection('battles').get().then(snap => {
