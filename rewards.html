@@ -101,7 +101,9 @@
       const slice = 360 / rewards.length;
       const target = 270 - (index * slice + slice / 2);
       currentRotation += 360 * 5;
-      canvas.style.transform = `rotate(${currentRotation + target}deg)`;
+      // preserve centering translation while applying rotation so the wheel
+      // spins in place instead of drifting across the screen
+      canvas.style.transform = `translateX(-50%) rotate(${currentRotation + target}deg)`;
     }
 
     auth.onAuthStateChanged(async user => {
