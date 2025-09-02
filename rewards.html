@@ -74,6 +74,7 @@
     const canvas = document.getElementById('wheel');
     const ctx = canvas.getContext('2d');
     let rewards = [];
+    let currentRotation = 0;
 
     function drawWheel() {
       const radius = canvas.width / 2;
@@ -98,8 +99,9 @@
 
     function spinWheel(index) {
       const slice = 360 / rewards.length;
-      const rotation = 360 * 5 + (360 - index * slice - slice / 2);
-      canvas.style.transform = `rotate(${rotation}deg)`;
+      const target = 270 - (index * slice + slice / 2);
+      currentRotation += 360 * 5;
+      canvas.style.transform = `rotate(${currentRotation + target}deg)`;
     }
 
     auth.onAuthStateChanged(async user => {
