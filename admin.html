@@ -56,7 +56,6 @@
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('users')">Users</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('marketplace')">Marketplace</a>
       <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('quests')">Quests</a>
-      <a href="#" class="text-sm text-white hover:text-pink-400" onclick="showSection('milestones')">Milestones</a>
     </div>
   </nav>
 
@@ -199,24 +198,6 @@
 </section>
 
 
-<section id="milestones-section" class="hidden">
-  <h1 class="text-3xl font-bold mb-6">Milestones</h1>
-  <form id="milestone-config-form" class="space-y-6 max-w-xl bg-gray-800 p-6 rounded-lg">
-    <div>
-      <h2 class="text-2xl mb-4">Badges</h2>
-      <div id="badge-list" class="space-y-4"></div>
-      <button type="button" onclick="addBadge()" class="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">+ Add Badge</button>
-    </div>
-    <div>
-      <h2 class="text-2xl mb-4">Level Requirements</h2>
-      <div id="level-list" class="space-y-4"></div>
-      <button type="button" onclick="addLevel()" class="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">+ Add Level</button>
-    </div>
-    <button type="submit" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded">Save</button>
-  </form>
-</section>
-
-
     <!-- Shipment Management Section -->
     <section id="shipments-section" class="hidden">
       <h1 class="text-3xl font-bold mb-6">Manage Shipments</h1>
@@ -258,7 +239,7 @@
     }
 
   function showSection(id) {
-  const sections = ['cases', 'shipments', 'support', 'users', 'marketplace', 'quests', 'milestones'];
+  const sections = ['cases', 'shipments', 'support', 'users', 'marketplace', 'quests'];
   sections.forEach(section => {
     document.getElementById(section + '-section').classList.add('hidden');
   });
@@ -774,7 +755,6 @@ firebase.auth().onAuthStateChanged(user => {
   loadSupportForms();
   loadMarketplaceItems();
   loadQuestConfig();
-  loadMilestoneConfig();
 });
 
 
@@ -879,71 +859,6 @@ document.getElementById('quest-config-form').addEventListener('submit', e => {
     }
   };
   firebase.database().ref('questConfig').set(config).then(() => showToast('✅ Quest config saved'));
-});
-
-function addBadge(badge = {}) {
-  const div = document.createElement('div');
-  div.className = 'flex gap-2 items-center';
-  div.innerHTML = `
-    <input type="text" placeholder="Badge Name" class="badge-name w-full p-2 rounded" value="${badge.name || ''}">
-    <input type="number" placeholder="Pack Threshold" class="badge-threshold w-32 p-2 rounded" value="${badge.threshold || ''}">
-    <input type="color" class="badge-color w-16 h-10 rounded" value="${badge.color || '#9333ea'}">
-    <button type="button" class="text-red-400 hover:text-red-600" onclick="this.parentElement.remove()">Remove</button>
-  `;
-  document.getElementById('badge-list').appendChild(div);
-}
-
-function addLevel(level = {}) {
-  const div = document.createElement('div');
-  div.className = 'flex gap-2 items-center';
-  const threshold = typeof level === 'object' ? (level.threshold || '') : level;
-  const reward = typeof level === 'object' ? (level.reward || 0) : 0;
-  div.innerHTML = `
-    <input type="number" placeholder="Pack Threshold" class="level-threshold w-full p-2 rounded" value="${threshold}">
-    <input type="number" placeholder="Coin Reward" class="level-reward w-full p-2 rounded" value="${reward}">
-    <button type="button" class="text-red-400 hover:text-red-600" onclick="this.parentElement.remove()">Remove</button>
-  `;
-  document.getElementById('level-list').appendChild(div);
-}
-
-function loadMilestoneConfig() {
-  const ref = firebase.database().ref('milestoneConfig');
-  ref.once('value').then(snap => {
-    const cfg = snap.val() || {};
-    const badges = cfg.badges || [];
-    const levels = cfg.levels || [];
-    if (badges.length) {
-      badges.forEach(b => addBadge(b));
-    } else {
-      addBadge();
-    }
-    if (levels.length) {
-      levels.forEach(l => {
-        if (typeof l === 'object') addLevel(l);
-        else addLevel({ threshold: l, reward: 0 });
-      });
-    } else {
-      addLevel();
-    }
-  });
-}
-
-document.getElementById('milestone-config-form').addEventListener('submit', e => {
-  e.preventDefault();
-  const badges = [];
-  document.querySelectorAll('#badge-list > div').forEach(div => {
-    const name = div.querySelector('.badge-name').value.trim();
-    const threshold = parseInt(div.querySelector('.badge-threshold').value) || 0;
-    const color = div.querySelector('.badge-color').value || '#9333ea';
-    if (name) badges.push({ name, threshold, color });
-  });
-  const levels = [];
-  document.querySelectorAll('#level-list > div').forEach(div => {
-    const threshold = parseInt(div.querySelector('.level-threshold').value);
-    const reward = parseInt(div.querySelector('.level-reward').value) || 0;
-    if (!isNaN(threshold)) levels.push({ threshold, reward });
-  });
-  firebase.database().ref('milestoneConfig').set({ badges, levels }).then(() => showToast('✅ Milestone config saved'));
 });
 
 document.getElementById('clear-battles').addEventListener('click', () => {
