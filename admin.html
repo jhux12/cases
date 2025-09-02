@@ -887,7 +887,7 @@ function loadWheelRewards() {
   ref.on('value', snap => {
     const container = document.getElementById('wheel-rewards');
     container.innerHTML = '';
-    (snap.val() || []).forEach(r => addWheelReward(r));
+    Object.values(snap.val() || {}).forEach(r => addWheelReward(r));
   });
 }
 

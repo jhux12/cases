@@ -78,6 +78,7 @@
     function drawWheel() {
       const radius = canvas.width / 2;
       const angle = (2 * Math.PI) / rewards.length;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       rewards.forEach((r, i) => {
         ctx.beginPath();
         ctx.moveTo(radius, radius);
@@ -106,12 +107,13 @@
       const userRef = db.ref('users/' + user.uid);
       const snapshot = await userRef.once('value');
       const data = snapshot.val() || {};
+      let balance = data.balance || 0;
       const lastSpin = data.lastWheelSpin || 0;
-      const balance = data.balance || 0;
       const delay = 24 * 60 * 60 * 1000;
+      const isAdmin = data.role === 'admin';
 
       db.ref('wheelRewards').once('value').then(snap => {
-        rewards = snap.val() || [];
+        rewards = Object.values(snap.val() || {});
         if (rewards.length) drawWheel();
       });
 
@@ -119,7 +121,7 @@
       const countdown = document.getElementById('countdown');
       const toast = document.getElementById('toast');
 
-      if (Date.now() - lastSpin < delay) {
+      if (!isAdmin && Date.now() - lastSpin < delay) {
         button.disabled = true;
         countdown.classList.remove('hidden');
         setInterval(() => {
@@ -134,19 +136,20 @@
 
       button.onclick = () => {
         const now = Date.now();
-        if (now - lastSpin < delay || !rewards.length) return;
+        if (!rewards.length || (!isAdmin && now - lastSpin < delay)) return;
         const index = Math.floor(Math.random() * rewards.length);
         spinWheel(index);
         button.disabled = true;
         canvas.addEventListener('transitionend', async () => {
           const reward = rewards[index];
-          await userRef.update({
-            balance: balance + reward.amount,
-            lastWheelSpin: now
-          });
+          balance += reward.amount;
+          const updates = { balance };
+          if (!isAdmin) updates.lastWheelSpin = now;
+          await userRef.update(updates);
           toast.innerText = `✅ You won ${reward.label}!`;
           toast.classList.remove('hidden');
           setTimeout(() => toast.classList.add('hidden'), 3000);
+          if (isAdmin) button.disabled = false;
         }, { once: true });
       };
     });
