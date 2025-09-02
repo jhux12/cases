@@ -45,7 +45,7 @@
     const ctx = canvas.getContext('2d');
     let rewards = [];
     let currentRotation = 0;
-    const colors = ['#fb7185','#fbbf24','#60a5fa','#a78bfa','#34d399','#f472b6','#818cf8','#fcd34d'];
+    const colors = ['#1e3a8a','#4338ca','#1e40af','#3b82f6','#2563eb','#312e81','#4f46e5','#1e3a8a'];
 
     function drawWheel() {
       const radius = canvas.width / 2;
@@ -54,7 +54,7 @@
       rewards.forEach((r, i) => {
         ctx.beginPath();
         ctx.moveTo(radius, radius);
-        ctx.arc(radius, radius, radius, i * angle, (i + 1) * angle);
+        ctx.arc(radius, radius, radius, i * angle - Math.PI / 2, (i + 1) * angle - Math.PI / 2);
         ctx.fillStyle = colors[i % colors.length];
         ctx.fill();
         ctx.strokeStyle = '#0f0f12';
@@ -62,7 +62,7 @@
         ctx.stroke();
         ctx.save();
         ctx.translate(radius, radius);
-        ctx.rotate(i * angle + angle / 2);
+        ctx.rotate(i * angle + angle / 2 - Math.PI / 2);
         ctx.fillStyle = '#fff';
         ctx.font = '20px Poppins';
         ctx.textAlign = 'right';
@@ -77,9 +77,9 @@
 
     function spinWheel(index) {
       const slice = 360 / rewards.length;
-      const target = 270 - (index * slice + slice / 2);
-      currentRotation += 360 * 5;
-      canvas.style.transform = `translate(-50%, -40%) rotate(${currentRotation + target}deg)`;
+      const angleOffset = 90 - (index * slice + slice / 2);
+      currentRotation += 360 * 5 + angleOffset;
+      canvas.style.transform = `translate(-50%, -50%) rotate(${currentRotation}deg)`;
     }
 
     auth.onAuthStateChanged(async user => {
