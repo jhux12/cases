@@ -89,7 +89,7 @@
   document.getElementById('contact-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const user = firebase.auth().currentUser;
-    if (!user) return alert('Please sign in to send a message.');
+    if (!user) return showToast('Please sign in to send a message.', 'error');
 
     const formRef = db.ref('supportCases').push();
     const newMessageKey = db.ref().push().key;
@@ -106,7 +106,7 @@ await formRef.set({
     }
   }
 });
-    alert('✅ Message sent successfully!');
+    showToast('✅ Message sent successfully!', 'success');
     document.getElementById('contact-form').reset();
   });
 
@@ -148,7 +148,7 @@ const messagesHtml = Object.values(data.messages || {}).map(msg => {
     const replyText = textarea.value.trim();
     if (!replyText) return;
     const user = firebase.auth().currentUser;
-    if (!user) return alert('Please sign in.');
+    if (!user) return showToast('Please sign in.', 'error');
 
     const caseRef = db.ref('supportCases/' + caseId + '/messages');
     caseRef.once('value').then(snapshot => {
@@ -177,7 +177,7 @@ db.ref().update(updates);
     event.preventDefault();
     const user = firebase.auth().currentUser;
     if (!user) {
-      alert("Please sign in to purchase coins.");
+      showToast("Please sign in to purchase coins.", 'error');
       return;
     }
     firebase.firestore()
@@ -196,7 +196,7 @@ db.ref().update(updates);
         docRef.onSnapshot((snap) => {
           const { error, sessionId } = snap.data();
           if (error) {
-            alert(`An error occurred: ${error.message}`);
+            showToast(`An error occurred: ${error.message}`, 'error');
           }
           if (sessionId) {
             stripe.redirectToCheckout({ sessionId });

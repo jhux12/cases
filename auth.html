@@ -131,7 +131,7 @@ document.getElementById('send-code').addEventListener('click', () => {
   phoneNumber = formatPhoneNumber(phoneNumber);
   const e164Regex = /^\+[1-9]\d{9,14}$/;
   if (!e164Regex.test(phoneNumber)) {
-    alert('Please enter a valid phone number with country code.');
+    showToast('Please enter a valid phone number with country code.', 'error');
     return;
   }
   const sendBtn = document.getElementById('send-code');
@@ -153,10 +153,10 @@ document.getElementById('send-code').addEventListener('click', () => {
     .then(id => {
       verificationId = id;
       document.getElementById('phone-verification').classList.remove('hidden');
-      alert('Verification code sent!');
+      showToast('Verification code sent!', 'success');
     })
     .catch(error => {
-      alert('❌ ' + error.message);
+      showToast('❌ ' + error.message, 'error');
     });
 });
 
@@ -167,14 +167,14 @@ let phoneVerified = false;
 verifyBtn.addEventListener('click', async () => {
   const code = document.getElementById('verification-code').value.trim();
   if (!verificationId) {
-    alert('Please request a verification code first.');
+    showToast('Please request a verification code first.', 'error');
     return;
   }
   try {
     const credential = firebase.auth.PhoneAuthProvider.credential(verificationId, code);
     const result = await auth.signInWithCredential(credential);
     if (!result.additionalUserInfo.isNewUser) {
-      alert('This phone number is already associated with another account.');
+      showToast('This phone number is already associated with another account.', 'error');
       await auth.signOut();
       return;
     }
@@ -182,9 +182,9 @@ verifyBtn.addEventListener('click', async () => {
     verifyBtn.disabled = true;
     registerBtn.disabled = false;
     registerBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-    alert('Phone verified! Please complete registration.');
+    showToast('Phone verified! Please complete registration.', 'success');
   } catch (error) {
-    alert('❌ ' + error.message);
+    showToast('❌ ' + error.message, 'error');
   }
 });
 
@@ -211,7 +211,7 @@ function toggleForms() {
 registerForm.addEventListener('submit', async e => {
   e.preventDefault();
   if (!phoneVerified) {
-    alert('Please verify your phone number first.');
+    showToast('Please verify your phone number first.', 'error');
     return;
   }
 
@@ -223,11 +223,11 @@ registerForm.addEventListener('submit', async e => {
   try {
     await auth.currentUser.verifyBeforeUpdateEmail(email);
     localStorage.setItem('pendingUser', JSON.stringify({ name, username, email, emailAlerts }));
-    alert('Verification email sent! Please check your inbox.');
+    showToast('Verification email sent! Please check your inbox.', 'success');
     await auth.signOut();
     window.location.href = 'auth.html';
   } catch (error) {
-    alert('❌ ' + error.message);
+    showToast('❌ ' + error.message, 'error');
   }
 });
 
@@ -249,20 +249,20 @@ loginForm.addEventListener('submit', e => {
         if (!auth.currentUser.emailVerified && !userData?.emailVerified) {
           try {
             await auth.currentUser.sendEmailVerification();
-            alert('Please verify your email. A verification link has been sent.');
+            showToast('Please verify your email. A verification link has been sent.', 'error');
           } catch (error) {
-            alert('❌ ' + error.message);
+            showToast('❌ ' + error.message, 'error');
           }
           await auth.signOut();
           return;
         }
-        alert('Login successful!');
+        showToast('Login successful!', 'success');
         const redirectUrl = sessionStorage.getItem('postLoginRedirect');
         sessionStorage.removeItem('postLoginRedirect');
         window.location.href = redirectUrl ? redirectUrl : 'index.html';
       })
       .catch(error => {
-        alert(error.message);
+        showToast(error.message, 'error');
       });
   });
 
@@ -273,7 +273,7 @@ auth.onAuthStateChanged(async user => {
     if (user.emailVerified) {
       const password = prompt('Please set a password for your account:');
       if (!password) {
-        alert('Password is required to complete registration.');
+        showToast('Password is required to complete registration.', 'error');
         await auth.signOut();
         return;
       }
@@ -292,18 +292,18 @@ auth.onAuthStateChanged(async user => {
           emailVerified: true
         });
         localStorage.removeItem('pendingUser');
-        alert('Registration complete! You can now log in with your email and password.');
+        showToast('Registration complete! You can now log in with your email and password.', 'success');
         await auth.signOut();
         window.location.href = 'auth.html';
       } catch (error) {
-        alert('❌ ' + error.message);
+        showToast('❌ ' + error.message, 'error');
       }
     } else {
       try {
         await auth.currentUser.verifyBeforeUpdateEmail(email);
-        alert('Please verify your email using the link sent to you. A new verification email has been sent.');
+        showToast('Please verify your email using the link sent to you. A new verification email has been sent.', 'success');
       } catch (error) {
-        alert('❌ ' + error.message);
+        showToast('❌ ' + error.message, 'error');
       }
       await auth.signOut();
     }
@@ -313,16 +313,16 @@ auth.onAuthStateChanged(async user => {
 function forgotPassword() {
   const email = document.getElementById('login-email').value;
   if (!email) {
-    alert("Please enter your email address to reset your password.");
+    showToast("Please enter your email address to reset your password.", 'error');
     return;
   }
 
   auth.sendPasswordResetEmail(email)
     .then(() => {
-      alert("✅ Password reset email sent! Please check your inbox.");
+      showToast("✅ Password reset email sent! Please check your inbox.", 'success');
     })
     .catch(error => {
-      alert("❌ " + error.message);
+      showToast("❌ " + error.message, 'error');
     });
 }
 </script>

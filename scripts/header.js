@@ -1,3 +1,31 @@
+// Global toast helper
+if (!window.showToast) {
+  window.showToast = (message, type = "info") => {
+    let toast = document.getElementById("toast");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "toast";
+      toast.className =
+        "fixed bottom-6 left-1/2 transform -translate-x-1/2 px-5 py-3 rounded-xl text-white font-bold text-sm z-[9999] shadow-lg hidden opacity-0 transition-opacity duration-300";
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.remove("hidden", "opacity-0", "bg-red-600", "bg-green-600", "bg-gray-800");
+    const color = type === "error" ? "bg-red-600" : type === "success" ? "bg-green-600" : "bg-gray-800";
+    toast.classList.add(color);
+    // trigger fade in
+    void toast.offsetWidth;
+    toast.classList.add("opacity-100");
+    setTimeout(() => {
+      toast.classList.remove("opacity-100");
+      setTimeout(() => toast.classList.add("hidden"), 300);
+    }, 3000);
+  };
+}
+
+// Replace native alerts with toasts
+window.alert = (msg) => window.showToast(msg);
+
 document.addEventListener("DOMContentLoaded", () => {
   const header = document.querySelector("header");
   if (!header) return;

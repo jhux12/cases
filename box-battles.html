@@ -622,10 +622,10 @@
 
     async function createLobby(){
       const me = currentUser();
-      if (!me) { alert('Please sign in to create a battle.'); return; }
+      if (!me) { showToast('Please sign in to create a battle.', 'error'); return; }
       const maxPlayers = parseInt($('#player-count').value||4);
       const packs = gatherSelectedPacks();
-      if (!packs.length){ alert('Pick at least one pack'); return; }
+      if (!packs.length){ showToast('Pick at least one pack', 'error'); return; }
       const spinCount = packs.length;
 
       const cost = packs.reduce((s,p)=> s + (p.price||0), 0);
@@ -636,7 +636,7 @@
         if ((bal||0) < cost) return; // abort
         return (bal||0) - cost;
       });
-      if (!committed){ alert('Insufficient balance'); return; }
+      if (!committed){ showToast('Insufficient balance', 'error'); return; }
 
       const b = {
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -656,16 +656,16 @@
       } catch(err){
         await balanceRef.transaction(bal => (bal||0) + cost); // refund on failure
         console.error(err);
-        alert('Failed to create battle');
+        showToast('Failed to create battle', 'error');
       }
     }
 
     async function joinBattle(battleId){
       const me = currentUser();
-      if (!me) { alert('Please sign in to join battles.'); return; }
+      if (!me) { showToast('Please sign in to join battles.', 'error'); return; }
       const docRef = battlesRef.doc(battleId);
       const snap = await docRef.get();
-      if (!snap.exists){ alert('Battle missing'); return; }
+      if (!snap.exists){ showToast('Battle missing', 'error'); return; }
       const battleData = snap.data();
       const cost = battleData.cost || (battleData.packs||[]).reduce((s,p)=> s + (p.price||0), 0);
 
@@ -675,7 +675,7 @@
         if ((bal||0) < cost) return; // abort
         return (bal||0) - cost;
       });
-      if (!committed){ alert('Insufficient balance'); return; }
+      if (!committed){ showToast('Insufficient balance', 'error'); return; }
 
       let joined = false;
       try {
@@ -701,13 +701,13 @@
       } catch(err){
         await balanceRef.transaction(bal => (bal||0) + cost); // refund
         console.error(err);
-        alert('Failed to join battle');
+        showToast('Failed to join battle', 'error');
         return;
       }
 
       if (!joined){
         await balanceRef.transaction(bal => (bal||0) + cost); // refund
-        alert('Unable to join battle.');
+        showToast('Unable to join battle.', 'error');
         return;
       }
 

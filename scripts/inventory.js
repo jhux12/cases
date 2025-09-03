@@ -324,7 +324,7 @@ function sellSelected() {
     });
 
     userRef.update({ balance: currentBalance }).then(() => {
-      alert(`Sold selected items for ${total} coins.`);
+      showToast(`Sold selected items for ${total} coins.`, 'success');
       window.location.reload();
     });
   });
@@ -337,7 +337,7 @@ function shipSelected() {
     if (item) shipmentSelection.push({ id: item.id, name: item.name, image: item.image });
   });
 
-  if (shipmentSelection.length === 0) return alert("Select items to ship.");
+  if (shipmentSelection.length === 0) return showToast("Select items to ship.", 'error');
 
   localStorage.setItem('shipItems', JSON.stringify(shipmentSelection));
   window.location.href = 'shipping.html';

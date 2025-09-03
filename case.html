@@ -535,7 +535,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   if (!user) {
     btn.disabled = false;
     btn.classList.remove("cursor-not-allowed", "opacity-60");
-    return alert("Please sign in to open cases.");
+    return showToast("Please sign in to open cases.", 'error');
   }
 
   const userSnap = await firebase.database().ref('users/' + user.uid).once("value");
@@ -577,7 +577,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   if (!fairData) {
     btn.disabled = false;
     btn.classList.remove("cursor-not-allowed", "opacity-60");
-    return alert("Provably fair data missing.");
+    return showToast("Provably fair data missing.", 'error');
   }
   const { nonce } = fairData;
 

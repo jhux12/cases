@@ -134,7 +134,7 @@ export async function renderWeeklyQuests(containerId = "quest-container") {
       const live = questSnap.val() || {};
 
       if ((live.progress || 0) < quest.goal || live.claimed) {
-        alert("You must complete the task before claiming.");
+        window.showToast("You must complete the task before claiming.", "error");
         return;
       }
 

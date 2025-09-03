@@ -135,7 +135,7 @@
       event.preventDefault();
       const user = firebase.auth().currentUser;
       if (!user) {
-        alert("Please sign in to purchase coins.");
+        showToast("Please sign in to purchase coins.", 'error');
         return;
       }
       firebase.firestore()
@@ -154,7 +154,7 @@
           docRef.onSnapshot((snap) => {
             const { error, sessionId } = snap.data();
             if (error) {
-              alert(`An error occurred: ${error.message}`);
+              showToast(`An error occurred: ${error.message}`, 'error');
             }
             if (sessionId) {
               stripe.redirectToCheckout({ sessionId });

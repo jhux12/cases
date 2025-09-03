@@ -62,7 +62,7 @@ function redirectToCheckout(event, priceId, button) {
 
   const user = firebase.auth().currentUser;
   if (!user) {
-    alert("Please sign in to purchase coins.");
+    showToast("Please sign in to purchase coins.", 'error');
     button.disabled = false;
     button.innerHTML = originalText;
     return;
@@ -84,7 +84,7 @@ function redirectToCheckout(event, priceId, button) {
       docRef.onSnapshot((snap) => {
         const { error, sessionId } = snap.data();
         if (error) {
-          alert(`An error occurred: ${error.message}`);
+          showToast(`An error occurred: ${error.message}`, 'error');
           button.disabled = false;
           button.innerHTML = originalText;
         }
