@@ -26,6 +26,15 @@ async function initAddressAutocomplete() {
     componentRestrictions: { country: 'us' }
   });
 
+  // Restore suggestions even when an address is prefilled
+  addressInput.addEventListener('focus', () => {
+    if (addressInput.value) {
+      const val = addressInput.value;
+      addressInput.value = '';
+      addressInput.value = val;
+    }
+  });
+
   addressInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') e.preventDefault();
   });
@@ -66,6 +75,18 @@ document.addEventListener('DOMContentLoaded', async function () {
   shipmentSelection = JSON.parse(stored);
   const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
   document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelection.length} item(s) will cost ${cost} coins.`;
+
+  const gallery = document.getElementById('ship-items');
+  if (gallery) {
+    shipmentSelection.forEach(item => {
+      if (!item.image) return;
+      const img = document.createElement('img');
+      img.src = item.image;
+      img.alt = item.name || '';
+      img.className = 'w-20 h-28 object-cover rounded border';
+      gallery.appendChild(img);
+    });
+  }
 
   firebase.auth().onAuthStateChanged(function (user) {
     if (!user) return window.location.href = 'auth.html';
