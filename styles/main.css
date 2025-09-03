@@ -88,8 +88,8 @@ body {
 }
 
 .coin-box {
-  display: flex;
-  align-items: stretch;
+  display: inline-flex;
+  align-items: center;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   overflow: hidden;
