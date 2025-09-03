@@ -18,6 +18,9 @@
     <a href="marketplace.html" class="flex items-center gap-1 text-pink-400 font-semibold hover:text-pink-300 transition">
       <i class="fas fa-store"></i> Marketplace
     </a>
+    <a href="rewards.html" class="flex items-center gap-1 text-yellow-400 font-semibold hover:text-yellow-300 transition">
+      <i class="fas fa-gift"></i> Rewards
+    </a>
     <!-- Coin Balance -->
     <div id="user-balance" class="flex items-center gap-1 bg-gray-800 text-white px-3 py-1 rounded-full text-sm">
       <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
@@ -25,15 +28,6 @@
       <span>coins</span>
       <button id="topup-button" class="text-green-400 font-bold ml-1">+</button>
     </div>
-    <!-- XP / Level Display -->
-<div id="level-display" class="flex items-center gap-2 bg-black/40 px-3 py-1 rounded-full border border-white/10 shadow-md text-xs">
-  <span class="text-pink-400 font-bold">Lvl <span id="level-number">1</span></span>
-  <div class="relative w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
-    <div id="xp-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-pink-500 via-yellow-400 to-purple-500 rounded-full transition-all duration-300" style="width: 0%"></div>
-  </div>
-</div>
-
-
     <!-- Username + Dropdown -->
     <div class="relative">
       <button id="dropdown-toggle" class="flex items-center space-x-2 text-white focus:outline-none">
@@ -79,6 +73,9 @@
   </a>
   <a href="marketplace.html" class="block px-4 py-2 hover:bg-gray-700 text-pink-400 text-sm">
     <i class="fas fa-store mr-2"></i> Marketplace
+  </a>
+  <a href="rewards.html" class="block px-4 py-2 hover:bg-gray-700 text-yellow-400 text-sm">
+    <i class="fas fa-gift mr-2"></i> Rewards
   </a>
   <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 hover:bg-gray-700 text-red-400 text-sm">Sign In</a>
 </div>
