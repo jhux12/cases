@@ -3,72 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Packly.gg | Daily Rewards</title>
+  <title>PrimePull.gg | Daily Spin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    body {
-      background: linear-gradient(135deg, #0f0f12, #1a1a2e);
-      font-family: 'Poppins', sans-serif;
-      color: white;
-      overflow-x: hidden;
-    }
-    .reward-card {
-      background: rgba(30,30,40,0.9);
-      border-radius: 1.5rem;
-      padding: 2.5rem 2rem;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-      backdrop-filter: blur(10px);
-    }
-    .streak-box {
-      background-color: #2c2c3a;
-      border-radius: 0.75rem;
-      padding: 0.75rem 0.5rem;
-      text-align: center;
-      color: white;
-      transition: transform 0.3s, background-color 0.3s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.25rem;
-    }
-    .streak-box:hover {
-      transform: translateY(-4px);
-    }
-    .streak-box.claimed {
-      background: linear-gradient(to top right, #ffc107, #ff9800);
-      color: #000;
-    }
-  </style>
+  <link rel="stylesheet" href="styles/rewards.css">
 </head>
 <body>
 <script src="scripts/preloader.js"></script>
   <header></header>
-  <main class="min-h-screen flex flex-col items-center gap-10 px-4 pt-32">
-    <section class="reward-card w-full max-w-2xl flex flex-col items-center text-center gap-6">
-      <div class="text-yellow-400 text-6xl animate-bounce">
-        <i class="fas fa-gift"></i>
-      </div>
-      <div>
-        <h1 class="text-4xl font-bold">Daily Rewards</h1>
-        <p class="text-gray-300 mt-2">Log in every 24 hours to claim your bonus and earn streak rewards!</p>
-      </div>
-      <p id="countdown-timer" class="text-yellow-400 hidden"></p>
-      <button id="claim-bonus" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-8 py-3 rounded-full transform transition hover:scale-105">
-        Claim Bonus
-      </button>
-      <div class="w-full">
-        <h2 class="text-2xl font-semibold mb-4">Streak Progress</h2>
-        <div id="streak-grid" class="grid grid-cols-3 sm:grid-cols-7 gap-4"></div>
+  <main class="overflow-x-hidden">
+    <section class="w-full text-center pt-24 pb-20">
+      <h1 class="text-5xl font-extrabold drop-shadow-lg mb-4">
+        <span class="block text-white">FREE DAILY</span>
+        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">REWARDS</span>
+      </h1>
+      <p class="text-gray-300 mb-6">Spend more gems and open more boxes to improve your rewards!</p>
+      <a href="how-it-works.html" class="inline-block px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-semibold">Find Out More</a>
+    </section>
+
+    <section id="wheel-wrapper" class="relative flex justify-center overflow-hidden h-[320px] w-full">
+      <div id="wheel-container">
+        <canvas id="wheel" width="600" height="600"></canvas>
+        <div id="pointer"><i class="fas fa-caret-down"></i></div>
+        <button id="spin">Spin</button>
       </div>
     </section>
-    <section id="quest-container" class="w-full max-w-4xl"></section>
+
+    <p id="countdown" class="hidden text-center mt-4"></p>
+    <section id="quest-container" class="w-full max-w-4xl mt-12"></section>
   </main>
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-xl hidden z-50"></div>
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 text-white hidden z-50"></div>
   <footer></footer>
 
   <script>
@@ -85,72 +53,126 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
+    const canvas = document.getElementById('wheel');
+    const ctx = canvas.getContext('2d');
+    let rewards = [];
+    let currentRotation = 0;
+    const defaultColors = ['#1e3a8a','#4338ca','#1e40af','#3b82f6','#2563eb','#312e81','#4f46e5','#1e3a8a'];
+    const coinImg = new Image();
+    coinImg.crossOrigin = 'anonymous';
+    coinImg.src = 'https://cdn-icons-png.flaticon.com/128/6369/6369589.png';
+
+    function drawWheel() {
+      if (!coinImg.complete) {
+        coinImg.onload = drawWheel;
+        return;
+      }
+      const radius = canvas.width / 2;
+      let start = -Math.PI / 2;
+      const sliceAngle = (2 * Math.PI) / rewards.length;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      rewards.forEach((r, i) => {
+        r.startAngle = start;
+        r.midAngle = start + sliceAngle / 2;
+        r.endAngle = start + sliceAngle;
+        ctx.beginPath();
+        ctx.moveTo(radius, radius);
+        ctx.arc(radius, radius, radius, r.startAngle, r.endAngle);
+        ctx.fillStyle = r.color || defaultColors[i % defaultColors.length];
+        ctx.fill();
+        ctx.strokeStyle = '#0f0f12';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.save();
+        ctx.translate(radius, radius);
+        ctx.rotate(r.midAngle);
+        ctx.fillStyle = '#fff';
+        ctx.font = '20px Poppins';
+        ctx.textAlign = 'right';
+        ctx.fillText(r.label, radius - 40, 10);
+        ctx.drawImage(coinImg, radius - 35, -12, 24, 24);
+        ctx.restore();
+        start += sliceAngle;
+      });
+      ctx.beginPath();
+      ctx.arc(radius, radius, 40, 0, 2 * Math.PI);
+      ctx.fillStyle = '#1f2937';
+      ctx.fill();
+    }
+
+    function spinWheel(reward) {
+      const midDeg = reward.midAngle * 180 / Math.PI;
+      const target = 90 - midDeg;
+      const currentMod = currentRotation % 360;
+      const delta = 360 * 5 + target - currentMod;
+      currentRotation += delta;
+      canvas.style.transform = `translate(-50%, -50%) rotate(${currentRotation}deg)`;
+    }
+
+    function pickWeightedIndex(items) {
+      const total = items.reduce((sum, r) => sum + (r.odds ?? r.weight ?? 1), 0);
+      let rnd = Math.random() * total;
+      for (let i = 0; i < items.length; i++) {
+        rnd -= (items[i].odds ?? items[i].weight ?? 1);
+        if (rnd < 0) return i;
+      }
+      return 0;
+    }
+
     auth.onAuthStateChanged(async user => {
-      if (!user) return window.location.href = 'auth.html';
+      const button = document.getElementById('spin');
+      const countdown = document.getElementById('countdown');
+      const toast = document.getElementById('toast');
+
+      db.ref('wheelRewards').once('value').then(snap => {
+        rewards = Object.values(snap.val() || {});
+        if (rewards.length) drawWheel();
+      });
+
+      if (!user) {
+        button.textContent = 'Sign In to Spin';
+        button.onclick = () => location.href = 'auth.html';
+        return;
+      }
+
       const userRef = db.ref('users/' + user.uid);
       const snapshot = await userRef.once('value');
       const data = snapshot.val() || {};
-
-      const now = Date.now();
-      const lastClaim = data.lastBonusClaim || 0;
+      let balance = data.balance || 0;
+      const lastSpin = data.lastWheelSpin || 0;
       const delay = 24 * 60 * 60 * 1000;
-      let streak = data.streak || 0;
-      const balance = data.balance || 0;
+      const isAdmin = data.role === 'admin';
 
-      // Reset streak if user hasn't claimed in over 48 hours
-      if (now - lastClaim > delay * 2) {
-        streak = 0;
-        await userRef.update({ streak: 0 });
-      }
-
-      const rewards = [15, 20, 25, 30, 35, 40, 45];
-      const grid = document.getElementById("streak-grid");
-      rewards.forEach((reward, index) => {
-        const claimed = index < streak;
-        const box = document.createElement('div');
-        box.className = `streak-box ${claimed ? 'claimed' : ''}`;
-        box.innerHTML = `
-          <div class="text-sm font-semibold">Day ${index + 1}</div>
-          <div class="flex items-center gap-1">
-            <span class="text-lg font-bold">+${reward}</span>
-            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin" class="w-5 h-5"/>
-          </div>`;
-        grid.appendChild(box);
-      });
-
-      const button = document.getElementById("claim-bonus");
-      const toast = document.getElementById("toast");
-      const countdown = document.getElementById("countdown-timer");
-
-      if (now - lastClaim < delay) {
+      if (!isAdmin && Date.now() - lastSpin < delay) {
         button.disabled = true;
-        button.innerText = "Come back later";
-        countdown.classList.remove("hidden");
+        countdown.classList.remove('hidden');
         setInterval(() => {
-          const remaining = delay - (Date.now() - lastClaim);
+          const remaining = delay - (Date.now() - lastSpin);
           if (remaining <= 0) return location.reload();
           const h = Math.floor(remaining / 3600000);
           const m = Math.floor((remaining % 3600000) / 60000);
           const s = Math.floor((remaining % 60000) / 1000);
-          countdown.innerText = `Next claim in ${h}h ${m}m ${s}s`;
+          countdown.innerText = `Next spin in ${h}h ${m}m ${s}s`;
         }, 1000);
       }
 
-      button.onclick = async () => {
-        const timeSinceLast = Date.now() - lastClaim;
-        if (timeSinceLast < delay) return;
-        const newStreak = timeSinceLast > delay * 2 ? 1 : streak >= 7 ? 1 : streak + 1;
-        const bonus = 10 + 5 * newStreak;
-        await userRef.update({
-          balance: balance + bonus,
-          streak: newStreak,
-          lastBonusClaim: Date.now(),
-        });
-        toast.innerText = `✅ Bonus claimed! +${bonus} coins added.`;
-        toast.classList.remove("hidden");
-        setTimeout(() => toast.classList.add("hidden"), 3000);
+      button.onclick = () => {
+        const now = Date.now();
+        if (!rewards.length || (!isAdmin && now - lastSpin < delay)) return;
+        const index = pickWeightedIndex(rewards);
+        const reward = rewards[index];
+        spinWheel(reward);
         button.disabled = true;
-        button.innerText = "Come back later";
+        canvas.addEventListener('transitionend', async () => {
+          balance += reward.amount;
+          const updates = { balance };
+          if (!isAdmin) updates.lastWheelSpin = now;
+          await userRef.update(updates);
+          toast.innerHTML = `✅ You won ${reward.label} <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 coin-icon" alt="Coins">!`;
+          toast.classList.remove('hidden');
+          setTimeout(() => toast.classList.add('hidden'), 3000);
+          if (isAdmin) button.disabled = false;
+        }, { once: true });
       };
     });
   </script>
