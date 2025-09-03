@@ -2,7 +2,7 @@ body {
   background: radial-gradient(circle at top left, #1e293b, #0f172a);
   font-family: 'Poppins', sans-serif;
   color: #f9fafb;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 main {
@@ -11,14 +11,22 @@ main {
   align-items: center;
   justify-content: flex-start;
   min-height: 100vh;
-  padding-top: 8rem;
+}
+
+#wheel-wrapper {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  overflow: hidden;
 }
 
 #wheel-container {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 600px;
   height: 600px;
-  margin: 0 auto;
 }
 
 #wheel {
@@ -36,26 +44,31 @@ main {
   position: absolute;
   top: 0;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   font-size: 3rem;
-  color: #fde047;
+  color: #38bdf8;
   text-shadow: 0 0 12px rgba(0,0,0,0.7);
 }
 
 #spin {
-  margin-top: 2rem;
-  background: linear-gradient(to right, #fde047, #facc15);
-  color: #1f2937;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(to bottom, #b91c1c, #dc2626);
+  color: #fff;
   font-weight: 600;
   padding: 1rem 3rem;
   border-radius: 9999px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.4);
   transition: transform .2s, box-shadow .2s;
 }
+
 #spin:hover:not(:disabled) {
-  transform: translateY(-2px);
+  transform: translate(-50%, -50%) translateY(-2px);
   box-shadow: 0 12px 24px rgba(0,0,0,0.5);
 }
+
 #spin:disabled {
   opacity: .5;
   cursor: not-allowed;
