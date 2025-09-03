@@ -879,7 +879,7 @@ function addWheelReward(reward = {}) {
     <input type="text" placeholder="Label" value="${reward.label || ''}" class="reward-label w-full p-2 rounded">
     <input type="number" placeholder="Amount" value="${reward.amount || ''}" class="reward-amount w-full p-2 rounded">
     <input type="color" value="${reward.color || '#3b82f6'}" class="reward-color w-full h-10 rounded">
-    <input type="number" placeholder="Weight" value="${reward.weight || 1}" class="reward-weight w-full p-2 rounded">
+    <input type="number" placeholder="Odds (%)" value="${reward.odds ?? reward.weight ?? 1}" class="reward-odds w-full p-2 rounded">
   `;
   document.getElementById('wheel-rewards').appendChild(div);
 }
@@ -901,7 +901,7 @@ document.getElementById('wheel-form').addEventListener('submit', e => {
     label: div.querySelector('.reward-label').value,
     amount: parseInt(div.querySelector('.reward-amount').value) || 0,
     color: div.querySelector('.reward-color').value,
-    weight: parseFloat(div.querySelector('.reward-weight').value) || 1
+    odds: parseFloat(div.querySelector('.reward-odds').value) || 0
   })).filter(r => r.label);
   firebase.database().ref('wheelRewards').set(rewards).then(() => showToast('✅ Rewards saved'));
 });

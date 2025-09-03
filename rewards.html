@@ -61,12 +61,17 @@
 
     function drawWheel() {
       const radius = canvas.width / 2;
-      const angle = (2 * Math.PI) / rewards.length;
+      const total = rewards.reduce((sum, r) => sum + (r.odds ?? r.weight ?? 1), 0);
+      let start = -Math.PI / 2;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       rewards.forEach((r, i) => {
+        const slice = (2 * Math.PI) * ((r.odds ?? r.weight ?? 1) / total);
+        r.startAngle = start;
+        r.midAngle = start + slice / 2;
+        r.endAngle = start + slice;
         ctx.beginPath();
         ctx.moveTo(radius, radius);
-        ctx.arc(radius, radius, radius, i * angle - Math.PI / 2, (i + 1) * angle - Math.PI / 2);
+        ctx.arc(radius, radius, radius, r.startAngle, r.endAngle);
         ctx.fillStyle = r.color || defaultColors[i % defaultColors.length];
         ctx.fill();
         ctx.strokeStyle = '#0f0f12';
@@ -74,12 +79,13 @@
         ctx.stroke();
         ctx.save();
         ctx.translate(radius, radius);
-        ctx.rotate(i * angle + angle / 2 - Math.PI / 2);
+        ctx.rotate(r.midAngle);
         ctx.fillStyle = '#fff';
         ctx.font = '20px Poppins';
         ctx.textAlign = 'right';
-        ctx.fillText(r.label, radius - 10, 10);
+        ctx.fillText(`${r.label} 🪙`, radius - 10, 10);
         ctx.restore();
+        start += slice;
       });
       ctx.beginPath();
       ctx.arc(radius, radius, 40, 0, 2 * Math.PI);
@@ -88,17 +94,20 @@
     }
 
     function spinWheel(index) {
-      const slice = 360 / rewards.length;
-      const angleOffset = 90 - (index * slice + slice / 2);
-      currentRotation += 360 * 5 + angleOffset;
+      const reward = rewards[index];
+      const midDeg = reward.midAngle * 180 / Math.PI;
+      const target = 90 - midDeg;
+      const currentMod = currentRotation % 360;
+      const delta = 360 * 5 + target - currentMod;
+      currentRotation += delta;
       canvas.style.transform = `translate(-50%, -50%) rotate(${currentRotation}deg)`;
     }
 
     function pickWeightedIndex(items) {
-      const total = items.reduce((sum, r) => sum + (r.weight || 1), 0);
+      const total = items.reduce((sum, r) => sum + (r.odds ?? r.weight ?? 1), 0);
       let rnd = Math.random() * total;
       for (let i = 0; i < items.length; i++) {
-        rnd -= (items[i].weight || 1);
+        rnd -= (items[i].odds ?? items[i].weight ?? 1);
         if (rnd < 0) return i;
       }
       return 0;
@@ -153,7 +162,7 @@
           const updates = { balance };
           if (!isAdmin) updates.lastWheelSpin = now;
           await userRef.update(updates);
-          toast.innerText = `✅ You won ${reward.label}!`;
+          toast.innerText = `✅ You won ${reward.label} 🪙!`;
           toast.classList.remove('hidden');
           setTimeout(() => toast.classList.add('hidden'), 3000);
           if (isAdmin) button.disabled = false;
