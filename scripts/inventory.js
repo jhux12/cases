@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML += `
           <div class="item-card rounded-2xl p-6 text-center h-full">
             <img src="${data.image}" class="mx-auto mb-4 h-24 object-contain rounded shadow-lg" />
-            <h2 class="font-semibold text-lg text-gray-800 truncate">${data.name}</h2>
+            <h2 class="item-name font-semibold text-lg text-gray-800">${data.name}</h2>
             <p class="text-sm text-gray-600 mb-1 capitalize">Status: ${data.status}</p>
             <p class="text-sm text-gray-600 mt-auto">Shipping Info: ${data.shippingInfo?.name || ''}</p>
           </div>`;
@@ -207,7 +207,7 @@ function renderItems(items) {
       <div class="item-card rounded-2xl p-6 text-center h-full">
         <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-3 accent-indigo-600" ${item.shipped || item.requested ? 'disabled' : ''} />
         <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}')" class="mx-auto mb-4 h-32 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
-        <h2 class="font-semibold text-gray-800 text-lg truncate">${item.name}</h2>
+        <h2 class="item-name font-semibold text-gray-800 text-lg">${item.name}</h2>
         <span class="pill ${rarityClass}">${item.rarity}</span>
         <p class="text-sm text-gray-600 mb-3 flex items-center justify-center gap-1">
           <span>Value: ${item.value || 0}</span>

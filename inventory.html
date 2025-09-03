@@ -67,6 +67,7 @@
       display: flex;
       flex-direction: column;
       height: 100%;
+      overflow: hidden;
     }
 
     .item-card:hover {
@@ -86,6 +87,15 @@
     select {
       background-color: white;
       color: black;
+    }
+
+    .item-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      word-break: break-word;
     }
 
     /* Item preview popup */
@@ -190,7 +200,7 @@
         <button onclick="shipSelected()" class="px-4 py-1.5 text-sm rounded-full font-semibold text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 transition btn whitespace-nowrap">Ship Selected</button>
       </div>
     </div>
-      <div id="inventory-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 auto-rows-fr"></div>
+      <div id="inventory-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 auto-rows-auto"></div>
     </section>
 
     <section id="orders-section" class="hidden">
@@ -198,7 +208,7 @@
         <h2 class="text-3xl font-bold mb-2 gradient-text flex items-center justify-center"><i class="fas fa-truck mr-2"></i>Your Recent Orders</h2>
         <p class="text-sm text-gray-600">Below are your previous shipment requests and their current status.</p>
       </div>
-      <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 auto-rows-fr"></div>
+      <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 auto-rows-auto"></div>
     </section>
   </main>
 
