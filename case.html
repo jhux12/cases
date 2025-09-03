@@ -608,11 +608,8 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
     await invRef.set(unboxData);
     await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
-    const levelResult = await updateMilestones(user.uid, winningPrize.value);
-    if (levelResult.leveledUp) {
-      await firebase.database().ref('users/' + user.uid + '/balance').transaction(b => (b || 0) + (levelResult.reward || 0));
-    }
-    winnings[0] = { ...winningPrize, key: invRef.key, levelResult };
+    await updateMilestones(user.uid, winningPrize.value);
+    winnings[0] = { ...winningPrize, key: invRef.key };
 
     const winIndex = openerItems.findIndex(p => p.name === winningPrize.name);
     await transitionToReel();
@@ -620,10 +617,6 @@ document.getElementById("open-case-button").addEventListener("click", async () =
       PackOpener.spinToIndex(winIndex, { durationMs: 2400, nearMiss: true, onReveal: () => resolve() });
     });
 
-    const lr = winnings[0].levelResult;
-    if (lr.leveledUp) {
-      showToast(`Level ${lr.level}! +${formatCoins(lr.reward)} coins`, 'bg-green-600');
-    }
   }
 
   if (isFreeCase) {
