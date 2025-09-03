@@ -58,17 +58,23 @@
     let rewards = [];
     let currentRotation = 0;
     const defaultColors = ['#1e3a8a','#4338ca','#1e40af','#3b82f6','#2563eb','#312e81','#4f46e5','#1e3a8a'];
+    const coinImg = new Image();
+    coinImg.crossOrigin = 'anonymous';
+    coinImg.src = 'https://cdn-icons-png.flaticon.com/128/6369/6369589.png';
 
     function drawWheel() {
+      if (!coinImg.complete) {
+        coinImg.onload = drawWheel;
+        return;
+      }
       const radius = canvas.width / 2;
-      const total = rewards.reduce((sum, r) => sum + (r.odds ?? r.weight ?? 1), 0);
       let start = -Math.PI / 2;
+      const sliceAngle = (2 * Math.PI) / rewards.length;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       rewards.forEach((r, i) => {
-        const slice = (2 * Math.PI) * ((r.odds ?? r.weight ?? 1) / total);
         r.startAngle = start;
-        r.midAngle = start + slice / 2;
-        r.endAngle = start + slice;
+        r.midAngle = start + sliceAngle / 2;
+        r.endAngle = start + sliceAngle;
         ctx.beginPath();
         ctx.moveTo(radius, radius);
         ctx.arc(radius, radius, radius, r.startAngle, r.endAngle);
@@ -83,9 +89,10 @@
         ctx.fillStyle = '#fff';
         ctx.font = '20px Poppins';
         ctx.textAlign = 'right';
-        ctx.fillText(`${r.label} 🪙`, radius - 10, 10);
+        ctx.fillText(r.label, radius - 40, 10);
+        ctx.drawImage(coinImg, radius - 35, -12, 24, 24);
         ctx.restore();
-        start += slice;
+        start += sliceAngle;
       });
       ctx.beginPath();
       ctx.arc(radius, radius, 40, 0, 2 * Math.PI);
@@ -93,8 +100,7 @@
       ctx.fill();
     }
 
-    function spinWheel(index) {
-      const reward = rewards[index];
+    function spinWheel(reward) {
       const midDeg = reward.midAngle * 180 / Math.PI;
       const target = 90 - midDeg;
       const currentMod = currentRotation % 360;
@@ -154,15 +160,15 @@
         const now = Date.now();
         if (!rewards.length || (!isAdmin && now - lastSpin < delay)) return;
         const index = pickWeightedIndex(rewards);
-        spinWheel(index);
+        const reward = rewards[index];
+        spinWheel(reward);
         button.disabled = true;
         canvas.addEventListener('transitionend', async () => {
-          const reward = rewards[index];
           balance += reward.amount;
           const updates = { balance };
           if (!isAdmin) updates.lastWheelSpin = now;
           await userRef.update(updates);
-          toast.innerText = `✅ You won ${reward.label} 🪙!`;
+          toast.innerHTML = `✅ You won ${reward.label} <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 coin-icon" alt="Coins">!`;
           toast.classList.remove('hidden');
           setTimeout(() => toast.classList.add('hidden'), 3000);
           if (isAdmin) button.disabled = false;
