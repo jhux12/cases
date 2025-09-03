@@ -57,7 +57,7 @@
     const ctx = canvas.getContext('2d');
     let rewards = [];
     let currentRotation = 0;
-    const colors = ['#1e3a8a','#4338ca','#1e40af','#3b82f6','#2563eb','#312e81','#4f46e5','#1e3a8a'];
+    const defaultColors = ['#1e3a8a','#4338ca','#1e40af','#3b82f6','#2563eb','#312e81','#4f46e5','#1e3a8a'];
 
     function drawWheel() {
       const radius = canvas.width / 2;
@@ -67,7 +67,7 @@
         ctx.beginPath();
         ctx.moveTo(radius, radius);
         ctx.arc(radius, radius, radius, i * angle - Math.PI / 2, (i + 1) * angle - Math.PI / 2);
-        ctx.fillStyle = colors[i % colors.length];
+        ctx.fillStyle = r.color || defaultColors[i % defaultColors.length];
         ctx.fill();
         ctx.strokeStyle = '#0f0f12';
         ctx.lineWidth = 4;
@@ -92,6 +92,16 @@
       const angleOffset = 90 - (index * slice + slice / 2);
       currentRotation += 360 * 5 + angleOffset;
       canvas.style.transform = `translate(-50%, -50%) rotate(${currentRotation}deg)`;
+    }
+
+    function pickWeightedIndex(items) {
+      const total = items.reduce((sum, r) => sum + (r.weight || 1), 0);
+      let rnd = Math.random() * total;
+      for (let i = 0; i < items.length; i++) {
+        rnd -= (items[i].weight || 1);
+        if (rnd < 0) return i;
+      }
+      return 0;
     }
 
     auth.onAuthStateChanged(async user => {
@@ -134,7 +144,7 @@
       button.onclick = () => {
         const now = Date.now();
         if (!rewards.length || (!isAdmin && now - lastSpin < delay)) return;
-        const index = Math.floor(Math.random() * rewards.length);
+        const index = pickWeightedIndex(rewards);
         spinWheel(index);
         button.disabled = true;
         canvas.addEventListener('transitionend', async () => {

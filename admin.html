@@ -873,11 +873,13 @@ document.getElementById('quest-config-form').addEventListener('submit', e => {
 
 function addWheelReward(reward = {}) {
   const div = document.createElement('div');
-  div.className = 'p-4 bg-gray-700 rounded';
+  div.className = 'p-4 bg-gray-700 rounded space-y-2';
   div.innerHTML = `
-    <div class="flex justify-end"><button onclick="this.parentElement.parentElement.remove()" class="text-red-400 hover:text-red-600 text-sm mb-2">Remove</button></div>
-    <input type="text" placeholder="Label" value="${reward.label || ''}" class="reward-label w-full p-2 rounded mb-2">
+    <div class="flex justify-end"><button onclick="this.parentElement.parentElement.remove()" class="text-red-400 hover:text-red-600 text-sm">Remove</button></div>
+    <input type="text" placeholder="Label" value="${reward.label || ''}" class="reward-label w-full p-2 rounded">
     <input type="number" placeholder="Amount" value="${reward.amount || ''}" class="reward-amount w-full p-2 rounded">
+    <input type="color" value="${reward.color || '#3b82f6'}" class="reward-color w-full h-10 rounded">
+    <input type="number" placeholder="Weight" value="${reward.weight || 1}" class="reward-weight w-full p-2 rounded">
   `;
   document.getElementById('wheel-rewards').appendChild(div);
 }
@@ -897,7 +899,9 @@ document.getElementById('wheel-form').addEventListener('submit', e => {
   e.preventDefault();
   const rewards = Array.from(document.querySelectorAll('#wheel-rewards .p-4')).map(div => ({
     label: div.querySelector('.reward-label').value,
-    amount: parseInt(div.querySelector('.reward-amount').value) || 0
+    amount: parseInt(div.querySelector('.reward-amount').value) || 0,
+    color: div.querySelector('.reward-color').value,
+    weight: parseFloat(div.querySelector('.reward-weight').value) || 1
   })).filter(r => r.label);
   firebase.database().ref('wheelRewards').set(rewards).then(() => showToast('✅ Rewards saved'));
 });
