@@ -67,6 +67,7 @@
       display: flex;
       flex-direction: column;
       height: 100%;
+      overflow: hidden;
     }
 
     .item-card:hover {
@@ -86,6 +87,15 @@
     select {
       background-color: white;
       color: black;
+    }
+
+    .item-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      word-break: break-word;
     }
 
     /* Item preview popup */
@@ -190,7 +200,7 @@
         <button onclick="shipSelected()" class="px-4 py-1.5 text-sm rounded-full font-semibold text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 transition btn whitespace-nowrap">Ship Selected</button>
       </div>
     </div>
-      <div id="inventory-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 auto-rows-fr"></div>
+      <div id="inventory-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 auto-rows-auto"></div>
     </section>
 
     <section id="orders-section" class="hidden">
@@ -198,16 +208,24 @@
         <h2 class="text-3xl font-bold mb-2 gradient-text flex items-center justify-center"><i class="fas fa-truck mr-2"></i>Your Recent Orders</h2>
         <p class="text-sm text-gray-600">Below are your previous shipment requests and their current status.</p>
       </div>
-      <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 auto-rows-fr"></div>
+      <div id="orders-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 auto-rows-auto"></div>
     </section>
   </main>
 
   <!-- Item Preview Popup -->
   <div id="item-popup" class="fixed inset-0 hidden flex items-center justify-center z-50">
-    <div class="popup-card relative">
+    <div class="popup-card relative text-center">
       <div id="popup-rotator">
         <img id="popup-item-image" src="" alt="Item preview" />
         <div id="holo-overlay"></div>
+      </div>
+      <h2 id="popup-item-name" class="text-lg font-semibold text-gray-800 mt-4"></h2>
+      <div class="flex items-center justify-center gap-2 mt-2">
+        <span id="popup-item-rarity" class="pill"></span>
+        <p class="flex items-center gap-1 text-gray-700">
+          <span id="popup-item-value"></span>
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" class="coin-icon" />
+        </p>
       </div>
       <div id="rotate-hint" class="absolute bottom-2 right-2 text-white opacity-80 pointer-events-none">
         <i class="fa-solid fa-arrows-rotate text-2xl animate-spin" style="animation-duration:3s;"></i>
