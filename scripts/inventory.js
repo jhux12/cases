@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     popupRotator.classList.add('grabbing');
     targetRotX = popupRotX;
     targetRotY = popupRotY;
+    if (holoOverlay) holoOverlay.style.opacity = '1';
     e.preventDefault();
   });
 
@@ -43,10 +44,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const endDrag = e => {
     if (!isDragging) return;
-    popupRotY = targetRotY;
-    popupRotX = targetRotX;
+    popupRotY = 0;
+    popupRotX = 0;
+    targetRotX = 0;
+    targetRotY = 0;
     isDragging = false;
     popupRotator.classList.remove('grabbing');
+    if (holoOverlay) holoOverlay.style.opacity = '0';
     e.preventDefault();
   };
   popupRotator?.addEventListener('pointerup', endDrag);
@@ -56,8 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
     currentRotX += (targetRotX - currentRotX) * 0.1;
     currentRotY += (targetRotY - currentRotY) * 0.1;
     popupRotator.style.transform = `rotateY(${currentRotY}deg) rotateX(${currentRotX}deg)`;
-    holoOverlay?.style.setProperty('--x', `${50 + currentRotY / 2}%`);
-    holoOverlay?.style.setProperty('--y', `${50 + currentRotX / 2}%`);
+    if (holoOverlay) {
+      holoOverlay.style.setProperty('--x', `${50 + currentRotY / 2}%`);
+      holoOverlay.style.setProperty('--y', `${50 + currentRotX / 2}%`);
+      holoOverlay.style.backgroundPosition = `${50 - currentRotY}% ${50 + currentRotX}%`;
+      holoOverlay.style.filter = `hue-rotate(${currentRotY * 2}deg) saturate(1.5)`;
+    }
     requestAnimationFrame(animate);
   };
   if (popupRotator) requestAnimationFrame(animate);
@@ -141,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML += `
           <div class="item-card rounded-2xl p-6 text-center h-full">
             <img src="${data.image}" class="mx-auto mb-4 h-24 object-contain rounded shadow-lg" />
-            <h2 class="font-semibold text-lg text-gray-800 truncate">${data.name}</h2>
+            <h2 class="item-name font-semibold text-lg text-gray-800">${data.name}</h2>
             <p class="text-sm text-gray-600 mb-1 capitalize">Status: ${data.status}</p>
             <p class="text-sm text-gray-600 mt-auto">Shipping Info: ${data.shippingInfo?.name || ''}</p>
           </div>`;
@@ -201,24 +209,17 @@ function renderItems(items) {
   items.forEach(item => {
     const refund = Math.floor((item.value || 0) * 0.8);
     const checked = selectedItems.has(item.key) ? 'checked' : '';
-    const rarityClassMap = { 'common': 'common', 'uncommon': 'uncommon', 'rare': 'rare', 'ultra rare': 'ultra', 'legendary': 'legendary' };
-    const rarityClass = rarityClassMap[item.rarity] || 'common';
     container.innerHTML += `
       <div class="item-card rounded-2xl p-6 text-center h-full">
         <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-3 accent-indigo-600" ${item.shipped || item.requested ? 'disabled' : ''} />
-        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}')" class="mx-auto mb-4 h-32 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
-        <h2 class="font-semibold text-gray-800 text-lg truncate">${item.name}</h2>
-        <span class="pill ${rarityClass}">${item.rarity}</span>
-        <p class="text-sm text-gray-600 mb-3 flex items-center justify-center gap-1">
-          <span>Value: ${item.value || 0}</span>
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="16" height="16" class="coin-icon" />
-        </p>
-        <div class="flex gap-2 mt-auto">
-          <button onclick="sellBack('${item.key}', ${item.value || 0})" ${item.shipped || item.requested ? 'disabled class="flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full flex items-center justify-center gap-1"' : 'class="flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-600 rounded-full flex items-center justify-center gap-1 whitespace-nowrap"'}>
+        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}','${encodeURIComponent(item.name)}','${encodeURIComponent(item.rarity)}', ${item.value || 0})" class="mx-auto mb-4 h-32 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
+        <h2 class="item-name font-semibold text-gray-800 text-lg mb-3">${item.name}</h2>
+        <div class="flex flex-col sm:flex-row gap-2 mt-auto">
+          <button onclick="sellBack('${item.key}', ${item.value || 0})" ${item.shipped || item.requested ? 'disabled class="w-full sm:flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full flex items-center justify-center gap-1"' : 'class="w-full sm:flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-600 rounded-full flex items-center justify-center gap-1"'}>
             <span>Sell for ${refund}</span>
             <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="14" height="14" class="coin-icon" />
           </button>
-          <button onclick="shipItem('${item.key}')" ${item.shipped || item.requested ? 'disabled class="flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full whitespace-nowrap"' : 'class="flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 rounded-full whitespace-nowrap"'}>Ship</button>
+          <button onclick="shipItem('${item.key}')" ${item.shipped || item.requested ? 'disabled class="w-full sm:flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full"' : 'class="w-full sm:flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 rounded-full"'}>Ship</button>
         </div>
       </div>`;
   });
@@ -365,13 +366,25 @@ function shipItem(key) {
   window.location.href = 'shipping.html';
 }
 
-function showItemPopup(encodedSrc) {
+function showItemPopup(encodedSrc, encodedName, encodedRarity, value) {
   const src = decodeURIComponent(encodedSrc);
+  const name = decodeURIComponent(encodedName || '');
+  const rarity = decodeURIComponent(encodedRarity || '');
   const img = document.getElementById('popup-item-image');
   const rotator = document.getElementById('popup-rotator');
   const holo = document.getElementById('holo-overlay');
   if (!img || !rotator) return;
   img.src = src;
+  const nameEl = document.getElementById('popup-item-name');
+  if (nameEl) nameEl.textContent = name;
+  const rarityEl = document.getElementById('popup-item-rarity');
+  if (rarityEl) {
+    const rarityClassMap = { 'common': 'common', 'uncommon': 'uncommon', 'rare': 'rare', 'ultra rare': 'ultra', 'legendary': 'legendary' };
+    rarityEl.className = `pill ${rarityClassMap[rarity] || 'common'}`;
+    rarityEl.textContent = rarity;
+  }
+  const valueEl = document.getElementById('popup-item-value');
+  if (valueEl) valueEl.textContent = value || 0;
   popupRotX = 0;
   popupRotY = 0;
   currentRotX = 0;
@@ -379,8 +392,13 @@ function showItemPopup(encodedSrc) {
   targetRotX = 0;
   targetRotY = 0;
   rotator.style.transform = 'rotateY(0deg) rotateX(0deg)';
-  holo?.style.setProperty('--x', '50%');
-  holo?.style.setProperty('--y', '50%');
+  if (holo) {
+    holo.style.setProperty('--x', '50%');
+    holo.style.setProperty('--y', '50%');
+    holo.style.backgroundPosition = '50% 50%';
+    holo.style.filter = 'hue-rotate(0deg)';
+    holo.style.opacity = '0';
+  }
   rotator.classList.remove('grabbing');
   const popup = document.getElementById('item-popup');
   const card = popup?.querySelector('.popup-card');
