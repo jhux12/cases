@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <a data-nav="box-battles.html" href="box-battles.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-sword mr-1"></i><i class="fas fa-shield-alt mr-2"></i> Battles</a>
               <a data-nav="leaderboard.html" href="leaderboard.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-trophy mr-1"></i>Leaderboard</a>
               <a data-nav="marketplace.html" href="marketplace.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-store mr-1"></i>Marketplace</a>
+              <a data-nav="rewards.html" href="rewards.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-gift mr-1"></i>Rewards</a>
             </div>
           </div>
           <div class="hidden md:ml-6 md:flex md:items-center">
@@ -85,6 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <a data-nav="box-battles.html" href="box-battles.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-sword mr-1"></i><i class="fas fa-shield-alt mr-2"></i> Battles</a>
           <a data-nav="leaderboard.html" href="leaderboard.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-trophy mr-2"></i>Leaderboard</a>
           <a data-nav="marketplace.html" href="marketplace.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-store mr-2"></i>Marketplace</a>
+          <a data-nav="rewards.html" href="rewards.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-gift mr-2"></i>Rewards</a>
         </div>
         <div class="pt-4 pb-3 border-t border-gray-200">
           <div id="user-balance-mobile-drawer" class="hidden coin-box text-sm mx-4 mb-3">
