@@ -16,8 +16,8 @@ window.addEventListener('DOMContentLoaded', () => {
       const userRef = firebase.database().ref('users/' + user.uid);
       const snapshot = await userRef.once('value');
       const userData = snapshot.val() || {};
-      if (!user.email || (!user.emailVerified && !userData.emailVerified)) {
-        alert('Please complete registration and verify your email to continue.');
+      if (!user.email) {
+        alert('Please complete registration to continue.');
         firebase.auth().signOut();
         return;
       }
