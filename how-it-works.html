@@ -10,47 +10,21 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
-  <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(to bottom right, #0f0f12, #1f1f27);
-      color: white;
-    }
-    .glass {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-    }
-    .how-card {
-      position: relative;
-      overflow: hidden;
-    }
-    .how-card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(236,72,153,0.2), rgba(234,179,8,0.2));
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .how-card:hover::before {
-      opacity: 1;
-    }
     .step-icon {
       width: 4rem;
       height: 4rem;
       font-size: 1.75rem;
-      background: linear-gradient(135deg, #f43f5e, #f59e0b);
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
       border-radius: 9999px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #fff;
-      box-shadow: 0 0 15px rgba(236,72,153,0.5);
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
       animation: float 3s ease-in-out infinite;
     }
     @keyframes float {
@@ -65,47 +39,47 @@
 
   <!-- 🔥 Upgraded How It Works Section -->
   <section class="pt-32 pb-24 px-6 max-w-7xl mx-auto text-center">
-    <h1 class="text-5xl sm:text-6xl font-extrabold mb-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 bg-clip-text text-transparent">
+    <h1 class="text-5xl sm:text-6xl font-extrabold mb-4 gradient-text">
       How Packly.gg Works
     </h1>
-    <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-16">
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-16">
       Discover the ultimate thrill of opening premium cases filled with real prizes. Here's your quick guide to winning big.
     </p>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-      <div class="glass how-card rounded-3xl p-8 text-left transition-transform duration-300 hover:-translate-y-2">
+      <div class="border border-gray-200 rounded-3xl p-8 text-left bg-white shadow-sm transition-transform duration-300 hover:-translate-y-2 hover:shadow-lg">
         <div class="step-icon mb-4">🔑</div>
         <h2 class="text-xl font-bold mb-2">1. Sign Up or Log In</h2>
-        <p class="text-gray-300">Create an account or sign in to start your pack-opening journey. Your pulls and balance will be securely tracked.</p>
+        <p class="text-gray-600">Create an account or sign in to start your pack-opening journey. Your pulls and balance will be securely tracked.</p>
       </div>
-      <div class="glass how-card rounded-3xl p-8 text-left transition-transform duration-300 hover:-translate-y-2">
+      <div class="border border-gray-200 rounded-3xl p-8 text-left bg-white shadow-sm transition-transform duration-300 hover:-translate-y-2 hover:shadow-lg">
         <div class="step-icon mb-4">💼</div>
         <h2 class="text-xl font-bold mb-2">2. Top Up Coins</h2>
-        <p class="text-gray-300">Easily top up your coin balance using the built-in system. Coins are used to open packs and try your luck!</p>
+        <p class="text-gray-600">Easily top up your coin balance using the built-in system. Coins are used to open packs and try your luck!</p>
       </div>
-      <div class="glass how-card rounded-3xl p-8 text-left transition-transform duration-300 hover:-translate-y-2">
+      <div class="border border-gray-200 rounded-3xl p-8 text-left bg-white shadow-sm transition-transform duration-300 hover:-translate-y-2 hover:shadow-lg">
         <div class="step-icon mb-4">🎁</div>
         <h2 class="text-xl font-bold mb-2">3. Open Packs</h2>
-        <p class="text-gray-300">Choose a case, view its possible rewards, and open it for a chance to win amazing items of varying rarities.</p>
+        <p class="text-gray-600">Choose a case, view its possible rewards, and open it for a chance to win amazing items of varying rarities.</p>
       </div>
-      <div class="glass how-card rounded-3xl p-8 text-left transition-transform duration-300 hover:-translate-y-2">
+      <div class="border border-gray-200 rounded-3xl p-8 text-left bg-white shadow-sm transition-transform duration-300 hover:-translate-y-2 hover:shadow-lg">
         <div class="step-icon mb-4">🏆</div>
         <h2 class="text-xl font-bold mb-2">4. View Your Inventory</h2>
-        <p class="text-gray-300">Everything you win is stored in your personal inventory. Access it anytime to manage your prizes.</p>
+        <p class="text-gray-600">Everything you win is stored in your personal inventory. Access it anytime to manage your prizes.</p>
       </div>
-      <div class="glass how-card rounded-3xl p-8 text-left transition-transform duration-300 hover:-translate-y-2">
+      <div class="border border-gray-200 rounded-3xl p-8 text-left bg-white shadow-sm transition-transform duration-300 hover:-translate-y-2 hover:shadow-lg">
         <div class="step-icon mb-4">🚚</div>
         <h2 class="text-xl font-bold mb-2">5. Ship or Sell Back</h2>
-        <p class="text-gray-300">You can choose to ship your item straight to your home, or sell it back for coins (with a 20% restock fee).</p>
+        <p class="text-gray-600">You can choose to ship your item straight to your home, or sell it back for coins (with a 20% restock fee).</p>
       </div>
-      <div class="glass how-card rounded-3xl p-8 text-left transition-transform duration-300 hover:-translate-y-2">
+      <div class="border border-gray-200 rounded-3xl p-8 text-left bg-white shadow-sm transition-transform duration-300 hover:-translate-y-2 hover:shadow-lg">
         <div class="step-icon mb-4">✨</div>
         <h2 class="text-xl font-bold mb-2">6. Keep Pulling!</h2>
-        <p class="text-gray-300">Top up, pull again, and chase those legendary rewards. Packly.gg is all about the thrill of the win.</p>
+        <p class="text-gray-600">Top up, pull again, and chase those legendary rewards. Packly.gg is all about the thrill of the win.</p>
       </div>
     </div>
     <div class="mt-16">
-      <a href="marketplace.html" class="inline-block px-8 py-4 bg-yellow-400 text-black rounded-full font-semibold shadow-lg hover:shadow-yellow-400/40 hover:-translate-y-1 transition-transform duration-300">Start Pulling Packs</a>
+      <a href="marketplace.html" class="inline-block px-8 py-4 rounded-full font-semibold shadow-sm bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-md hover:-translate-y-1 transition-transform duration-300">Start Pulling Packs</a>
     </div>
   </section>
 
