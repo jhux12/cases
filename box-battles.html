@@ -495,16 +495,16 @@
         const statusText = (status === 'lobby' || status === 'countdown') ? (p ? 'Ready' : 'Waiting') : '';
         return `
         <div class="player rounded-xl border border-gray-200 bg-gray-50 p-3 flex flex-col min-w-0${p?'':' opacity-70'}">
-          <div class="flex items-center justify-between mb-2 gap-2">
-            <div class="flex items-center gap-2 min-w-0">
-              <div class="relative flex-shrink-0">
-                <img src="${avatarUrl}" alt="avatar" class="w-8 h-8 rounded-full object-cover"/>
-              </div>
-              <span class="player-name text-sm truncate">${p?.displayName || ''}</span>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="relative flex-shrink-0">
+              <img src="${avatarUrl}" alt="avatar" class="w-8 h-8 rounded-full object-cover"/>
             </div>
-            <div class="flex items-center gap-1 text-xs text-gray-500 min-w-0 max-w-[70px]">
-              <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>
-              <span class="player-total truncate">${total}</span>
+            <div class="flex-1 min-w-0">
+              <span class="player-name block text-sm truncate">${p?.displayName || ''}</span>
+              <div class="flex items-center gap-1 text-xs text-gray-500">
+                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>
+                <span class="player-total">${total}</span>
+              </div>
             </div>
           </div>
           <div id="spinner-border-${i}" class="reel-host w-full h-40 border-2 border-gray-200 rounded-lg overflow-hidden">
