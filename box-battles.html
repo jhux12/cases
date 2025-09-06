@@ -409,7 +409,6 @@
     // --- Open/My/Previous lists
       function renderBattleRow(b){
         const live = (b.status==='lobby' || b.status==='countdown') ? pill('LIVE','live') : '';
-        const mode = (b.mode === 'share') ? 'SHARE MODE' : 'JACKPOT';
         const packs = renderPackIcons(b.packs || [], 'w-16 h-20');
         const playerIcons = (b.players||[]).map(p=> avatar(p)).join('');
         const seatCount = `${(b.players?.length || 0)}/${b.maxPlayers}`;
@@ -420,11 +419,11 @@
         return rowCard(`
           <div class="flex flex-col gap-3">
             <header class="flex items-center justify-between">
-              <div class="flex items-center gap-2 text-sm font-semibold">
-                <span class="uppercase">${mode}</span>
-                ${live}
+              <div class="flex items-center gap-2 text-sm font-semibold">${live}</div>
+              <div class="flex items-center text-sm text-gray-700">
+                <span class="mr-1 text-gray-500">Battle Cost</span>
+                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}
               </div>
-              <div class="flex items-center text-sm text-gray-700"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}</div>
             </header>
             <div class="flex items-center gap-2">${packs}</div>
             <div class="flex items-center justify-between">
