@@ -603,12 +603,15 @@
           if (me && (b.players||[]).some(p=>p.uid===me.uid)) mine.push(b);
         });
 
-        // Kick off server-side progression for any active battles so they
-        // complete even if no clients remain on the page. Also attempt a
-        // client-side tick in case previous runners were interrupted.
+        // Kick off server-side progression for any battles that haven't
+        // granted inventory so they complete even if no clients remain on the
+        // page. Also attempt a client-side tick in case previous runners were
+        // interrupted or lobbies expired while away.
         all.forEach(b=>{
-          if (b.status !== 'finished') {
+          if (!b.inventoryGranted) {
             triggerBattleRunner(b.id);
+          }
+          if (b.status !== 'finished') {
             // If the lobby/countdown has already expired while the user was
             // away, advance the battle immediately so it doesn't sit stuck as
             // "waiting for players" until someone opens the battle view.
