@@ -409,30 +409,36 @@
     // --- Open/My/Previous lists
       function renderBattleRow(b){
         const live = (b.status==='lobby' || b.status==='countdown') ? pill('LIVE','live') : '';
-        const packs = renderPackIcons(b.packs || [], 'w-10 h-12');
-        const players = (b.players||[]).map(p=>`<div class="flex items-center gap-1">${avatar(p)}<span class="hidden md:inline text-sm">${p.displayName||'Player'}</span></div>`).join('');
-      const seatCount = `${(b.players?.length || 0)}/${b.maxPlayers}`;
-      const canJoin = (b.status==='lobby' || b.status==='countdown') && (b.players?.length||0) < b.maxPlayers;
+        const mode = (b.mode === 'share') ? 'SHARE MODE' : 'JACKPOT';
+        const packs = renderPackIcons(b.packs || [], 'w-16 h-20');
+        const playerIcons = (b.players||[]).map(p=> avatar(p)).join('');
+        const seatCount = `${(b.players?.length || 0)}/${b.maxPlayers}`;
+        const canJoin = (b.status==='lobby' || b.status==='countdown') && (b.players?.length||0) < b.maxPlayers;
+        const cost = Number(b.cost || 0).toLocaleString();
+        const waitingText = canJoin ? 'waiting for players' : '';
 
-      const cost = Number(b.cost || 0).toLocaleString();
-      return rowCard(`
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full grid place-items-center bg-gray-100">${b.spinCount}</div>
+        return rowCard(`
+          <div class="flex flex-col gap-3">
+            <header class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-sm font-semibold">
+                <span class="uppercase">${mode}</span>
+                ${live}
+              </div>
+              <div class="flex items-center text-sm text-gray-700"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}</div>
+            </header>
             <div class="flex items-center gap-2">${packs}</div>
-          </div>
-          <div class="flex flex-wrap items-center gap-3">
-            ${live}
-            <div class="flex items-center text-sm text-gray-700"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}</div>
-            <div class="flex items-center gap-2">${players}<span class="text-sm text-gray-500">${seatCount}</span></div>
-            <div class="flex items-center gap-2">
-              ${canJoin ? `<button class="join-btn px-3 py-1.5 rounded-lg bg-indigo-500/80 hover:bg-indigo-500" data-id="${b.id}">Join</button>` : ''}
-              <button class="watch-btn px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200" data-id="${b.id}">Watch</button>
+            <div class="flex items-center justify-between">
+              <div class="flex -space-x-2 items-center">${playerIcons}</div>
+              <div class="flex items-center gap-2">
+                ${canJoin ? `<button class="join-btn px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-400 hover:to-blue-400 text-white" data-id="${b.id}">Join Battle</button>` : ''}
+                <button class="watch-btn px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200" data-id="${b.id}">View Battle</button>
+                <div class="w-6 h-6 rounded-md bg-gray-100 text-gray-700 text-xs flex items-center justify-center">${seatCount}</div>
+              </div>
             </div>
+            <div class="text-sm text-gray-500">${waitingText}</div>
           </div>
-        </div>
-      `);
-    }
+        `);
+      }
 
       function renderPreviousRow(b){
         const winner = b.winner?.displayName || '—';
