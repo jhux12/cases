@@ -604,9 +604,16 @@
         });
 
         // Kick off server-side progression for any active battles so they
-        // complete even if no clients remain on the page.
+        // complete even if no clients remain on the page. Also attempt a
+        // client-side tick in case previous runners were interrupted.
         all.forEach(b=>{
-          if (b.status !== 'finished') triggerBattleRunner(b.id);
+          if (b.status !== 'finished') {
+            triggerBattleRunner(b.id);
+            // If the lobby/countdown has already expired while the user was
+            // away, advance the battle immediately so it doesn't sit stuck as
+            // "waiting for players" until someone opens the battle view.
+            maybeFillBotsAndStart(b);
+          }
         });
 
         $('#battle-list').innerHTML = all.slice(0,5).map(renderBattleRow).join('') || '<div class="text-gray-500">No battles yet.</div>';
