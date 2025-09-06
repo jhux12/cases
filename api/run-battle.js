@@ -86,8 +86,6 @@ async function runLoop(ref) {
       packCache.set(packMeta.id, full);
     }
 
-    const indexes = players.map(p => getWinningIndex(full, 'serverSeed', p.uid, `${round}`));
-
     let grantUid = null;
     let allPulls = [];
     await db.runTransaction(async tx => {
@@ -96,11 +94,14 @@ async function runLoop(ref) {
       if (!d || d.status !== 'spinning') return;
 
       const currentRound = d.roundIndex || 0;
+      if (currentRound !== round) return; // another runner moved ahead
+
       const dPlayers = d.players || [];
+      const indexesTx = dPlayers.map(p => getWinningIndex(full, 'serverSeed', p.uid, `${currentRound}`));
 
       dPlayers.forEach((P, i) => {
-        const prize = full.prizes[indexes[i]];
-        const pull = { round: currentRound, packId: full.id, prizeId: prize.id, value: prize.value, index: indexes[i], at: admin.firestore.Timestamp.now() };
+        const prize = full.prizes[indexesTx[i]];
+        const pull = { round: currentRound, packId: full.id, prizeId: prize.id, value: prize.value, index: indexesTx[i], at: admin.firestore.Timestamp.now() };
         P.pulls = (P.pulls || []).concat([pull]);
         P.total = (P.total || 0) + (prize.value || 0);
         dPlayers[i] = P;

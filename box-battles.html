@@ -105,14 +105,8 @@
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Open Battles -->
       <div class="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-4">
-        <header class="flex items-center justify-between mb-3">
+        <header class="flex items-center mb-3">
           <h2 class="text-lg font-semibold">Open Battles</h2>
-          <form id="filters-form" class="hidden md:flex items-center gap-2 text-sm">
-            <input class="bg-white rounded-lg px-3 py-1.5 border border-gray-300 placeholder-gray-400" placeholder="Min value"/>
-            <select class="bg-white rounded-lg px-3 py-1.5 border border-gray-300">
-              <option>Any seats</option><option>2</option><option>3</option><option>4</option>
-            </select>
-          </form>
         </header>
         <div id="battle-list" class="space-y-3"></div>
       </div>
@@ -211,8 +205,8 @@
      - DO NOT rename these hook IDs: 
        #create-battle-btn #battle-form #pack-grid #spin-count #player-count
        #battle-list #my-battles #previous-battles #rewatch-modal #rewatch-stage
-       #battle-stage #stage-scoreboard #stage-status #join-aside #filters-form
-     *********************************/
+      #battle-stage #stage-scoreboard #stage-status #join-aside
+    *********************************/
 
     // --- Shortcuts
     const firestore = firebase.firestore();
@@ -336,7 +330,9 @@
       const init = (name||'U')[0]?.toUpperCase() || 'U';
       return `<div class="w-8 h-8 rounded-full bg-gray-100 grid place-items-center text-sm font-semibold">${init}</div>`;
     }
-  function rowCard(inner){ return `<div class="rounded-xl border border-gray-200 bg-white p-3">${inner}</div>`; }
+  function rowCard(inner){
+    return `<div class="rounded-2xl border border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-4 shadow-sm hover:shadow-md transition-shadow">${inner}</div>`;
+  }
 
   function renderPackIcons(packs, sizeClass, limit){
     const map = {};
@@ -409,30 +405,37 @@
     // --- Open/My/Previous lists
       function renderBattleRow(b){
         const live = (b.status==='lobby' || b.status==='countdown') ? pill('LIVE','live') : '';
-        const packs = renderPackIcons(b.packs || [], 'w-10 h-12');
-        const players = (b.players||[]).map(p=>`<div class="flex items-center gap-1">${avatar(p)}<span class="hidden md:inline text-sm">${p.displayName||'Player'}</span></div>`).join('');
-      const seatCount = `${(b.players?.length || 0)}/${b.maxPlayers}`;
-      const canJoin = (b.status==='lobby' || b.status==='countdown') && (b.players?.length||0) < b.maxPlayers;
+        const packs = renderPackIcons(b.packs || [], 'w-20 h-24');
+        const playerIcons = (b.players||[]).map(p=> avatar(p)).join('');
+        const seatCount = `${(b.players?.length || 0)}/${b.maxPlayers}`;
+        const canJoin = (b.status==='lobby' || b.status==='countdown') && (b.players?.length||0) < b.maxPlayers;
+        const cost = Number(b.cost || 0).toLocaleString();
+        const waitingText = canJoin ? 'waiting for players' : '';
 
-      const cost = Number(b.cost || 0).toLocaleString();
-      return rowCard(`
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full grid place-items-center bg-gray-100">${b.spinCount}</div>
-            <div class="flex items-center gap-2">${packs}</div>
-          </div>
-          <div class="flex flex-wrap items-center gap-3">
-            ${live}
-            <div class="flex items-center text-sm text-gray-700"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}</div>
-            <div class="flex items-center gap-2">${players}<span class="text-sm text-gray-500">${seatCount}</span></div>
-            <div class="flex items-center gap-2">
-              ${canJoin ? `<button class="join-btn px-3 py-1.5 rounded-lg bg-indigo-500/80 hover:bg-indigo-500" data-id="${b.id}">Join</button>` : ''}
-              <button class="watch-btn px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200" data-id="${b.id}">Watch</button>
+        return rowCard(`
+          <div class="flex items-center gap-4">
+            <div class="flex-shrink-0 flex items-center gap-2">${packs}</div>
+            <div class="flex-1 flex flex-col gap-2">
+              <header class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sm font-semibold">${live}</div>
+                <div class="flex items-center text-sm text-gray-700">
+                  <span class="mr-1 text-gray-500">Battle Cost</span>
+                  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}
+                </div>
+              </header>
+              <div class="flex items-center justify-between">
+                <div class="flex -space-x-2 items-center">${playerIcons}</div>
+                <div class="flex items-center gap-2">
+                  ${canJoin ? `<button class="join-btn px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-400 hover:to-blue-400 text-white" data-id="${b.id}">Join Battle</button>` : ''}
+                  <button class="watch-btn px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200" data-id="${b.id}">View Battle</button>
+                  <div class="w-6 h-6 rounded-md bg-gray-100 text-gray-700 text-xs flex items-center justify-center">${seatCount}</div>
+                </div>
+              </div>
+              <div class="text-sm text-gray-500">${waitingText}</div>
             </div>
           </div>
-        </div>
-      `);
-    }
+        `);
+      }
 
       function renderPreviousRow(b){
         const winner = b.winner?.displayName || '—';
@@ -490,16 +493,16 @@
         const statusText = (status === 'lobby' || status === 'countdown') ? (p ? 'Ready' : 'Waiting') : '';
         return `
         <div class="player rounded-xl border border-gray-200 bg-gray-50 p-3 flex flex-col min-w-0${p?'':' opacity-70'}">
-          <div class="flex items-center justify-between mb-2 gap-2">
-            <div class="flex items-center gap-2 min-w-0">
-              <div class="relative flex-shrink-0">
-                <img src="${avatarUrl}" alt="avatar" class="w-8 h-8 rounded-full object-cover"/>
-              </div>
-              <span class="player-name text-sm truncate">${p?.displayName || ''}</span>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="relative flex-shrink-0">
+              <img src="${avatarUrl}" alt="avatar" class="w-8 h-8 rounded-full object-cover"/>
             </div>
-            <div class="flex items-center gap-1 text-xs text-gray-500 min-w-0 max-w-[70px]">
-              <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>
-              <span class="player-total truncate">${total}</span>
+            <div class="flex-1 min-w-0">
+              <span class="player-name block text-sm truncate">${p?.displayName || ''}</span>
+              <div class="flex items-center gap-1 text-xs text-gray-500">
+                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>
+                <span class="player-total">${total}</span>
+              </div>
             </div>
           </div>
           <div id="spinner-border-${i}" class="reel-host w-full h-40 border-2 border-gray-200 rounded-lg overflow-hidden">
@@ -838,22 +841,25 @@
         let allPulls = [];
         await firestore.runTransaction(async tx => {
           const s = await tx.get(docRef);
-          const d = s.data(); if (!d || d.status !== 'spinning') return;
+          const d = s.data();
+          if (!d || d.status !== 'spinning') return;
 
           const currentRound = d.roundIndex || 0;
-          const dPlayers = d.players || [];
+          if (currentRound !== round) return; // another runner already advanced
 
-          players.forEach((player, idx) => {
-            const prize = full.prizes[indexes[idx]];
+          const dPlayers = d.players || [];
+          const indexesTx = dPlayers.map(p => getWinningIndex(full, 'serverSeed', p.uid, `${currentRound}`));
+
+          dPlayers.forEach((P, idx) => {
+            const prize = full.prizes[indexesTx[idx]];
             const pull = {
               round: currentRound,
               packId: full.id,
               prizeId: prize.id,
               value: prize.value,
-              index: indexes[idx],
+              index: indexesTx[idx],
               at: firebase.firestore.Timestamp.now()
             };
-            const P = dPlayers[idx];
             P.pulls = (P.pulls || []).concat([pull]);
             P.total = (P.total || 0) + (prize.value || 0);
             dPlayers[idx] = P;
