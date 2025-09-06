@@ -843,22 +843,25 @@
         let allPulls = [];
         await firestore.runTransaction(async tx => {
           const s = await tx.get(docRef);
-          const d = s.data(); if (!d || d.status !== 'spinning') return;
+          const d = s.data();
+          if (!d || d.status !== 'spinning') return;
 
           const currentRound = d.roundIndex || 0;
-          const dPlayers = d.players || [];
+          if (currentRound !== round) return; // another runner already advanced
 
-          players.forEach((player, idx) => {
-            const prize = full.prizes[indexes[idx]];
+          const dPlayers = d.players || [];
+          const indexesTx = dPlayers.map(p => getWinningIndex(full, 'serverSeed', p.uid, `${currentRound}`));
+
+          dPlayers.forEach((P, idx) => {
+            const prize = full.prizes[indexesTx[idx]];
             const pull = {
               round: currentRound,
               packId: full.id,
               prizeId: prize.id,
               value: prize.value,
-              index: indexes[idx],
+              index: indexesTx[idx],
               at: firebase.firestore.Timestamp.now()
             };
-            const P = dPlayers[idx];
             P.pulls = (P.pulls || []).concat([pull]);
             P.total = (P.total || 0) + (prize.value || 0);
             dPlayers[idx] = P;
