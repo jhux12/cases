@@ -344,7 +344,7 @@
     return Object.values(map)
       .slice(0, limit || Object.keys(map).length)
       .map(({pack, count})=>`
-        <div class="relative">
+        <div class="relative flex-shrink-0">
           <img src="${pack.image}" class="${sizeClass} object-cover rounded-md border border-gray-200"/>
           ${count>1 ? `<span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-indigo-600 text-white text-[0.625rem] flex items-center justify-center">${count}</span>` : ''}
         </div>`)
@@ -413,26 +413,24 @@
         const waitingText = canJoin ? 'waiting for players' : '';
 
         return rowCard(`
-          <div class="flex items-center gap-4">
-            <div class="flex-shrink-0 flex items-center gap-2">${packs}</div>
-            <div class="flex-1 flex flex-col gap-2">
-              <header class="flex items-center justify-between">
-                <div class="flex items-center gap-2 text-sm font-semibold">${live}</div>
-                <div class="flex items-center text-sm text-gray-700">
-                  <span class="mr-1 text-gray-500">Battle Cost</span>
-                  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}
-                </div>
-              </header>
-              <div class="flex items-center justify-between">
-                <div class="flex -space-x-2 items-center">${playerIcons}</div>
-                <div class="flex items-center gap-2">
-                  ${canJoin ? `<button class="join-btn px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-400 hover:to-blue-400 text-white" data-id="${b.id}">Join Battle</button>` : ''}
-                  <button class="watch-btn px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200" data-id="${b.id}">View Battle</button>
-                  <div class="w-6 h-6 rounded-md bg-gray-100 text-gray-700 text-xs flex items-center justify-center">${seatCount}</div>
-                </div>
+          <div class="flex flex-col gap-3">
+            <header class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-sm font-semibold">${live}</div>
+              <div class="flex items-center text-sm text-gray-700">
+                <span class="mr-1 text-gray-500">Battle Cost</span>
+                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}
               </div>
-              <div class="text-sm text-gray-500">${waitingText}</div>
+            </header>
+            <div class="flex items-center gap-2 overflow-x-auto pb-2">${packs}</div>
+            <div class="flex items-center justify-between">
+              <div class="flex -space-x-2 items-center">${playerIcons}</div>
+              <div class="flex items-center gap-2">
+                ${canJoin ? `<button class="join-btn px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-400 hover:to-blue-400 text-white" data-id="${b.id}">Join Battle</button>` : ''}
+                <button class="watch-btn px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200" data-id="${b.id}">View Battle</button>
+                <div class="w-6 h-6 rounded-md bg-gray-100 text-gray-700 text-xs flex items-center justify-center">${seatCount}</div>
+              </div>
             </div>
+            <div class="text-sm text-gray-500">${waitingText}</div>
           </div>
         `);
       }
