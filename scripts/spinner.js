@@ -110,7 +110,7 @@ export function spinToPrize(callback, showPopup = true, id = 0, durationSec = 5)
     spinnerWheel.style.transform = `translate3d(-${finalOffset}px,0,0)`;
   });
 
-  let animationFrame;
+  let tracker;
 
   function trackCenterPrize() {
     const cards = spinnerWheel.querySelectorAll(".item");
@@ -130,7 +130,7 @@ export function spinToPrize(callback, showPopup = true, id = 0, durationSec = 5)
     });
 
     if (closestCard) {
-      const indexAttr = closestCard.getAttribute("data-index");
+      const indexAttr = parseInt(closestCard.getAttribute("data-index"), 10);
       const prize = spinnerPrizesMap[id][indexAttr];
       const rarity = (prize?.rarity || "common").toLowerCase().replace(/\s+/g, '');
       const color = getRarityColor(rarity);
@@ -138,15 +138,14 @@ export function spinToPrize(callback, showPopup = true, id = 0, durationSec = 5)
       const borderEl = document.getElementById(`spinner-border-${id}`);
       if (borderEl) borderEl.style.borderColor = color;
     }
-
-    animationFrame = requestAnimationFrame(trackCenterPrize);
   }
 
   trackCenterPrize();
+  tracker = setInterval(trackCenterPrize, 100);
 
   return new Promise(resolve => {
   function onTransitionEnd() {
-      cancelAnimationFrame(animationFrame);
+      clearInterval(tracker);
       spinnerWheel.style.willChange = '';
       spinnerWheel.style.transition = 'none';
 
