@@ -891,8 +891,8 @@
             d.winner = { uid: top.uid, displayName: top.displayName, total: top.total };
             d.status = 'finished';
             d.finishedAt = firebase.firestore.FieldValue.serverTimestamp();
-            if (!top.isBot && !d.inventoryGranted) {
-              d.inventoryGranted = true;
+            if (!top.isBot && !d.inventoryGrantUid && !d.inventoryGranted) {
+              d.inventoryGrantUid = top.uid;
               grantUid = top.uid;
               allPulls = (dPlayers || []).flatMap(pl => pl.pulls || []);
             }
@@ -919,6 +919,7 @@
               });
             }
           }
+          await docRef.set({ inventoryGranted: true, inventoryGrantUid: firebase.firestore.FieldValue.delete() }, { merge: true });
         }
 
         await sleep(2000); // longer break between rounds

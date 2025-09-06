@@ -62,6 +62,10 @@ async function processBattle(id) {
       return;
     }
 
+    if (b.status === 'finished' && !b.inventoryGranted) {
+      await grantInventory(ref, b);
+    }
+
     // Finished or unknown state
     return;
   }
@@ -122,8 +126,8 @@ async function runLoop(ref) {
         d.winner = { uid: top.uid, displayName: top.displayName, total: top.total };
         d.status = 'finished';
         d.finishedAt = admin.firestore.FieldValue.serverTimestamp();
-        if (!top.isBot && !d.inventoryGranted) {
-          d.inventoryGranted = true;
+        if (!top.isBot && !d.inventoryGrantUid && !d.inventoryGranted) {
+          d.inventoryGrantUid = top.uid;
           grantUid = top.uid;
           allPulls = (dPlayers || []).flatMap(pl => pl.pulls || []);
         }
@@ -155,10 +159,52 @@ async function runLoop(ref) {
           });
         }
       }
+      await ref.set({ inventoryGranted: true, inventoryGrantUid: admin.firestore.FieldValue.delete() }, { merge: true });
     }
 
     await sleep(2000);
   }
+}
+
+async function grantInventory(ref, battle) {
+  const packCache = new Map();
+  const grantUid = battle.inventoryGrantUid || (battle.winner && battle.winner.uid);
+  const players = battle.players || [];
+  const allPulls = players.flatMap(pl => pl.pulls || []);
+  if (!grantUid || !allPulls.length) return;
+
+  const committed = await db.runTransaction(async tx => {
+    const s = await tx.get(ref);
+    const d = s.data();
+    if (!d || d.inventoryGranted) return false;
+    if (!d.inventoryGrantUid) {
+      tx.set(ref, { inventoryGrantUid: grantUid }, { merge: true });
+    }
+    return true;
+  });
+  if (!committed) return;
+
+  for (const pl of allPulls) {
+    let pack = packCache.get(pl.packId);
+    if (!pack) {
+      const doc = await db.collection('packs').doc(pl.packId).get();
+      pack = { id: pl.packId, prizes: doc.get('prizes') || [] };
+      packCache.set(pl.packId, pack);
+    }
+    const prize = pack.prizes.find(pr => pr.id === pl.prizeId);
+    if (prize) {
+      await admin.database().ref(`users/${grantUid}/inventory`).push({
+        name: prize.name,
+        image: prize.image,
+        rarity: prize.rarity,
+        value: prize.value,
+        timestamp: Date.now(),
+        sold: false
+      });
+    }
+  }
+
+  await ref.set({ inventoryGranted: true, inventoryGrantUid: admin.firestore.FieldValue.delete() }, { merge: true });
 }
 
 function getWinningIndex(pack, serverSeed, clientSeed, nonce) {
