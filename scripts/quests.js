@@ -57,20 +57,20 @@ export async function renderWeeklyQuests(containerId = "quest-container") {
   const resetTime = 7 * 24 * 60 * 60 * 1000;
 
   container.innerHTML = `
-    <div class="bg-gradient-to-br from-[#1f1f2b] to-[#12121b] rounded-2xl p-6 sm:p-8 shadow-xl text-white w-full max-w-3xl mx-auto">
-      <h2 class="text-3xl font-bold text-center mb-2 text-yellow-300 tracking-tight">🎯 Weekly Tasks</h2>
-      <p id="quest-reset-timer" class="text-sm text-gray-400 text-center mb-6"></p>
+    <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 sm:p-8 shadow-xl text-gray-900 w-full max-w-3xl mx-auto">
+      <h2 class="text-3xl font-bold text-center mb-2 text-yellow-600 tracking-tight">🎯 Weekly Tasks</h2>
+      <p id="quest-reset-timer" class="text-sm text-gray-600 text-center mb-6"></p>
       <div class="overflow-x-auto">
         <table class="w-full text-left text-sm">
           <thead>
-            <tr class="text-gray-400 border-b border-gray-700">
+            <tr class="text-gray-700 border-b border-gray-200">
               <th class="py-2 font-medium">Task</th>
               <th class="py-2 font-medium w-40">Progress</th>
               <th class="py-2 font-medium w-24">Reward</th>
               <th class="py-2 font-medium text-right w-28">Action</th>
             </tr>
           </thead>
-          <tbody id="quest-table-body" class="divide-y divide-gray-700"></tbody>
+          <tbody id="quest-table-body" class="divide-y divide-gray-200"></tbody>
         </table>
       </div>
     </div>`;
@@ -104,25 +104,25 @@ export async function renderWeeklyQuests(containerId = "quest-container") {
     row.innerHTML = `
       <td class="py-3">
         <div class="flex items-center gap-3">
-          <i class="${quest.icon} text-yellow-400 text-lg"></i>
-          <span class="text-white font-medium">${quest.label}</span>
+          <i class="${quest.icon} text-yellow-500 text-lg"></i>
+          <span class="text-gray-900 font-medium">${quest.label}</span>
         </div>
       </td>
       <td class="py-3">
-        <div class="w-full bg-gray-800 rounded-full h-2 mb-1">
+        <div class="w-full bg-gray-200 rounded-full h-2 mb-1">
           <div class="bg-yellow-400 h-2 rounded-full" style="width: ${percent}%"></div>
         </div>
-        <span class="text-xs text-gray-400">${quest.progress}/${quest.goal}</span>
+        <span class="text-xs text-gray-600">${quest.progress}/${quest.goal}</span>
       </td>
-      <td class="py-3 text-yellow-300 font-medium">
+      <td class="py-3 text-yellow-600 font-medium">
         <div class="flex items-center gap-1">
           +${quest.reward}
           <i class="fas fa-coins"></i>
         </div>
       </td>
       <td class="py-3 text-right">
-        <button class="quest-claim-btn bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-1 px-4 rounded-full text-xs transition ${(!completed || quest.claimed) ? "opacity-50 cursor-not-allowed" : ""}" ${(!completed || quest.claimed) ? "disabled" : ""}>
-          ${quest.claimed ? "Claimed" : completed ? "Claim" : "Incomplete"}
+        <button class="quest-claim-btn bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-1 px-4 rounded-full text-xs transition ${(!completed || quest.claimed) ? 'opacity-50 cursor-not-allowed' : ''}" ${(!completed || quest.claimed) ? 'disabled' : ''}>
+          ${quest.claimed ? 'Claimed' : completed ? 'Claim' : 'Incomplete'}
         </button>
       </td>`;
 
