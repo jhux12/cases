@@ -21,10 +21,8 @@ module.exports = async (req, res) => {
   res.end(JSON.stringify({ ok: true }));
 };
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-// Progress a battle until it finishes, waiting out lobby/countdown timers and
-// spinning all rounds without requiring additional HTTP pings.
+// Progress a battle to completion without waiting on client-side timers so
+// rewards are granted even if no one is watching the battle.
 async function processBattle(id) {
   const ref = db.collection('battles').doc(id);
 
@@ -32,11 +30,8 @@ async function processBattle(id) {
     const snap = await ref.get();
     if (!snap.exists) return;
     const b = snap.data();
-    const now = new Date();
 
     if (b.status === 'lobby') {
-      const wait = b.botFillAt ? b.botFillAt.toDate() - now : 0;
-      if (wait > 0) await sleep(wait);
       const players = b.players || [];
       while (players.length < b.maxPlayers) {
         players.push({ uid: 'bot-' + Math.random().toString(36).slice(2,8), displayName: 'Bot', isBot: true, total: 0, pulls: [] });
@@ -47,8 +42,6 @@ async function processBattle(id) {
     }
 
     if (b.status === 'countdown') {
-      const wait = b.countdownEndsAt ? b.countdownEndsAt.toDate() - now : 0;
-      if (wait > 0) await sleep(wait);
       const players = b.players || [];
       while (players.length < b.maxPlayers) {
         players.push({ uid: 'bot-' + Math.random().toString(36).slice(2,8), displayName: 'Bot', isBot: true, total: 0, pulls: [] });
@@ -59,11 +52,12 @@ async function processBattle(id) {
 
     if (b.status === 'spinning') {
       await runLoop(ref);
-      return;
+      continue;
     }
 
     if (b.status === 'finished' && !b.inventoryGranted) {
       await grantInventory(ref, b);
+      continue;
     }
 
     // Finished or unknown state
@@ -161,8 +155,6 @@ async function runLoop(ref) {
       }
       await ref.set({ inventoryGranted: true, inventoryGrantUid: admin.firestore.FieldValue.delete() }, { merge: true });
     }
-
-    await sleep(2000);
   }
 }
 
