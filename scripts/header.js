@@ -89,8 +89,8 @@ document.addEventListener("DOMContentLoaded", () => {
           <a data-nav="rewards.html" href="rewards.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-gift mr-2"></i>Rewards</a>
         </div>
         <div class="pt-4 pb-3 border-t border-gray-200">
-          <div id="user-balance-mobile-drawer" class="hidden coin-box text-sm mx-4 mb-3">
-            <div class="balance">
+          <div id="user-balance-mobile-drawer" class="hidden coin-box text-sm ml-4 mb-3">
+            <div class="balance pl-4 pr-3">
               <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" alt="Coins">
               <span id="balance-amount-mobile-dropdown" class="font-medium">0</span>
             </div>
