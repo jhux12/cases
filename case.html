@@ -450,7 +450,8 @@ const openerItems = prizeList.map((p, i) => ({
   id: i,
   name: p.name,
   image: p.image,
-  value: formatCoins(p.value || 0),
+  // Pass raw numeric value; spinner.js will format the coin amount itself
+  value: Number(p.value) || 0,
   rarity: (p.rarity || 'common').toLowerCase().replace(/\s+/g,'')
 }));
 PackOpener.init({ root: document.getElementById('reel'), items: openerItems });
