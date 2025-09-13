@@ -27,14 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!legendary.length) return;
 
     const selected = legendary.sort(() => Math.random() - 0.5).slice(0, 6);
-    selected.forEach((card, idx) => {
+    selected.forEach((card) => {
       const price = card.value ? Number(card.value).toLocaleString() : '0';
       const rarity = (card.rarity || 'common').toLowerCase().replace(/\s+/g, '');
       const color = rarityColors[rarity] || '#a1a1aa';
       const displayName = (card.name || '').toString();
       const truncatedName = truncate(displayName, MAX_NAME_LENGTH);
       const cardEl = document.createElement('div');
-      cardEl.className = 'bg-white rounded-lg overflow-hidden shadow-md card-hover transition-all duration-300 flex-shrink-0 w-40 border-2';
+      cardEl.className = 'bg-white rounded-lg overflow-hidden shadow-md card-hover transition-all duration-300 border-2';
       cardEl.style.borderColor = color;
       cardEl.classList.add(`glow-${rarity}`);
       cardEl.innerHTML = `
@@ -48,24 +48,5 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
       container.appendChild(cardEl);
     });
-
-    startAutoScroll();
   });
-
-  function startAutoScroll() {
-    if (container.scrollWidth <= container.clientWidth) return;
-    const card = container.querySelector('div');
-    if (!card) return;
-    const cardWidth = card.getBoundingClientRect().width;
-    const gap = 16; // matches Tailwind's space-x-4
-    const step = cardWidth + gap;
-    setInterval(() => {
-      const maxScrollLeft = container.scrollWidth - container.clientWidth;
-      if (container.scrollLeft >= maxScrollLeft) {
-        container.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        container.scrollBy({ left: step, behavior: 'smooth' });
-      }
-    }, 3000);
-  }
 });
