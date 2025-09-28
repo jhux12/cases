@@ -2,6 +2,34 @@
 
 const selectedItems = new Set();
 let currentItems = [];
+
+const VOUCHER_NAME_PATTERN = /voucher/i;
+
+function getVoucherAmount(prize = {}) {
+  const candidates = [prize.voucherAmount, prize.redeemValue, prize.redeemAmount];
+  for (const value of candidates) {
+    const amount = Number(value);
+    if (Number.isFinite(amount) && amount > 0) return Math.round(amount);
+  }
+  return 0;
+}
+
+function isVoucherItem(prize = {}) {
+  if (prize.isVoucher === true) return true;
+  const type = typeof prize.type === 'string' ? prize.type.toLowerCase() : '';
+  if (type === 'voucher') return true;
+  if (getVoucherAmount(prize) > 0) return true;
+  if (Array.isArray(prize.tags) && prize.tags.some(tag => typeof tag === 'string' && tag.toLowerCase() === 'voucher')) return true;
+  if (typeof prize.name === 'string' && VOUCHER_NAME_PATTERN.test(prize.name)) return true;
+  return false;
+}
+
+function getEffectiveValue(prize = {}) {
+  const baseValue = Number(prize.value) || 0;
+  const voucherAmount = getVoucherAmount(prize);
+  if (isVoucherItem(prize) && voucherAmount > 0) return voucherAmount;
+  return baseValue;
+}
 let popupRotX = 0;
 let popupRotY = 0;
 let currentRotX = 0;
@@ -176,7 +204,7 @@ function updateTotalValue() {
   let total = 0;
   selectedItems.forEach(key => {
     const item = currentItems.find(i => i.key === key);
-    if (item) total += Math.floor((item.value || 0) * 0.8);
+    if (item) total += Math.floor(getEffectiveValue(item) * 0.8);
   });
   document.getElementById('selected-total').innerText = `Total: ${total} coins`;
 }
@@ -192,19 +220,32 @@ function renderItems(items) {
   container.innerHTML = '';
 
   items.forEach(item => {
-    const refund = Math.floor((item.value || 0) * 0.8);
+    const voucherAmount = getVoucherAmount(item);
+    const isVoucher = isVoucherItem(item);
+    const baseValue = Number(item.value) || 0;
+    const effectiveValue = isVoucher && voucherAmount > 0 ? voucherAmount : baseValue;
+    const refund = Math.floor(effectiveValue * 0.8);
     const checked = selectedItems.has(item.key) ? 'checked' : '';
+    const shipMarkup = (() => {
+      if (isVoucher && !(item.shipped || item.requested)) {
+        return '<span class="w-full sm:flex-1 px-3 py-1.5 text-xs font-semibold text-amber-600 bg-amber-100 rounded-full flex items-center justify-center gap-1">Voucher — Redeem Only</span>';
+      }
+      const attrs = item.shipped || item.requested
+        ? 'disabled class="w-full sm:flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full"'
+        : 'class="w-full sm:flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 rounded-full"';
+      return `<button onclick="shipItem('${item.key}')" ${attrs}>Ship</button>`;
+    })();
     container.innerHTML += `
       <div class="item-card rounded-2xl p-6 text-center h-full">
         <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-3 accent-indigo-600" ${item.shipped || item.requested ? 'disabled' : ''} />
-        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}','${encodeURIComponent(item.name)}','${encodeURIComponent(item.rarity)}', ${item.value || 0})" class="mx-auto mb-4 h-32 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
+        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}','${encodeURIComponent(item.name)}','${encodeURIComponent(item.rarity)}', ${effectiveValue}, ${isVoucher}, ${voucherAmount})" class="mx-auto mb-4 h-32 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
         <h2 class="item-name font-semibold text-gray-800 text-lg mb-3">${item.name}</h2>
         <div class="flex flex-col sm:flex-row gap-2 mt-auto">
-          <button onclick="sellBack('${item.key}', ${item.value || 0})" ${item.shipped || item.requested ? 'disabled class="w-full sm:flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full flex items-center justify-center gap-1"' : 'class="w-full sm:flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-600 rounded-full flex items-center justify-center gap-1"'}>
+          <button onclick="sellBack('${item.key}', ${effectiveValue})" ${item.shipped || item.requested ? 'disabled class="w-full sm:flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full flex items-center justify-center gap-1"' : 'class="w-full sm:flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-600 rounded-full flex items-center justify-center gap-1"'}>
             <span>Sell for ${refund}</span>
             <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="14" height="14" class="coin-icon" />
           </button>
-          <button onclick="shipItem('${item.key}')" ${item.shipped || item.requested ? 'disabled class="w-full sm:flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full"' : 'class="w-full sm:flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 rounded-full"'}>Ship</button>
+          ${shipMarkup}
         </div>
       </div>`;
   });
@@ -278,7 +319,7 @@ function sellSelected() {
   let total = 0;
   selectedItems.forEach(key => {
     const item = currentItems.find(i => i.key === key);
-    if (item) total += Math.floor((item.value || 0) * 0.8);
+    if (item) total += Math.floor(getEffectiveValue(item) * 0.8);
   });
 
   const userRef = firebase.database().ref('users/' + user.uid);
@@ -288,7 +329,7 @@ function sellSelected() {
     selectedItems.forEach(key => {
       const item = currentItems.find(i => i.key === key);
       if (item) {
-        const refund = Math.floor((item.value || 0) * 0.8);
+        const refund = Math.floor(getEffectiveValue(item) * 0.8);
         const before = currentBalance;
         currentBalance += refund;
         const historyRef = firebase.database().ref(`users/${user.uid}/unboxHistory/${key}`);
@@ -332,12 +373,39 @@ function sellSelected() {
 
 function shipSelected() {
   const shipmentSelection = [];
+  let blockedVoucher = false;
   selectedItems.forEach(key => {
     const item = currentItems.find(i => i.key === key);
-    if (item) shipmentSelection.push({ id: item.id, name: item.name, image: item.image });
+    if (!item || item.shipped || item.requested) return;
+    if (isVoucherItem(item)) {
+      blockedVoucher = true;
+      return;
+    }
+    shipmentSelection.push({ id: item.id, name: item.name, image: item.image });
   });
 
-  if (shipmentSelection.length === 0) return alert("Select items to ship.");
+  if (shipmentSelection.length === 0) {
+    alert(blockedVoucher ? 'Voucher prizes cannot be shipped.' : 'Select items to ship.');
+    if (blockedVoucher) {
+      selectedItems.forEach(key => {
+        const item = currentItems.find(i => i.key === key);
+        if (item && isVoucherItem(item)) selectedItems.delete(key);
+      });
+      updateTotalValue();
+      renderItems(currentItems);
+    }
+    return;
+  }
+
+  if (blockedVoucher) {
+    alert('Voucher prizes were removed from your shipment selection because they cannot be shipped.');
+    selectedItems.forEach(key => {
+      const item = currentItems.find(i => i.key === key);
+      if (item && isVoucherItem(item)) selectedItems.delete(key);
+    });
+    updateTotalValue();
+    renderItems(currentItems);
+  }
 
   localStorage.setItem('shipItems', JSON.stringify(shipmentSelection));
   window.location.href = 'shipping.html';
@@ -346,12 +414,16 @@ function shipSelected() {
 function shipItem(key) {
   const item = currentItems.find(i => i.key === key);
   if (!item || item.shipped || item.requested) return;
+  if (isVoucherItem(item)) {
+    alert('Voucher prizes cannot be shipped.');
+    return;
+  }
   const shipmentSelection = [{ id: item.id, name: item.name, image: item.image }];
   localStorage.setItem('shipItems', JSON.stringify(shipmentSelection));
   window.location.href = 'shipping.html';
 }
 
-function showItemPopup(encodedSrc, encodedName, encodedRarity, value) {
+function showItemPopup(encodedSrc, encodedName, encodedRarity, value, isVoucher = false, voucherAmount = 0) {
   const src = decodeURIComponent(encodedSrc);
   const name = decodeURIComponent(encodedName || '');
   const rarity = decodeURIComponent(encodedRarity || '');
@@ -369,7 +441,8 @@ function showItemPopup(encodedSrc, encodedName, encodedRarity, value) {
     rarityEl.textContent = rarity;
   }
   const valueEl = document.getElementById('popup-item-value');
-  if (valueEl) valueEl.textContent = value || 0;
+  const displayValue = isVoucher && voucherAmount > 0 ? voucherAmount : value;
+  if (valueEl) valueEl.textContent = displayValue || 0;
   popupRotX = 0;
   popupRotY = 0;
   currentRotX = 0;
@@ -388,6 +461,18 @@ function showItemPopup(encodedSrc, encodedName, encodedRarity, value) {
   const popup = document.getElementById('item-popup');
   const card = popup?.querySelector('.popup-card');
   popup?.classList.remove('hidden');
+  const existingNote = popup?.querySelector('#popup-voucher-note');
+  if (existingNote) existingNote.remove();
+  if (popup && isVoucher) {
+    const info = popup.querySelector('.popup-info');
+    if (info) {
+      const note = document.createElement('p');
+      note.id = 'popup-voucher-note';
+      note.className = 'mt-2 text-xs font-semibold text-amber-600';
+      note.textContent = 'Voucher prize — redeem for coins only. Shipping unavailable.';
+      info.appendChild(note);
+    }
+  }
   if (card) {
     card.classList.remove('animate');
     void card.offsetWidth;

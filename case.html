@@ -257,6 +257,27 @@ const formatOdds = (odds) => {
   return parseFloat((odds || 0).toFixed(decimals));
 };
 
+const VOUCHER_NAME_PATTERN = /voucher/i;
+
+const getVoucherAmount = (prize = {}) => {
+  const candidates = [prize.voucherAmount, prize.redeemValue, prize.redeemAmount];
+  for (const value of candidates) {
+    const amount = Number(value);
+    if (Number.isFinite(amount) && amount > 0) return Math.round(amount);
+  }
+  return 0;
+};
+
+const isVoucherPrize = (prize = {}) => {
+  if (prize.isVoucher === true) return true;
+  const type = typeof prize.type === 'string' ? prize.type.toLowerCase() : '';
+  if (type === 'voucher') return true;
+  if (getVoucherAmount(prize) > 0) return true;
+  if (Array.isArray(prize.tags) && prize.tags.some(tag => typeof tag === 'string' && tag.toLowerCase() === 'voucher')) return true;
+  if (typeof prize.name === 'string' && VOUCHER_NAME_PATTERN.test(prize.name)) return true;
+  return false;
+};
+
 function initBestDropsCarousel(items) {
   const track = document.getElementById('best-drops-track');
   if (!track || !items.length) return;
@@ -633,19 +654,23 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   if (res.ok) {
     const { prize: winningPrize } = await res.json();
 
+    const voucherAmount = getVoucherAmount(winningPrize);
+    const voucherPrize = isVoucherPrize(winningPrize);
+
     const unboxData = {
       name: winningPrize.name,
       image: winningPrize.image,
       rarity: winningPrize.rarity,
       value: winningPrize.value,
       timestamp: Date.now(),
-      sold: false
+      sold: false,
+      ...(voucherPrize ? { isVoucher: true, voucherAmount } : {})
     };
     const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
     await invRef.set(unboxData);
     await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
     await updateMilestones(user.uid, winningPrize.value);
-    winnings[0] = { ...winningPrize, key: invRef.key };
+    winnings[0] = { ...winningPrize, key: invRef.key, ...(voucherPrize ? { isVoucher: true, voucherAmount } : {}) };
 
     const winIndex = openerItems.findIndex(p => p.name === winningPrize.name);
     await transitionToReel();
