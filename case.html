@@ -674,11 +674,29 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   });
   if (res.ok) {
     const { prize: winningPrize } = await res.json();
-    const prizeIndex = Number.isInteger(winningPrize?.__index) ? winningPrize.__index : prizeList.findIndex(p => p.name === winningPrize?.name);
-    const normalizedPrize = prizeList[prizeIndex] || winningPrize;
+
+    let prizeIndex = Number.isInteger(winningPrize?.__index)
+      ? Number(winningPrize.__index)
+      : prizeList.findIndex(p => p.name === winningPrize?.name);
+
+    if (!Number.isInteger(prizeIndex) || prizeIndex < 0 || prizeIndex >= prizeList.length) {
+      prizeIndex = prizeList.findIndex(p => p.key === winningPrize?.key);
+    }
+
+    const fallbackValue = getPrizeValue(winningPrize);
+    const fallbackPrize = {
+      ...winningPrize,
+      value: fallbackValue,
+      voucherAmount: winningPrize?.isVoucher ? fallbackValue : Number(winningPrize?.voucherAmount) || 0,
+    };
+
+    const normalizedPrize = prizeIndex >= 0 && prizeIndex < prizeList.length
+      ? prizeList[prizeIndex]
+      : fallbackPrize;
+
     const prizeValue = getPrizeValue(normalizedPrize);
     const isVoucherPrize = !!normalizedPrize.isVoucher;
-    const voucherAmount = isVoucherPrize ? prizeValue : 0;
+    const voucherAmount = isVoucherPrize ? prizeValue : Number(normalizedPrize.voucherAmount) || 0;
 
     const unboxData = {
       name: normalizedPrize.name,
@@ -696,13 +714,16 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     winnings[0] = {
       ...normalizedPrize,
       value: prizeValue,
-      voucherAmount: isVoucherPrize ? voucherAmount : normalizedPrize.voucherAmount,
+      voucherAmount,
       isVoucher: isVoucherPrize,
       key: invRef.key
     };
 
-    let winIndex = Number.isInteger(normalizedPrize.__index) ? normalizedPrize.__index : openerItems.findIndex(p => p.name === normalizedPrize.name);
+    let winIndex = Number.isInteger(prizeIndex) ? prizeIndex : -1;
     if (winIndex < 0) {
+      winIndex = openerItems.findIndex(p => p.name === normalizedPrize.name);
+    }
+    if (!Number.isInteger(winIndex) || winIndex < 0) {
       console.warn('Winning prize not found in opener items, defaulting to first tile', winningPrize);
       winIndex = 0;
     }
