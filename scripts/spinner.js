@@ -2,30 +2,6 @@
 const spinnerPrizesMap = {};
 const targetIndex = 15;
 
-const toNumber = (value) => {
-  const num = Number(value);
-  return Number.isFinite(num) ? num : NaN;
-};
-
-const getPrizeValue = (prize) => {
-  if (!prize) return 0;
-  const base = toNumber(prize.value);
-  if (Number.isFinite(base) && base > 0) return base;
-  const voucher = toNumber(prize.voucherAmount);
-  if (Number.isFinite(voucher) && voucher > 0) return voucher;
-  return 0;
-};
-
-const formatCoins = (value) => {
-  const rounded = Math.round(Number(value) || 0);
-  return rounded.toLocaleString();
-};
-
-const getSellValue = (prize) => {
-  const value = getPrizeValue(prize);
-  return prize?.isVoucher ? value : Math.floor(value * 0.8);
-};
-
 // Exported so other modules (like box battles) can reuse the same color map
 export function getRarityColor(rarity) {
   const base = rarity?.toLowerCase().replace(/\s+/g, '');
@@ -82,9 +58,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false, id
       };
     }
 
-    const normalizedValue = getPrizeValue(prize);
-    const normalizedPrize = { ...prize, value: normalizedValue };
-    spinnerPrizesMap[id].push(normalizedPrize);
+    spinnerPrizesMap[id].push(prize);
 
     const div = document.createElement("div");
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
@@ -98,7 +72,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false, id
       <div class="flex flex-col items-center">
         <img src="${prize.image}" class="h-[100px] object-contain drop-shadow-md rounded-xl" />
         <div class="mt-1 text-xs text-white bg-black/50 px-2 py-0.5 rounded-sm flex items-center gap-1">
-          <span>${formatCoins(normalizedValue)}</span>
+          <span>${prize.value.toLocaleString()}</span>
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin" />
         </div>
       </div>
@@ -178,8 +152,6 @@ export function spinToPrize(callback, showPopup = true, id = 0, durationSec = 5)
     // Final landing: award the prize
     const prize = spinnerPrizesMap[id][targetIndex];
     const rarity = (prize.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-    const prizeValue = getPrizeValue(prize);
-    const sellValue = getSellValue(prize);
 
     const spinnerResultText = document.getElementById("spinner-result");
     if (spinnerResultText) {
@@ -190,14 +162,8 @@ export function spinToPrize(callback, showPopup = true, id = 0, durationSec = 5)
     if (showPopup) {
       document.getElementById("popup-image").src = prize.image;
       document.getElementById("popup-name").textContent = prize.name;
-      document.getElementById("popup-value").textContent = formatCoins(prizeValue);
-      const sellValueEl = document.getElementById("sell-value");
-      if (sellValueEl) sellValueEl.textContent = formatCoins(sellValue);
-      const sellBtn = document.getElementById('sell-btn');
-      if (sellBtn) {
-        const label = prize?.isVoucher ? 'Redeem for' : 'Sell for';
-        sellBtn.innerHTML = `${label} <span id="sell-value">${formatCoins(sellValue)}</span>`;
-      }
+      document.getElementById("popup-value").textContent = prize.value;
+      document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
       document.getElementById("win-popup").classList.remove("hidden");
     } else {
       const popup = document.getElementById("win-popup");
@@ -210,7 +176,7 @@ export function spinToPrize(callback, showPopup = true, id = 0, durationSec = 5)
       targetCard.classList.add(glowClass, flashClass, "ring-4", "ring-white");
     }
 
-    if (callback) callback({ ...prize, value: prizeValue, sellValue });
+    if (callback) callback(prize);
     resolve(prize);
     spinnerWheel.removeEventListener('transitionend', onTransitionEnd);
   }
@@ -220,17 +186,9 @@ export function spinToPrize(callback, showPopup = true, id = 0, durationSec = 5)
 }
 
 export function showWinPopup(prize) {
-  const value = getPrizeValue(prize);
-  const sellValue = getSellValue(prize);
   document.getElementById("popup-image").src = prize.image;
   document.getElementById("popup-name").textContent = prize.name;
-  document.getElementById("popup-value").textContent = formatCoins(value);
-  const sellValueEl = document.getElementById("sell-value");
-  if (sellValueEl) sellValueEl.textContent = formatCoins(sellValue);
-  const sellBtn = document.getElementById('sell-btn');
-  if (sellBtn) {
-    const label = prize?.isVoucher ? 'Redeem for' : 'Sell for';
-    sellBtn.innerHTML = `${label} <span id="sell-value">${formatCoins(sellValue)}</span>`;
-  }
+  document.getElementById("popup-value").textContent = prize.value;
+  document.getElementById("sell-value").textContent = Math.floor(prize.value * 0.8);
   document.getElementById("win-popup").classList.remove("hidden");
 }

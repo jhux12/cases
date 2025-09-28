@@ -247,30 +247,35 @@
 import { updateMilestones } from './scripts/quests.js';
 
 const formatCoins = (num) => {
-  const value = Number(num);
-  if (!Number.isFinite(value) || value <= 0) return '0';
-  if (value >= 1_000_000) return (value / 1_000_000).toFixed(1) + "M";
-  if (value >= 1_000) return (value / 1_000).toFixed(1) + "K";
-  return Math.round(value).toLocaleString();
-};
-
-const getPrizeValue = (prize) => {
-  if (!prize) return 0;
-  const base = Number(prize.value);
-  if (Number.isFinite(base) && base > 0) return base;
-  const voucher = Number(prize.voucherAmount);
-  if (Number.isFinite(voucher) && voucher > 0) return voucher;
-  return 0;
-};
-
-const getRedeemValue = (prize) => {
-  const value = getPrizeValue(prize);
-  return prize?.isVoucher ? value : Math.floor(value * 0.8);
+  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
+  if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
+  return num.toLocaleString();
 };
 
 const formatOdds = (odds) => {
   const decimals = odds < 1 ? 3 : 1;
   return parseFloat((odds || 0).toFixed(decimals));
+};
+
+const VOUCHER_NAME_PATTERN = /voucher/i;
+
+const getVoucherAmount = (prize = {}) => {
+  const candidates = [prize.voucherAmount, prize.redeemValue, prize.redeemAmount];
+  for (const value of candidates) {
+    const amount = Number(value);
+    if (Number.isFinite(amount) && amount > 0) return Math.round(amount);
+  }
+  return 0;
+};
+
+const isVoucherPrize = (prize = {}) => {
+  if (prize.isVoucher === true) return true;
+  const type = typeof prize.type === 'string' ? prize.type.toLowerCase() : '';
+  if (type === 'voucher') return true;
+  if (getVoucherAmount(prize) > 0) return true;
+  if (Array.isArray(prize.tags) && prize.tags.some(tag => typeof tag === 'string' && tag.toLowerCase() === 'voucher')) return true;
+  if (typeof prize.name === 'string' && VOUCHER_NAME_PATTERN.test(prize.name)) return true;
+  return false;
 };
 
 function initBestDropsCarousel(items) {
@@ -313,13 +318,11 @@ function initBestDropsCarousel(items) {
 async function sellPrize(prize) {
   const user = firebase.auth().currentUser;
   if (!user || !prize) return;
-  const sellAmount = getRedeemValue(prize);
-  if (!Number.isFinite(sellAmount) || sellAmount <= 0) return;
-  const creditAmount = Math.round(sellAmount);
+  const sellAmount = Math.floor(prize.value * 0.8);
   const balanceRef = firebase.database().ref('users/' + user.uid + '/balance');
   const balanceSnap = await balanceRef.once('value');
   const currentBalance = balanceSnap.val() || 0;
-  await balanceRef.set(currentBalance + creditAmount);
+  await balanceRef.set(currentBalance + sellAmount);
   await firebase.database().ref('users/' + user.uid + '/inventory/' + prize.key).remove();
 }
 
@@ -334,23 +337,15 @@ function showMultiWinPopup(prizes) {
 
   function render(index) {
     const prize = prizes[index];
-    const value = getPrizeValue(prize);
-    const redeemValue = getRedeemValue(prize);
-    const isVoucher = !!prize.isVoucher;
-    const sellLabel = isVoucher ? 'Redeem for' : 'Sell for';
-    const voucherNote = isVoucher
-      ? '<p class="text-xs text-amber-500 font-medium mt-2">Voucher prize — redeem for coins only. Shipping unavailable.</p>'
-      : '';
     itemContainer.innerHTML = `
       <div class="prize-card bg-white rounded-xl p-4 flex flex-col items-center text-gray-900">
         <img src="${prize.image}" class="w-32 h-32 object-contain mb-2 rounded-lg shadow-md" />
         <div class="text-sm font-semibold mb-1">${prize.name}</div>
-        <div class="flex items-center gap-1 text-yellow-300 text-sm mb-2"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />${formatCoins(value)}</div>
+        <div class="flex items-center gap-1 text-yellow-300 text-sm mb-2"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />${formatCoins(prize.value)}</div>
         <div class="flex gap-2 w-full mt-2">
           <button id="keep-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 text-white text-sm font-bold flex items-center justify-center gap-1"><i class="fas fa-box-open"></i> Add to Inventory</button>
-          <button id="sell-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 text-white text-sm font-bold flex items-center justify-center gap-1"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />${sellLabel} ${formatCoins(redeemValue)}</button>
+          <button id="sell-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 text-white text-sm font-bold flex items-center justify-center gap-1"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />Sell for ${formatCoins(Math.floor(prize.value * 0.8))}</button>
         </div>
-        ${voucherNote}
       </div>`;
 
     const keepBtn = itemContainer.querySelector('#keep-btn');
@@ -498,35 +493,19 @@ if (isFreeCase) {
   priceEl.textContent = formatCoins(caseData.price || 0);
 }
 
-const prizeEntries = Object.entries(caseData.prizes || {}).map(([key, prize]) => ({
-  key,
-  ...prize
-}));
-
-const sortedPrizes = prizeEntries.sort((a, b) => {
+const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
   const rarityDiff = (rarityOrder[b.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) -
     (rarityOrder[a.rarity?.toLowerCase().replace(/\s+/g,'')] || 0);
   if (rarityDiff !== 0) return rarityDiff;
-  return getPrizeValue(b) - getPrizeValue(a); // secondary sort by value
+  return (b.value || 0) - (a.value || 0); // secondary sort by value
 });
 
-const prizeList = sortedPrizes.map((prize, index) => {
-  const normalizedValue = getPrizeValue(prize);
-  const voucherAmount = prize?.isVoucher ? normalizedValue : Number(prize.voucherAmount) || 0;
-  return {
-    ...prize,
-    value: normalizedValue,
-    voucherAmount,
-    __index: index
-  };
-});
-
-const openerItems = prizeList.map((p) => ({
-  id: p.__index,
+const openerItems = prizeList.map((p, i) => ({
+  id: i,
   name: p.name,
   image: p.image,
   // Pass raw numeric value; spinner.js will format the coin amount itself
-  value: p.value,
+  value: Number(p.value) || 0,
   rarity: (p.rarity || 'common').toLowerCase().replace(/\s+/g,'')
 }));
 PackOpener.init({ root: document.getElementById('reel'), items: openerItems });
@@ -587,7 +566,7 @@ if (repeatedBestDrops.length) {
     <div class="flex items-center justify-between px-2 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-medium">
       <div class="flex items-center gap-1">
         <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-        ${formatCoins(getPrizeValue(prize))}
+        ${formatCoins(prize.value || 0)}
       </div>
       <div>${formatOdds(prize.odds)}%</div>
     </div>
@@ -675,58 +654,25 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   if (res.ok) {
     const { prize: winningPrize } = await res.json();
 
-    let prizeIndex = Number.isInteger(winningPrize?.__index)
-      ? Number(winningPrize.__index)
-      : prizeList.findIndex(p => p.name === winningPrize?.name);
-
-    if (!Number.isInteger(prizeIndex) || prizeIndex < 0 || prizeIndex >= prizeList.length) {
-      prizeIndex = prizeList.findIndex(p => p.key === winningPrize?.key);
-    }
-
-    const fallbackValue = getPrizeValue(winningPrize);
-    const fallbackPrize = {
-      ...winningPrize,
-      value: fallbackValue,
-      voucherAmount: winningPrize?.isVoucher ? fallbackValue : Number(winningPrize?.voucherAmount) || 0,
-    };
-
-    const normalizedPrize = prizeIndex >= 0 && prizeIndex < prizeList.length
-      ? prizeList[prizeIndex]
-      : fallbackPrize;
-
-    const prizeValue = getPrizeValue(normalizedPrize);
-    const isVoucherPrize = !!normalizedPrize.isVoucher;
-    const voucherAmount = isVoucherPrize ? prizeValue : Number(normalizedPrize.voucherAmount) || 0;
+    const voucherAmount = getVoucherAmount(winningPrize);
+    const voucherPrize = isVoucherPrize(winningPrize);
 
     const unboxData = {
-      name: normalizedPrize.name,
-      image: normalizedPrize.image,
-      rarity: normalizedPrize.rarity,
-      value: prizeValue,
+      name: winningPrize.name,
+      image: winningPrize.image,
+      rarity: winningPrize.rarity,
+      value: winningPrize.value,
       timestamp: Date.now(),
       sold: false,
-      ...(isVoucherPrize ? { isVoucher: true, voucherAmount } : {})
+      ...(voucherPrize ? { isVoucher: true, voucherAmount } : {})
     };
     const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
     await invRef.set(unboxData);
     await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
-    await updateMilestones(user.uid, prizeValue);
-    winnings[0] = {
-      ...normalizedPrize,
-      value: prizeValue,
-      voucherAmount,
-      isVoucher: isVoucherPrize,
-      key: invRef.key
-    };
+    await updateMilestones(user.uid, winningPrize.value);
+    winnings[0] = { ...winningPrize, key: invRef.key, ...(voucherPrize ? { isVoucher: true, voucherAmount } : {}) };
 
-    let winIndex = Number.isInteger(prizeIndex) ? prizeIndex : -1;
-    if (winIndex < 0) {
-      winIndex = openerItems.findIndex(p => p.name === normalizedPrize.name);
-    }
-    if (!Number.isInteger(winIndex) || winIndex < 0) {
-      console.warn('Winning prize not found in opener items, defaulting to first tile', winningPrize);
-      winIndex = 0;
-    }
+    const winIndex = openerItems.findIndex(p => p.name === winningPrize.name);
     await transitionToReel();
     await new Promise(resolve => {
       PackOpener.spinToIndex(winIndex, { durationMs: 2400, nearMiss: true, onReveal: () => resolve() });

@@ -285,10 +285,6 @@
           <option value="legendary" ${prize.rarity === 'legendary' ? 'selected' : ''}>Legendary</option>
         </select>
         <input type="number" placeholder="Prize Value ($)" value="${prize.value || ''}" class="prize-value w-full p-2 rounded mb-2">
-        <label class="inline-flex items-center text-sm mb-2"><input type="checkbox" class="prize-voucher mr-2" ${prize.isVoucher ? 'checked' : ''}> Voucher Prize (redeem only)</label>
-        <div class="voucher-fields ${prize.isVoucher ? '' : 'hidden'}">
-          <input type="number" min="0" step="any" placeholder="Voucher Amount (coins)" value="${prize.voucherAmount != null ? prize.voucherAmount : (prize.value || '')}" class="prize-voucher-amount w-full p-2 rounded mb-2">
-        </div>
 <input
   type="number"
   step="any"
@@ -298,19 +294,6 @@
   class="prize-odds w-full p-2 rounded"
 />
       `;
-      const voucherToggle = div.querySelector('.prize-voucher');
-      const voucherFields = div.querySelector('.voucher-fields');
-      if (voucherToggle && voucherFields) {
-        voucherToggle.addEventListener('change', () => {
-          const checked = voucherToggle.checked;
-          voucherFields.classList.toggle('hidden', !checked);
-          if (checked) {
-            const amountInput = voucherFields.querySelector('.prize-voucher-amount');
-            const valueInput = div.querySelector('.prize-value');
-            if (amountInput && valueInput && !amountInput.value) amountInput.value = valueInput.value || '';
-          }
-        });
-      }
       prizesSection.appendChild(div);
     }
 
@@ -529,20 +512,13 @@ function adminReply(event, caseId) {
       const prizesElements = prizesSection.querySelectorAll('div.prize-block');
       const prizes = {};
       prizesElements.forEach((div, idx) => {
-        const name = div.querySelector('.prize-name').value;
-        const image = div.querySelector('.prize-image').value;
-        const rarity = div.querySelector('.prize-rarity').value;
-        const value = parseFloat(div.querySelector('.prize-value').value) || 0;
-        const odds = parseFloat(div.querySelector('.prize-odds').value) || 0;
-        const voucherToggle = div.querySelector('.prize-voucher');
-        const voucherAmountInput = div.querySelector('.prize-voucher-amount');
-        const isVoucher = voucherToggle ? voucherToggle.checked : false;
-        const voucherAmount = voucherAmountInput ? parseFloat(voucherAmountInput.value) || 0 : 0;
-        const prizeData = { name, image, rarity, value, odds, isVoucher };
-        if (isVoucher) {
-          prizeData.voucherAmount = voucherAmount || value;
-        }
-        prizes[idx] = prizeData;
+        prizes[idx] = {
+          name: div.querySelector('.prize-name').value,
+          image: div.querySelector('.prize-image').value,
+          rarity: div.querySelector('.prize-rarity').value,
+          value: parseFloat(div.querySelector('.prize-value').value) || 0,
+          odds: parseFloat(div.querySelector('.prize-odds').value) || 0
+        };
       });
 
       const data = { name, image, price, tag, spiceLevel, isFree, vault, cardBack, prizes, categories };

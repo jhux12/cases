@@ -95,11 +95,6 @@ function submitShipmentRequest() {
   const user = firebase.auth().currentUser;
   if (!user) return;
 
-  if (!shipmentSelection.length) {
-    alert('No items selected for shipping.');
-    return;
-  }
-
   const name = document.getElementById('ship-name').value.trim();
   const address = document.getElementById('ship-address').value.trim();
   const address2 = document.getElementById('ship-address2').value.trim();
@@ -115,48 +110,25 @@ function submitShipmentRequest() {
   userRef.once('value').then(function (snap) {
     const balance = (snap.val() && snap.val().balance) || 0;
     if (balance < cost) return alert('Insufficient balance.');
-    const itemChecks = shipmentSelection.map(item => {
-      if (!item.id) return Promise.resolve({ item, data: null });
-      return firebase.database().ref('users/' + user.uid + '/inventory/' + item.id).once('value').then(snapshot => ({ item, data: snapshot.val() }));
-    });
 
-    Promise.all(itemChecks).then(results => {
-      const missing = results.filter(entry => !entry.data);
-      if (missing.length) {
-        alert('Some selected items could not be found. Please refresh your inventory.');
-        return;
-      }
+    userRef.update({ balance: balance - cost });
 
-      const vouchers = results.filter(entry => entry.data && entry.data.isVoucher);
-      if (vouchers.length) {
-        alert('Voucher prizes cannot be shipped.');
-        return;
-      }
-
-      const unavailable = results.filter(entry => entry.data && (entry.data.requested || entry.data.shipped));
-      if (unavailable.length) {
-        alert('Some selected items are no longer available for shipping.');
-        return;
-      }
-
-      userRef.update({ balance: balance - cost }).then(() => {
-        results.forEach(({ item }) => {
-          firebase.database().ref('shipments').push({
-            userId: user.uid,
-            itemId: item.id,
-            name: item.name,
-            image: item.image,
-            shippingInfo: { name: name, address: address, address2: address2, city: city, zip: zip, phone: phone },
-            status: 'Requested',
-            timestamp: Date.now()
-          });
-          firebase.database().ref('users/' + user.uid + '/inventory/' + item.id).update({ requested: true });
-        });
-
-        localStorage.removeItem('shipItems');
-        window.location.href = 'inventory.html';
+    shipmentSelection.forEach(function (item) {
+      if (!item.id) return;
+      firebase.database().ref('shipments').push({
+        userId: user.uid,
+        itemId: item.id,
+        name: item.name,
+        image: item.image,
+        shippingInfo: { name: name, address: address, address2: address2, city: city, zip: zip, phone: phone },
+        status: 'Requested',
+        timestamp: Date.now()
       });
+      firebase.database().ref('users/' + user.uid + '/inventory/' + item.id).update({ requested: true });
     });
+
+    localStorage.removeItem('shipItems');
+    window.location.href = 'inventory.html';
   });
 }
 

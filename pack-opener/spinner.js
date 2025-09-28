@@ -142,17 +142,11 @@
 
   function spinToIndex(index, opts = {}) {
     if (state.isSpinning || !state.root) return;
-    if (!Array.isArray(state.items) || state.items.length === 0) return;
     if (state.animationId) cancelAnimationFrame(state.animationId);
 
     render();
     Array.from(state.root.children).forEach((t) => t.classList.remove("win"));
     state.root.style.transform = "translate3d(0,0,0)";
-
-    if (!Number.isInteger(index) || index < 0 || index >= state.items.length) {
-      console.warn("PackOpener: invalid spin index", index);
-      index = ((index % state.items.length) + state.items.length) % state.items.length;
-    }
 
     const startX = 0;
     const duration = opts.durationMs || 2400;
@@ -246,13 +240,7 @@
         state.isSpinning = false;
         state.cruiseEmitted = false;
 
-        const item = state.items[index] || state.items[0];
-        if (!item) {
-          state.isSpinning = false;
-          state.cruiseEmitted = false;
-          emit("finish", null);
-          return;
-        }
+        const item = state.items[index];
         const winTile = state.root.children[targetIndex];
         winTile.style.setProperty(
           "--win-color",
