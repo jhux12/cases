@@ -14,6 +14,23 @@ let isDragging = false;
 let startX = 0;
 let startY = 0;
 
+const formatCoins = value => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return '0';
+  return Math.round(num).toLocaleString();
+};
+
+function computeSellValue(item) {
+  if (!item) return 0;
+  const baseValue = Number(item.value) || 0;
+  if (item.isVoucher) {
+    const rawVoucher = item.voucherAmount != null ? Number(item.voucherAmount) : NaN;
+    const voucherValue = Number.isFinite(rawVoucher) && rawVoucher > 0 ? rawVoucher : baseValue;
+    return Math.round(voucherValue);
+  }
+  return Math.floor(baseValue * 0.8);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const itemPopup = document.getElementById('item-popup');
   const popupRotator = document.getElementById('popup-rotator');
@@ -148,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('select-all-checkbox')?.addEventListener('change', function () {
       if (this.checked) {
         currentItems.forEach(item => {
-          if (!item.shipped && !item.requested) selectedItems.add(item.key);
+          if (!item.shipped && !item.requested && !item.isVoucher) selectedItems.add(item.key);
         });
       } else {
         selectedItems.clear();
@@ -176,12 +193,15 @@ function updateTotalValue() {
   let total = 0;
   selectedItems.forEach(key => {
     const item = currentItems.find(i => i.key === key);
-    if (item) total += Math.floor((item.value || 0) * 0.8);
+    if (item && !item.isVoucher) total += computeSellValue(item);
   });
-  document.getElementById('selected-total').innerText = `Total: ${total} coins`;
+  const totalEl = document.getElementById('selected-total');
+  if (totalEl) totalEl.innerText = `Total: ${formatCoins(total)} coins`;
 }
 
 function toggleItem(key) {
+  const item = currentItems.find(i => i.key === key);
+  if (!item || item.isVoucher) return;
   if (selectedItems.has(key)) selectedItems.delete(key);
   else selectedItems.add(key);
   updateTotalValue();
@@ -192,81 +212,95 @@ function renderItems(items) {
   container.innerHTML = '';
 
   items.forEach(item => {
-    const refund = Math.floor((item.value || 0) * 0.8);
+    const isVoucher = !!item.isVoucher;
+    const sellValue = computeSellValue(item);
+    const sellDisplay = formatCoins(sellValue);
+    const sellLabel = isVoucher ? 'Redeem for' : 'Sell for';
+    const shipDisabled = item.shipped || item.requested || isVoucher;
+    if (shipDisabled && selectedItems.has(item.key)) selectedItems.delete(item.key);
     const checked = selectedItems.has(item.key) ? 'checked' : '';
+    const checkboxDisabled = shipDisabled ? 'disabled' : '';
+    const sellButtonAttrs = item.shipped || item.requested
+      ? 'disabled class="w-full sm:flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full flex items-center justify-center gap-1"'
+      : 'class="w-full sm:flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-600 rounded-full flex items-center justify-center gap-1"';
+    const shipButtonAttrs = shipDisabled
+      ? `disabled class="w-full sm:flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full"${isVoucher ? ' title="Voucher prizes cannot be shipped."' : ''}`
+      : 'class="w-full sm:flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 rounded-full"';
+    const voucherNote = isVoucher ? '<p class="text-xs text-amber-500 font-medium mt-2">Voucher prize — redeem for coins only. Shipping unavailable.</p>' : '';
+    const baseValue = Number(item.value) || 0;
+    const popupArgs = `'${encodeURIComponent(item.image)}','${encodeURIComponent(item.name)}','${encodeURIComponent(item.rarity)}', ${baseValue}, ${isVoucher ? 'true' : 'false'}, ${isVoucher ? sellValue : 0}`;
     container.innerHTML += `
       <div class="item-card rounded-2xl p-6 text-center h-full">
-        <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-3 accent-indigo-600" ${item.shipped || item.requested ? 'disabled' : ''} />
-        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}','${encodeURIComponent(item.name)}','${encodeURIComponent(item.rarity)}', ${item.value || 0})" class="mx-auto mb-4 h-32 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
+        <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-3 accent-indigo-600" ${checkboxDisabled} />
+        <img src="${item.image}" onclick="showItemPopup(${popupArgs})" class="mx-auto mb-4 h-32 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
         <h2 class="item-name font-semibold text-gray-800 text-lg mb-3">${item.name}</h2>
         <div class="flex flex-col sm:flex-row gap-2 mt-auto">
-          <button onclick="sellBack('${item.key}', ${item.value || 0})" ${item.shipped || item.requested ? 'disabled class="w-full sm:flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full flex items-center justify-center gap-1"' : 'class="w-full sm:flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-600 rounded-full flex items-center justify-center gap-1"'}>
-            <span>Sell for ${refund}</span>
+          <button onclick="sellBack('${item.key}')" ${sellButtonAttrs}>
+            <span>${sellLabel} ${sellDisplay}</span>
             <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="14" height="14" class="coin-icon" />
           </button>
-          <button onclick="shipItem('${item.key}')" ${item.shipped || item.requested ? 'disabled class="w-full sm:flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full"' : 'class="w-full sm:flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 rounded-full"'}>Ship</button>
+          <button onclick="shipItem('${item.key}')" ${shipButtonAttrs}>Ship</button>
         </div>
+        ${voucherNote}
       </div>`;
   });
+  updateTotalValue();
 }
 
-function sellBack(key, value) {
+function sellBack(key) {
   const user = firebase.auth().currentUser;
   if (!user) return;
 
-  const refund = Math.floor(value * 0.8);
   const userRef = firebase.database().ref('users/' + user.uid);
   const itemRef = firebase.database().ref(`users/${user.uid}/inventory/${key}`);
 
-  userRef.once('value').then(snap => {
-    const balanceBefore = snap.val().balance || 0;
+  Promise.all([userRef.once('value'), itemRef.once('value')]).then(([userSnap, itemSnap]) => {
+    const itemData = itemSnap.val();
+    if (!itemData) return;
+    const refund = computeSellValue(itemData);
+    const balanceBefore = (userSnap.val() && userSnap.val().balance) || 0;
     const balanceAfter = balanceBefore + refund;
+
     userRef.update({ balance: balanceAfter }).then(() => {
-      itemRef.once('value').then(itemSnap => {
-        const itemData = itemSnap.val();
-        if (itemData) {
-          const historyRef = firebase.database().ref(`users/${user.uid}/unboxHistory/${key}`);
-          historyRef.once('value').then(histSnap => {
-            const updateData = {
-              sold: true,
-              saleBalanceBefore: balanceBefore,
-              saleBalanceAfter: balanceAfter,
-              soldTimestamp: Date.now()
-            };
-            if (histSnap.exists()) historyRef.update(updateData);
-            else {
-              const { key: _k, id: _i, ...base } = itemData;
-              historyRef.set({ ...base, ...updateData });
-            }
-          });
+      const historyRef = firebase.database().ref(`users/${user.uid}/unboxHistory/${key}`);
+      historyRef.once('value').then(histSnap => {
+        const updateData = {
+          sold: true,
+          saleBalanceBefore: balanceBefore,
+          saleBalanceAfter: balanceAfter,
+          soldTimestamp: Date.now()
+        };
+        if (histSnap.exists()) historyRef.update(updateData);
+        else {
+          const { key: _k, id: _i, ...base } = itemData;
+          historyRef.set({ ...base, ...updateData });
         }
-        itemRef.remove().then(() => {
-  const sellQuestRef = firebase.database().ref(`users/${user.uid}/quests/sell-card`);
-  sellQuestRef.transaction(current => {
-    if (!current) {
-      return { progress: 1, completed: false, claimed: false };
-    }
-
-    const progress = typeof current.progress === 'number' ? current.progress : 0;
-    const updated = progress + 1;
-
-    return {
-      ...current,
-      progress: updated,
-      completed: current.completed || updated >= 1
-    };
-  }, (error, committed, snapshot) => {
-    if (error) {
-      console.error("Quest update failed:", error);
-    } else if (committed) {
-      console.log("Sell quest progress updated:", snapshot.val());
-    }
-    window.location.reload(); // only after transaction completes
-  });
-        });
       });
 
+      itemRef.remove().then(() => {
+        const sellQuestRef = firebase.database().ref(`users/${user.uid}/quests/sell-card`);
+        sellQuestRef.transaction(current => {
+          if (!current) {
+            return { progress: 1, completed: false, claimed: false };
+          }
 
+          const progress = typeof current.progress === 'number' ? current.progress : 0;
+          const updated = progress + 1;
+
+          return {
+            ...current,
+            progress: updated,
+            completed: current.completed || updated >= 1
+          };
+        }, (error, committed, snapshot) => {
+          if (error) {
+            console.error("Quest update failed:", error);
+          } else if (committed) {
+            console.log("Sell quest progress updated:", snapshot.val());
+          }
+          window.location.reload(); // only after transaction completes
+        });
+      });
     });
   });
 }
@@ -275,56 +309,60 @@ function sellSelected() {
   const user = firebase.auth().currentUser;
   if (!user) return;
 
-  let total = 0;
+  const itemsToSell = [];
   selectedItems.forEach(key => {
     const item = currentItems.find(i => i.key === key);
-    if (item) total += Math.floor((item.value || 0) * 0.8);
+    if (item && !item.isVoucher && !item.shipped && !item.requested) itemsToSell.push(item);
+  });
+
+  if (!itemsToSell.length) return alert("Select items to sell.");
+
+  let total = 0;
+  itemsToSell.forEach(item => {
+    total += computeSellValue(item);
   });
 
   const userRef = firebase.database().ref('users/' + user.uid);
   userRef.once('value').then(snap => {
     let currentBalance = snap.val().balance || 0;
 
-    selectedItems.forEach(key => {
-      const item = currentItems.find(i => i.key === key);
-      if (item) {
-        const refund = Math.floor((item.value || 0) * 0.8);
-        const before = currentBalance;
-        currentBalance += refund;
-        const historyRef = firebase.database().ref(`users/${user.uid}/unboxHistory/${key}`);
-        historyRef.once('value').then(histSnap => {
-          const updateData = {
-            sold: true,
-            saleBalanceBefore: before,
-            saleBalanceAfter: currentBalance,
-            soldTimestamp: Date.now()
-          };
-          if (histSnap.exists()) historyRef.update(updateData);
-          else {
-            const { key: _k, id: _i, ...base } = item;
-            historyRef.set({ ...base, ...updateData });
-          }
-        });
-        firebase.database().ref(`users/${user.uid}/inventory/${key}`).remove();
+    itemsToSell.forEach(item => {
+      const refund = computeSellValue(item);
+      const before = currentBalance;
+      currentBalance += refund;
+      const historyRef = firebase.database().ref(`users/${user.uid}/unboxHistory/${item.key}`);
+      historyRef.once('value').then(histSnap => {
+        const updateData = {
+          sold: true,
+          saleBalanceBefore: before,
+          saleBalanceAfter: currentBalance,
+          soldTimestamp: Date.now()
+        };
+        if (histSnap.exists()) historyRef.update(updateData);
+        else {
+          const { key: _k, id: _i, ...base } = item;
+          historyRef.set({ ...base, ...updateData });
+        }
+      });
+      firebase.database().ref(`users/${user.uid}/inventory/${item.key}`).remove();
 
-        const sellQuestRef = firebase.database().ref(`users/${user.uid}/quests/sell-card`);
-        sellQuestRef.transaction(current => {
-          if (!current) {
-            return { progress: 1, completed: false, claimed: false };
-          }
-          const progress = typeof current.progress === 'number' ? current.progress : 0;
-          const updated = progress + 1;
-          return {
-            ...current,
-            progress: updated,
-            completed: current.completed || updated >= 1
-          };
-        });
-      }
+      const sellQuestRef = firebase.database().ref(`users/${user.uid}/quests/sell-card`);
+      sellQuestRef.transaction(current => {
+        if (!current) {
+          return { progress: 1, completed: false, claimed: false };
+        }
+        const progress = typeof current.progress === 'number' ? current.progress : 0;
+        const updated = progress + 1;
+        return {
+          ...current,
+          progress: updated,
+          completed: current.completed || updated >= 1
+        };
+      });
     });
 
     userRef.update({ balance: currentBalance }).then(() => {
-      alert(`Sold selected items for ${total} coins.`);
+      alert(`Sold selected items for ${formatCoins(total)} coins.`);
       window.location.reload();
     });
   });
@@ -332,12 +370,21 @@ function sellSelected() {
 
 function shipSelected() {
   const shipmentSelection = [];
+  let voucherSelected = false;
   selectedItems.forEach(key => {
     const item = currentItems.find(i => i.key === key);
-    if (item) shipmentSelection.push({ id: item.id, name: item.name, image: item.image });
+    if (!item) return;
+    if (item.isVoucher) {
+      voucherSelected = true;
+      return;
+    }
+    if (!item.shipped && !item.requested) {
+      shipmentSelection.push({ id: item.id, name: item.name, image: item.image });
+    }
   });
 
-  if (shipmentSelection.length === 0) return alert("Select items to ship.");
+  if (voucherSelected) return alert('Voucher prizes cannot be shipped.');
+  if (shipmentSelection.length === 0) return alert('Select items to ship.');
 
   localStorage.setItem('shipItems', JSON.stringify(shipmentSelection));
   window.location.href = 'shipping.html';
@@ -346,12 +393,16 @@ function shipSelected() {
 function shipItem(key) {
   const item = currentItems.find(i => i.key === key);
   if (!item || item.shipped || item.requested) return;
+  if (item.isVoucher) {
+    alert('Voucher prizes cannot be shipped.');
+    return;
+  }
   const shipmentSelection = [{ id: item.id, name: item.name, image: item.image }];
   localStorage.setItem('shipItems', JSON.stringify(shipmentSelection));
   window.location.href = 'shipping.html';
 }
 
-function showItemPopup(encodedSrc, encodedName, encodedRarity, value) {
+function showItemPopup(encodedSrc, encodedName, encodedRarity, value, isVoucher = false, voucherAmount = 0) {
   const src = decodeURIComponent(encodedSrc);
   const name = decodeURIComponent(encodedName || '');
   const rarity = decodeURIComponent(encodedRarity || '');
@@ -369,7 +420,18 @@ function showItemPopup(encodedSrc, encodedName, encodedRarity, value) {
     rarityEl.textContent = rarity;
   }
   const valueEl = document.getElementById('popup-item-value');
-  if (valueEl) valueEl.textContent = value || 0;
+  if (valueEl) valueEl.textContent = formatCoins(value);
+  const noteEl = document.getElementById('popup-item-note');
+  if (noteEl) {
+    if (isVoucher) {
+      const amount = formatCoins(voucherAmount);
+      noteEl.textContent = `Voucher prize — redeem for ${amount} coins. Shipping unavailable.`;
+      noteEl.classList.remove('hidden');
+    } else {
+      noteEl.textContent = '';
+      noteEl.classList.add('hidden');
+    }
+  }
   popupRotX = 0;
   popupRotY = 0;
   currentRotX = 0;

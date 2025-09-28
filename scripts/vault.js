@@ -116,6 +116,11 @@ async function openPack() {
     timestamp: Date.now(),
     sold: false
   };
+  if (winningPrize.isVoucher) {
+    unboxData.isVoucher = true;
+    const voucherValue = winningPrize.voucherAmount != null ? Number(winningPrize.voucherAmount) : Number(winningPrize.value);
+    unboxData.voucherAmount = Number.isFinite(voucherValue) ? voucherValue : 0;
+  }
   const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
   await invRef.set(unboxData);
   await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);

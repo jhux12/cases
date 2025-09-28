@@ -145,14 +145,20 @@ async function runLoop(ref) {
         }
         const prize = pack.prizes.find(pr => pr.id === pl.prizeId);
         if (prize) {
-          await admin.database().ref(`users/${grantUid}/inventory`).push({
+          const itemData = {
             name: prize.name,
             image: prize.image,
             rarity: prize.rarity,
             value: prize.value,
             timestamp: Date.now(),
             sold: false
-          });
+          };
+          if (prize.isVoucher) {
+            itemData.isVoucher = true;
+            const voucherValue = prize.voucherAmount != null ? Number(prize.voucherAmount) : Number(prize.value);
+            itemData.voucherAmount = Number.isFinite(voucherValue) ? voucherValue : 0;
+          }
+          await admin.database().ref(`users/${grantUid}/inventory`).push(itemData);
         }
       }
     }
