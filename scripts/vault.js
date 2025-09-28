@@ -13,6 +13,20 @@ const rarityColors = {
   legendary: '#facc15'
 };
 
+const getPrizeValue = (prize) => {
+  if (!prize) return 0;
+  const base = Number(prize.value);
+  if (Number.isFinite(base) && base > 0) return base;
+  const voucher = Number(prize.voucherAmount);
+  if (Number.isFinite(voucher) && voucher > 0) return voucher;
+  return 0;
+};
+
+const getRedeemValue = (prize) => {
+  const value = getPrizeValue(prize);
+  return prize?.isVoucher ? value : Math.floor(value * 0.8);
+};
+
 function renderPack(data) {
   document.getElementById('pack-name').textContent = data.name;
   document.title = `Packly.gg | ${data.name}`;
@@ -20,7 +34,7 @@ function renderPack(data) {
   document.querySelectorAll('.case-pack-image').forEach(img => img.src = data.image);
   document.getElementById('pack-price').textContent = (data.price || 0).toLocaleString();
 
-    const prizes = Object.values(data.prizes || {}).sort((a, b) => (b.value || 0) - (a.value || 0));
+    const prizes = Object.values(data.prizes || {}).sort((a, b) => getPrizeValue(b) - getPrizeValue(a));
     const topCards = prizes.slice(0,2);
     const left = document.getElementById('top-card-1');
     const right = document.getElementById('top-card-2');
@@ -48,7 +62,7 @@ function renderPack(data) {
         <div class="font-semibold text-sm clamp-2 mb-8">${prize.name}</div>
         <div class="absolute bottom-2 left-2 flex items-center gap-1 text-yellow-600 font-medium text-xs">
           <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-          ${(prize.value || 0).toLocaleString()}
+          ${getPrizeValue(prize).toLocaleString()}
         </div>
         <div class="absolute bottom-2 right-2 text-gray-600 bg-gray-100 px-2 py-[2px] text-xs rounded-full">
           ${(prize.odds || 0).toFixed(1)}%
@@ -107,24 +121,29 @@ async function openPack() {
     return;
   }
   const { prize: winningPrize } = await res.json();
+  const prizeValue = getPrizeValue(winningPrize);
+  const isVoucherPrize = !!winningPrize.isVoucher;
+  const voucherAmount = isVoucherPrize ? prizeValue : 0;
 
   const unboxData = {
     name: winningPrize.name,
     image: winningPrize.image,
     rarity: winningPrize.rarity,
-    value: winningPrize.value,
+    value: prizeValue,
     timestamp: Date.now(),
-    sold: false
+    sold: false,
+    ...(isVoucherPrize ? { isVoucher: true, voucherAmount } : {})
   };
-  if (winningPrize.isVoucher) {
-    unboxData.isVoucher = true;
-    const voucherValue = winningPrize.voucherAmount != null ? Number(winningPrize.voucherAmount) : Number(winningPrize.value);
-    unboxData.voucherAmount = Number.isFinite(voucherValue) ? voucherValue : 0;
-  }
   const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
   await invRef.set(unboxData);
   await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
-  currentPrize = { ...winningPrize, key: invRef.key };
+  const normalizedWinningPrize = {
+    ...winningPrize,
+    value: prizeValue,
+    voucherAmount: isVoucherPrize ? voucherAmount : winningPrize.voucherAmount,
+    isVoucher: isVoucherPrize
+  };
+  currentPrize = { ...normalizedWinningPrize, key: invRef.key };
   await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: (nonce || 0) + 1 });
 
   // prepare prizes for the face-down cards and guarantee five entries
@@ -148,8 +167,13 @@ async function openPack() {
     fillers.push(allPrizes[Math.floor(Math.random() * allPrizes.length)]);
   }
 
-  cardPrizes = [...fillers, winningPrize].sort(() => Math.random() - 0.5);
-  winningIndex = cardPrizes.findIndex(p => keyFor(p) === keyFor(winningPrize));
+  const normalizePrize = (p) => ({
+    ...p,
+    value: getPrizeValue(p),
+    voucherAmount: p.isVoucher ? getPrizeValue(p) : p.voucherAmount
+  });
+  cardPrizes = [...fillers.map(normalizePrize), normalizePrize(normalizedWinningPrize)].sort(() => Math.random() - 0.5);
+  winningIndex = cardPrizes.findIndex(p => keyFor(p) === keyFor(normalizedWinningPrize));
 
   selectedIndex = null;
   document.getElementById('pack-display').classList.add('hidden');
@@ -220,7 +244,7 @@ function selectCard(card, index) {
   const others = cardPrizes
     .map((p,i) => ({p,i}))
     .filter(obj => obj.i !== index)
-    .sort((a,b) => a.p.value - b.p.value); // highest value last
+    .sort((a,b) => getPrizeValue(a.p) - getPrizeValue(b.p)); // highest value last
 
   const delay = 400;
   others.forEach((obj, idx) => {
@@ -241,10 +265,18 @@ function showWinPopup() {
   const oddsEl = document.getElementById('popup-odds');
   const cardEl = document.getElementById('popup-card');
 
+  const prizeValue = getPrizeValue(currentPrize);
+  const redeemValue = getRedeemValue(currentPrize);
   imgEl.src = currentPrize.image;
   nameEl.textContent = currentPrize.name;
-  valueEl.textContent = currentPrize.value.toLocaleString();
-  document.getElementById('sell-value').textContent = Math.floor(currentPrize.value * 0.8).toLocaleString();
+  valueEl.textContent = prizeValue.toLocaleString();
+  const sellBtn = document.getElementById('sell-btn');
+  if (sellBtn) {
+    const label = currentPrize?.isVoucher ? 'Redeem for' : 'Sell for';
+    sellBtn.innerHTML = `${label} <span id="sell-value"></span>`;
+  }
+  const sellValueEl = document.getElementById('sell-value');
+  if (sellValueEl) sellValueEl.textContent = redeemValue.toLocaleString();
 
   const rarityKey = (currentPrize.rarity || 'common').toLowerCase().replace(/\s+/g,'');
   const color = rarityColors[rarityKey] || '#a1a1aa';
@@ -262,11 +294,13 @@ function showWinPopup() {
 async function sellPrize() {
   const user = firebase.auth().currentUser;
   if (!user || !currentPrize) return;
-  const sellAmount = Math.floor(currentPrize.value * 0.8);
+  const sellAmount = getRedeemValue(currentPrize);
+  if (!Number.isFinite(sellAmount) || sellAmount <= 0) return;
+  const creditAmount = Math.round(sellAmount);
   const balanceRef = firebase.database().ref('users/' + user.uid + '/balance');
   const balanceSnap = await balanceRef.once('value');
   const currentBalance = balanceSnap.val() || 0;
-  await balanceRef.set(currentBalance + sellAmount);
+  await balanceRef.set(currentBalance + creditAmount);
   await firebase.database().ref('users/' + user.uid + '/inventory/' + currentPrize.key).remove();
 }
 
