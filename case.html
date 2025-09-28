@@ -498,19 +498,35 @@ if (isFreeCase) {
   priceEl.textContent = formatCoins(caseData.price || 0);
 }
 
-const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
+const prizeEntries = Object.entries(caseData.prizes || {}).map(([key, prize]) => ({
+  key,
+  ...prize
+}));
+
+const sortedPrizes = prizeEntries.sort((a, b) => {
   const rarityDiff = (rarityOrder[b.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) -
     (rarityOrder[a.rarity?.toLowerCase().replace(/\s+/g,'')] || 0);
   if (rarityDiff !== 0) return rarityDiff;
   return getPrizeValue(b) - getPrizeValue(a); // secondary sort by value
 });
 
-const openerItems = prizeList.map((p, i) => ({
-  id: i,
+const prizeList = sortedPrizes.map((prize, index) => {
+  const normalizedValue = getPrizeValue(prize);
+  const voucherAmount = prize?.isVoucher ? normalizedValue : Number(prize.voucherAmount) || 0;
+  return {
+    ...prize,
+    value: normalizedValue,
+    voucherAmount,
+    __index: index
+  };
+});
+
+const openerItems = prizeList.map((p) => ({
+  id: p.__index,
   name: p.name,
   image: p.image,
   // Pass raw numeric value; spinner.js will format the coin amount itself
-  value: getPrizeValue(p),
+  value: p.value,
   rarity: (p.rarity || 'common').toLowerCase().replace(/\s+/g,'')
 }));
 PackOpener.init({ root: document.getElementById('reel'), items: openerItems });
@@ -658,14 +674,16 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   });
   if (res.ok) {
     const { prize: winningPrize } = await res.json();
-    const prizeValue = getPrizeValue(winningPrize);
-    const isVoucherPrize = !!winningPrize.isVoucher;
+    const prizeIndex = Number.isInteger(winningPrize?.__index) ? winningPrize.__index : prizeList.findIndex(p => p.name === winningPrize?.name);
+    const normalizedPrize = prizeList[prizeIndex] || winningPrize;
+    const prizeValue = getPrizeValue(normalizedPrize);
+    const isVoucherPrize = !!normalizedPrize.isVoucher;
     const voucherAmount = isVoucherPrize ? prizeValue : 0;
 
     const unboxData = {
-      name: winningPrize.name,
-      image: winningPrize.image,
-      rarity: winningPrize.rarity,
+      name: normalizedPrize.name,
+      image: normalizedPrize.image,
+      rarity: normalizedPrize.rarity,
       value: prizeValue,
       timestamp: Date.now(),
       sold: false,
@@ -676,14 +694,14 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
     await updateMilestones(user.uid, prizeValue);
     winnings[0] = {
-      ...winningPrize,
+      ...normalizedPrize,
       value: prizeValue,
-      voucherAmount: isVoucherPrize ? voucherAmount : winningPrize.voucherAmount,
+      voucherAmount: isVoucherPrize ? voucherAmount : normalizedPrize.voucherAmount,
       isVoucher: isVoucherPrize,
       key: invRef.key
     };
 
-    let winIndex = openerItems.findIndex(p => p.name === winningPrize.name);
+    let winIndex = Number.isInteger(normalizedPrize.__index) ? normalizedPrize.__index : openerItems.findIndex(p => p.name === normalizedPrize.name);
     if (winIndex < 0) {
       console.warn('Winning prize not found in opener items, defaulting to first tile', winningPrize);
       winIndex = 0;
