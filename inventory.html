@@ -60,19 +60,167 @@
     }
 
     .item-card {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      border-radius: 0.75rem;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background: #ffffff;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
       display: flex;
       flex-direction: column;
+      gap: 1rem;
       height: 100%;
-      overflow: hidden;
+      box-shadow: 0 16px 40px -24px rgba(30, 64, 175, 0.45);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
 
     .item-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transform: translateY(-6px);
+      box-shadow: 0 28px 60px -30px rgba(30, 64, 175, 0.4);
+    }
+
+    .item-card .item-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .item-thumbnail {
+      position: relative;
+      border-radius: 1rem;
+      background: linear-gradient(140deg, rgba(99, 102, 241, 0.12), rgba(236, 72, 153, 0.12));
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    .item-thumbnail:hover {
+      transform: scale(1.02);
+    }
+
+    .item-thumbnail::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(129, 140, 248, 0.25), transparent 60%);
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .item-thumbnail img {
+      position: relative;
+      z-index: 1;
+      max-height: 160px;
+      width: auto;
+      filter: drop-shadow(0 12px 16px rgba(15, 23, 42, 0.2));
+      transition: transform 0.3s ease;
+    }
+
+    .item-card:hover .item-thumbnail img {
+      transform: translateY(-4px);
+    }
+
+    .select-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .select-toggle input {
+      width: 16px;
+      height: 16px;
+    }
+
+    .status-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+    }
+
+    .status-badge.shipped {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-badge.requested {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .value-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #eef2ff;
+      color: #4338ca;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.3rem 0.75rem;
+      border-radius: 9999px;
+      box-shadow: inset 0 0 0 1px rgba(79, 70, 229, 0.15);
+    }
+
+    .item-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: auto;
+    }
+
+    .action-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border-radius: 9999px;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 10px 18px -12px rgba(37, 99, 235, 0.7);
+      width: 100%;
+    }
+
+    .action-button:hover:not([disabled]) {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 28px -16px rgba(79, 70, 229, 0.6);
+    }
+
+    .action-button[disabled] {
+      background: #e2e8f0 !important;
+      color: #94a3b8 !important;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .sell-button {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #ffffff;
+    }
+
+    .ship-button {
+      background: linear-gradient(135deg, #34d399, #10b981);
+      color: #ffffff;
+    }
+
+    .muted-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1rem;
+      border-radius: 9999px;
+      background: #f5f5f5;
+      color: #78716c;
+      font-size: 0.75rem;
+      font-weight: 600;
+      width: 100%;
     }
 
     .btn {
@@ -235,7 +383,7 @@
         <button onclick="shipSelected()" class="px-4 py-1.5 text-sm rounded-full font-semibold text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 transition btn whitespace-nowrap">Ship Selected</button>
       </div>
     </div>
-      <div id="inventory-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 auto-rows-auto"></div>
+      <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 auto-rows-fr"></div>
     </section>
 
     <section id="orders-section" class="hidden">

@@ -226,28 +226,64 @@ function renderItems(items) {
     const effectiveValue = isVoucher && voucherAmount > 0 ? voucherAmount : baseValue;
     const refund = Math.floor(effectiveValue * 0.8);
     const checked = selectedItems.has(item.key) ? 'checked' : '';
+    const disabled = item.shipped || item.requested;
+    const selectLabelClass = `select-toggle ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`;
+    const statusBadge = item.shipped
+      ? '<span class="status-badge shipped">Shipped</span>'
+      : item.requested
+        ? '<span class="status-badge requested">Shipment Requested</span>'
+        : '';
+    const rarityKey = (item.rarity || '').toLowerCase();
+    const rarityClassMap = {
+      'common': 'common',
+      'uncommon': 'uncommon',
+      'rare': 'rare',
+      'super rare': 'rare',
+      'ultra rare': 'ultra',
+      'ultra': 'ultra',
+      'legendary': 'legendary',
+      'mythic': 'legendary'
+    };
+    const rarityBadge = item.rarity
+      ? `<span class="pill ${rarityClassMap[rarityKey] || 'common'}">${item.rarity}</span>`
+      : '';
+    const valueBadge = `<span class="value-chip">Value ${effectiveValue} <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="14" height="14" class="coin-icon" alt="Coins" /></span>`;
     const shipMarkup = (() => {
-      if (isVoucher && !(item.shipped || item.requested)) {
-        return '<span class="w-full sm:flex-1 px-3 py-1.5 text-xs font-semibold text-amber-600 bg-amber-100 rounded-full flex items-center justify-center gap-1">Voucher — Redeem Only</span>';
+      if (isVoucher && !disabled) {
+        return '<span class="muted-chip">Voucher — Redeem Only</span>';
       }
-      const attrs = item.shipped || item.requested
-        ? 'disabled class="w-full sm:flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full"'
-        : 'class="w-full sm:flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 rounded-full"';
-      return `<button onclick="shipItem('${item.key}')" ${attrs}>Ship</button>`;
+      if (disabled) {
+        return `<button class="action-button ship-button" disabled>Ship</button>`;
+      }
+      return `<button onclick="shipItem('${item.key}')" class="action-button ship-button">Ship</button>`;
     })();
     container.innerHTML += `
-      <div class="item-card rounded-2xl p-6 text-center h-full">
-        <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="mb-3 accent-indigo-600" ${item.shipped || item.requested ? 'disabled' : ''} />
-        <img src="${item.image}" onclick="showItemPopup('${encodeURIComponent(item.image)}','${encodeURIComponent(item.name)}','${encodeURIComponent(item.rarity)}', ${effectiveValue}, ${isVoucher}, ${voucherAmount})" class="mx-auto mb-4 h-32 object-contain rounded shadow-lg cursor-pointer transition-transform duration-300 hover:rotate-2 hover:scale-110" />
-        <h2 class="item-name font-semibold text-gray-800 text-lg mb-3">${item.name}</h2>
-        <div class="flex flex-col sm:flex-row gap-2 mt-auto">
-          <button onclick="sellBack('${item.key}', ${effectiveValue})" ${item.shipped || item.requested ? 'disabled class="w-full sm:flex-1 px-3 py-1.5 text-sm bg-gray-300 text-gray-500 cursor-not-allowed rounded-full flex items-center justify-center gap-1"' : 'class="w-full sm:flex-1 px-3 py-1.5 text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-600 rounded-full flex items-center justify-center gap-1"'}>
+      <article class="item-card">
+        <div class="flex items-start justify-between gap-3">
+          <label class="${selectLabelClass}">
+            <input type="checkbox" onchange="toggleItem('${item.key}')" ${checked} class="accent-indigo-600" ${disabled ? 'disabled' : ''} />
+            <span>Select</span>
+          </label>
+          ${statusBadge}
+        </div>
+        <div class="item-thumbnail" onclick="showItemPopup('${encodeURIComponent(item.image)}','${encodeURIComponent(item.name)}','${encodeURIComponent(item.rarity)}', ${effectiveValue}, ${isVoucher}, ${voucherAmount})">
+          <img src="${item.image}" alt="${item.name}" />
+        </div>
+        <div class="flex flex-col gap-2">
+          <h2 class="item-name">${item.name}</h2>
+          <div class="flex flex-wrap items-center gap-2">
+            ${rarityBadge}
+            ${valueBadge}
+          </div>
+        </div>
+        <div class="item-actions">
+          <button onclick="sellBack('${item.key}', ${effectiveValue})" class="action-button sell-button" ${disabled ? 'disabled' : ''}>
             <span>Sell for ${refund}</span>
-            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="14" height="14" class="coin-icon" />
+            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="14" height="14" class="coin-icon" alt="Coins" />
           </button>
           ${shipMarkup}
         </div>
-      </div>`;
+      </article>`;
   });
 }
 
