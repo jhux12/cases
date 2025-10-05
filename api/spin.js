@@ -20,7 +20,7 @@ module.exports = (req, res) => {
     return;
   }
 
-  const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+  const totalOdds = prizes.reduce((sum, p) => sum + (Number(p.odds) || 0), 0);
   if (!totalOdds) {
     res.statusCode = 400;
     res.setHeader('Content-Type', 'application/json');
@@ -32,7 +32,7 @@ module.exports = (req, res) => {
   let cumulative = 0;
   let winningPrize = prizes[prizes.length - 1];
   for (const prize of prizes) {
-    cumulative += prize.odds || 0;
+    cumulative += Number(prize.odds) || 0;
     if (rand < cumulative) {
       winningPrize = prize;
       break;

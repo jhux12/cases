@@ -337,6 +337,10 @@ function showMultiWinPopup(prizes) {
 
   function render(index) {
     const prize = prizes[index];
+    if (!prize) {
+      itemContainer.innerHTML = '<div class="text-white text-center">Unable to load prize details.</div>';
+      return;
+    }
     itemContainer.innerHTML = `
       <div class="prize-card bg-white rounded-xl p-4 flex flex-col items-center text-gray-900">
         <img src="${prize.image}" class="w-32 h-32 object-contain mb-2 rounded-lg shadow-md" />
@@ -493,12 +497,18 @@ if (isFreeCase) {
   priceEl.textContent = formatCoins(caseData.price || 0);
 }
 
-const prizeList = Object.values(caseData.prizes || {}).sort((a, b) => {
-  const rarityDiff = (rarityOrder[b.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) -
-    (rarityOrder[a.rarity?.toLowerCase().replace(/\s+/g,'')] || 0);
-  if (rarityDiff !== 0) return rarityDiff;
-  return (b.value || 0) - (a.value || 0); // secondary sort by value
-});
+const prizeList = Object.values(caseData.prizes || {})
+  .map(prize => ({
+    ...prize,
+    value: Number(prize.value) || 0,
+    odds: Number(prize.odds) || 0,
+  }))
+  .sort((a, b) => {
+    const rarityDiff = (rarityOrder[b.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) -
+      (rarityOrder[a.rarity?.toLowerCase().replace(/\s+/g,'')] || 0);
+    if (rarityDiff !== 0) return rarityDiff;
+    return (b.value || 0) - (a.value || 0); // secondary sort by value
+  });
 
 const openerItems = prizeList.map((p, i) => ({
   id: i,
@@ -680,6 +690,10 @@ document.getElementById("open-case-button").addEventListener("click", async () =
 
   }
 
+  if (!res.ok) {
+    showToast('Something went wrong while spinning. Please try again.');
+  }
+
   if (isFreeCase) {
     await firebase.database().ref('users/' + user.uid + '/freeCaseOpened').set(true);
   }
@@ -707,12 +721,9 @@ document.getElementById("open-case-button").addEventListener("click", async () =
         <span id="button-price">${formatCoins(caseData.price)}</span>
       </span>`;
 
-  const topPrize = winnings.reduce((best, p) =>
-    (rarityOrder[p.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) >
-    (rarityOrder[best.rarity?.toLowerCase().replace(/\s+/g,'')] || 0)
-      ? p : best
-  , winnings[0]);
-  showMultiWinPopup(winnings);
+  if (winnings.length) {
+    showMultiWinPopup(winnings);
+  }
 });
       document.getElementById("try-free-button").addEventListener("click", async () => {
         const btn = document.getElementById("try-free-button");
@@ -728,8 +739,8 @@ document.getElementById("open-case-button").addEventListener("click", async () =
           </span>
         `;
         await transitionToReel();
-        const prizes = Object.values(caseData.prizes || {}).sort((a, b) => a.odds - b.odds);
-        const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+        const prizes = [...prizeList].sort((a, b) => a.odds - b.odds);
+        const totalOdds = prizes.reduce((sum, p) => sum + p.odds, 0);
 
         const spinCountDemo = 1;
         const demoPrizes = [];
