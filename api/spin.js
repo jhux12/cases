@@ -12,6 +12,9 @@ module.exports = (req, res) => {
   if (typeof body === 'string') {
     try { body = JSON.parse(body); } catch { body = {}; }
   }
+  if (!body || typeof body !== 'object') {
+    body = {};
+  }
   const prizes = Array.isArray(body.prizes) ? body.prizes : [];
   if (prizes.length === 0) {
     res.statusCode = 400;
