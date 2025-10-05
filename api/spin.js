@@ -12,6 +12,9 @@ module.exports = (req, res) => {
   if (typeof body === 'string') {
     try { body = JSON.parse(body); } catch { body = {}; }
   }
+  if (!body || typeof body !== 'object') {
+    body = {};
+  }
   const prizes = Array.isArray(body.prizes) ? body.prizes : [];
   if (prizes.length === 0) {
     res.statusCode = 400;
@@ -20,7 +23,12 @@ module.exports = (req, res) => {
     return;
   }
 
-  const totalOdds = prizes.reduce((sum, p) => sum + (p.odds || 0), 0);
+  const numericPrizes = prizes.map(prize => ({
+    ...prize,
+    odds: Number(prize.odds) || 0
+  }));
+
+  const totalOdds = numericPrizes.reduce((sum, p) => sum + p.odds, 0);
   if (!totalOdds) {
     res.statusCode = 400;
     res.setHeader('Content-Type', 'application/json');
@@ -28,11 +36,16 @@ module.exports = (req, res) => {
     return;
   }
 
-  const rand = crypto.randomInt(totalOdds);
+  const randFraction = (() => {
+    const buf = crypto.randomBytes(6); // 48 bits of entropy
+    const max = 0x1000000000000; // 2^48
+    return buf.readUIntBE(0, 6) / max;
+  })();
+  const rand = randFraction * totalOdds;
   let cumulative = 0;
-  let winningPrize = prizes[prizes.length - 1];
-  for (const prize of prizes) {
-    cumulative += prize.odds || 0;
+  let winningPrize = numericPrizes[numericPrizes.length - 1];
+  for (const prize of numericPrizes) {
+    cumulative += prize.odds;
     if (rand < cumulative) {
       winningPrize = prize;
       break;
