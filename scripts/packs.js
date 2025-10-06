@@ -5,6 +5,57 @@ const ROW_LIMIT = 3;
 let casesPerPage = 0;
 let displayLimit = 0;
 let currentCases = [];
+
+function parsePrizeValue(value) {
+  if (value === null || value === undefined) return 0;
+  if (typeof value === "number" && !Number.isNaN(value)) return value;
+  const numeric = parseFloat(value.toString().replace(/[^0-9.]/g, ""));
+  return Number.isNaN(numeric) ? 0 : numeric;
+}
+
+function getTopPrizes(prizes, limit = 2) {
+  return [...prizes]
+    .map(prize => ({ ...prize, numericValue: parsePrizeValue(prize.value) }))
+    .sort((a, b) => (b.numericValue || 0) - (a.numericValue || 0))
+    .slice(0, limit);
+}
+
+function buildShowcaseBackdrop(prizes, fallbackImg) {
+  if (!prizes.length) return "";
+  const positions = [
+    "absolute -left-2 sm:-left-4 top-8 sm:top-6 -rotate-6",
+    "absolute -right-2 sm:-right-4 top-12 sm:top-10 rotate-6"
+  ];
+
+  const cards = prizes
+    .map((prize, idx) => {
+      const classes = positions[Math.min(idx, positions.length - 1)];
+      return `
+        <div class="${classes} w-20 h-28 sm:w-24 sm:h-32 rounded-xl overflow-hidden shadow-xl ring-2 ring-white/70 bg-white/90 backdrop-blur pointer-events-none z-10">
+          <img src="${prize.image || fallbackImg}" alt="${prize.name || "Top hit"}" class="w-full h-full object-cover">
+        </div>`;
+    })
+    .join("");
+
+  return `<div class="absolute inset-0 flex items-center justify-center pointer-events-none">${cards}</div>`;
+}
+
+function buildShowcaseGallery(prizes, fallbackImg) {
+  if (!prizes.length) return "";
+  const swatches = prizes
+    .map(
+      (prize, idx) => `
+        <div class="relative h-12 w-12 rounded-full ring-4 ring-white shadow-lg overflow-hidden ${idx !== 0 ? '-ml-4' : ''}">
+          <img src="${prize.image || fallbackImg}" alt="${prize.name || "Pack prize"}" class="h-full w-full object-cover">
+        </div>`
+    )
+    .join("");
+
+  return `
+    <div class="mt-3 flex items-center justify-center">
+      <div class="flex items-center -space-x-4">${swatches}</div>
+    </div>`;
+}
 function getPepperHTML(spiceLevel) {
   const map = {
     easy: { class: "spice-label spice-easy" },
@@ -27,7 +78,7 @@ function getTagHTML(tag) {
   } else if (lower.includes('new')) {
     cls = "bg-blue-100 text-blue-800";
   }
-  return `<span class="absolute top-2 left-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cls}">${tag}</span>`;
+  return `<span class="absolute top-2 left-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cls} z-30">${tag}</span>`;
 }
 function calculateCasesPerPage() {
   const container = document.getElementById("cases-container");
@@ -70,9 +121,12 @@ function renderCases(caseList, reset = true) {
       : '<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coins" class="h-4 w-4 ml-1 coin-icon">';
 
     const prizes = Object.values(c.prizes || {});
-    const topPrize = prizes.sort((a, b) => (b.value || 0) - (a.value || 0))[0];
+    const topPrizes = getTopPrizes(prizes, 2);
+    const topPrize = topPrizes[0];
     const packImg = c.image;
     const topPrizeImg = topPrize?.image || packImg;
+    const highlightOverlay = buildShowcaseBackdrop(topPrizes, packImg);
+    const showcaseGallery = buildShowcaseGallery(topPrizes, packImg);
 
     const imgIdDesktop = `img-${c.id}`;
     const imgIdMobile = `img-${c.id}-m`;
@@ -81,13 +135,16 @@ function renderCases(caseList, reset = true) {
 
     casesContainer.innerHTML += `
       <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card">
-        <div class="relative">
+        <div class="relative flex items-center justify-center pt-12 pb-6 bg-gradient-to-b from-slate-900/5 to-white">
+          <div class="absolute inset-0 bg-gradient-to-br from-indigo-200/40 via-transparent to-purple-200/40 pointer-events-none"></div>
+          ${highlightOverlay}
+          <img src="${packImg}" id="${imgIdDesktop}" class="case-card-img relative z-20 w-full h-64 object-contain p-6 transition-all duration-300">
           ${tagHTML}
           ${pepperHTML}
-          <img src="${packImg}" id="${imgIdDesktop}" class="case-card-img w-full h-64 object-contain p-6 transition-all duration-300">
         </div>
         <div class="p-4">
           <h3 class="text-lg font-medium text-gray-900">${c.name}</h3>
+          ${showcaseGallery}
           <div class="mt-4">
             <a href="${openLink}" class="open-button glow-button text-sm whitespace-nowrap">
               Open for ${priceLabel} ${priceIcon}
@@ -98,13 +155,16 @@ function renderCases(caseList, reset = true) {
     if (casesCarousel && isMobile) {
       casesCarousel.innerHTML += `
         <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card w-64 flex-shrink-0">
-          <div class="relative">
+          <div class="relative flex items-center justify-center pt-12 pb-6 bg-gradient-to-b from-slate-900/5 to-white">
+            <div class="absolute inset-0 bg-gradient-to-br from-indigo-200/40 via-transparent to-purple-200/40 pointer-events-none"></div>
+            ${highlightOverlay}
+            <img src="${packImg}" id="${imgIdMobile}" class="case-card-img relative z-20 w-full h-64 object-contain p-6 transition-all duration-300">
             ${tagHTML}
             ${pepperHTML}
-            <img src="${packImg}" id="${imgIdMobile}" class="case-card-img w-full h-64 object-contain p-6 transition-all duration-300">
           </div>
           <div class="p-4">
             <h3 class="text-lg font-medium text-gray-900">${c.name}</h3>
+            ${showcaseGallery}
             <div class="mt-4">
               <a href="${openLink}" class="open-button glow-button text-sm whitespace-nowrap">
                 Open for ${priceLabel} ${priceIcon}
