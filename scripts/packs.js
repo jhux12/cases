@@ -20,32 +20,12 @@ function getTopPrizes(prizes, limit = 2) {
     .slice(0, limit);
 }
 
-function buildShowcaseBackdrop(prizes, fallbackImg) {
-  if (!prizes.length) return "";
-  const positions = [
-    "absolute -left-2 sm:-left-4 top-8 sm:top-6 -rotate-6",
-    "absolute -right-2 sm:-right-4 top-12 sm:top-10 rotate-6"
-  ];
-
-  const cards = prizes
-    .map((prize, idx) => {
-      const classes = positions[Math.min(idx, positions.length - 1)];
-      return `
-        <div class="${classes} w-20 h-28 sm:w-24 sm:h-32 rounded-xl overflow-hidden shadow-xl ring-2 ring-white/70 bg-white/90 backdrop-blur pointer-events-none z-10">
-          <img src="${prize.image || fallbackImg}" alt="${prize.name || "Top hit"}" class="w-full h-full object-cover">
-        </div>`;
-    })
-    .join("");
-
-  return `<div class="absolute inset-0 flex items-center justify-center pointer-events-none">${cards}</div>`;
-}
-
 function buildShowcaseGallery(prizes, fallbackImg) {
   if (!prizes.length) return "";
   const swatches = prizes
     .map(
       (prize, idx) => `
-        <div class="relative h-12 w-12 rounded-full ring-4 ring-white shadow-lg overflow-hidden ${idx !== 0 ? '-ml-4' : ''}">
+        <div class="relative h-16 w-16 rounded-full ring-2 ring-white/80 shadow-lg overflow-hidden bg-white ${idx !== 0 ? '-ml-3' : ''}">
           <img src="${prize.image || fallbackImg}" alt="${prize.name || "Pack prize"}" class="h-full w-full object-cover">
         </div>`
     )
@@ -125,7 +105,6 @@ function renderCases(caseList, reset = true) {
     const topPrize = topPrizes[0];
     const packImg = c.image;
     const topPrizeImg = topPrize?.image || packImg;
-    const highlightOverlay = buildShowcaseBackdrop(topPrizes, packImg);
     const showcaseGallery = buildShowcaseGallery(topPrizes, packImg);
 
     const imgIdDesktop = `img-${c.id}`;
@@ -136,8 +115,7 @@ function renderCases(caseList, reset = true) {
     casesContainer.innerHTML += `
       <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card">
         <div class="relative flex items-center justify-center pt-12 pb-6 bg-gradient-to-b from-slate-900/5 to-white">
-          <div class="absolute inset-0 bg-gradient-to-br from-indigo-200/40 via-transparent to-purple-200/40 pointer-events-none"></div>
-          ${highlightOverlay}
+          <div class="absolute inset-0 bg-gradient-to-br from-indigo-200/30 via-transparent to-purple-200/30 pointer-events-none"></div>
           <img src="${packImg}" id="${imgIdDesktop}" class="case-card-img relative z-20 w-full h-64 object-contain p-6 transition-all duration-300">
           ${tagHTML}
           ${pepperHTML}
@@ -156,8 +134,7 @@ function renderCases(caseList, reset = true) {
       casesCarousel.innerHTML += `
         <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card w-64 flex-shrink-0">
           <div class="relative flex items-center justify-center pt-12 pb-6 bg-gradient-to-b from-slate-900/5 to-white">
-            <div class="absolute inset-0 bg-gradient-to-br from-indigo-200/40 via-transparent to-purple-200/40 pointer-events-none"></div>
-            ${highlightOverlay}
+            <div class="absolute inset-0 bg-gradient-to-br from-indigo-200/30 via-transparent to-purple-200/30 pointer-events-none"></div>
             <img src="${packImg}" id="${imgIdMobile}" class="case-card-img relative z-20 w-full h-64 object-contain p-6 transition-all duration-300">
             ${tagHTML}
             ${pepperHTML}
