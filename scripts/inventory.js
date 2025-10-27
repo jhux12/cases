@@ -5,6 +5,13 @@ let currentItems = [];
 
 const VOUCHER_NAME_PATTERN = /voucher/i;
 
+function getSellRefund(prize = {}) {
+  const effectiveValue = getEffectiveValue(prize);
+  if (!Number.isFinite(effectiveValue) || effectiveValue <= 0) return 0;
+  if (isVoucherItem(prize)) return Math.round(effectiveValue);
+  return Math.floor(effectiveValue * 0.8);
+}
+
 function getVoucherAmount(prize = {}) {
   const candidates = [prize.voucherAmount, prize.redeemValue, prize.redeemAmount];
   for (const value of candidates) {
@@ -204,7 +211,7 @@ function updateTotalValue() {
   let total = 0;
   selectedItems.forEach(key => {
     const item = currentItems.find(i => i.key === key);
-    if (item) total += Math.floor(getEffectiveValue(item) * 0.8);
+    if (item) total += getSellRefund(item);
   });
   document.getElementById('selected-total').innerText = `Total: ${total} coins`;
 }
@@ -224,7 +231,7 @@ function renderItems(items) {
     const isVoucher = isVoucherItem(item);
     const baseValue = Number(item.value) || 0;
     const effectiveValue = isVoucher && voucherAmount > 0 ? voucherAmount : baseValue;
-    const refund = Math.floor(effectiveValue * 0.8);
+    const refund = getSellRefund(item);
     const checked = selectedItems.has(item.key) ? 'checked' : '';
     const disabled = item.shipped || item.requested;
     const selectLabelClass = `select-toggle ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`;
@@ -277,7 +284,7 @@ function renderItems(items) {
           </div>
         </div>
         <div class="item-actions">
-          <button onclick="sellBack('${item.key}', ${effectiveValue})" class="action-button sell-button" ${disabled ? 'disabled' : ''}>
+          <button onclick="sellBack('${item.key}')" class="action-button sell-button" ${disabled ? 'disabled' : ''}>
             <span>Sell for ${refund}</span>
             <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="14" height="14" class="coin-icon" alt="Coins" />
           </button>
@@ -287,63 +294,60 @@ function renderItems(items) {
   });
 }
 
-function sellBack(key, value) {
+function sellBack(key) {
   const user = firebase.auth().currentUser;
   if (!user) return;
 
-  const refund = Math.floor(value * 0.8);
   const userRef = firebase.database().ref('users/' + user.uid);
   const itemRef = firebase.database().ref(`users/${user.uid}/inventory/${key}`);
 
-  userRef.once('value').then(snap => {
-    const balanceBefore = snap.val().balance || 0;
+  Promise.all([userRef.once('value'), itemRef.once('value')]).then(([userSnap, itemSnap]) => {
+    const itemData = itemSnap.val();
+    if (!itemData) return;
+
+    const refund = getSellRefund(itemData);
+    const balanceBefore = Number(userSnap.val()?.balance || 0);
     const balanceAfter = balanceBefore + refund;
+
     userRef.update({ balance: balanceAfter }).then(() => {
-      itemRef.once('value').then(itemSnap => {
-        const itemData = itemSnap.val();
-        if (itemData) {
-          const historyRef = firebase.database().ref(`users/${user.uid}/unboxHistory/${key}`);
-          historyRef.once('value').then(histSnap => {
-            const updateData = {
-              sold: true,
-              saleBalanceBefore: balanceBefore,
-              saleBalanceAfter: balanceAfter,
-              soldTimestamp: Date.now()
-            };
-            if (histSnap.exists()) historyRef.update(updateData);
-            else {
-              const { key: _k, id: _i, ...base } = itemData;
-              historyRef.set({ ...base, ...updateData });
-            }
-          });
+      const historyRef = firebase.database().ref(`users/${user.uid}/unboxHistory/${key}`);
+      historyRef.once('value').then(histSnap => {
+        const updateData = {
+          sold: true,
+          saleBalanceBefore: balanceBefore,
+          saleBalanceAfter: balanceAfter,
+          soldTimestamp: Date.now()
+        };
+        if (histSnap.exists()) historyRef.update(updateData);
+        else {
+          const { key: _k, id: _i, ...base } = itemData;
+          historyRef.set({ ...base, ...updateData });
         }
         itemRef.remove().then(() => {
-  const sellQuestRef = firebase.database().ref(`users/${user.uid}/quests/sell-card`);
-  sellQuestRef.transaction(current => {
-    if (!current) {
-      return { progress: 1, completed: false, claimed: false };
-    }
+          const sellQuestRef = firebase.database().ref(`users/${user.uid}/quests/sell-card`);
+          sellQuestRef.transaction(current => {
+            if (!current) {
+              return { progress: 1, completed: false, claimed: false };
+            }
 
-    const progress = typeof current.progress === 'number' ? current.progress : 0;
-    const updated = progress + 1;
+            const progress = typeof current.progress === 'number' ? current.progress : 0;
+            const updated = progress + 1;
 
-    return {
-      ...current,
-      progress: updated,
-      completed: current.completed || updated >= 1
-    };
-  }, (error, committed, snapshot) => {
-    if (error) {
-      console.error("Quest update failed:", error);
-    } else if (committed) {
-      console.log("Sell quest progress updated:", snapshot.val());
-    }
-    window.location.reload(); // only after transaction completes
-  });
+            return {
+              ...current,
+              progress: updated,
+              completed: current.completed || updated >= 1
+            };
+          }, (error, committed, snapshot) => {
+            if (error) {
+              console.error("Quest update failed:", error);
+            } else if (committed) {
+              console.log("Sell quest progress updated:", snapshot.val());
+            }
+            window.location.reload(); // only after transaction completes
+          });
         });
       });
-
-
     });
   });
 }
@@ -355,17 +359,17 @@ function sellSelected() {
   let total = 0;
   selectedItems.forEach(key => {
     const item = currentItems.find(i => i.key === key);
-    if (item) total += Math.floor(getEffectiveValue(item) * 0.8);
+    if (item) total += getSellRefund(item);
   });
 
   const userRef = firebase.database().ref('users/' + user.uid);
   userRef.once('value').then(snap => {
-    let currentBalance = snap.val().balance || 0;
+    let currentBalance = Number(snap.val().balance || 0);
 
     selectedItems.forEach(key => {
       const item = currentItems.find(i => i.key === key);
       if (item) {
-        const refund = Math.floor(getEffectiveValue(item) * 0.8);
+        const refund = getSellRefund(item);
         const before = currentBalance;
         currentBalance += refund;
         const historyRef = firebase.database().ref(`users/${user.uid}/unboxHistory/${key}`);

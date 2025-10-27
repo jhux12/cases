@@ -278,6 +278,20 @@ const isVoucherPrize = (prize = {}) => {
   return false;
 };
 
+const getEffectiveValue = (prize = {}) => {
+  const baseValue = Number(prize.value) || 0;
+  const voucherAmount = getVoucherAmount(prize);
+  if (isVoucherPrize(prize) && voucherAmount > 0) return voucherAmount;
+  return baseValue;
+};
+
+const getSellRefund = (prize = {}) => {
+  const effectiveValue = getEffectiveValue(prize);
+  if (!Number.isFinite(effectiveValue) || effectiveValue <= 0) return 0;
+  if (isVoucherPrize(prize)) return Math.round(effectiveValue);
+  return Math.floor(effectiveValue * 0.8);
+};
+
 function initBestDropsCarousel(items) {
   const track = document.getElementById('best-drops-track');
   if (!track || !items.length) return;
@@ -318,7 +332,7 @@ function initBestDropsCarousel(items) {
 async function sellPrize(prize) {
   const user = firebase.auth().currentUser;
   if (!user || !prize) return;
-  const sellAmount = Math.floor(prize.value * 0.8);
+  const sellAmount = getSellRefund(prize);
   const balanceRef = firebase.database().ref('users/' + user.uid + '/balance');
   const balanceSnap = await balanceRef.once('value');
   const currentBalance = balanceSnap.val() || 0;
@@ -345,10 +359,10 @@ function showMultiWinPopup(prizes) {
       <div class="prize-card bg-white rounded-xl p-4 flex flex-col items-center text-gray-900">
         <img src="${prize.image}" class="w-32 h-32 object-contain mb-2 rounded-lg shadow-md" />
         <div class="text-sm font-semibold mb-1">${prize.name}</div>
-        <div class="flex items-center gap-1 text-yellow-300 text-sm mb-2"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />${formatCoins(prize.value)}</div>
+        <div class="flex items-center gap-1 text-yellow-300 text-sm mb-2"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />${formatCoins(getEffectiveValue(prize))}</div>
         <div class="flex gap-2 w-full mt-2">
           <button id="keep-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 text-white text-sm font-bold flex items-center justify-center gap-1"><i class="fas fa-box-open"></i> Add to Inventory</button>
-          <button id="sell-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 text-white text-sm font-bold flex items-center justify-center gap-1"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />Sell for ${formatCoins(Math.floor(prize.value * 0.8))}</button>
+          <button id="sell-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 text-white text-sm font-bold flex items-center justify-center gap-1"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />Sell for ${formatCoins(getSellRefund(prize))}</button>
         </div>
       </div>`;
 
@@ -502,6 +516,7 @@ const prizeList = Object.values(caseData.prizes || {})
     ...prize,
     value: Number(prize.value) || 0,
     odds: Number(prize.odds) || 0,
+    ...(isVoucherPrize(prize) ? { isVoucher: true, voucherAmount: getVoucherAmount(prize) } : {}),
   }))
   .sort((a, b) => {
     const rarityDiff = (rarityOrder[b.rarity?.toLowerCase().replace(/\s+/g,'')] || 0) -
@@ -514,8 +529,8 @@ const openerItems = prizeList.map((p, i) => ({
   id: i,
   name: p.name,
   image: p.image,
-  // Pass raw numeric value; spinner.js will format the coin amount itself
-  value: Number(p.value) || 0,
+  // Pass effective numeric value; spinner.js will format the coin amount itself
+  value: getEffectiveValue(p),
   rarity: (p.rarity || 'common').toLowerCase().replace(/\s+/g,'')
 }));
 PackOpener.init({ root: document.getElementById('reel'), items: openerItems });
@@ -576,7 +591,7 @@ if (repeatedBestDrops.length) {
     <div class="flex items-center justify-between px-2 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-medium">
       <div class="flex items-center gap-1">
         <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-        ${formatCoins(prize.value || 0)}
+        ${formatCoins(getEffectiveValue(prize))}
       </div>
       <div>${formatOdds(prize.odds)}%</div>
     </div>
@@ -666,21 +681,27 @@ document.getElementById("open-case-button").addEventListener("click", async () =
 
     const voucherAmount = getVoucherAmount(winningPrize);
     const voucherPrize = isVoucherPrize(winningPrize);
+    const normalizedPrize = {
+      ...winningPrize,
+      ...(voucherPrize ? { isVoucher: true, voucherAmount } : {}),
+    };
+    const effectiveValue = getEffectiveValue(normalizedPrize);
+    normalizedPrize.value = effectiveValue;
 
     const unboxData = {
-      name: winningPrize.name,
-      image: winningPrize.image,
-      rarity: winningPrize.rarity,
-      value: winningPrize.value,
+      name: normalizedPrize.name,
+      image: normalizedPrize.image,
+      rarity: normalizedPrize.rarity,
+      value: effectiveValue,
       timestamp: Date.now(),
       sold: false,
-      ...(voucherPrize ? { isVoucher: true, voucherAmount } : {})
+      ...(voucherPrize ? { isVoucher: true, voucherAmount } : {}),
     };
     const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
     await invRef.set(unboxData);
     await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
-    await updateMilestones(user.uid, winningPrize.value);
-    winnings[0] = { ...winningPrize, key: invRef.key, ...(voucherPrize ? { isVoucher: true, voucherAmount } : {}) };
+    await updateMilestones(user.uid, effectiveValue);
+    winnings[0] = { ...normalizedPrize, key: invRef.key };
 
     const winIndex = openerItems.findIndex(p => p.name === winningPrize.name);
     await transitionToReel();
