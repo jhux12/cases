@@ -22,11 +22,15 @@
       <i class="fas fa-gift"></i> Rewards
     </a>
     <!-- Coin Balance -->
-    <div id="user-balance" class="flex items-center gap-1 bg-gray-800 text-white px-3 py-1 rounded-full text-sm">
-      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
-      <span id="balance-amount">0</span>
-      <span>coins</span>
-      <button id="topup-button" class="text-green-400 font-bold ml-1">+</button>
+    <div id="user-balance" class="balance-chip flex items-center gap-2 text-white px-3 py-1.5 rounded-full text-sm">
+      <div class="balance-icon flex items-center justify-center w-8 h-8 rounded-full">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 object-contain" />
+      </div>
+      <div class="flex flex-col leading-tight">
+        <span id="balance-amount" class="balance-amount text-base">0</span>
+        <span class="balance-label">coins</span>
+      </div>
+      <button id="topup-button" class="topup-chip ml-2">+</button>
     </div>
     <!-- Username + Dropdown -->
     <div class="relative">
@@ -46,10 +50,14 @@
 
   <!-- Mobile Coin Balance and Menu Toggle -->
   <div class="sm:hidden flex items-center gap-2">
-    <div id="user-balance-mobile-header" class="flex items-center gap-1 bg-gray-800 text-white px-3 py-1 rounded-full text-sm">
-      <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" />
-      <span id="balance-amount-mobile">0</span>
-      <span>coins</span>
+    <div id="user-balance-mobile-header" class="balance-chip flex items-center gap-2 text-white px-3 py-1.5 rounded-full text-sm">
+      <div class="balance-icon flex items-center justify-center w-8 h-8 rounded-full">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 object-contain" />
+      </div>
+      <div class="flex flex-col leading-tight">
+        <span id="balance-amount-mobile" class="balance-amount text-base">0</span>
+        <span class="balance-label">coins</span>
+      </div>
     </div>
     <button id="menu-toggle" class="text-white text-2xl">
       <i class="fas fa-bars"></i>
@@ -59,9 +67,17 @@
 
 <!-- Mobile Dropdown -->
 <div id="mobile-dropdown" class="hidden mt-2 bg-gray-800 border border-gray-700 rounded-lg w-48 py-2 fixed right-4 top-[72px] z-[9999] shadow-lg sm:hidden">
-  <div id="user-balance-mobile" class="flex items-center justify-between px-4 py-2 text-sm text-white border-b border-gray-700">
-    <span><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 mr-1"> <span id="balance-amount-mobile-dropdown">0</span> coins</span>
-    <button id="topup-button-mobile" class="text-green-400 text-lg font-bold hover:text-green-500">+</button>
+  <div id="user-balance-mobile" class="balance-chip flex items-center justify-between px-4 py-2 text-sm text-white border-b border-gray-700 w-full">
+    <div class="flex items-center gap-2">
+      <div class="balance-icon flex items-center justify-center w-8 h-8 rounded-full">
+        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 object-contain" />
+      </div>
+      <div class="flex flex-col leading-tight">
+        <span id="balance-amount-mobile-dropdown" class="balance-amount text-sm">0</span>
+        <span class="balance-label">coins</span>
+      </div>
+    </div>
+    <button id="topup-button-mobile" class="topup-chip text-lg">+</button>
   </div>
   <a id="inventory-link" href="inventory.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm">Inventory</a>
   <a href="how-it-works.html" class="block px-4 py-2 hover:bg-gray-700 text-white text-sm">How It Works</a>
