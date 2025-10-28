@@ -126,11 +126,13 @@ body {
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 64, 175, 0.55));
   border-radius: 9999px;
   border: 1px solid rgba(96, 165, 250, 0.45);
-  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.22);
   backdrop-filter: blur(10px);
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   z-index: 0;
+  padding: 0.4rem 0.85rem;
+  gap: 0.55rem;
 }
 
 .balance-chip::before {
@@ -148,25 +150,33 @@ body {
 
 .balance-chip:hover {
   transform: translateY(-1px) scale(1.01);
-  box-shadow: 0 16px 36px rgba(37, 99, 235, 0.32);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.28);
 }
 
 .balance-icon {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.6), rgba(129, 140, 248, 0.6));
-  box-shadow: 0 0 14px rgba(59, 130, 246, 0.45);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+  width: 1.9rem;
+  height: 1.9rem;
+}
+
+.balance-icon img {
+  width: 1.1rem;
+  height: 1.1rem;
 }
 
 .balance-amount {
   font-weight: 700;
   color: #bfdbfe;
-  text-shadow: 0 0 12px rgba(191, 219, 254, 0.8);
-  letter-spacing: 0.02em;
+  text-shadow: 0 0 10px rgba(191, 219, 254, 0.75);
+  letter-spacing: 0.015em;
+  font-size: 0.95rem;
 }
 
 .balance-label {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   color: rgba(224, 242, 254, 0.85);
 }
 
@@ -188,10 +198,11 @@ body {
   background: linear-gradient(135deg, #34d399, #10b981);
   color: #ecfdf5;
   border-radius: 9999px;
-  padding: 0.3rem 0.7rem;
+  padding: 0.25rem 0.6rem;
   font-weight: 700;
   line-height: 1;
-  box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35);
+  font-size: 0.75rem;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.32);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   border: none;
   cursor: pointer;
