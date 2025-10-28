@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const balanceMobileDrawer = document.getElementById("user-balance-mobile-drawer");
     const topupBtn = document.getElementById("topup-button");
     const topupMobileHeader = document.getElementById("topup-button-mobile-header");
-      const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
+    const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
 
       if (!usernameEl || !balanceEl) return;
 

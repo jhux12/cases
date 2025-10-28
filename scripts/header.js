@@ -32,18 +32,21 @@ document.addEventListener("DOMContentLoaded", () => {
               <a data-nav="rewards.html" href="rewards.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-gift mr-1"></i>Rewards</a>
             </div>
           </div>
-          <div class="hidden md:ml-6 md:flex md:items-center">
+          <div class="hidden md:ml-6 md:flex md:items-center md:space-x-6">
             <div id="auth-buttons" class="flex items-center space-x-4">
-              <a href="auth.html" class="text-sm font-medium text-gray-700 hover:text-gray-900">Sign In</a>
-              <a href="auth.html#register" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
+              <a id="signin-desktop" href="auth.html" class="text-sm font-medium text-gray-700 hover:text-gray-900">Sign In</a>
+              <a id="register-desktop" href="auth.html#register" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
             </div>
-            <div id="user-area" class="hidden md:flex md:items-center">
-              <div id="user-balance" class="hidden coin-box text-sm mr-4">
-                <div class="balance">
-                  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" alt="Coins">
-                  <span id="balance-amount" class="font-medium">0</span>
+            <div id="user-area" class="hidden md:flex md:items-center md:space-x-4">
+              <div id="user-balance" class="hidden balance-chip items-center gap-3 px-3 py-1.5 text-white">
+                <div class="balance-icon flex items-center justify-center w-8 h-8 rounded-full">
+                  <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 object-contain" alt="Coins" />
                 </div>
-                <button id="topup-button" class="hidden topup-btn">REFILL</button>
+                <div class="flex flex-col leading-tight">
+                  <span id="balance-amount" class="balance-amount text-base">0</span>
+                  <span class="balance-label">coins</span>
+                </div>
+                <button id="topup-button" class="topup-chip ml-2 hidden">+</button>
               </div>
               <div class="ml-4 relative flex-shrink-0">
                 <button id="dropdown-toggle" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-50 focus:outline-none">
@@ -64,12 +67,15 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
           <div class="-mr-2 flex items-center md:hidden">
-            <div id="user-balance-mobile-header" class="hidden coin-box text-sm mr-3">
-              <div class="balance">
-                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" alt="Coins">
-                <span id="balance-amount-mobile" class="font-medium">0</span>
+            <div id="user-balance-mobile-header" class="hidden balance-chip items-center gap-3 px-3 py-1.5 text-white mr-3">
+              <div class="balance-icon flex items-center justify-center w-8 h-8 rounded-full">
+                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 object-contain" alt="Coins" />
               </div>
-              <button id="topup-button-mobile-header" class="hidden topup-btn">REFILL</button>
+              <div class="flex flex-col leading-tight">
+                <span id="balance-amount-mobile" class="balance-amount text-base">0</span>
+                <span class="balance-label">coins</span>
+              </div>
+              <button id="topup-button-mobile-header" class="topup-chip hidden">+</button>
             </div>
             <button id="menu-toggle" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none" aria-expanded="false">
               <span class="sr-only">Open main menu</span>
@@ -89,12 +95,17 @@ document.addEventListener("DOMContentLoaded", () => {
           <a data-nav="rewards.html" href="rewards.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-gift mr-2"></i>Rewards</a>
         </div>
         <div class="pt-4 pb-3 border-t border-gray-200">
-          <div id="user-balance-mobile-drawer" class="hidden coin-box text-sm mx-4 mb-3">
-            <div class="balance">
-              <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 object-contain" alt="Coins">
-              <span id="balance-amount-mobile-dropdown" class="font-medium">0</span>
+          <div id="user-balance-mobile-drawer" class="hidden balance-chip items-center justify-between px-4 py-2 text-sm text-white mx-4 mb-3">
+            <div class="flex items-center gap-3">
+              <div class="balance-icon flex items-center justify-center w-8 h-8 rounded-full">
+                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5 object-contain" alt="Coins" />
+              </div>
+              <div class="flex flex-col leading-tight">
+                <span id="balance-amount-mobile-dropdown" class="balance-amount text-sm">0</span>
+                <span class="balance-label">coins</span>
+              </div>
             </div>
-            <button id="topup-button-mobile-drawer" class="hidden topup-btn">REFILL</button>
+            <button id="topup-button-mobile-drawer" class="topup-chip hidden">+</button>
           </div>
           <div class="space-y-1">
             <a href="inventory.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Inventory</a>
@@ -121,4 +132,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-
