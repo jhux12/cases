@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ultrarare: '#c084fc',
     legendary: '#facc15'
   };
-  const MAX_NAME_LENGTH = 15;
+  const MAX_NAME_LENGTH = 18;
   const truncate = (text, len) =>
     text.length > len ? text.slice(0, len) + '\u2026' : text;
 
@@ -26,46 +26,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     if (!legendary.length) return;
 
-    const selected = legendary.sort(() => Math.random() - 0.5).slice(0, 6);
-    selected.forEach((card, idx) => {
+    const selected = legendary.sort(() => Math.random() - 0.5).slice(0, 8);
+    selected.forEach((card) => {
       const price = card.value ? Number(card.value).toLocaleString() : '0';
       const rarity = (card.rarity || 'common').toLowerCase().replace(/\s+/g, '');
       const color = rarityColors[rarity] || '#a1a1aa';
       const displayName = (card.name || '').toString();
       const truncatedName = truncate(displayName, MAX_NAME_LENGTH);
       const cardEl = document.createElement('div');
-      cardEl.className = 'bg-white rounded-lg overflow-hidden shadow-md card-hover transition-all duration-300 flex-shrink-0 w-40 border-2';
+      cardEl.className = 'relative flex-none w-48 md:w-full snap-start overflow-hidden rounded-xl bg-white shadow-lg transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl border-2';
       cardEl.style.borderColor = color;
-      cardEl.classList.add(`glow-${rarity}`);
       cardEl.innerHTML = `
-        <img class="w-full h-48 object-contain p-4" src="${card.image}" alt="${card.name}">
-        <div class="p-4">
-          <p class="text-sm font-semibold text-center truncate mb-2" title="${displayName}">${truncatedName}</p>
-          <div class="flex items-center justify-center gap-1">
-            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon" alt="Coins">
-            <span class="text-gray-900 font-medium">${price}</span>
+        <img src="${card.image}" alt="${displayName}" class="w-full h-56 sm:h-64 object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
+        <div class="absolute bottom-3 left-3 right-3 text-white">
+          <p class="text-sm font-semibold truncate" title="${displayName}">${truncatedName}</p>
+          <div class="flex items-center mt-1 text-xs">
+            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="Coins">
+            <span>${price}</span>
           </div>
         </div>`;
       container.appendChild(cardEl);
     });
-
-    startAutoScroll();
   });
-
-  function startAutoScroll() {
-    if (container.scrollWidth <= container.clientWidth) return;
-    const card = container.querySelector('div');
-    if (!card) return;
-    const cardWidth = card.getBoundingClientRect().width;
-    const gap = 16; // matches Tailwind's space-x-4
-    const step = cardWidth + gap;
-    setInterval(() => {
-      const maxScrollLeft = container.scrollWidth - container.clientWidth;
-      if (container.scrollLeft >= maxScrollLeft) {
-        container.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        container.scrollBy({ left: step, behavior: 'smooth' });
-      }
-    }, 3000);
-  }
 });
