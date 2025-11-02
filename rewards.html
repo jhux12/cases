@@ -17,27 +17,144 @@
 <script src="scripts/preloader.js"></script>
   <div id="coin-rain"></div>
   <header></header>
-  <main class="overflow-x-hidden">
-    <section class="w-full text-center pt-24 pb-20">
-      <h1 class="text-5xl font-extrabold drop-shadow-lg mb-4">
-        <span class="block text-gray-900">FREE DAILY</span>
-        <span class="block gradient-text">REWARDS</span>
-      </h1>
-      <p class="text-gray-700 mb-6">Spend more gems and open more boxes to improve your rewards!</p>
-    </section>
+  <main class="relative overflow-x-hidden bg-[#080b16] text-white pb-24">
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute -top-32 -left-24 h-72 w-72 rounded-full bg-indigo-500/30 blur-3xl"></div>
+      <div class="absolute top-1/3 -right-16 h-80 w-80 rounded-full bg-purple-600/20 blur-3xl"></div>
+      <div class="absolute bottom-0 left-1/4 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl"></div>
+    </div>
 
-    <section id="wheel-wrapper" class="relative flex justify-center overflow-hidden h-[320px] w-full">
-      <div id="wheel-container">
-        <div id="wheel-rotator">
-          <canvas id="wheel" width="600" height="600"></canvas>
-          <canvas id="highlight" width="600" height="600"></canvas>
+    <section class="relative z-10 pt-24 pb-28 text-center">
+      <div class="max-w-4xl mx-auto px-6">
+        <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm font-semibold uppercase tracking-[0.3em] text-slate-200">
+          <i class="fas fa-bolt text-yellow-300"></i>
+          Daily Rewards
+        </span>
+        <h1 class="mt-8 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight">
+          <span class="block text-slate-100">Spin. Earn. Level Up.</span>
+          <span class="mt-2 block bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">Claim your free loot every day</span>
+        </h1>
+        <p class="mt-6 text-base sm:text-lg text-slate-300">
+          Open cases, complete quests, and collect coins to unlock bigger bonuses with every visit.
+        </p>
+      </div>
+
+      <div class="mt-12 grid gap-4 px-6 text-left sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur">
+          <div class="flex items-center gap-3 text-indigo-300">
+            <i class="fas fa-sync text-lg"></i>
+            <span class="text-sm font-semibold uppercase tracking-widest">Every 24 Hours</span>
+          </div>
+          <p class="mt-3 text-sm text-slate-200">
+            Come back daily for a guaranteed spin and stack streak bonuses as you keep the momentum going.
+          </p>
         </div>
-        <div id="pointer"><i class="fas fa-caret-down"></i></div>
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur">
+          <div class="flex items-center gap-3 text-indigo-300">
+            <i class="fas fa-trophy text-lg"></i>
+            <span class="text-sm font-semibold uppercase tracking-widest">Premium Rewards</span>
+          </div>
+          <p class="mt-3 text-sm text-slate-200">
+            Spin for coins, gems, packs, and exclusive cosmetics curated for your activity level.
+          </p>
+        </div>
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur sm:col-span-2 lg:col-span-1">
+          <div class="flex items-center gap-3 text-indigo-300">
+            <i class="fas fa-dice text-lg"></i>
+            <span class="text-sm font-semibold uppercase tracking-widest">Boost the Odds</span>
+          </div>
+          <p class="mt-3 text-sm text-slate-200">
+            Opening more boxes and spending gems unlocks higher tiers on the wheel for better prizes.
+          </p>
+        </div>
       </div>
     </section>
-    <button id="spin">Spin</button>
-    <p id="countdown" class="hidden text-center mt-4"></p>
-    <section id="quest-container" class="w-full max-w-4xl mt-12"></section>
+
+    <section class="relative z-10 px-6 -mt-16">
+      <div class="mx-auto grid max-w-6xl gap-6 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 lg:p-10 shadow-2xl backdrop-blur">
+          <div class="flex flex-col gap-10 lg:flex-row lg:items-center">
+            <div class="flex-1">
+              <div id="wheel-wrapper" class="relative mx-auto overflow-visible">
+                <div id="wheel-container">
+                  <div id="wheel-rotator">
+                    <canvas id="wheel" width="600" height="600"></canvas>
+                    <canvas id="highlight" width="600" height="600"></canvas>
+                  </div>
+                  <div id="pointer"><i class="fas fa-caret-down"></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="w-full max-w-xs lg:max-w-sm">
+              <h2 class="text-2xl font-semibold text-white">Spin the Prime Wheel</h2>
+              <p class="mt-3 text-sm text-slate-300">
+                Sign in, hit the button, and watch the wheel go. Rewards are credited instantly to your balance.
+              </p>
+              <ul class="mt-6 space-y-3 text-sm text-slate-200">
+                <li class="flex items-start gap-3">
+                  <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500/30 text-indigo-200"><i class="fas fa-gem text-xs"></i></span>
+                  <span>Higher engagement increases the value of each segment on the wheel.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500/30 text-indigo-200"><i class="fas fa-hourglass-half text-xs"></i></span>
+                  <span>Premium members and admins can test spin without waiting for the daily timer.</span>
+                </li>
+              </ul>
+              <button id="spin" class="mt-8">Spin</button>
+              <p id="countdown" class="hidden mt-3"></p>
+            </div>
+          </div>
+        </div>
+
+        <aside class="rounded-3xl border border-white/10 bg-white/5 p-6 lg:p-8 shadow-2xl backdrop-blur">
+          <h2 class="text-2xl font-semibold text-white">Weekly Quest Board</h2>
+          <p class="mt-3 text-sm text-slate-300">
+            Complete challenges throughout the week to earn additional coin injections and streak bonuses.
+          </p>
+          <div id="quest-container" class="mt-8">
+            <div class="space-y-4" aria-hidden="true">
+              <div class="animate-pulse rounded-2xl border border-white/10 bg-white/5 p-4"></div>
+              <div class="animate-pulse rounded-2xl border border-white/10 bg-white/5 p-4"></div>
+              <div class="animate-pulse rounded-2xl border border-white/10 bg-white/5 p-4"></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="relative z-10 mt-20 px-6">
+      <div class="mx-auto max-w-6xl rounded-3xl border border-white/10 bg-gradient-to-r from-white/5 via-white/10 to-white/5 p-8 lg:p-12 backdrop-blur">
+        <div class="grid gap-6 lg:grid-cols-3">
+          <div class="rounded-2xl border border-white/10 bg-[#0b1120]/70 p-6">
+            <div class="flex items-center gap-3 text-indigo-300">
+              <i class="fas fa-calendar-week text-lg"></i>
+              <span class="text-sm font-semibold uppercase tracking-widest">Keep Your Streak</span>
+            </div>
+            <p class="mt-4 text-sm text-slate-200">
+              Daily spins and weekly quests refresh automatically. Missing a day resets the timer, so stay active for the best multipliers.
+            </p>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-[#0b1120]/70 p-6">
+            <div class="flex items-center gap-3 text-indigo-300">
+              <i class="fas fa-layer-group text-lg"></i>
+              <span class="text-sm font-semibold uppercase tracking-widest">Rewards Tiering</span>
+            </div>
+            <p class="mt-4 text-sm text-slate-200">
+              Your wheel adapts to your recent activity, unlocking rare cases, bonus gems, and cosmetic drops as you climb tiers.
+            </p>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-[#0b1120]/70 p-6">
+            <div class="flex items-center gap-3 text-indigo-300">
+              <i class="fas fa-people-group text-lg"></i>
+              <span class="text-sm font-semibold uppercase tracking-widest">Invite & Earn</span>
+            </div>
+            <p class="mt-4 text-sm text-slate-200">
+              Share your streak with friends. Team events and seasonal promos drop here first, so check back often.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
   <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 text-white hidden z-50"></div>
   <footer></footer>
@@ -61,11 +178,44 @@
     const rotator = document.getElementById('wheel-rotator');
     const hCanvas = document.getElementById('highlight');
     const hCtx = hCanvas.getContext('2d');
+    const wrapper = document.getElementById('wheel-wrapper');
+    let resizeTimeout;
     let rewards = [];
     let currentRotation = 0; // cumulative rotation in degrees
     const defaultColors = ['#1e3a8a','#4338ca','#1e40af','#3b82f6','#2563eb','#312e81','#4f46e5','#1e3a8a'];
 
+    function updateWheelDimensions() {
+      if (!wrapper) return;
+      const size = wrapper.offsetWidth;
+      if (!size) return;
+      [canvas, hCanvas].forEach(c => {
+        if (!c) return;
+        c.width = size;
+        c.height = size;
+        c.style.width = size + 'px';
+        c.style.height = size + 'px';
+      });
+      if (rewards.length) drawWheel();
+    }
+
+    if (wrapper) {
+      updateWheelDimensions();
+      if ('ResizeObserver' in window) {
+        const observer = new ResizeObserver(() => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(updateWheelDimensions, 100);
+        });
+        observer.observe(wrapper);
+      } else {
+        window.addEventListener('resize', () => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(updateWheelDimensions, 100);
+        });
+      }
+    }
+
     function drawWheel() {
+      if (!canvas.width || !rewards.length) return;
       const radius = canvas.width / 2;
       const sliceRadius = radius - 20;
       let start = -Math.PI / 2 + (currentRotation * Math.PI / 180);
@@ -129,7 +279,7 @@
       const delta = 360 * 5 + target - currentMod;
       currentRotation += delta;
       rotator.style.transition = 'transform 5s cubic-bezier(0.33, 1, 0.68, 1)';
-      rotator.style.transform = `translate(-50%, -50%) rotate(${currentRotation}deg)`;
+      rotator.style.transform = `rotate(${currentRotation}deg)`;
     }
 
     function highlightSlice(r) {
@@ -224,7 +374,7 @@
         rotator.addEventListener('transitionend', async () => {
           rotator.style.transition = 'none';
           currentRotation = currentRotation % 360;
-          rotator.style.transform = `translate(-50%, -50%) rotate(${currentRotation}deg)`;
+          rotator.style.transform = `rotate(${currentRotation}deg)`;
           highlightSlice(reward);
           balance += reward.amount;
           const updates = { balance };

@@ -2,8 +2,15 @@
 
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: #f8fafc;
-  color: #1f2937;
+  background-color: var(--body-bg, #f8fafc);
+  color: var(--body-text, #1f2937);
+}
+
+body.theme-dark {
+  --body-bg: #020617;
+  --body-text: #e2e8f0;
+  background-color: var(--body-bg);
+  color: var(--body-text);
 }
 
 .case-card-img {
@@ -11,6 +18,52 @@ body {
   width: 100%;
   object-fit: contain;
   border-radius: 8px;
+}
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.9);
+}
+
+body.theme-dark .section-label {
+  color: rgba(226, 232, 240, 0.65);
+}
+
+.section-title {
+  letter-spacing: -0.02em;
+}
+
+.section-subtitle {
+  color: #4b5563;
+}
+
+body.theme-dark .section-subtitle {
+  color: rgba(226, 232, 240, 0.7);
+}
+
+.stat-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 40px rgba(15, 23, 42, 0.18);
+}
+
+body.theme-dark .stat-card:hover {
+  box-shadow: 0 24px 40px rgba(37, 99, 235, 0.28);
+}
+
+.glass-card {
+  backdrop-filter: blur(18px);
+  background: rgba(15, 23, 42, 0.35);
+  border-radius: 1.5rem;
+  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.3);
 }
 
 .fade {
@@ -1068,27 +1121,34 @@ html {
 /* Category tabs */
 
 .category-tab {
-  background-color: #e5e7eb;
-  color: #374151;
-  padding: 0.25rem 0.75rem;
+  background-color: rgba(148, 163, 184, 0.15);
+  color: rgba(30, 41, 59, 0.8);
+  padding: 0.35rem 0.9rem;
   border-radius: 9999px;
   font-size: 0.875rem;
   line-height: 1.25rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.35rem;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  border: 1px solid transparent;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .category-tab:hover {
-  background-color: #d1d5db;
+  background-color: rgba(148, 163, 184, 0.28);
 }
 
 .category-tab.active {
-  background-color: #4f46e5;
+  background: linear-gradient(120deg, #6366f1, #8b5cf6);
   color: #ffffff;
+  border-color: rgba(129, 140, 248, 0.6);
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.3);
+}
+
+body.theme-dark .category-tab {
+  color: rgba(226, 232, 240, 0.8);
 }
 
 .category-tab i {
