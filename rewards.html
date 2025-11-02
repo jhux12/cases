@@ -178,11 +178,44 @@
     const rotator = document.getElementById('wheel-rotator');
     const hCanvas = document.getElementById('highlight');
     const hCtx = hCanvas.getContext('2d');
+    const wrapper = document.getElementById('wheel-wrapper');
+    let resizeTimeout;
     let rewards = [];
     let currentRotation = 0; // cumulative rotation in degrees
     const defaultColors = ['#1e3a8a','#4338ca','#1e40af','#3b82f6','#2563eb','#312e81','#4f46e5','#1e3a8a'];
 
+    function updateWheelDimensions() {
+      if (!wrapper) return;
+      const size = wrapper.offsetWidth;
+      if (!size) return;
+      [canvas, hCanvas].forEach(c => {
+        if (!c) return;
+        c.width = size;
+        c.height = size;
+        c.style.width = size + 'px';
+        c.style.height = size + 'px';
+      });
+      if (rewards.length) drawWheel();
+    }
+
+    if (wrapper) {
+      updateWheelDimensions();
+      if ('ResizeObserver' in window) {
+        const observer = new ResizeObserver(() => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(updateWheelDimensions, 100);
+        });
+        observer.observe(wrapper);
+      } else {
+        window.addEventListener('resize', () => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(updateWheelDimensions, 100);
+        });
+      }
+    }
+
     function drawWheel() {
+      if (!canvas.width || !rewards.length) return;
       const radius = canvas.width / 2;
       const sliceRadius = radius - 20;
       let start = -Math.PI / 2 + (currentRotation * Math.PI / 180);
@@ -246,7 +279,7 @@
       const delta = 360 * 5 + target - currentMod;
       currentRotation += delta;
       rotator.style.transition = 'transform 5s cubic-bezier(0.33, 1, 0.68, 1)';
-      rotator.style.transform = `translate(-50%, -50%) rotate(${currentRotation}deg)`;
+      rotator.style.transform = `rotate(${currentRotation}deg)`;
     }
 
     function highlightSlice(r) {
@@ -341,7 +374,7 @@
         rotator.addEventListener('transitionend', async () => {
           rotator.style.transition = 'none';
           currentRotation = currentRotation % 360;
-          rotator.style.transform = `translate(-50%, -50%) rotate(${currentRotation}deg)`;
+          rotator.style.transform = `rotate(${currentRotation}deg)`;
           highlightSlice(reward);
           balance += reward.amount;
           const updates = { balance };
