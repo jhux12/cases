@@ -1,11 +1,17 @@
 {
-  "name": "packly-battles",
+  "name": "cases-monorepo",
   "private": true,
-  "version": "0.0.1",
-  "description": "Static site for Packly.gg Battles (winner-takes-all).",
+  "version": "0.1.0",
+  "description": "Full-stack workspace for the Packly.gg experience, including a modern frontend and backend API.",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "test": "node -e \"process.exit(0)\"",
-    "build": "node -e \"process.exit(0)\"",
-    "start": "node -e \"console.log('Static site — open index.html via your host')\""
+    "dev": "npm run dev --workspace frontend",
+    "dev:backend": "npm run dev --workspace backend",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces"
   }
 }

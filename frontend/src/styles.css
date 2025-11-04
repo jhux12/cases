@@ -1,0 +1,161 @@
+:root {
+  color-scheme: light dark;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  color: #e2e8f0;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  padding: 3rem clamp(1.5rem, 4vw, 6rem);
+  background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.3), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.25), transparent 50%),
+    linear-gradient(160deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%);
+}
+
+.app-header {
+  text-align: center;
+  max-width: 60rem;
+  margin: 0 auto;
+}
+
+.app-header h1 {
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+.app-header p {
+  font-size: clamp(1.05rem, 2.8vw, 1.35rem);
+  color: rgba(226, 232, 240, 0.8);
+  margin: 0;
+}
+
+.app-main {
+  display: flex;
+  justify-content: center;
+}
+
+.status {
+  font-size: 1.1rem;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 1rem 1.5rem;
+  border-radius: 999px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.6);
+}
+
+.status.error {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fecaca;
+}
+
+.case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.75rem;
+  width: min(100%, 1100px);
+}
+
+.case-card {
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 45px rgba(8, 47, 73, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  transition: transform 180ms ease, box-shadow 180ms ease, border 180ms ease;
+}
+
+.case-card:hover,
+.case-card:focus-within {
+  transform: translateY(-6px);
+  box-shadow: 0 35px 70px rgba(56, 189, 248, 0.25);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.case-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.case-card__body {
+  padding: 1.5rem 1.5rem 0.5rem;
+}
+
+.case-card__body h2 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.5rem;
+}
+
+.case-card__body p {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.75);
+  line-height: 1.6;
+}
+
+.case-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem 1.75rem;
+}
+
+.price {
+  font-weight: 600;
+  font-size: 1.15rem;
+}
+
+.cta-button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.65rem 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, #6366f1, #0ea5e9);
+  color: white;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.cta-button:hover,
+.cta-button:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(14, 165, 233, 0.35);
+}
+
+.app-footer {
+  text-align: center;
+  color: rgba(226, 232, 240, 0.6);
+  font-size: 0.95rem;
+}
+
+.app-footer code {
+  background: rgba(15, 23, 42, 0.75);
+  padding: 0.25rem 0.45rem;
+  border-radius: 6px;
+}
+
+@media (max-width: 600px) {
+  .app-shell {
+    padding: 2.5rem 1.25rem 2rem;
+    gap: 2.25rem;
+  }
+
+  .case-card__body {
+    padding: 1.2rem 1.25rem 0.4rem;
+  }
+
+  .case-card__footer {
+    padding: 1rem 1.25rem 1.4rem;
+  }
+}
