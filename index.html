@@ -76,6 +76,61 @@
             align-items: center;
         }
 
+        .spinner-pack-badge {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 14px 6px 8px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 18px 32px rgba(15, 23, 42, 0.5);
+            z-index: 5;
+        }
+
+        .spinner-pack-badge.hidden {
+            display: none;
+        }
+
+        .spinner-pack-badge img {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            object-fit: cover;
+            border: 2px solid rgba(99, 102, 241, 0.7);
+            background: #111827;
+        }
+
+        .spinner-pack-meta {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .spinner-pack-meta .label {
+            font-size: 0.7rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #a5b4fc;
+        }
+
+        .spinner-pack-meta .name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            letter-spacing: 0.02em;
+        }
+
+        .spinner-pack-meta .price {
+            font-size: 0.7rem;
+            color: #cbd5f5;
+            opacity: 0.85;
+        }
+
         .reel {
             display: flex;
             will-change: transform;
@@ -231,6 +286,14 @@
         </div>
         <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 flex items-center justify-center p-4">
             <div class="reel-wrapper">
+                <div id="spinner-pack-badge" class="spinner-pack-badge hidden">
+                    <img id="spinner-pack-image" src="" alt="Featured pack thumbnail">
+                    <div class="spinner-pack-meta">
+                        <span class="label">Featured pack</span>
+                        <span id="spinner-pack-name" class="name"></span>
+                        <span id="spinner-pack-price" class="price"></span>
+                    </div>
+                </div>
                 <div id="demo-spinner" class="reel"></div>
                 <div class="center-marker">
                     <span class="marker-arrow top"></span>
@@ -544,13 +607,62 @@
         document.addEventListener('DOMContentLoaded', () => {
             const root = document.getElementById('demo-spinner');
             if (!root) return;
-            const demoCaseId = '-OPd7bkeviB4Xq_1Ea6i';
-            firebase.database().ref('cases/' + demoCaseId).once('value').then(snap => {
-                const data = snap.val() || {};
-                const items = Object.values(data.prizes || {});
+
+            const badge = document.getElementById('spinner-pack-badge');
+            const badgeImage = document.getElementById('spinner-pack-image');
+            const badgeName = document.getElementById('spinner-pack-name');
+            const badgePrice = document.getElementById('spinner-pack-price');
+            const DEFAULT_CASE_ID = '-OPd7bkeviB4Xq_1Ea6i';
+
+            function formatPackPrice(data) {
+                if (data?.isFree) return 'Free pack';
+                const value = Number(data?.price || 0);
+                if (!value) return '';
+                return `${value.toLocaleString()} coins`;
+            }
+
+            function applyBadge(data, fallbackConfig = {}) {
+                if (!badge || !badgeImage || !badgeName || !badgePrice) return;
+                const packName = data?.name || fallbackConfig.caseName || 'Featured pack';
+                const packImage = data?.image || fallbackConfig.thumbnail || `https://ui-avatars.com/api/?name=${encodeURIComponent(packName)}&background=1e293b&color=f8fafc&rounded=true`;
+                const priceLabel = formatPackPrice(data) || formatPackPrice(fallbackConfig) || 'Available now';
+                badgeImage.src = packImage;
+                badgeImage.alt = `${packName} thumbnail`;
+                badgeName.textContent = packName;
+                badgePrice.textContent = priceLabel;
+                badge.classList.remove('hidden');
+            }
+
+            async function loadDemoSpinner() {
+                let config = {};
+                try {
+                    const configSnap = await firebase.database().ref('homeSpinnerConfig').once('value');
+                    config = configSnap.val() || {};
+                } catch (err) {
+                    console.warn('Failed to load spinner config', err);
+                }
+
+                const requestedCaseId = config.caseId || DEFAULT_CASE_ID;
+
+                async function fetchCase(caseId) {
+                    const snap = await firebase.database().ref('cases/' + caseId).once('value');
+                    return { id: caseId, data: snap.val() };
+                }
+
+                let caseResult = await fetchCase(requestedCaseId);
+                if (!caseResult.data && requestedCaseId !== DEFAULT_CASE_ID) {
+                    caseResult = await fetchCase(DEFAULT_CASE_ID);
+                }
+                const caseData = caseResult.data;
+                if (!caseData) return;
+
+                const items = Object.values(caseData.prizes || {});
                 if (!items.length) return;
+
                 PackOpener.init({ root, items });
                 PackOpener.setMuted(true);
+                applyBadge(caseData, config);
+
                 const legendaryIndices = items.reduce((arr, it, idx) => {
                     if (it.rarity === 'legendary') arr.push(idx);
                     return arr;
@@ -566,7 +678,9 @@
                 }
 
                 loop();
-            });
+            }
+
+            loadDemoSpinner();
         });
     </script>
     <script src="scripts/navbar.js"></script>
