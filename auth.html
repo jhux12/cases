@@ -29,19 +29,18 @@
     <!-- Login Form -->
     <form id="login-form" class="space-y-4">
       <div>
-        <label class="text-sm">Phone Number</label>
-          <input type="tel" id="login-phone" placeholder="+15551234567" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
+        <label class="text-sm" for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="you@example.com" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
+      </div>
+      <div>
+        <label class="text-sm" for="login-password">Password</label>
+        <input type="password" id="login-password" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
       </div>
       <div class="flex items-center justify-between text-sm">
         <label class="inline-flex items-center"><input type="checkbox" id="remember-me" class="mr-2">Remember me</label>
-        <button type="button" id="login-send-code" class="text-indigo-600 hover:underline">Send Code</button>
+        <a href="verify.html" class="text-indigo-600 hover:underline">Forgot password?</a>
       </div>
-      <div id="login-phone-verification" class="hidden">
-        <label class="text-sm">Verification Code</label>
-        <input type="text" id="login-verification-code" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="123456" />
-      </div>
-      <div id="login-recaptcha-container"></div>
-        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition-colors">Login</button>
+      <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition-colors">Login</button>
     </form>
 
     <!-- Register Form -->
@@ -59,22 +58,12 @@
           <input type="email" id="register-email" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-pink-500" required />
       </div>
       <div>
-        <label class="text-sm">Phone Number</label>
-        <div class="flex">
-          <input type="tel" id="register-phone" placeholder="+15551234567" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-pink-500" required />
-          <button type="button" id="send-code" class="ml-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">Send Code</button>
-        </div>
-      </div>
-      <div id="phone-verification" class="hidden">
-        <label class="text-sm">Verification Code</label>
-        <div class="flex">
-            <input type="text" id="verification-code" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="123456" />
-            <button type="button" id="verify-code" class="ml-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">Verify</button>
-        </div>
+        <label class="text-sm" for="register-password">Password</label>
+        <input type="password" id="register-password" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-pink-500" required />
       </div>
       <div>
-        <label class="text-sm">Password</label>
-          <input type="password" id="register-password" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-pink-500" required />
+        <label class="text-sm" for="register-confirm-password">Confirm Password</label>
+        <input type="password" id="register-confirm-password" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-pink-500" required />
       </div>
       <div class="flex items-center">
         <input type="checkbox" id="terms" class="mr-2" required />
@@ -84,8 +73,7 @@
         <input type="checkbox" id="email-alerts" class="mr-2" checked />
         <label class="text-sm" for="email-alerts">Subscribe to email alerts</label>
       </div>
-      <div id="recaptcha-container"></div>
-      <button type="submit" id="register-submit" disabled class="w-full bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded transition-colors opacity-50 cursor-not-allowed">Register</button>
+      <button type="submit" id="register-submit" class="w-full bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded transition-colors">Register</button>
     </form>
 
       <p id="switch-text" class="mt-4 text-sm text-center">
@@ -112,244 +100,118 @@
     // Ignore invalid or cross-origin referrers
   }
 
-  // Setup invisible reCAPTCHA for phone auth
-  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-    size: 'invisible'
-  });
-  let verificationId = null;
-  window.loginRecaptchaVerifier = new firebase.auth.RecaptchaVerifier('login-recaptcha-container', {
-    size: 'invisible'
-  });
-  let loginVerificationId = null;
+  const loginForm = document.getElementById('login-form');
+  const registerForm = document.getElementById('register-form');
+  const formTitle = document.getElementById('form-title');
+  const switchText = document.getElementById('switch-text');
+  const logoHTML = '<span class="text-2xl font-bold gradient-text">Packly.gg</span>';
 
-function formatPhoneNumber(input) {
-  const trimmed = input.trim();
-  let digits = trimmed.replace(/\D/g, '');
-  if (trimmed.startsWith('+')) {
-    return '+' + digits;
-  }
-  return '+1' + digits;
-}
+  function toggleForms() {
+    loginForm.classList.toggle('hidden');
+    registerForm.classList.toggle('hidden');
 
-document.getElementById('send-code').addEventListener('click', () => {
-  let phoneNumber = document.getElementById('register-phone').value;
-  phoneNumber = formatPhoneNumber(phoneNumber);
-  const e164Regex = /^\+[1-9]\d{9,14}$/;
-  if (!e164Regex.test(phoneNumber)) {
-    alert('Please enter a valid phone number with country code.');
-    return;
-  }
-  const sendBtn = document.getElementById('send-code');
-  sendBtn.disabled = true;
-  let countdown = 60;
-  sendBtn.textContent = `Resend (${countdown})`;
-  const timer = setInterval(() => {
-    countdown--;
-    sendBtn.textContent = `Resend (${countdown})`;
-    if (countdown === 0) {
-      clearInterval(timer);
-      sendBtn.disabled = false;
-      sendBtn.textContent = 'Resend Code';
+    if (loginForm.classList.contains('hidden')) {
+      formTitle.innerHTML = logoHTML;
+      switchText.innerHTML = 'Already have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Login</button>';
+    } else {
+      formTitle.innerHTML = logoHTML;
+      switchText.innerHTML = 'Don\'t have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Register</button>';
     }
-  }, 1000);
-
-  const provider = new firebase.auth.PhoneAuthProvider();
-  provider.verifyPhoneNumber(phoneNumber, window.recaptchaVerifier)
-    .then(id => {
-      verificationId = id;
-      document.getElementById('phone-verification').classList.remove('hidden');
-      alert('Verification code sent!');
-    })
-    .catch(error => {
-      alert('❌ ' + error.message);
-    });
-});
-
-const verifyBtn = document.getElementById('verify-code');
-const registerBtn = document.getElementById('register-submit');
-let phoneVerified = false;
-
-verifyBtn.addEventListener('click', async () => {
-  const code = document.getElementById('verification-code').value.trim();
-  if (!verificationId) {
-    alert('Please request a verification code first.');
-    return;
-  }
-  try {
-    const credential = firebase.auth.PhoneAuthProvider.credential(verificationId, code);
-    const result = await auth.signInWithCredential(credential);
-    if (!result.additionalUserInfo.isNewUser) {
-      alert('This phone number is already associated with another account.');
-      await auth.signOut();
-      return;
-    }
-    phoneVerified = true;
-    verifyBtn.disabled = true;
-    registerBtn.disabled = false;
-    registerBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-    alert('Phone verified! Please complete registration.');
-  } catch (error) {
-    alert('❌ ' + error.message);
-  }
-});
-
-const loginForm = document.getElementById('login-form');
-const registerForm = document.getElementById('register-form');
-const formTitle = document.getElementById('form-title');
-const switchText = document.getElementById('switch-text');
-const logoHTML = '<span class="text-2xl font-bold gradient-text">Packly.gg</span>';
-const loginSendCodeBtn = document.getElementById('login-send-code');
-const loginVerificationWrapper = document.getElementById('login-phone-verification');
-const loginCodeInput = document.getElementById('login-verification-code');
-const loginPhoneInput = document.getElementById('login-phone');
-
-function toggleForms() {
-  loginForm.classList.toggle('hidden');
-  registerForm.classList.toggle('hidden');
-
-  if (loginForm.classList.contains('hidden')) {
-    formTitle.innerHTML = logoHTML;
-    switchText.innerHTML = 'Already have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Login</button>';
-  } else {
-    formTitle.innerHTML = logoHTML;
-    switchText.innerHTML = 'Don\'t have an account? <button onclick="toggleForms()" class="text-purple-400 underline">Register</button>';
-  }
-}
-
-// Register
-registerForm.addEventListener('submit', async e => {
-  e.preventDefault();
-  if (!phoneVerified) {
-    alert('Please verify your phone number first.');
-    return;
   }
 
-  const name = document.getElementById('register-name').value;
-  const username = document.getElementById('register-username').value;
-  const email = document.getElementById('register-email').value;
-  const password = document.getElementById('register-password').value;
-  const emailAlerts = document.getElementById('email-alerts').checked;
+  window.toggleForms = toggleForms;
 
-  try {
-    await auth.currentUser.updateEmail(email);
-    await auth.currentUser.updatePassword(password);
-    await auth.currentUser.updateProfile({ displayName: username });
-    await db.ref('users/' + auth.currentUser.uid).set({
-      name: name,
-      username: username,
-      email: auth.currentUser.email,
-      phoneNumber: auth.currentUser.phoneNumber,
-      phoneVerified: true,
-      balance: 0,
-      role: 'user',
-      freeCaseOpened: false,
-      emailAlerts: emailAlerts,
-      emailVerified: true
-    });
-      alert('Registration complete! You can now log in with your phone number.');
-    await auth.signOut();
-    window.location.href = 'auth.html';
-  } catch (error) {
-    alert('❌ ' + error.message);
-  }
-});
-
-loginSendCodeBtn.addEventListener('click', async () => {
-  let phoneNumber = formatPhoneNumber(loginPhoneInput.value);
-  const e164Regex = /^\+[1-9]\d{9,14}$/;
-  if (!e164Regex.test(phoneNumber)) {
-    alert('Please enter a valid phone number with country code.');
-    return;
-  }
-
-  try {
-    const snapshot = await db.ref('users').orderByChild('phoneNumber').equalTo(phoneNumber).limitToFirst(1).once('value');
-    if (!snapshot.exists()) {
-      const confirmRegister = confirm('No account found for this phone number. Would you like to register instead?');
-      if (confirmRegister) {
-        if (registerForm.classList.contains('hidden')) {
-          toggleForms();
-        }
-        document.getElementById('register-phone').value = phoneNumber;
-      }
-      return;
-    }
-
-    loginSendCodeBtn.disabled = true;
-    loginSendCodeBtn.textContent = 'Sending...';
-
-    const provider = new firebase.auth.PhoneAuthProvider();
-    loginVerificationId = await provider.verifyPhoneNumber(phoneNumber, window.loginRecaptchaVerifier);
-    loginCodeInput.value = '';
-    loginVerificationWrapper.classList.remove('hidden');
-    alert('Verification code sent!');
-
-    let countdown = 60;
-    loginSendCodeBtn.textContent = `Resend (${countdown})`;
-    const timer = setInterval(() => {
-      countdown--;
-      loginSendCodeBtn.textContent = `Resend (${countdown})`;
-      if (countdown === 0) {
-        clearInterval(timer);
-        loginSendCodeBtn.disabled = false;
-        loginSendCodeBtn.textContent = 'Send Code';
-      }
-    }, 1000);
-  } catch (error) {
-    alert('❌ ' + error.message);
-    loginSendCodeBtn.disabled = false;
-    loginSendCodeBtn.textContent = 'Send Code';
-  }
-});
-
-// Login
-loginForm.addEventListener('submit', async e => {
-  e.preventDefault();
-  const code = loginCodeInput.value.trim();
-  if (!loginVerificationId || !code) {
-    alert('Please request and enter the verification code sent to your phone.');
-    return;
-  }
-
-  const remember = document.getElementById('remember-me').checked;
-  const persistence = remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
-
-  try {
-    await auth.setPersistence(persistence);
-    const credential = firebase.auth.PhoneAuthProvider.credential(loginVerificationId, code);
-    const result = await auth.signInWithCredential(credential);
-    const user = result.user;
-
+  async function ensureUserRecord(user) {
+    if (!user) return;
     const userRef = db.ref('users/' + user.uid);
     const snapshot = await userRef.once('value');
-
     if (!snapshot.exists()) {
-      alert('We couldn\'t find an account linked to this phone number. Please complete registration.');
-      await auth.signOut();
-      if (registerForm.classList.contains('hidden')) {
-        toggleForms();
+      await userRef.set({
+        name: user.displayName || '',
+        username: user.displayName || '',
+        email: user.email,
+        phoneNumber: user.phoneNumber || null,
+        phoneVerified: !!user.phoneNumber,
+        twoFactorEnabled: !!user.phoneNumber,
+        balance: 0,
+        role: 'user',
+        freeCaseOpened: false,
+        emailAlerts: true,
+        emailVerified: !!user.emailVerified
+      });
+    } else {
+      const updates = { email: user.email };
+      const existing = snapshot.val() || {};
+      if (user.phoneNumber && !existing.phoneNumber) {
+        updates.phoneNumber = user.phoneNumber;
+        updates.phoneVerified = true;
+        updates.twoFactorEnabled = true;
       }
-      document.getElementById('register-phone').value = user.phoneNumber || '';
+      await userRef.update(updates);
+    }
+  }
+
+  loginForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const remember = document.getElementById('remember-me').checked;
+    const persistence = remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+
+    try {
+      await auth.setPersistence(persistence);
+      const credential = await auth.signInWithEmailAndPassword(email, password);
+      await ensureUserRecord(credential.user);
+      alert('Login successful!');
+      const redirectUrl = sessionStorage.getItem('postLoginRedirect');
+      sessionStorage.removeItem('postLoginRedirect');
+      window.location.href = redirectUrl ? redirectUrl : 'index.html';
+    } catch (error) {
+      alert('❌ ' + error.message);
+    }
+  });
+
+  registerForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = document.getElementById('register-name').value.trim();
+    const username = document.getElementById('register-username').value.trim();
+    const email = document.getElementById('register-email').value.trim();
+    const password = document.getElementById('register-password').value;
+    const confirmPassword = document.getElementById('register-confirm-password').value;
+    const emailAlerts = document.getElementById('email-alerts').checked;
+
+    if (password !== confirmPassword) {
+      alert('Passwords do not match.');
       return;
     }
 
-    const userData = snapshot.val() || {};
-    const updates = { phoneNumber: user.phoneNumber };
-    if (!userData.phoneVerified) {
-      updates.phoneVerified = true;
-      alert('Phone number verified!');
+    try {
+      const credential = await auth.createUserWithEmailAndPassword(email, password);
+      await credential.user.updateProfile({ displayName: username });
+      await db.ref('users/' + credential.user.uid).set({
+        name,
+        username,
+        email: credential.user.email,
+        phoneNumber: null,
+        phoneVerified: false,
+        twoFactorEnabled: false,
+        balance: 0,
+        role: 'user',
+        freeCaseOpened: false,
+        emailAlerts,
+        emailVerified: !!credential.user.emailVerified
+      });
+      alert('Registration complete! You can now log in.');
+      await auth.signOut();
+      registerForm.reset();
+      if (loginForm.classList.contains('hidden')) {
+        toggleForms();
+      }
+    } catch (error) {
+      alert('❌ ' + error.message);
     }
-    await userRef.update(updates);
-
-    alert('Login successful!');
-    const redirectUrl = sessionStorage.getItem('postLoginRedirect');
-    sessionStorage.removeItem('postLoginRedirect');
-    window.location.href = redirectUrl ? redirectUrl : 'index.html';
-  } catch (error) {
-    alert('❌ ' + error.message);
-  }
-});
-</script>
+  });
+  </script>
 
 </body>
 </html>

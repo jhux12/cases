@@ -88,6 +88,23 @@
       <button onclick="changePassword()" class="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
         Change Password
       </button>
+
+      <div id="two-factor-section" class="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center">Two-Factor Authentication</h3>
+        <p id="two-factor-status" class="text-sm text-gray-600 mb-4 text-center">Loading...</p>
+        <div id="two-factor-setup" class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700" for="two-factor-phone">Phone Number</label>
+          <input id="two-factor-phone" type="tel" placeholder="+15551234567" class="w-full px-4 py-2 rounded bg-white text-gray-900 border border-gray-300 focus:outline-none" />
+          <button id="two-factor-send" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-full transition">Send Verification Code</button>
+        </div>
+        <div id="two-factor-verify-wrapper" class="mt-4 space-y-2 hidden">
+          <label class="block text-sm font-medium text-gray-700" for="two-factor-code">Verification Code</label>
+          <input id="two-factor-code" type="text" placeholder="123456" class="w-full px-4 py-2 rounded bg-white text-gray-900 border border-gray-300 focus:outline-none" />
+          <button id="two-factor-verify" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-full transition">Verify & Enable 2FA</button>
+        </div>
+        <button id="two-factor-disable" class="mt-4 w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full transition hidden">Disable 2FA</button>
+        <div id="twofactor-recaptcha" class="hidden"></div>
+      </div>
     </div>
   </section>
 
