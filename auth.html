@@ -41,7 +41,6 @@
         <a href="verify.html" class="text-indigo-600 hover:underline">Forgot password?</a>
       </div>
       <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition-colors">Login</button>
-      <div id="login-message" class="hidden mt-2 text-sm rounded border px-4 py-3"></div>
     </form>
 
     <!-- Register Form -->
@@ -105,37 +104,11 @@
   const registerForm = document.getElementById('register-form');
   const formTitle = document.getElementById('form-title');
   const switchText = document.getElementById('switch-text');
-  const loginMessage = document.getElementById('login-message');
   const logoHTML = '<span class="text-2xl font-bold gradient-text">Packly.gg</span>';
-  const messageBaseClasses = 'mt-2 text-sm rounded border px-4 py-3';
-  const messageVariants = {
-    success: 'bg-green-50 border-green-400 text-green-700',
-    error: 'bg-red-50 border-red-400 text-red-700',
-    warning: 'bg-amber-50 border-amber-400 text-amber-700',
-    info: 'bg-blue-50 border-blue-400 text-blue-700'
-  };
-  let pendingVerification = null;
-  let resendInProgress = false;
-
-  function clearLoginMessage() {
-    if (!loginMessage) return;
-    loginMessage.className = 'hidden ' + messageBaseClasses;
-    loginMessage.innerHTML = '';
-  }
-
-  function showLoginMessage(content, type = 'info') {
-    if (!loginMessage) return;
-    const variant = messageVariants[type] || messageVariants.info;
-    loginMessage.className = messageBaseClasses + ' ' + variant;
-    loginMessage.innerHTML = content;
-  }
 
   function toggleForms() {
     loginForm.classList.toggle('hidden');
     registerForm.classList.toggle('hidden');
-    clearLoginMessage();
-    pendingVerification = null;
-    resendInProgress = false;
 
     if (loginForm.classList.contains('hidden')) {
       formTitle.innerHTML = logoHTML;
@@ -167,10 +140,7 @@
         emailVerified: !!user.emailVerified
       });
     } else {
-      const updates = {
-        email: user.email,
-        emailVerified: !!user.emailVerified
-      };
+      const updates = { email: user.email };
       const existing = snapshot.val() || {};
       if (user.phoneNumber && !existing.phoneNumber) {
         updates.phoneNumber = user.phoneNumber;
@@ -187,60 +157,19 @@
     const password = document.getElementById('login-password').value;
     const remember = document.getElementById('remember-me').checked;
     const persistence = remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
-    clearLoginMessage();
-    pendingVerification = null;
-    resendInProgress = false;
 
     try {
       await auth.setPersistence(persistence);
       const credential = await auth.signInWithEmailAndPassword(email, password);
-      await credential.user.reload();
-
-      if (!credential.user.emailVerified) {
-        pendingVerification = { email, password };
-        await auth.signOut();
-        showLoginMessage(
-          'Please verify your email address before logging in. ' +
-          '<button id="resend-verification" type="button" class="ml-2 inline-flex items-center rounded bg-indigo-600 px-2 py-1 text-xs font-medium text-white hover:bg-indigo-700">Send verification email</button>',
-          'warning'
-        );
-        const resendButton = document.getElementById('resend-verification');
-        if (resendButton) {
-          resendButton.addEventListener('click', handleVerificationResend);
-        }
-        return;
-      }
-
       await ensureUserRecord(credential.user);
       alert('Login successful!');
       const redirectUrl = sessionStorage.getItem('postLoginRedirect');
       sessionStorage.removeItem('postLoginRedirect');
       window.location.href = redirectUrl ? redirectUrl : 'index.html';
     } catch (error) {
-      showLoginMessage('❌ ' + error.message, 'error');
+      alert('❌ ' + error.message);
     }
   });
-
-  async function handleVerificationResend(event) {
-    event.preventDefault();
-    if (resendInProgress || !pendingVerification) {
-      return;
-    }
-    resendInProgress = true;
-    showLoginMessage('Sending verification email...', 'info');
-    try {
-      const { email, password } = pendingVerification;
-      const { user } = await auth.signInWithEmailAndPassword(email, password);
-      await user.sendEmailVerification();
-      await auth.signOut();
-      showLoginMessage('A new verification email has been sent to ' + email + '. Please check your inbox before trying again.', 'success');
-      pendingVerification = null;
-    } catch (error) {
-      showLoginMessage('Could not send verification email: ' + error.message, 'error');
-    } finally {
-      resendInProgress = false;
-    }
-  }
 
   registerForm.addEventListener('submit', async e => {
     e.preventDefault();
@@ -272,12 +201,7 @@
         emailAlerts,
         emailVerified: !!credential.user.emailVerified
       });
-      try {
-        await credential.user.sendEmailVerification();
-        alert('Registration complete! Please verify your email before logging in.');
-      } catch (verifyError) {
-        alert('Registration complete, but we could not send a verification email: ' + verifyError.message);
-      }
+      alert('Registration complete! You can now log in.');
       await auth.signOut();
       registerForm.reset();
       if (loginForm.classList.contains('hidden')) {
