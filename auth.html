@@ -262,7 +262,7 @@ toggleLoginModeBtn.addEventListener('click', () => {
   }
 });
 
-async function finalizeLogin({ user, allowRegisterFallback = false }) {
+async function finalizeLogin({ user, allowRegisterFallback = false, method = 'email' }) {
   const userRef = db.ref('users/' + user.uid);
   const snapshot = await userRef.once('value');
 
@@ -281,6 +281,7 @@ async function finalizeLogin({ user, allowRegisterFallback = false }) {
   }
 
   const userData = snapshot.val() || {};
+  const twoFactorEnabled = !!userData.twoFactorEnabled;
   const updates = {};
   let phoneVerifiedAlert = false;
 
@@ -291,6 +292,12 @@ async function finalizeLogin({ user, allowRegisterFallback = false }) {
   if (user.phoneNumber && !userData.phoneVerified) {
     updates.phoneVerified = true;
     phoneVerifiedAlert = true;
+  }
+
+  if (twoFactorEnabled && method !== 'phone') {
+    await auth.signOut();
+    alert('Two-factor authentication is enabled for this account. Please sign in using your phone number to continue.');
+    return false;
   }
 
   if (Object.keys(updates).length > 0) {
@@ -348,7 +355,8 @@ registerForm.addEventListener('submit', async e => {
       role: 'user',
       freeCaseOpened: false,
       emailAlerts: emailAlerts,
-      emailVerified: true
+      emailVerified: true,
+      twoFactorEnabled: false
     });
       alert('Registration complete! You can now log in with your phone number.');
     await auth.signOut();
@@ -426,7 +434,7 @@ loginForm.addEventListener('submit', async e => {
       await auth.setPersistence(persistence);
       const credential = firebase.auth.PhoneAuthProvider.credential(loginVerificationId, code);
       const result = await auth.signInWithCredential(credential);
-      await finalizeLogin({ user: result.user, allowRegisterFallback: true });
+      await finalizeLogin({ user: result.user, allowRegisterFallback: true, method: 'phone' });
     } catch (error) {
       alert('❌ ' + error.message);
     }
@@ -447,7 +455,7 @@ loginForm.addEventListener('submit', async e => {
   try {
     await auth.setPersistence(persistence);
     const result = await auth.signInWithEmailAndPassword(email, password);
-    await finalizeLogin({ user: result.user });
+    await finalizeLogin({ user: result.user, method: 'email' });
   } catch (error) {
     alert('❌ ' + error.message);
   }

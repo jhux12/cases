@@ -4,11 +4,21 @@ let profileRecaptchaVerifier = null;
 let phoneVerificationId = null;
 let phoneCountdownTimer = null;
 
+const profileSecurityState = {
+  isOwnProfile: false,
+  phoneVerified: false,
+  hasPhone: false,
+  twoFactorEnabled: false,
+  phoneNumber: ''
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   const sendPhoneBtn = document.getElementById('send-phone-code');
   if (sendPhoneBtn) sendPhoneBtn.addEventListener('click', handleSendPhoneCode);
   const verifyPhoneBtn = document.getElementById('verify-phone-code');
   if (verifyPhoneBtn) verifyPhoneBtn.addEventListener('click', handleVerifyPhoneCode);
+  const twoFactorToggle = document.getElementById('two-factor-toggle');
+  if (twoFactorToggle) twoFactorToggle.addEventListener('change', handleTwoFactorToggle);
 
   firebase.auth().onAuthStateChanged(user => {
     if (!user) return (window.location.href = 'auth.html');
@@ -53,6 +63,43 @@ function setPhoneStatus(message, type = 'muted') {
   statusEl.classList.add(map[type] || 'text-gray-600');
 }
 
+function setTwoFactorStatus(message, type = 'muted') {
+  const statusEl = document.getElementById('two-factor-status');
+  if (!statusEl) return;
+  statusEl.textContent = message || '';
+  statusEl.classList.remove('text-gray-600', 'text-green-600', 'text-red-500');
+  const map = {
+    muted: 'text-gray-600',
+    success: 'text-green-600',
+    error: 'text-red-500'
+  };
+  statusEl.classList.add(map[type] || 'text-gray-600');
+}
+
+function updateTwoFactorUI() {
+  const section = document.getElementById('two-factor-section');
+  const toggle = document.getElementById('two-factor-toggle');
+  if (!section || !toggle) return;
+
+  if (!profileSecurityState.isOwnProfile) {
+    section.classList.add('hidden');
+    return;
+  }
+
+  section.classList.remove('hidden');
+  const canEnable = profileSecurityState.phoneVerified && profileSecurityState.hasPhone;
+  toggle.checked = !!profileSecurityState.twoFactorEnabled;
+  toggle.disabled = !canEnable;
+
+  if (!canEnable) {
+    setTwoFactorStatus('Verify your phone number above to enable two-factor authentication.', 'muted');
+  } else if (profileSecurityState.twoFactorEnabled) {
+    setTwoFactorStatus('Two-factor authentication is enabled. Phone sign-in will be required.', 'success');
+  } else {
+    setTwoFactorStatus('Two-factor authentication is disabled. You can enable it once you are ready.', 'muted');
+  }
+}
+
 function clearPhoneCountdown(button) {
   if (phoneCountdownTimer) {
     clearInterval(phoneCountdownTimer);
@@ -84,6 +131,12 @@ async function loadProfile(uid, currentUid) {
   const userRef = firebase.database().ref('users/' + uid);
   const userSnap = await userRef.once('value');
   const userData = userSnap.val() || {};
+  profileSecurityState.isOwnProfile = isOwn;
+  profileSecurityState.phoneVerified = !!userData.phoneVerified;
+  profileSecurityState.hasPhone = !!userData.phoneNumber;
+  profileSecurityState.twoFactorEnabled = !!userData.twoFactorEnabled;
+  profileSecurityState.phoneNumber = userData.phoneNumber || '';
+  updateTwoFactorUI();
   const username = userData.username || 'Anonymous';
   const usernameInput = document.getElementById('username-input');
   if (usernameInput) {
@@ -272,6 +325,10 @@ async function handleVerifyPhoneCode() {
       });
       document.getElementById('phone-number-input').value = phoneNumber;
       setPhoneStatus(`Verified on ${phoneNumber}`, 'success');
+      profileSecurityState.phoneVerified = true;
+      profileSecurityState.hasPhone = true;
+      profileSecurityState.phoneNumber = phoneNumber;
+      updateTwoFactorUI();
     } else {
       setPhoneStatus('Phone verified.', 'success');
     }
@@ -291,6 +348,44 @@ async function handleVerifyPhoneCode() {
     } else {
       setPhoneStatus(error.message || 'Failed to verify code.', 'error');
     }
+  }
+}
+
+async function handleTwoFactorToggle(event) {
+  const toggle = event.target;
+  const desiredState = !!toggle.checked;
+
+  if (!profileSecurityState.phoneVerified || !profileSecurityState.hasPhone) {
+    toggle.checked = false;
+    updateTwoFactorUI();
+    alert('Please verify your phone number before enabling two-factor authentication.');
+    return;
+  }
+
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    toggle.checked = profileSecurityState.twoFactorEnabled;
+    updateTwoFactorUI();
+    alert('Please sign in again to change two-factor settings.');
+    return;
+  }
+
+  toggle.disabled = true;
+  setTwoFactorStatus(desiredState ? 'Enabling two-factor authentication...' : 'Disabling two-factor authentication...', 'muted');
+
+  try {
+    await firebase.database().ref('users/' + user.uid).update({
+      twoFactorEnabled: desiredState
+    });
+    profileSecurityState.twoFactorEnabled = desiredState;
+    updateTwoFactorUI();
+    setTwoFactorStatus(desiredState ? 'Two-factor authentication is enabled. Phone sign-in will be required.' : 'Two-factor authentication is disabled. You can enable it once you are ready.', desiredState ? 'success' : 'muted');
+  } catch (error) {
+    toggle.checked = profileSecurityState.twoFactorEnabled;
+    updateTwoFactorUI();
+    alert('❌ ' + (error.message || 'Unable to update two-factor settings.'));
+  } finally {
+    toggle.disabled = false;
   }
 }
 

@@ -88,6 +88,20 @@
         </div>
       </div>
 
+      <div id="two-factor-section" class="mb-6 hidden bg-gray-50 border border-gray-200 rounded-xl p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900">Two-Factor Authentication</h3>
+            <p id="two-factor-status" class="text-xs text-gray-600 mt-1"></p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="two-factor-toggle" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-200 rounded-full peer transition-all peer-checked:bg-gradient-to-r peer-checked:from-indigo-500 peer-checked:to-purple-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-disabled:opacity-60"></div>
+            <span class="sr-only">Toggle two-factor authentication</span>
+          </label>
+        </div>
+      </div>
+
       <div id="profile-recaptcha-container" class="hidden"></div>
 
       <div class="mb-4">
