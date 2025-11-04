@@ -326,6 +326,36 @@
               </div>
             </div>
 
+            <div class="glass-card space-y-5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-lg font-semibold text-white">Homepage spinner</h3>
+                  <p class="text-xs text-slate-400">Choose which pack anchors the hero reel on the homepage.</p>
+                </div>
+                <span class="text-xs uppercase tracking-[0.3em] text-indigo-300">Hero spotlight</span>
+              </div>
+              <form id="home-spinner-form" class="space-y-4">
+                <div class="space-y-2">
+                  <label for="home-spinner-pack" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Featured pack</label>
+                  <select id="home-spinner-pack" class="form-select">
+                    <option value="">Select a pack…</option>
+                  </select>
+                </div>
+                <div id="home-spinner-preview" class="flex items-center gap-3 rounded-xl border border-slate-700/80 bg-slate-900/40 p-3">
+                  <img id="home-spinner-image" src="" alt="Pack preview" class="h-16 w-16 rounded-xl object-cover hidden">
+                  <div>
+                    <p id="home-spinner-title" class="text-sm font-semibold text-white">No pack selected</p>
+                    <p id="home-spinner-subtitle" class="text-xs text-slate-400">Choose a pack to update the homepage spinner.</p>
+                  </div>
+                </div>
+                <div class="flex justify-end">
+                  <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 px-5 py-2 text-sm font-semibold">
+                    <i class="fa-solid fa-floppy-disk"></i> Save featured pack
+                  </button>
+                </div>
+              </form>
+            </div>
+
             <div class="grid gap-6 lg:grid-cols-2">
               <div class="glass-card space-y-4">
                 <div class="flex items-center justify-between">
@@ -687,6 +717,11 @@
     const marketplaceFormTitle = document.getElementById('marketplace-form-title');
     const logoutButton = document.getElementById('logout-button');
     const globalSearchInput = document.getElementById('global-user-search');
+    const homeSpinnerForm = document.getElementById('home-spinner-form');
+    const homeSpinnerSelect = document.getElementById('home-spinner-pack');
+    const homeSpinnerImage = document.getElementById('home-spinner-image');
+    const homeSpinnerTitle = document.getElementById('home-spinner-title');
+    const homeSpinnerSubtitle = document.getElementById('home-spinner-subtitle');
     const statElements = {
       totalCases: document.getElementById('stat-total-cases'),
       pickemCases: document.getElementById('stat-pickem-cases'),
@@ -711,6 +746,7 @@
 
     let casesData = [];
     let vaultsData = [];
+    let homeSpinnerConfig = {};
 
     const basePrizeMarkup = `
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
@@ -734,6 +770,86 @@
       setTimeout(() => {
         toast.style.display = 'none';
       }, 3200);
+    }
+
+    function getCaseImage(data) {
+      const name = data.name || data.caseName || 'Case';
+      if (data.image) return data.image;
+      if (data.thumbnail) return data.thumbnail;
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1e293b&color=f8fafc&rounded=true`;
+    }
+
+    function updateHomeSpinnerPreview(data) {
+      if (!homeSpinnerImage || !homeSpinnerTitle || !homeSpinnerSubtitle) return;
+      if (!data) {
+        homeSpinnerImage.classList.add('hidden');
+        homeSpinnerTitle.textContent = 'No pack selected';
+        homeSpinnerSubtitle.textContent = 'Choose a pack to update the homepage spinner.';
+        return;
+      }
+      const normalized = { ...data };
+      normalized.name = normalized.name || normalized.caseName || 'Featured pack';
+      if (!normalized.image && normalized.thumbnail) normalized.image = normalized.thumbnail;
+      const imageUrl = getCaseImage(normalized);
+      let priceLabel = 'Featured on homepage';
+      if (normalized.isFree) {
+        priceLabel = 'Free pack';
+      } else if (normalized.price !== undefined && normalized.price !== null) {
+        const numeric = Number(normalized.price);
+        if (!Number.isNaN(numeric) && numeric > 0) {
+          priceLabel = `${numeric.toLocaleString()} coins`;
+        }
+      }
+      homeSpinnerImage.src = imageUrl;
+      homeSpinnerImage.alt = `${normalized.name} preview`;
+      homeSpinnerImage.classList.remove('hidden');
+      homeSpinnerTitle.textContent = normalized.name;
+      homeSpinnerSubtitle.textContent = priceLabel;
+    }
+
+    function updateHomeSpinnerPreviewFromConfig() {
+      if (!homeSpinnerConfig.caseId) {
+        updateHomeSpinnerPreview(null);
+        return;
+      }
+      const selected = casesData.find(item => item.key === homeSpinnerConfig.caseId);
+      if (selected) {
+        updateHomeSpinnerPreview(selected);
+      } else {
+        updateHomeSpinnerPreview(homeSpinnerConfig);
+      }
+    }
+
+    function populateHomeSpinnerSelect() {
+      if (!homeSpinnerSelect) return;
+      const savedId = homeSpinnerConfig.caseId || '';
+      homeSpinnerSelect.innerHTML = '<option value="">Select a pack…</option>';
+      casesData.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.key;
+        option.textContent = item.name || 'Untitled drop';
+        if (item.key === savedId) option.selected = true;
+        homeSpinnerSelect.appendChild(option);
+      });
+      if (!savedId) {
+        homeSpinnerSelect.value = '';
+      }
+      updateHomeSpinnerPreviewFromConfig();
+    }
+
+    function loadHomeSpinnerConfig() {
+      db.ref('homeSpinnerConfig').on('value', snapshot => {
+        homeSpinnerConfig = snapshot.val() || {};
+        if (homeSpinnerSelect) {
+          const savedId = homeSpinnerConfig.caseId || '';
+          if (savedId && Array.from(homeSpinnerSelect.options).some(opt => opt.value === savedId)) {
+            homeSpinnerSelect.value = savedId;
+          } else if (!savedId) {
+            homeSpinnerSelect.value = '';
+          }
+        }
+        updateHomeSpinnerPreviewFromConfig();
+      });
     }
 
     function updateSyncStamp(key) {
@@ -889,7 +1005,7 @@
         if (item.categories?.featured) categories.push(badge('Featured', 'bg-amber-500/10 text-amber-200 border border-amber-500/30'));
         if (item.categories?.starter) categories.push(badge('Starter', 'bg-sky-500/10 text-sky-200 border border-sky-500/30'));
         const spice = item.spiceLevel ? badge(item.spiceLevel, 'bg-rose-500/15 text-rose-200 border border-rose-500/30 capitalize') : '';
-        const image = item.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || 'Case')}&background=1e293b&color=f8fafc&rounded=true`;
+        const image = getCaseImage(item);
         div.innerHTML = `
           <img src="${image}" alt="${item.name || 'Case'}" class="h-16 w-16 rounded-xl object-cover border border-slate-800/70 shadow-lg shadow-slate-900/40" />
           <div class="flex-1 space-y-2">
@@ -955,6 +1071,7 @@
         });
         renderCaseCollections();
         updateSyncStamp('cases');
+        populateHomeSpinnerSelect();
       });
 
       db.ref('vaults').on('value', snapshot => {
@@ -1444,6 +1561,7 @@
 
       document.getElementById('admin-panel').style.display = 'block';
       showSection('overview');
+      loadHomeSpinnerConfig();
       loadCases();
       loadShipments();
       loadSupportForms();
@@ -1451,6 +1569,49 @@
       loadQuestConfig();
       loadWheelRewards();
       loadUserCount();
+    });
+
+    homeSpinnerSelect?.addEventListener('change', () => {
+      if (!homeSpinnerSelect.value) {
+        updateHomeSpinnerPreview(null);
+        return;
+      }
+      const selected = casesData.find(item => item.key === homeSpinnerSelect.value);
+      if (selected) {
+        updateHomeSpinnerPreview(selected);
+      }
+    });
+
+    homeSpinnerForm?.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!homeSpinnerSelect) return;
+      const caseId = homeSpinnerSelect.value;
+      if (!caseId) {
+        db.ref('homeSpinnerConfig').remove().then(() => {
+          homeSpinnerConfig = {};
+          updateHomeSpinnerPreview(null);
+          showToast('✅ Homepage spinner reset');
+        }).catch(() => showToast('⚠️ Failed to reset spinner'));
+        return;
+      }
+      const selected = casesData.find(item => item.key === caseId);
+      if (!selected) {
+        showToast('⚠️ Could not find that pack');
+        return;
+      }
+      const payload = {
+        caseId,
+        caseName: selected.name || 'Featured pack',
+        thumbnail: getCaseImage(selected),
+        price: Number(selected.price || 0),
+        isFree: !!selected.isFree,
+        updatedAt: Date.now()
+      };
+      db.ref('homeSpinnerConfig').set(payload).then(() => {
+        homeSpinnerConfig = payload;
+        updateHomeSpinnerPreview(selected);
+        showToast('✅ Homepage spinner updated');
+      }).catch(() => showToast('⚠️ Failed to update spinner'));
     });
 
     document.getElementById('marketplace-form').addEventListener('submit', async (e) => {
