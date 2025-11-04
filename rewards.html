@@ -32,10 +32,12 @@
           <canvas id="wheel" width="600" height="600"></canvas>
           <canvas id="highlight" width="600" height="600"></canvas>
         </div>
-        <div id="pointer"><i class="fas fa-caret-down"></i></div>
+        <div id="pointer" aria-hidden="true"><i class="fas fa-caret-down"></i></div>
       </div>
     </section>
-    <button id="spin">Spin</button>
+    <button id="spin" class="glow-button spin-action">
+      <span class="spin-label">Spin</span>
+    </button>
     <p id="countdown" class="hidden text-center mt-4"></p>
     <section id="quest-container" class="w-full max-w-4xl mt-12"></section>
   </main>
@@ -81,7 +83,7 @@
         ctx.closePath();
         ctx.fillStyle = r.color || defaultColors[i % defaultColors.length];
         ctx.fill();
-        ctx.strokeStyle = '#0f0f12';
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
         ctx.lineWidth = 2;
         ctx.stroke();
         if (r.img && r.img.naturalWidth) {
@@ -98,24 +100,26 @@
         start += sliceAngle;
       });
       const rimGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      rimGrad.addColorStop(0, '#facc15');
-      rimGrad.addColorStop(1, '#f97316');
+      rimGrad.addColorStop(0, '#38bdf8');
+      rimGrad.addColorStop(0.5, '#6366f1');
+      rimGrad.addColorStop(1, '#a855f7');
       ctx.beginPath();
       ctx.arc(radius, radius, sliceRadius + 12, 0, 2 * Math.PI);
       ctx.lineWidth = 8;
       ctx.strokeStyle = rimGrad;
       ctx.stroke();
       const gloss = ctx.createRadialGradient(radius, radius, 0, radius, radius, sliceRadius + 12);
-      gloss.addColorStop(0, 'rgba(255,255,255,0.15)');
-      gloss.addColorStop(0.85, 'rgba(255,255,255,0)');
-      gloss.addColorStop(1, 'rgba(0,0,0,0.3)');
+      gloss.addColorStop(0, 'rgba(148,197,253,0.22)');
+      gloss.addColorStop(0.72, 'rgba(59,130,246,0.12)');
+      gloss.addColorStop(1, 'rgba(15,23,42,0.55)');
       ctx.beginPath();
       ctx.arc(radius, radius, sliceRadius + 12, 0, 2 * Math.PI);
       ctx.fillStyle = gloss;
       ctx.fill();
-      const hubGrad = ctx.createRadialGradient(radius, radius, 0, radius, radius, 40);
-      hubGrad.addColorStop(0, '#4b5563');
-      hubGrad.addColorStop(1, '#111827');
+      const hubGrad = ctx.createRadialGradient(radius, radius, 0, radius, radius, 42);
+      hubGrad.addColorStop(0, '#bfdbfe');
+      hubGrad.addColorStop(0.6, '#6366f1');
+      hubGrad.addColorStop(1, '#0f172a');
       ctx.beginPath();
       ctx.arc(radius, radius, 40, 0, 2 * Math.PI);
       ctx.fillStyle = hubGrad;
@@ -141,8 +145,14 @@
       hCtx.arc(radius, radius, sliceRadius, r.startAngle, r.endAngle);
       hCtx.closePath();
       hCtx.lineWidth = 8;
-      hCtx.strokeStyle = '#facc15';
+      hCtx.lineJoin = 'round';
+      hCtx.lineCap = 'round';
+      hCtx.shadowBlur = 22;
+      hCtx.shadowColor = 'rgba(96, 165, 250, 0.8)';
+      hCtx.strokeStyle = 'rgba(191, 219, 254, 0.85)';
       hCtx.stroke();
+      hCtx.shadowBlur = 0;
+      hCtx.shadowColor = 'transparent';
     }
 
     function pickWeightedIndex(items) {
