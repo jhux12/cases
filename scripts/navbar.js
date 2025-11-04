@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
           balanceEl.innerText = balanceFormatted;
           if (balanceMobile) balanceMobile.innerText = balanceFormatted;
           if (balanceDropdown) balanceDropdown.innerText = balanceFormatted;
-          if (popupBalance) popupBalance.innerText = `${balanceFormatted} coins`;
+          if (popupBalance) popupBalance.innerText = `${balanceFormatted} gems`;
         };
         userRef.on("value", handler);
 
@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
         balanceEl.innerText = "0";
         if (balanceMobile) balanceMobile.innerText = "0";
         if (balanceDropdown) balanceDropdown.innerText = "0";
-        if (popupBalance) popupBalance.innerText = "0 coins";
+        if (popupBalance) popupBalance.innerText = "0 gems";
 
         if (authButtons) authButtons.classList.remove("hidden");
         if (userArea) userArea.classList.add("hidden");

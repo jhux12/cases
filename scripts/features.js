@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <h3 class="text-lg font-semibold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Exchange or Re-Roll</h3>
           <p class="text-sm text-gray-400">
-            Don’t want it? Instantly trade or sell back for coins. No fees. No wait.
+            Don’t want it? Instantly trade or sell back for gems. No fees. No wait.
           </p>
         </div>
         <div class="flex flex-col items-center p-6 rounded-xl bg-[#1a1a23]/60 backdrop-blur-sm border border-gray-700/50 hover:border-purple-500 transition">
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <h3 class="text-lg font-semibold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Fast Global Shipping</h3>
           <p class="text-sm text-gray-400">
-            We ship worldwide. Or keep it digital by converting items into coin instantly.
+            We ship worldwide. Or keep it digital by converting items into gems instantly.
           </p>
         </div>
       </div>

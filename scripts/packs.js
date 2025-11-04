@@ -98,7 +98,7 @@ function renderCases(caseList, reset = true) {
     const priceLabel = c.isFree ? "Free" : price.toLocaleString();
     const priceIcon = c.isFree
       ? ""
-      : '<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coins" class="h-4 w-4 ml-1 coin-icon">';
+      : '<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gems" class="h-4 w-4 ml-1 gem-icon">';
 
     const prizes = Object.values(c.prizes || {});
     const topPrizes = getTopPrizes(prizes, 2);

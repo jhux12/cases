@@ -47,7 +47,7 @@ function renderPack(data) {
         <img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-gray-100 rounded-lg" />
         <div class="font-semibold text-sm clamp-2 mb-8">${prize.name}</div>
         <div class="absolute bottom-2 left-2 flex items-center gap-1 text-yellow-600 font-medium text-xs">
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
+          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4" />
           ${(prize.value || 0).toLocaleString()}
         </div>
         <div class="absolute bottom-2 right-2 text-gray-600 bg-gray-100 px-2 py-[2px] text-xs rounded-full">
@@ -82,7 +82,7 @@ async function openPack() {
   const price = parseFloat(currentPack.price || 0);
   if (balance < price) {
     openBtn.disabled = false;
-    return alert('Not enough coins.');
+    return alert('Not enough gems.');
   }
 
   const fairSnap = await firebase.database().ref('users/' + user.uid + '/provablyFair').once('value');

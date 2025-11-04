@@ -15,7 +15,7 @@
 </head>
 <body>
 <script src="scripts/preloader.js"></script>
-  <div id="coin-rain"></div>
+  <div id="gem-rain"></div>
   <header></header>
   <main class="overflow-x-hidden">
     <section class="w-full text-center pt-24 pb-20">
@@ -230,7 +230,7 @@
           const updates = { balance };
           if (!isAdmin) updates.lastWheelSpin = now;
           await userRef.update(updates);
-          toast.innerHTML = `✅ You won ${reward.label} <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="inline w-4 h-4 coin-icon" alt="Coins">!`;
+          toast.innerHTML = `✅ You won ${reward.label} <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="inline w-4 h-4 gem-icon" alt="Gems">!`;
           toast.classList.remove('hidden');
           setTimeout(() => toast.classList.add('hidden'), 3000);
           if (isAdmin) button.disabled = false;
@@ -249,17 +249,17 @@
   <script src="scripts/footer.js"></script>
   <script src="scripts/topup.js"></script>
   <script>
-    function createCoin() {
-      const coin = document.createElement('img');
-      coin.src = 'https://cdn-icons-png.flaticon.com/128/6369/6369589.png';
-      coin.className = 'coin';
-      coin.style.left = Math.random() * 100 + 'vw';
+    function createGem() {
+      const gem = document.createElement('img');
+      gem.src = 'https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff';
+      gem.className = 'gem';
+      gem.style.left = Math.random() * 100 + 'vw';
       const duration = 4 + Math.random() * 3;
-      coin.style.animationDuration = duration + 's';
-      document.getElementById('coin-rain').appendChild(coin);
-      setTimeout(() => coin.remove(), duration * 1000);
+      gem.style.animationDuration = duration + 's';
+      document.getElementById('gem-rain').appendChild(gem);
+      setTimeout(() => gem.remove(), duration * 1000);
     }
-    setInterval(createCoin, 400);
+    setInterval(createGem, 400);
   </script>
 </body>
 </html>

@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   if (!stored) return window.location.href = 'inventory.html';
   shipmentSelection = JSON.parse(stored);
   const cost = shipmentSelection.length <= 5 ? shipmentSelection.length * 500 : 2500;
-  document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelection.length} item(s) will cost ${cost} coins.`;
+  document.getElementById('shipment-cost').innerText = `Shipping ${shipmentSelection.length} item(s) will cost ${cost} gems.`;
 
   const gallery = document.getElementById('ship-items');
   if (gallery) {
@@ -109,7 +109,7 @@ function submitShipmentRequest() {
 
   userRef.once('value').then(function (snap) {
     const balance = (snap.val() && snap.val().balance) || 0;
-    if (balance < cost) return alert('Insufficient balance.');
+    if (balance < cost) return alert('Not enough gems to cover shipping.');
 
     userRef.update({ balance: balance - cost });
 

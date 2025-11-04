@@ -62,7 +62,7 @@ function redirectToCheckout(event, priceId, button) {
 
   const user = firebase.auth().currentUser;
   if (!user) {
-    alert("Please sign in to purchase coins.");
+    alert("Please sign in to purchase gems.");
     button.disabled = false;
     button.innerHTML = originalText;
     return;
@@ -95,7 +95,7 @@ function redirectToCheckout(event, priceId, button) {
     });
 }
 
-// Update coin balance when payment is successful
+// Update gem balance when payment is successful
 firebase.auth().onAuthStateChanged(async (user) => {
   if (!user) return;
   const dbRTDB = firebase.database();
@@ -116,9 +116,9 @@ firebase.auth().onAuthStateChanged(async (user) => {
 
             if (!productSnap.empty) {
               const product = productSnap.docs[0].data();
-              const coins = parseInt(product.coin_amount || "0");
+              const gems = parseInt(product.coin_amount || "0");
               const bonus = parseInt(product.bonus || "0");
-              const total = coins + bonus;
+              const total = gems + bonus;
 
               const currentSnap = await userRef.once("value");
               const currentBalance = currentSnap.val()?.balance || 0;
@@ -134,7 +134,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
               if (mobileDropdownBalance) mobileDropdownBalance.innerText = formattedBalance;
 
               const popupBalance = document.getElementById("popup-balance");
-              if (popupBalance) popupBalance.innerText = `${formattedBalance} coins`;
+              if (popupBalance) popupBalance.innerText = `${formattedBalance} gems`;
 
               await change.doc.ref.update({ processed: true });
             }

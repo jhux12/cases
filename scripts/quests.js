@@ -36,8 +36,8 @@ export async function renderWeeklyQuests(containerId = "quest-container") {
     },
     {
       id: "spendCoins",
-      label: `Spend ${config.spendCoins?.goal || 0} Coins`,
-      icon: "fas fa-coins",
+      label: `Spend ${config.spendCoins?.goal || 0} Gems`,
+      icon: "fas fa-gem",
       goal: config.spendCoins?.goal || 0,
       reward: config.spendCoins?.reward || 0,
       progress: quests.spendCoins?.progress || 0,
@@ -117,7 +117,7 @@ export async function renderWeeklyQuests(containerId = "quest-container") {
       <td class="py-3 text-yellow-300 font-medium">
         <div class="flex items-center gap-1">
           +${quest.reward}
-          <i class="fas fa-coins"></i>
+          <i class="fas fa-gem"></i>
         </div>
       </td>
       <td class="py-3 text-right">
@@ -146,7 +146,7 @@ export async function renderWeeklyQuests(containerId = "quest-container") {
 
       const toast = document.createElement("div");
       toast.className = "fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-xl z-[9999]";
-      toast.innerText = `+${quest.reward} coins claimed!`;
+      toast.innerText = `+${quest.reward} gems claimed!`;
       document.body.appendChild(toast);
       setTimeout(() => toast.remove(), 3000);
     };

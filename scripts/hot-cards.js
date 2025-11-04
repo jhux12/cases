@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="tile-info">
         <div class="name" title="${escapeHtml(rawName)}">${escapeHtml(truncate(rawName, MAX_NAME_LENGTH))}</div>
         <div class="price">
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coins" />
+          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gems" />
           <span>${price}</span>
         </div>
         <span class="pill ${rarityKey === 'ultra' ? 'ultrarare' : rarityKey}">${rarityLabel}</span>
