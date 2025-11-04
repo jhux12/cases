@@ -1,5 +1,8 @@
 // scripts/profile.js
 
+let twoFactorRecaptchaVerifier = null;
+let twoFactorVerificationId = null;
+
 document.addEventListener('DOMContentLoaded', () => {
   firebase.auth().onAuthStateChanged(user => {
     if (!user) return (window.location.href = 'auth.html');
@@ -81,6 +84,10 @@ async function loadProfile(uid, currentUid) {
     document.getElementById('current-password').parentElement.classList.add('hidden');
     document.getElementById('new-password').parentElement.classList.add('hidden');
     document.querySelector('button[onclick="changePassword()"]').classList.add('hidden');
+    const twoFactorSection = document.getElementById('two-factor-section');
+    if (twoFactorSection) twoFactorSection.classList.add('hidden');
+  } else {
+    initializeTwoFactorSection(userData);
   }
 }
 
@@ -166,5 +173,140 @@ function changePassword() {
       document.getElementById('new-password').value = '';
     })
     .catch(error => alert('❌ ' + error.message));
+}
+
+function initializeTwoFactorSection(userData) {
+  const section = document.getElementById('two-factor-section');
+  if (!section) return;
+  const statusEl = document.getElementById('two-factor-status');
+  const setupWrapper = document.getElementById('two-factor-setup');
+  const verifyWrapper = document.getElementById('two-factor-verify-wrapper');
+  const sendBtn = document.getElementById('two-factor-send');
+  const verifyBtn = document.getElementById('two-factor-verify');
+  const disableBtn = document.getElementById('two-factor-disable');
+  const phoneInput = document.getElementById('two-factor-phone');
+  const codeInput = document.getElementById('two-factor-code');
+
+  const currentUser = firebase.auth().currentUser;
+  if (currentUser && currentUser.phoneNumber) {
+    phoneInput.value = currentUser.phoneNumber;
+  }
+
+  const isEnabled = !!(userData.twoFactorEnabled && currentUser && currentUser.phoneNumber);
+
+  function updateStatus(enabled, phone) {
+    if (enabled) {
+      const activePhone = phone || (currentUser && currentUser.phoneNumber) || '';
+      statusEl.textContent = activePhone ? `Enabled (${activePhone})` : 'Enabled';
+      setupWrapper.classList.add('hidden');
+      verifyWrapper.classList.add('hidden');
+      disableBtn.classList.remove('hidden');
+    } else {
+      statusEl.textContent = 'Disabled';
+      setupWrapper.classList.remove('hidden');
+      verifyWrapper.classList.add('hidden');
+      disableBtn.classList.add('hidden');
+    }
+  }
+
+  updateStatus(isEnabled, (currentUser && currentUser.phoneNumber) || userData.phoneNumber);
+
+  if (!twoFactorRecaptchaVerifier) {
+    twoFactorRecaptchaVerifier = new firebase.auth.RecaptchaVerifier('twofactor-recaptcha', {
+      size: 'invisible'
+    });
+    twoFactorRecaptchaVerifier.render();
+  }
+
+  sendBtn.onclick = async () => {
+    const rawPhone = phoneInput.value.trim();
+    const formatted = formatPhoneNumberE164(rawPhone);
+    if (!formatted) {
+      alert('Please enter a valid phone number with country code.');
+      return;
+    }
+    twoFactorVerificationId = null;
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Sending...';
+    try {
+      const provider = new firebase.auth.PhoneAuthProvider();
+      twoFactorVerificationId = await provider.verifyPhoneNumber(formatted, twoFactorRecaptchaVerifier);
+      verifyWrapper.classList.remove('hidden');
+      codeInput.value = '';
+      alert('Verification code sent!');
+    } catch (error) {
+      alert('❌ ' + error.message);
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Send Verification Code';
+    }
+  };
+
+  verifyBtn.onclick = async () => {
+    const code = codeInput.value.trim();
+    const rawPhone = phoneInput.value.trim();
+    const formatted = formatPhoneNumberE164(rawPhone);
+    if (!twoFactorVerificationId || !code) {
+      alert('Please request and enter the verification code.');
+      return;
+    }
+    if (!formatted) {
+      alert('Please enter a valid phone number with country code.');
+      return;
+    }
+    try {
+      const credential = firebase.auth.PhoneAuthProvider.credential(twoFactorVerificationId, code);
+      const linkedUser = firebase.auth().currentUser;
+      await linkedUser.linkWithCredential(credential);
+      await linkedUser.reload();
+      await firebase.database().ref('users/' + linkedUser.uid).update({
+        phoneNumber: formatted,
+        phoneVerified: true,
+        twoFactorEnabled: true
+      });
+      updateStatus(true, formatted);
+      twoFactorVerificationId = null;
+      alert('✅ Two-factor authentication enabled!');
+    } catch (error) {
+      alert('❌ ' + error.message);
+    }
+  };
+
+  disableBtn.onclick = async () => {
+    if (!confirm('Disable two-factor authentication?')) return;
+    try {
+      const activeUser = firebase.auth().currentUser;
+      await activeUser.unlink(firebase.auth.PhoneAuthProvider.PROVIDER_ID);
+      await activeUser.reload();
+    } catch (error) {
+      if (error.code !== 'auth.no-such-provider') {
+        alert('❌ ' + error.message);
+        return;
+      }
+    }
+    const refreshedUser = firebase.auth().currentUser;
+    await firebase.database().ref('users/' + refreshedUser.uid).update({
+      phoneNumber: null,
+      phoneVerified: false,
+      twoFactorEnabled: false
+    });
+    phoneInput.value = '';
+    updateStatus(false);
+    twoFactorVerificationId = null;
+    alert('Two-factor authentication disabled.');
+  };
+}
+
+function formatPhoneNumberE164(input) {
+  if (!input) return null;
+  const trimmed = input.trim();
+  let digits = trimmed.replace(/\D/g, '');
+  if (trimmed.startsWith('+')) {
+    digits = '+' + digits;
+  } else {
+    digits = '+1' + digits;
+  }
+  const e164Regex = /^\+[1-9]\d{9,14}$/;
+  return e164Regex.test(digits) ? digits : null;
 }
 
