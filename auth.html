@@ -115,12 +115,13 @@
   }
 
   // Setup invisible reCAPTCHA for phone auth
-  window.registerRecaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-    size: 'invisible'
-  });
-  window.loginRecaptchaVerifier = new firebase.auth.RecaptchaVerifier('login-recaptcha', {
-    size: 'invisible'
-  });
+  const recaptchaOptions = {
+    size: 'invisible',
+    sitekey: '6LcdxQEsAAAAACYcYOao05JHPjcTak4oFaz-aW9Y'
+  };
+
+  window.registerRecaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { ...recaptchaOptions });
+  window.loginRecaptchaVerifier = new firebase.auth.RecaptchaVerifier('login-recaptcha', { ...recaptchaOptions });
   let verificationId = null;
   let loginVerificationId = null;
 
