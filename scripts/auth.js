@@ -40,7 +40,7 @@ window.addEventListener('DOMContentLoaded', () => {
       if (balanceAmount) balanceAmount.innerText = balanceFormatted;
       if (balanceMobile) balanceMobile.innerText = balanceFormatted;
       if (balanceDropdown) balanceDropdown.innerText = balanceFormatted;
-      if (popupBalance) popupBalance.innerText = `${balanceFormatted} coins`;
+      if (popupBalance) popupBalance.innerText = `${balanceFormatted} gems`;
       if (userBalanceWrapper) userBalanceWrapper.classList.remove('hidden');
 
       // Set username if it exists

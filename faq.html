@@ -51,8 +51,8 @@
     <h1 class="text-3xl font-bold mb-6">Frequently Asked Questions</h1>
     <div class="premium-box p-6 rounded-xl text-left">
       <div class="faq-item">
-        <div class="faq-question">💳 How do I purchase coins?</div>
-        <div class="faq-answer">Click the plus (+) icon near your coin balance or visit the rewards page. Choose a package and complete checkout securely via Stripe.</div>
+        <div class="faq-question">💳 How do I purchase gems?</div>
+        <div class="faq-answer">Click the plus (+) icon near your gem balance or visit the rewards page. Choose a package and complete checkout securely via Stripe.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">🏱 What are virtual packs?</div>
@@ -64,7 +64,7 @@
       </div>
       <div class="faq-item">
         <div class="faq-question">♻️ Can I sell back items I don't want?</div>
-        <div class="faq-answer">Yes! You can sell back items for 80% of their value in coins. Just go to your inventory and click "Sell Selected".</div>
+        <div class="faq-answer">Yes! You can sell back items for 80% of their value in gems. Just go to your inventory and click "Sell Selected".</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">🛡️ Is Packly.gg legit?</div>
@@ -129,7 +129,7 @@
 
     const user = firebase.auth().currentUser;
     if (!user) {
-      alert("Please sign in to purchase coins.");
+      alert("Please sign in to purchase gems.");
       return;
     }
 

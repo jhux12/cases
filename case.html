@@ -33,8 +33,8 @@
       background-clip: text;
       color: transparent;
     }
-    .coin-icon {
-      filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.7));
+    .gem-icon {
+      filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.7));
     }
     .reel-wrapper {
       position: relative;
@@ -206,7 +206,7 @@
       <button id="open-case-button" class="relative px-6 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-extrabold flex items-center justify-center gap-2 shadow transition-transform transform hover:scale-105 focus:outline-none overflow-hidden">
         <span class="relative z-10 flex items-center gap-2">
           Open for
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 coin-icon" />
+          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 gem-icon" />
           <span id="button-price">...</span>
         </span>
       </button>
@@ -246,7 +246,7 @@
 <script type="module">
 import { updateMilestones } from './scripts/quests.js';
 
-const formatCoins = (num) => {
+const formatGems = (num) => {
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
   if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
   return num.toLocaleString();
@@ -359,10 +359,10 @@ function showMultiWinPopup(prizes) {
       <div class="prize-card bg-white rounded-xl p-4 flex flex-col items-center text-gray-900">
         <img src="${prize.image}" class="w-32 h-32 object-contain mb-2 rounded-lg shadow-md" />
         <div class="text-sm font-semibold mb-1">${prize.name}</div>
-        <div class="flex items-center gap-1 text-yellow-300 text-sm mb-2"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />${formatCoins(getEffectiveValue(prize))}</div>
+        <div class="flex items-center gap-1 text-yellow-300 text-sm mb-2"><img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4" />${formatGems(getEffectiveValue(prize))}</div>
         <div class="flex gap-2 w-full mt-2">
           <button id="keep-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 text-white text-sm font-bold flex items-center justify-center gap-1"><i class="fas fa-box-open"></i> Add to Inventory</button>
-          <button id="sell-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 text-white text-sm font-bold flex items-center justify-center gap-1"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />Sell for ${formatCoins(getSellRefund(prize))}</button>
+          <button id="sell-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 text-white text-sm font-bold flex items-center justify-center gap-1"><img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4" />Sell for ${formatGems(getSellRefund(prize))}</button>
         </div>
       </div>`;
 
@@ -508,7 +508,7 @@ const priceEl = document.getElementById("button-price");
 if (isFreeCase) {
   openBtn.innerHTML = '<span class="relative z-10">Open for Free</span>';
 } else if (priceEl) {
-  priceEl.textContent = formatCoins(caseData.price || 0);
+  priceEl.textContent = formatGems(caseData.price || 0);
 }
 
 const prizeList = Object.values(caseData.prizes || {})
@@ -529,7 +529,7 @@ const openerItems = prizeList.map((p, i) => ({
   id: i,
   name: p.name,
   image: p.image,
-  // Pass effective numeric value; spinner.js will format the coin amount itself
+  // Pass effective numeric value; spinner.js will format the gem amount itself
   value: getEffectiveValue(p),
   rarity: (p.rarity || 'common').toLowerCase().replace(/\s+/g,'')
 }));
@@ -590,8 +590,8 @@ if (repeatedBestDrops.length) {
     </div>
     <div class="flex items-center justify-between px-2 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-medium">
       <div class="flex items-center gap-1">
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4" />
-        ${formatCoins(getEffectiveValue(prize))}
+        <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4" />
+        ${formatGems(getEffectiveValue(prize))}
       </div>
       <div>${formatOdds(prize.odds)}%</div>
     </div>
@@ -641,14 +641,14 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   }
 
   if (!isFreeCase && balance < totalPrice) {
-    showToast("Not enough coins!", "bg-red-600");
+    showToast("Not enough gems!", "bg-red-600");
     btn.disabled = false;
     btn.classList.remove("cursor-not-allowed", "opacity-60");
     btn.innerHTML = `
       <span class="relative z-10 flex items-center gap-2">
         Open for
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
-        <span id="button-price">${formatCoins(caseData.price)}</span>
+        <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5" />
+        <span id="button-price">${formatGems(caseData.price)}</span>
       </span>
     `;
     return;
@@ -738,8 +738,8 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     : `<div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50z-0 animate-spin-slow"></div>
       <span class="relative z-10 flex items-center gap-2">
         Open for
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-5 h-5" />
-        <span id="button-price">${formatCoins(caseData.price)}</span>
+        <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5" />
+        <span id="button-price">${formatGems(caseData.price)}</span>
       </span>`;
 
   if (winnings.length) {
@@ -943,7 +943,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <h3 id="prize-popup-name" class="text-lg font-semibold mb-4"></h3>
     <div class="flex items-center justify-center gap-6 text-sm">
       <div class="flex items-center gap-1 text-yellow-300">
-        <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 coin-icon" />
+        <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 gem-icon" />
         <span id="prize-popup-value">0</span>
       </div>
       <div class="text-gray-600">

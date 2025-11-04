@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       for (const doc of topSnap.docs) {
         const uid = doc.id;
 
-        // Credit 500 coins
+        // Credit 500 gems
         await rtdb.ref('users/' + uid + '/balance').transaction((bal) => (bal || 0) + 500);
 
         // Increment win counter

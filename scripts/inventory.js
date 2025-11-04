@@ -213,7 +213,7 @@ function updateTotalValue() {
     const item = currentItems.find(i => i.key === key);
     if (item) total += getSellRefund(item);
   });
-  document.getElementById('selected-total').innerText = `Total: ${total} coins`;
+  document.getElementById('selected-total').innerText = `Total: ${total} gems`;
 }
 
 function toggleItem(key) {
@@ -254,7 +254,7 @@ function renderItems(items) {
     const rarityBadge = item.rarity
       ? `<span class="pill ${rarityClassMap[rarityKey] || 'common'}">${item.rarity}</span>`
       : '';
-    const valueBadge = `<span class="value-chip">Value ${effectiveValue} <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="14" height="14" class="coin-icon" alt="Coins" /></span>`;
+    const valueBadge = `<span class="value-chip">Value ${effectiveValue} <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" width="14" height="14" class="gem-icon" alt="Gems" /></span>`;
     const shipMarkup = (() => {
       if (isVoucher && !disabled) {
         return '<span class="muted-chip">Voucher — Redeem Only</span>';
@@ -286,7 +286,7 @@ function renderItems(items) {
         <div class="item-actions">
           <button onclick="sellBack('${item.key}')" class="action-button sell-button" ${disabled ? 'disabled' : ''}>
             <span>Sell for ${refund}</span>
-            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" width="14" height="14" class="coin-icon" alt="Coins" />
+            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" width="14" height="14" class="gem-icon" alt="Gems" />
           </button>
           ${shipMarkup}
         </div>
@@ -405,7 +405,7 @@ function sellSelected() {
     });
 
     userRef.update({ balance: currentBalance }).then(() => {
-      alert(`Sold selected items for ${total} coins.`);
+      alert(`Sold selected items for ${total} gems.`);
       window.location.reload();
     });
   });
@@ -509,7 +509,7 @@ function showItemPopup(encodedSrc, encodedName, encodedRarity, value, isVoucher 
       const note = document.createElement('p');
       note.id = 'popup-voucher-note';
       note.className = 'mt-2 text-xs font-semibold text-amber-600';
-      note.textContent = 'Voucher prize — redeem for coins only. Shipping unavailable.';
+      note.textContent = 'Voucher prize — redeem for gems only. Shipping unavailable.';
       info.appendChild(note);
     }
   }

@@ -41,8 +41,8 @@
             transform: scale(1.03);
         }
         
-        .coin-icon {
-            filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.7));
+        .gem-icon {
+            filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.7));
         }
         
         .navbar {
@@ -504,7 +504,7 @@
         <div class="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-indigo-600 transition-all duration-300"></div>
         <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
       </div>
-      <span class="ml-3 text-sm text-gray-700">Enough coins to buy</span>
+      <span class="ml-3 text-sm text-gray-700">Enough gems to buy</span>
     </label>
   </div>
   <select id="sort-select" class="w-full sm:w-auto px-3 py-2 rounded-md border border-gray-300 text-gray-900">
@@ -620,7 +620,7 @@
                         </div>
                         <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Exchange or Re-Roll</h3>
                         <p class="mt-2 text-base text-gray-500">
-                            Don't want it? Instantly trade or sell back for coins. No fees. No wait.
+                            Don't want it? Instantly trade or sell back for gems. No fees. No wait.
                         </p>
                     </div>
 
@@ -632,7 +632,7 @@
                         </div>
                         <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Fast Global Shipping</h3>
                         <p class="mt-2 text-base text-gray-500">
-                            We ship worldwide. Or keep it digital by converting items into coin instantly.
+                            We ship worldwide. Or keep it digital by converting items into gems instantly.
                         </p>
                     </div>
                 </div>
@@ -683,8 +683,8 @@
         </div>
     </div>
 
-    <!-- Add Coins Modal -->
-    <div id="addCoinsModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <!-- Add Gems Modal -->
+    <div id="addGemsModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
         <div class="absolute inset-0 bg-black opacity-50"></div>
         <div class="relative bg-white rounded-lg max-w-md w-full mx-4 p-6">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
@@ -693,13 +693,13 @@
                 </svg>
             </button>
             <div>
-                <h3 class="text-lg font-medium text-gray-900 text-center">Add Coins</h3>
+                <h3 class="text-lg font-medium text-gray-900 text-center">Add Gems</h3>
                 <p class="mt-2 text-sm text-gray-500 text-center">Choose a package</p>
                 
                 <div class="mt-6 grid grid-cols-1 gap-4">
                     <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
                         <div class="flex items-center">
-                            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-6 w-6 coin-icon mr-2" alt="Coins">
+                            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="h-6 w-6 gem-icon mr-2" alt="Gems">
                             <span class="font-medium">2,000</span>
                         </div>
                         <div class="mt-2 text-right">
@@ -709,7 +709,7 @@
                     
                     <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
                         <div class="flex items-center">
-                            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-6 w-6 coin-icon mr-2" alt="Coins">
+                            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="h-6 w-6 gem-icon mr-2" alt="Gems">
                             <span class="font-medium">3,000</span>
                         </div>
                         <div class="mt-2 text-right">
@@ -719,7 +719,7 @@
                     
                     <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
                         <div class="flex items-center">
-                            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-6 w-6 coin-icon mr-2" alt="Coins">
+                            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="h-6 w-6 gem-icon mr-2" alt="Gems">
                             <span class="font-medium">5,000</span>
                         </div>
                         <div class="mt-2 text-right">
@@ -729,7 +729,7 @@
                     
                     <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
                         <div class="flex items-center">
-                            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-6 w-6 coin-icon mr-2" alt="Coins">
+                            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="h-6 w-6 gem-icon mr-2" alt="Gems">
                             <span class="font-medium">10,000</span>
                         </div>
                         <div class="mt-2 text-right">
@@ -739,7 +739,7 @@
                     
                     <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
                         <div class="flex items-center">
-                            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-6 w-6 coin-icon mr-2" alt="Coins">
+                            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="h-6 w-6 gem-icon mr-2" alt="Gems">
                             <span class="font-medium">15,000 +1,500 Bonus</span>
                         </div>
                         <div class="mt-2 text-right">
@@ -772,7 +772,7 @@
                 if (data?.isFree) return 'Free pack';
                 const value = Number(data?.price || 0);
                 if (!value) return '';
-                return `${value.toLocaleString()} coins`;
+                return `${value.toLocaleString()} gems`;
             }
 
             function applyBadge(data, fallbackConfig = {}) {
@@ -854,16 +854,16 @@
 
         function closeModal() {
             const freePackModal = document.getElementById('freePackModal');
-            const addCoinsModal = document.getElementById('addCoinsModal');
+            const addGemsModal = document.getElementById('addGemsModal');
             if (freePackModal && !freePackModal.classList.contains('hidden')) {
                 sessionStorage.setItem('freePackDismissed', 'true');
             }
             if (freePackModal) freePackModal.classList.add('hidden');
-            if (addCoinsModal) addCoinsModal.classList.add('hidden');
+            if (addGemsModal) addGemsModal.classList.add('hidden');
         }
 
-        function showAddCoinsModal() {
-            document.getElementById('addCoinsModal').classList.remove('hidden');
+        function showAddGemsModal() {
+            document.getElementById('addGemsModal').classList.remove('hidden');
         }
 
         const filterToggle = document.getElementById('filter-toggle');

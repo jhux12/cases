@@ -20,7 +20,7 @@ function updateUserBalanceCompat() {
 
   firebase.database().ref("users/" + user.uid).once("value").then((snap) => {
     const balance = snap.val()?.balance || 0;
-    balanceEl.textContent = `Balance: ${parseFloat(balance).toLocaleString()} coins`;
+    balanceEl.textContent = `Balance: ${parseFloat(balance).toLocaleString()} gems`;
   }).catch(() => {
     balanceEl.textContent = "Balance: error";
   });
@@ -33,7 +33,7 @@ window.updateUserBalance = function () {
 
   firebase.database().ref("users/" + user.uid).once("value").then(snap => {
     const balance = snap.val()?.balance || 0;
-    el.textContent = `Balance: ${parseFloat(balance).toLocaleString()} coins`;
+    el.textContent = `Balance: ${parseFloat(balance).toLocaleString()} gems`;
   }).catch(() => {
     el.textContent = "Balance: error";
   });
@@ -45,7 +45,7 @@ window.updateUserBalance = function () {
 
   firebase.database().ref("users/" + user.uid).once("value").then((snap) => {
     const balance = snap.val()?.balance || 0;
-    el.textContent = `Balance: ${parseFloat(balance).toLocaleString()} coins`;
+    el.textContent = `Balance: ${parseFloat(balance).toLocaleString()} gems`;
     console.log("✅ Balance updated to:", balance);
   }).catch((error) => {
     console.error("❌ Failed to fetch balance:", error);

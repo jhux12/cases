@@ -47,7 +47,7 @@
         tile.dataset.id = item.id;
         const priceHtml =
           item.value !== undefined
-            ? `<div class="price">${Number(item.value).toLocaleString()}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin"/></div>`
+            ? `<div class="price">${Number(item.value).toLocaleString()}<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gem"/></div>`
             : "";
         tile.innerHTML = `<img src="${item.image}" alt="${item.name}"/><div class="tile-info"><div class="name">${item.name}</div>${priceHtml}</div>`;
         tile.style.borderColor = rarityColors[item.rarity] || "#3a4050";
@@ -168,7 +168,7 @@
         clone.className = "tile";
         const priceHtml =
           it.value !== undefined
-            ? `<div class="price">${Number(it.value).toLocaleString()}<img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="coin"/></div>`
+            ? `<div class="price">${Number(it.value).toLocaleString()}<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gem"/></div>`
             : "";
         clone.innerHTML = `<img src="${it.image}" alt="${it.name}"/><div class="tile-info"><div class="name">${it.name}</div>${priceHtml}</div>`;
         tiles[midStart + index + (dir === 1 ? -1 : 1)].replaceWith(clone);

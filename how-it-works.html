@@ -80,8 +80,8 @@
       </div>
       <div class="glass how-card rounded-3xl p-8 text-left transition-transform duration-300 hover:-translate-y-2">
         <div class="step-icon mb-4">💼</div>
-        <h2 class="text-xl font-bold mb-2">2. Top Up Coins</h2>
-        <p class="text-gray-300">Easily top up your coin balance using the built-in system. Coins are used to open packs and try your luck!</p>
+        <h2 class="text-xl font-bold mb-2">2. Top Up Gems</h2>
+        <p class="text-gray-300">Easily top up your gem balance using the built-in system. Gems are used to open packs and try your luck!</p>
       </div>
       <div class="glass how-card rounded-3xl p-8 text-left transition-transform duration-300 hover:-translate-y-2">
         <div class="step-icon mb-4">🎁</div>
@@ -96,7 +96,7 @@
       <div class="glass how-card rounded-3xl p-8 text-left transition-transform duration-300 hover:-translate-y-2">
         <div class="step-icon mb-4">🚚</div>
         <h2 class="text-xl font-bold mb-2">5. Ship or Sell Back</h2>
-        <p class="text-gray-300">You can choose to ship your item straight to your home, or sell it back for coins (with a 20% restock fee).</p>
+        <p class="text-gray-300">You can choose to ship your item straight to your home, or sell it back for gems (with a 20% restock fee).</p>
       </div>
       <div class="glass how-card rounded-3xl p-8 text-left transition-transform duration-300 hover:-translate-y-2">
         <div class="step-icon mb-4">✨</div>
@@ -135,7 +135,7 @@
       event.preventDefault();
       const user = firebase.auth().currentUser;
       if (!user) {
-        alert("Please sign in to purchase coins.");
+        alert("Please sign in to purchase gems.");
         return;
       }
       firebase.firestore()

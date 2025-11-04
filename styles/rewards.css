@@ -84,7 +84,7 @@ main {
   50% { transform: translateY(6px); }
 }
 
-#coin-rain {
+#gem-rain {
   position: fixed;
   top: 0;
   left: 0;
@@ -95,7 +95,7 @@ main {
   z-index: -1;
 }
 
-.coin {
+.gem {
   position: absolute;
   width: 24px;
   height: 24px;

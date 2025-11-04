@@ -422,7 +422,7 @@
               <div class="flex items-center gap-2 text-sm font-semibold">${live}</div>
               <div class="flex items-center text-sm text-gray-700">
                 <span class="mr-1 text-gray-500">Battle Cost</span>
-                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}
+                <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 mr-1" alt="Gem"/>${cost}
               </div>
             </header>
             <div class="flex items-center gap-2">${packs}</div>
@@ -448,7 +448,7 @@
           <div class="flex items-center gap-3">${packs}</div>
           <div class="text-sm text-gray-600">Rounds: ${b.spinCount} • Players: ${b.maxPlayers}</div>
           <div class="text-sm">Winner: <span class="font-semibold">${winner}</span></div>
-          <div class="flex items-center text-sm text-gray-700"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-4 h-4 mr-1" alt="coin"/>${cost}</div>
+          <div class="flex items-center text-sm text-gray-700"><img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 mr-1" alt="Gem"/>${cost}</div>
           <button class="rewatch-btn px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200" data-id="${b.id}">Rewatch</button>
         </div>
       `);
@@ -502,7 +502,7 @@
             <div class="flex-1 min-w-0">
               <span class="player-name block text-sm truncate">${p?.displayName || ''}</span>
               <div class="flex items-center gap-1 text-xs text-gray-500">
-                <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>
+                <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-3 h-3" alt="Gem"/>
                 <span class="player-total">${total}</span>
               </div>
             </div>
@@ -539,7 +539,7 @@
             <img src="${prize.image}" alt="${prize.name}" class="w-12 h-16 object-contain"/>
             <div class="flex-1 min-w-0">
               <span class="block text-sm truncate">${prize.name || ''}</span>
-              <span class="text-xs text-gray-500 flex items-center gap-1"><img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin"/>${(prize.value||0).toLocaleString()}</span>
+              <span class="text-xs text-gray-500 flex items-center gap-1"><img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-3 h-3" alt="Gem"/>${(prize.value||0).toLocaleString()}</span>
             </div>
           </li>`;
       }).join('');
@@ -635,7 +635,7 @@
 
       const cost = packs.reduce((s,p)=> s + (p.price||0), 0);
 
-      // Deduct coins
+      // Deduct gems
       const balanceRef = firebase.database().ref('users/' + me.uid + '/balance');
       const { committed } = await balanceRef.transaction(bal => {
         if ((bal||0) < cost) return; // abort
@@ -674,7 +674,7 @@
       const battleData = snap.data();
       const cost = battleData.cost || (battleData.packs||[]).reduce((s,p)=> s + (p.price||0), 0);
 
-      // Deduct coins before attempting to join
+      // Deduct gems before attempting to join
       const balanceRef = firebase.database().ref('users/' + me.uid + '/balance');
       const { committed } = await balanceRef.transaction(bal => {
         if ((bal||0) < cost) return; // abort

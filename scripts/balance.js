@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const snapshot = await firebase.database().ref("users/" + user.uid).get();
         const balance = snapshot.val()?.balance || 0;
-        balanceElement.innerText = `Balance: ${Number(balance).toLocaleString()} coins`;
+        balanceElement.innerText = `Balance: ${Number(balance).toLocaleString()} gems`;
       } catch (error) {
         console.error("Error loading balance:", error);
         balanceElement.innerText = `Balance: Error`;

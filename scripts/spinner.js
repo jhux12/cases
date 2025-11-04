@@ -73,7 +73,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false, id
         <img src="${prize.image}" class="h-[100px] object-contain drop-shadow-md rounded-xl" />
         <div class="mt-1 text-xs text-white bg-black/50 px-2 py-0.5 rounded-sm flex items-center gap-1">
           <span>${prize.value.toLocaleString()}</span>
-          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="w-3 h-3" alt="coin" />
+          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-3 h-3" alt="Gem" />
         </div>
       </div>
     `;
