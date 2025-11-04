@@ -43,6 +43,28 @@ document.addEventListener('DOMContentLoaded', () => {
     return Number.isFinite(numeric) ? Math.max(numeric, 0).toLocaleString() : '0';
   };
 
+  const hexToRgba = (hex, alpha = 1) => {
+    if (typeof hex !== 'string') {
+      return `rgba(99, 102, 241, ${alpha})`;
+    }
+
+    const value = hex.replace('#', '').trim();
+    if (![3, 6].includes(value.length)) {
+      return `rgba(99, 102, 241, ${alpha})`;
+    }
+
+    const full = value.length === 3 ? value.split('').map((ch) => ch + ch).join('') : value;
+    const int = parseInt(full, 16);
+    if (Number.isNaN(int)) {
+      return `rgba(99, 102, 241, ${alpha})`;
+    }
+
+    const r = (int >> 16) & 255;
+    const g = (int >> 8) & 255;
+    const b = int & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
   const buildTile = (prize) => {
     const rawName = (prize.name || 'Mystery Pull').toString();
     const rarityKey = normaliseRarity(prize.rarity) || 'legendary';
@@ -52,8 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const image = typeof prize.image === 'string' && prize.image.trim() ? prize.image : 'https://via.placeholder.com/240x240?text=Card';
     const tile = document.createElement('div');
     tile.className = 'tile';
+    tile.dataset.rarity = rarityKey === 'ultra' ? 'ultrarare' : rarityKey;
     tile.style.setProperty('--win-color', color);
-    tile.classList.add(`glow-${rarityKey === 'ultra' ? 'ultrarare' : rarityKey}`);
+    tile.style.borderColor = hexToRgba(color, 0.45);
+    tile.style.boxShadow = `0 22px 38px ${hexToRgba(color, 0.22)}`;
     tile.innerHTML = `
       <img src="${image}" alt="${escapeHtml(rawName)}" loading="lazy" />
       <div class="tile-info">

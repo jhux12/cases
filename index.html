@@ -77,33 +77,66 @@
         }
 
         .hot-reel-wrapper {
+            position: relative;
             max-width: 1100px;
+            width: 100%;
             height: auto;
             min-height: 260px;
-            padding: 1.5rem 0;
+            padding: 2.5rem 2rem;
             margin-left: auto;
             margin-right: auto;
+            background: linear-gradient(135deg,#ffffff 0%,#f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            box-shadow: 0 25px 45px rgba(15,23,42,0.08);
         }
 
         .hot-reel-wrapper .reel {
             align-items: stretch;
+            padding: 0.25rem;
         }
 
         .hot-reel-wrapper .tile {
-            flex: 0 0 180px;
-            height: 240px;
+            flex: 0 0 200px;
+            height: auto;
+            min-height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.25rem 1rem;
+            margin: 0 12px;
+            border-radius: 18px;
+            border: 1px solid rgba(148,163,184,0.35);
+            background: rgba(255,255,255,0.98);
+            color: #0f172a;
+            box-shadow: 0 22px 38px rgba(148,163,184,0.25);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hot-reel-wrapper .tile:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 28px 46px rgba(15,23,42,0.18);
         }
 
         .hot-reel-wrapper .tile-info {
+            position: static;
+            width: 100%;
             font-size: 0.8rem;
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
         }
 
         .hot-reel-wrapper .tile-info .name {
             font-weight: 600;
             letter-spacing: 0.01em;
+            color: #1f2937;
         }
 
         .hot-reel-wrapper .pill {
@@ -111,6 +144,31 @@
             text-transform: uppercase;
             font-size: 0.65rem;
             letter-spacing: 0.08em;
+        }
+
+        .hot-reel-wrapper .tile img {
+            width: 100%;
+            height: 160px;
+            object-fit: contain;
+            border-radius: 14px;
+            background: linear-gradient(135deg,rgba(241,245,249,0.6),rgba(255,255,255,0.9));
+            padding: 0.5rem;
+        }
+
+        .hot-reel-wrapper .tile-info .price {
+            margin-top: 0;
+            color: #334155;
+            gap: 0.3rem;
+        }
+
+        .hot-reel-wrapper .tile-info .price img {
+            width: 0.75rem;
+            height: 0.75rem;
+            filter: drop-shadow(0 0 1px rgba(148,163,184,0.35));
+        }
+
+        .hot-reel-wrapper .tile-info .price span {
+            font-weight: 600;
         }
 
         .pill {
@@ -148,12 +206,16 @@
         @media (max-width: 640px) {
             .hot-reel-wrapper {
                 min-height: 220px;
-                padding: 1rem 0;
+                padding: 1.75rem 1.25rem;
             }
 
             .hot-reel-wrapper .tile {
-                flex: 0 0 160px;
-                height: 220px;
+                flex: 0 0 180px;
+                padding: 1rem;
+            }
+
+            .hot-reel-wrapper .tile img {
+                height: 140px;
             }
         }
 
@@ -409,11 +471,6 @@
             <div class="mt-10">
                 <div class="reel-wrapper hot-reel-wrapper">
                     <div id="hot-items-spinner" class="reel"></div>
-                    <div class="center-marker">
-                        <span class="marker-arrow top"></span>
-                        <span class="marker-line"></span>
-                        <span class="marker-arrow bottom"></span>
-                    </div>
                 </div>
             </div>
         </div>
