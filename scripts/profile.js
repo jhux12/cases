@@ -1,6 +1,15 @@
 // scripts/profile.js
 
+let profileRecaptchaVerifier = null;
+let phoneVerificationId = null;
+let phoneCountdownTimer = null;
+
 document.addEventListener('DOMContentLoaded', () => {
+  const sendPhoneBtn = document.getElementById('send-phone-code');
+  if (sendPhoneBtn) sendPhoneBtn.addEventListener('click', handleSendPhoneCode);
+  const verifyPhoneBtn = document.getElementById('verify-phone-code');
+  if (verifyPhoneBtn) verifyPhoneBtn.addEventListener('click', handleVerifyPhoneCode);
+
   firebase.auth().onAuthStateChanged(user => {
     if (!user) return (window.location.href = 'auth.html');
     const currentUid = user.uid;
@@ -11,6 +20,64 @@ document.addEventListener('DOMContentLoaded', () => {
     loadTopUsers();
   });
 });
+
+function ensureProfileRecaptcha() {
+  if (!profileRecaptchaVerifier) {
+    profileRecaptchaVerifier = new firebase.auth.RecaptchaVerifier('profile-recaptcha-container', {
+      size: 'invisible'
+    });
+  }
+  return profileRecaptchaVerifier;
+}
+
+function formatPhoneNumberForAuth(value) {
+  if (!value) return '';
+  const trimmed = value.trim();
+  const digits = trimmed.replace(/\D/g, '');
+  if (trimmed.startsWith('+')) {
+    return `+${digits}`;
+  }
+  return `+1${digits}`;
+}
+
+function setPhoneStatus(message, type = 'muted') {
+  const statusEl = document.getElementById('phone-status');
+  if (!statusEl) return;
+  statusEl.textContent = message || '';
+  statusEl.classList.remove('text-gray-600', 'text-green-600', 'text-red-500');
+  const map = {
+    muted: 'text-gray-600',
+    success: 'text-green-600',
+    error: 'text-red-500'
+  };
+  statusEl.classList.add(map[type] || 'text-gray-600');
+}
+
+function clearPhoneCountdown(button) {
+  if (phoneCountdownTimer) {
+    clearInterval(phoneCountdownTimer);
+    phoneCountdownTimer = null;
+  }
+  if (button) {
+    button.disabled = false;
+    button.textContent = 'Send Code';
+  }
+}
+
+function startPhoneCountdown(button) {
+  clearPhoneCountdown();
+  let remaining = 60;
+  button.disabled = true;
+  button.textContent = `Resend (${remaining})`;
+  phoneCountdownTimer = setInterval(() => {
+    remaining -= 1;
+    if (remaining <= 0) {
+      clearPhoneCountdown(button);
+      return;
+    }
+    button.textContent = `Resend (${remaining})`;
+  }, 1000);
+}
 
 async function loadProfile(uid, currentUid) {
   const isOwn = uid === currentUid;
@@ -26,10 +93,42 @@ async function loadProfile(uid, currentUid) {
   const titleEl = document.getElementById('profile-title');
   if (titleEl) titleEl.innerText = isOwn ? 'Your Profile' : `${username}'s Profile`;
 
-  if (isOwn) {
-    document.getElementById('email').value = firebase.auth().currentUser.email;
-  } else {
-    document.getElementById('email').parentElement.classList.add('hidden');
+  const emailInput = document.getElementById('email');
+  if (emailInput) {
+    if (isOwn) {
+      const currentEmail = (firebase.auth().currentUser && firebase.auth().currentUser.email) || '';
+      emailInput.value = currentEmail;
+    } else {
+      emailInput.parentElement.classList.add('hidden');
+    }
+  }
+
+  const phoneSection = document.getElementById('phone-section');
+  const phoneCodeSection = document.getElementById('phone-code-section');
+  const phoneInput = document.getElementById('phone-number-input');
+  const sendPhoneBtn = document.getElementById('send-phone-code');
+  if (phoneSection && phoneCodeSection && phoneInput && sendPhoneBtn) {
+    if (!isOwn) {
+      phoneSection.classList.add('hidden');
+      phoneCodeSection.classList.add('hidden');
+    } else {
+      phoneSection.classList.remove('hidden');
+      phoneInput.disabled = false;
+      phoneInput.value = userData.phoneNumber || '';
+      phoneCodeSection.classList.add('hidden');
+      const codeInput = document.getElementById('phone-code-input');
+      if (codeInput) codeInput.value = '';
+      phoneVerificationId = null;
+      if (userData.phoneVerified && userData.phoneNumber) {
+        setPhoneStatus(`Verified on ${userData.phoneNumber}`, 'success');
+      } else if (userData.phoneNumber) {
+        setPhoneStatus('Phone number saved but not verified. Send a code to verify.', 'muted');
+      } else {
+        setPhoneStatus('Add and verify a phone number to enable SMS login.', 'muted');
+      }
+      clearPhoneCountdown(sendPhoneBtn);
+      sendPhoneBtn.textContent = userData.phoneVerified ? 'Change Number' : 'Send Code';
+    }
   }
 
   const initialsSource = isOwn ? firebase.auth().currentUser.email : username;
@@ -81,6 +180,117 @@ async function loadProfile(uid, currentUid) {
     document.getElementById('current-password').parentElement.classList.add('hidden');
     document.getElementById('new-password').parentElement.classList.add('hidden');
     document.querySelector('button[onclick="changePassword()"]').classList.add('hidden');
+    const statusEl = document.getElementById('phone-status');
+    if (statusEl) statusEl.parentElement.classList.add('hidden');
+  }
+}
+
+async function handleSendPhoneCode() {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert('Please sign in again to update your phone number.');
+    return;
+  }
+
+  const phoneInput = document.getElementById('phone-number-input');
+  const sendPhoneBtn = document.getElementById('send-phone-code');
+  const phoneCodeSection = document.getElementById('phone-code-section');
+  if (!phoneInput || !sendPhoneBtn || !phoneCodeSection) return;
+
+  const formatted = formatPhoneNumberForAuth(phoneInput.value);
+  const e164Regex = /^\+[1-9]\d{9,14}$/;
+  if (!e164Regex.test(formatted)) {
+    setPhoneStatus('Enter a valid phone number with country code (e.g. +15551234567).', 'error');
+    return;
+  }
+
+  try {
+    sendPhoneBtn.disabled = true;
+    sendPhoneBtn.textContent = 'Sending...';
+    setPhoneStatus('Sending verification code...', 'muted');
+    const verifier = ensureProfileRecaptcha();
+    const provider = new firebase.auth.PhoneAuthProvider();
+    phoneVerificationId = await provider.verifyPhoneNumber(formatted, verifier);
+    phoneCodeSection.classList.remove('hidden');
+    const codeInput = document.getElementById('phone-code-input');
+    if (codeInput) codeInput.value = '';
+    setPhoneStatus(`Code sent to ${formatted}. Enter it below to verify.`, 'muted');
+    startPhoneCountdown(sendPhoneBtn);
+  } catch (error) {
+    clearPhoneCountdown(sendPhoneBtn);
+    setPhoneStatus(error.message || 'Failed to send verification code.', 'error');
+    if (typeof grecaptcha !== 'undefined' && profileRecaptchaVerifier) {
+      profileRecaptchaVerifier.render().then(widgetId => grecaptcha.reset(widgetId));
+    }
+    if (firebase.auth().currentUser && firebase.auth().currentUser.phoneNumber) {
+      sendPhoneBtn.textContent = 'Change Number';
+    }
+  }
+}
+
+async function handleVerifyPhoneCode() {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert('Please sign in again to update your phone number.');
+    return;
+  }
+
+  if (!phoneVerificationId) {
+    setPhoneStatus('Please request a verification code first.', 'error');
+    return;
+  }
+
+  const codeInput = document.getElementById('phone-code-input');
+  const sendPhoneBtn = document.getElementById('send-phone-code');
+  if (!codeInput || !sendPhoneBtn) return;
+  const code = codeInput.value.trim();
+  if (!code) {
+    setPhoneStatus('Enter the verification code that was sent to your phone.', 'error');
+    return;
+  }
+
+  try {
+    setPhoneStatus('Verifying code...', 'muted');
+    const credential = firebase.auth.PhoneAuthProvider.credential(phoneVerificationId, code);
+    let linkResult;
+    try {
+      linkResult = await user.linkWithCredential(credential);
+    } catch (err) {
+      if (err.code === 'auth/provider-already-linked') {
+        await user.updatePhoneNumber(credential);
+        linkResult = { user };
+      } else {
+        throw err;
+      }
+    }
+    const linkedUser = linkResult.user || firebase.auth().currentUser;
+    const phoneNumber = linkedUser.phoneNumber;
+    if (phoneNumber) {
+      await firebase.database().ref('users/' + linkedUser.uid).update({
+        phoneNumber,
+        phoneVerified: true
+      });
+      document.getElementById('phone-number-input').value = phoneNumber;
+      setPhoneStatus(`Verified on ${phoneNumber}`, 'success');
+    } else {
+      setPhoneStatus('Phone verified.', 'success');
+    }
+    const codeSection = document.getElementById('phone-code-section');
+    if (codeSection) codeSection.classList.add('hidden');
+    codeInput.value = '';
+    phoneVerificationId = null;
+    clearPhoneCountdown(sendPhoneBtn);
+    sendPhoneBtn.textContent = 'Change Number';
+  } catch (error) {
+    if (error.code === 'auth/credential-already-in-use') {
+      setPhoneStatus('That phone number is already linked to another account. Try a different number.', 'error');
+    } else if (error.code === 'auth/invalid-verification-code' || error.code === 'auth/code-expired') {
+      setPhoneStatus('The verification code is invalid or expired. Please request a new code.', 'error');
+    } else if (error.code === 'auth/requires-recent-login') {
+      setPhoneStatus('Please sign out and sign back in before updating your phone number.', 'error');
+    } else {
+      setPhoneStatus(error.message || 'Failed to verify code.', 'error');
+    }
   }
 }
 
