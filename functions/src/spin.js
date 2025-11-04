@@ -1,25 +1,40 @@
 const crypto = require('crypto');
 
+function sendCorsHeaders(res) {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
+}
+
 module.exports = (req, res) => {
+  sendCorsHeaders(res);
+
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
+
   if (req.method !== 'POST') {
-    res.statusCode = 405;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ error: 'Method not allowed' }));
+    res.status(405).json({ error: 'Method not allowed' });
     return;
   }
 
   let body = req.body;
   if (typeof body === 'string') {
-    try { body = JSON.parse(body); } catch { body = {}; }
+    try {
+      body = JSON.parse(body);
+    } catch (error) {
+      body = {};
+    }
   }
+
   if (!body || typeof body !== 'object') {
     body = {};
   }
+
   const prizes = Array.isArray(body.prizes) ? body.prizes : [];
   if (prizes.length === 0) {
-    res.statusCode = 400;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ error: 'No prizes provided' }));
+    res.status(400).json({ error: 'No prizes provided' });
     return;
   }
 
@@ -28,22 +43,22 @@ module.exports = (req, res) => {
     odds: Number(prize.odds) || 0
   }));
 
-  const totalOdds = numericPrizes.reduce((sum, p) => sum + p.odds, 0);
+  const totalOdds = numericPrizes.reduce((sum, prize) => sum + prize.odds, 0);
   if (!totalOdds) {
-    res.statusCode = 400;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ error: 'Invalid prize odds' }));
+    res.status(400).json({ error: 'Invalid prize odds' });
     return;
   }
 
   const randFraction = (() => {
-    const buf = crypto.randomBytes(6); // 48 bits of entropy
-    const max = 0x1000000000000; // 2^48
+    const buf = crypto.randomBytes(6);
+    const max = 0x1000000000000;
     return buf.readUIntBE(0, 6) / max;
   })();
+
   const rand = randFraction * totalOdds;
   let cumulative = 0;
   let winningPrize = numericPrizes[numericPrizes.length - 1];
+
   for (const prize of numericPrizes) {
     cumulative += prize.odds;
     if (rand < cumulative) {
@@ -52,7 +67,5 @@ module.exports = (req, res) => {
     }
   }
 
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({ prize: winningPrize }));
+  res.status(200).json({ prize: winningPrize });
 };

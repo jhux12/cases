@@ -6,6 +6,10 @@
   "scripts": {
     "test": "node -e \"process.exit(0)\"",
     "build": "node -e \"process.exit(0)\"",
-    "start": "node -e \"console.log('Static site — open index.html via your host')\""
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "firebase-admin": "^11.10.1"
   }
 }
