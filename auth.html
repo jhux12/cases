@@ -37,6 +37,10 @@
           <label class="inline-flex items-center"><input type="checkbox" id="remember-me-phone" class="mr-2">Remember me</label>
           <button type="button" id="login-send-code" class="text-indigo-600 hover:underline">Send Code</button>
         </div>
+        <label class="inline-flex items-center text-xs text-rose-600">
+          <input type="checkbox" id="bypass-two-factor" class="mr-2">
+          Disable 2FA check (testing only)
+        </label>
         <div id="login-phone-verification" class="hidden">
           <label class="text-sm">Verification Code</label>
           <input type="text" id="login-verification-code" class="w-full p-3 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="123456" />
@@ -228,6 +232,7 @@ const loginEmailInput = document.getElementById('login-email');
 const loginPasswordInput = document.getElementById('login-password');
 const rememberPhoneCheckbox = document.getElementById('remember-me-phone');
 const rememberEmailCheckbox = document.getElementById('remember-me-email');
+const bypassTwoFactorCheckbox = document.getElementById('bypass-two-factor');
 let loginMode = 'phone';
 
 toggleLoginModeBtn.addEventListener('click', () => {
@@ -361,16 +366,18 @@ loginSendCodeBtn.addEventListener('click', async () => {
   }
 
   try {
-    const snapshot = await db.ref('users').orderByChild('phoneNumber').equalTo(phoneNumber).limitToFirst(1).once('value');
-    if (!snapshot.exists()) {
-      const confirmRegister = confirm('No account found for this phone number. Would you like to register instead?');
-      if (confirmRegister) {
-        if (registerForm.classList.contains('hidden')) {
-          toggleForms();
+    if (!bypassTwoFactorCheckbox || !bypassTwoFactorCheckbox.checked) {
+      const snapshot = await db.ref('users').orderByChild('phoneNumber').equalTo(phoneNumber).limitToFirst(1).once('value');
+      if (!snapshot.exists()) {
+        const confirmRegister = confirm('No account found for this phone number. Would you like to register instead?');
+        if (confirmRegister) {
+          if (registerForm.classList.contains('hidden')) {
+            toggleForms();
+          }
+          document.getElementById('register-phone').value = phoneNumber;
         }
-        document.getElementById('register-phone').value = phoneNumber;
+        return;
       }
-      return;
     }
 
     loginSendCodeBtn.disabled = true;
