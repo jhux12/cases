@@ -1,71 +1,146 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const container = document.getElementById('hot-cards');
-  if (!container || typeof firebase === 'undefined') return;
+  const track = document.getElementById('hot-items-spinner');
+  if (!track || typeof firebase === 'undefined') return;
 
   const rarityColors = {
     common: '#a1a1aa',
     uncommon: '#4ade80',
     rare: '#60a5fa',
     ultrarare: '#c084fc',
-    legendary: '#facc15'
+    ultra: '#c084fc',
+    legendary: '#facc15',
+    mythic: '#f97316'
   };
-  const MAX_NAME_LENGTH = 15;
-  const truncate = (text, len) =>
-    text.length > len ? text.slice(0, len) + '\u2026' : text;
 
-  const dbRef = firebase.database().ref('cases');
-  dbRef.once('value').then(snap => {
-    const data = snap.val() || {};
-    const legendary = [];
-    Object.values(data).forEach(pack => {
-      (pack.prizes || []).forEach(prize => {
-        if ((prize.rarity || '').toLowerCase() === 'legendary') {
-          legendary.push(prize);
+  const rarityLabels = {
+    common: 'Common',
+    uncommon: 'Uncommon',
+    rare: 'Rare',
+    ultrarare: 'Ultra Rare',
+    ultra: 'Ultra Rare',
+    legendary: 'Legendary',
+    mythic: 'Mythic'
+  };
+
+  const highRarities = new Set(['legendary', 'ultrarare', 'ultra', 'mythic']);
+  const MAX_NAME_LENGTH = 22;
+
+  const truncate = (text, len) =>
+    text.length > len ? text.slice(0, len).trimEnd() + '\u2026' : text;
+
+  const escapeHtml = (text = '') =>
+    String(text || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+  const normaliseRarity = (value = '') => value.toString().toLowerCase().replace(/[^a-z]/g, '');
+
+  const formatValue = (value) => {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? Math.max(numeric, 0).toLocaleString() : '0';
+  };
+
+  const buildTile = (prize) => {
+    const rawName = (prize.name || 'Mystery Pull').toString();
+    const rarityKey = normaliseRarity(prize.rarity) || 'legendary';
+    const price = formatValue(prize.value);
+    const color = rarityColors[rarityKey] || rarityColors.legendary;
+    const rarityLabel = rarityLabels[rarityKey] || rarityLabels.legendary;
+    const image = typeof prize.image === 'string' && prize.image.trim() ? prize.image : 'https://via.placeholder.com/240x240?text=Card';
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.style.setProperty('--win-color', color);
+    tile.classList.add(`glow-${rarityKey === 'ultra' ? 'ultrarare' : rarityKey}`);
+    tile.innerHTML = `
+      <img src="${image}" alt="${escapeHtml(rawName)}" loading="lazy" />
+      <div class="tile-info">
+        <div class="name" title="${escapeHtml(rawName)}">${escapeHtml(truncate(rawName, MAX_NAME_LENGTH))}</div>
+        <div class="price">
+          <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" alt="Coins" />
+          <span>${price}</span>
+        </div>
+        <span class="pill ${rarityKey === 'ultra' ? 'ultrarare' : rarityKey}">${rarityLabel}</span>
+      </div>`;
+    return tile;
+  };
+
+  const initSpinner = (items) => {
+    if (!items.length) return;
+    const fragment = document.createDocumentFragment();
+    const renderItems = [...items, ...items];
+    renderItems.forEach((prize) => fragment.appendChild(buildTile(prize)));
+    track.innerHTML = '';
+    track.appendChild(fragment);
+    track.style.transition = 'none';
+    track.style.transform = 'translateX(0)';
+
+    if (items.length <= 1) {
+      return;
+    }
+
+    let index = 0;
+    const stepToNext = () => {
+      const tile = track.querySelector('.tile');
+      if (!tile) return;
+      const rect = tile.getBoundingClientRect();
+      const styles = getComputedStyle(tile);
+      const gap = parseFloat(styles.marginLeft) + parseFloat(styles.marginRight);
+      const step = rect.width + (Number.isFinite(gap) ? gap : 0);
+      index += 1;
+      track.style.transition = 'transform 0.6s ease';
+      track.style.transform = `translateX(-${index * step}px)`;
+
+      if (index >= items.length) {
+        setTimeout(() => {
+          track.style.transition = 'none';
+          track.style.transform = 'translateX(0)';
+          index = 0;
+        }, 600);
+      }
+    };
+
+    setInterval(stepToNext, 3200);
+  };
+
+  firebase
+    .database()
+    .ref('cases')
+    .once('value')
+    .then((snap) => {
+      const data = snap.val() || {};
+      const pulls = [];
+
+      Object.values(data).forEach((pack = {}) => {
+        (pack.prizes || []).forEach((prize = {}) => {
+          const rarityKey = normaliseRarity(prize.rarity);
+          if (highRarities.has(rarityKey)) {
+            pulls.push(prize);
+          }
+        });
+      });
+
+      if (!pulls.length) return;
+
+      const uniqueByName = [];
+      const seen = new Set();
+      pulls.forEach((prize) => {
+        const key = `${normaliseRarity(prize.rarity)}|${(prize.name || '').toString().toLowerCase()}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          uniqueByName.push(prize);
         }
       });
+
+      const selected = uniqueByName
+        .sort(() => Math.random() - 0.5)
+        .slice(0, Math.max(6, Math.min(uniqueByName.length, 12)));
+
+      initSpinner(selected);
+    })
+    .catch((err) => {
+      console.error('Failed to load hot items', err);
     });
-    if (!legendary.length) return;
-
-    const selected = legendary.sort(() => Math.random() - 0.5).slice(0, 6);
-    selected.forEach((card, idx) => {
-      const price = card.value ? Number(card.value).toLocaleString() : '0';
-      const rarity = (card.rarity || 'common').toLowerCase().replace(/\s+/g, '');
-      const color = rarityColors[rarity] || '#a1a1aa';
-      const displayName = (card.name || '').toString();
-      const truncatedName = truncate(displayName, MAX_NAME_LENGTH);
-      const cardEl = document.createElement('div');
-      cardEl.className = 'bg-white rounded-lg overflow-hidden shadow-md card-hover transition-all duration-300 flex-shrink-0 w-40 border-2';
-      cardEl.style.borderColor = color;
-      cardEl.classList.add(`glow-${rarity}`);
-      cardEl.innerHTML = `
-        <img class="w-full h-48 object-contain p-4" src="${card.image}" alt="${card.name}">
-        <div class="p-4">
-          <p class="text-sm font-semibold text-center truncate mb-2" title="${displayName}">${truncatedName}</p>
-          <div class="flex items-center justify-center gap-1">
-            <img src="https://cdn-icons-png.flaticon.com/128/6369/6369589.png" class="h-5 w-5 coin-icon" alt="Coins">
-            <span class="text-gray-900 font-medium">${price}</span>
-          </div>
-        </div>`;
-      container.appendChild(cardEl);
-    });
-
-    startAutoScroll();
-  });
-
-  function startAutoScroll() {
-    if (container.scrollWidth <= container.clientWidth) return;
-    const card = container.querySelector('div');
-    if (!card) return;
-    const cardWidth = card.getBoundingClientRect().width;
-    const gap = 16; // matches Tailwind's space-x-4
-    const step = cardWidth + gap;
-    setInterval(() => {
-      const maxScrollLeft = container.scrollWidth - container.clientWidth;
-      if (container.scrollLeft >= maxScrollLeft) {
-        container.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        container.scrollBy({ left: step, behavior: 'smooth' });
-      }
-    }, 3000);
-  }
 });
