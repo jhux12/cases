@@ -1,17 +1,23 @@
-// Initialize Firebase globally using the compat SDK
-const firebaseConfig = {
-  apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
-  authDomain: "cases-e5b4e.firebaseapp.com",
-  databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
-  projectId: "cases-e5b4e",
-  storageBucket: "cases-e5b4e.appspot.com",
-  messagingSenderId: "22502548396",
-  appId: "1:22502548396:web:aac335672c21f07524d009"
-};
+// Initialize Firebase globally using the compat SDK and runtime config
+(function initFirebase(global) {
+  if (!global.firebase) {
+    console.error('[firebase-config] Firebase SDK not loaded.');
+    return;
+  }
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const auth = firebase.auth();
+  const firebaseConfig = global.APP_CONFIG?.firebase;
+  if (!firebaseConfig) {
+    console.error('[firebase-config] Missing Firebase configuration.');
+    return;
+  }
+
+  if (!global.firebase.apps || !global.firebase.apps.length) {
+    global.firebase.initializeApp(firebaseConfig);
+  }
+
+  global.db = global.firebase.database();
+  global.auth = global.firebase.auth();
+})(window);
 
 function updateUserBalanceCompat() {
   const user = firebase.auth().currentUser;

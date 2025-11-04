@@ -9,6 +9,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="config/app-config.js"></script>
+  <script src="scripts/runtime-config.js"></script>
+  <script src="scripts/firebase-config.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
@@ -82,16 +85,6 @@
 </section>
 
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
-    authDomain: "cases-e5b4e.firebaseapp.com",
-    databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
-    projectId: "cases-e5b4e",
-    storageBucket: "cases-e5b4e.appspot.com",
-    messagingSenderId: "22502548396",
-    appId: "1:22502548396:web:aac335672c21f07524d009"
-  };
-  firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.database();
 
@@ -124,43 +117,5 @@
 <script src="scripts/navbar.js"></script>
 <script src="https://js.stripe.com/v3/"></script>
 <script src="scripts/topup.js"></script>
-
-<script>
-  const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
-
-  function redirectToCheckout(event, priceId) {
-    event.preventDefault();
-
-    const user = firebase.auth().currentUser;
-    if (!user) {
-      alert("Please sign in to purchase gems.");
-      return;
-    }
-
-    firebase.firestore()
-      .collection("customers")
-      .doc(user.uid)
-      .collection("checkout_sessions")
-      .add({
-        mode: "payment",
-        success_url: window.location.href,
-        cancel_url: window.location.href,
-        allow_promotion_codes: true,
-        line_items: [{ price: priceId, quantity: 1 }],
-        metadata: { priceId }
-      })
-      .then((docRef) => {
-        docRef.onSnapshot((snap) => {
-          const { error, sessionId } = snap.data();
-          if (error) {
-            alert(`An error occurred: ${error.message}`);
-          }
-          if (sessionId) {
-            stripe.redirectToCheckout({ sessionId });
-          }
-        });
-      });
-  }
-</script>
 </body>
 </html>
