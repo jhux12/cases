@@ -1,6 +1,15 @@
 import { setupFilters } from './filters.js';
 
 let allCases = [];
+
+export function getAllPacks() {
+  return allCases;
+}
+
+let packsReadyResolve;
+export const packsReady = new Promise((resolve) => {
+  packsReadyResolve = resolve;
+});
 const ROW_LIMIT = 3;
 let casesPerPage = 0;
 let displayLimit = 0;
@@ -237,6 +246,7 @@ function loadCases() {
 
       const filterControls = setupFilters(allCases, renderCases, getUserBalance);
       setupCategoryTabs(filterControls);
+      packsReadyResolve(allCases);
     });
   });
 }
