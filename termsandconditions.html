@@ -96,7 +96,7 @@
   const db = firebase.database();
 
   auth.onAuthStateChanged(async user => {
-    if (!user) return window.location.href = 'auth.html';
+    if (!user) return;
 
     const userRef = db.ref('users/' + user.uid);
     const snapshot = await userRef.once('value');
