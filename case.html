@@ -252,9 +252,25 @@ const formatGems = (num) => {
   return num.toLocaleString();
 };
 
+const parseNumeric = (value) => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0;
+  }
+  if (typeof value === 'string') {
+    const normalized = value.replace(/,/g, '.');
+    const match = normalized.match(/-?(?:\d*\.\d+|\d+)/);
+    if (match) {
+      const parsed = Number.parseFloat(match[0]);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+  }
+  return 0;
+};
+
 const formatOdds = (odds) => {
-  const decimals = odds < 1 ? 3 : 1;
-  return parseFloat((odds || 0).toFixed(decimals));
+  const numericOdds = parseNumeric(odds);
+  const decimals = numericOdds < 1 ? 3 : 1;
+  return parseFloat((numericOdds || 0).toFixed(decimals));
 };
 
 const VOUCHER_NAME_PATTERN = /voucher/i;
@@ -262,8 +278,8 @@ const VOUCHER_NAME_PATTERN = /voucher/i;
 const getVoucherAmount = (prize = {}) => {
   const candidates = [prize.voucherAmount, prize.redeemValue, prize.redeemAmount];
   for (const value of candidates) {
-    const amount = Number(value);
-    if (Number.isFinite(amount) && amount > 0) return Math.round(amount);
+    const amount = parseNumeric(value);
+    if (amount > 0) return Math.round(amount);
   }
   return 0;
 };
@@ -514,8 +530,8 @@ if (isFreeCase) {
 const prizeList = Object.values(caseData.prizes || {})
   .map(prize => ({
     ...prize,
-    value: Number(prize.value) || 0,
-    odds: Number(prize.odds) || 0,
+    value: Math.max(parseNumeric(prize.value), 0),
+    odds: Math.max(parseNumeric(prize.odds), 0),
     ...(isVoucherPrize(prize) ? { isVoucher: true, voucherAmount: getVoucherAmount(prize) } : {}),
   }))
   .sort((a, b) => {

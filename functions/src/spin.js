@@ -6,6 +6,21 @@ function sendCorsHeaders(res) {
   res.set('Access-Control-Allow-Headers', 'Content-Type');
 }
 
+function parseOdds(value) {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  }
+  if (typeof value === 'string') {
+    const normalized = value.replace(/,/g, '.');
+    const match = normalized.match(/(?:\d*\.\d+|\d+)/);
+    if (match) {
+      const parsed = Number.parseFloat(match[0]);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+    }
+  }
+  return 0;
+}
+
 module.exports = (req, res) => {
   sendCorsHeaders(res);
 
@@ -40,7 +55,7 @@ module.exports = (req, res) => {
 
   const numericPrizes = prizes.map(prize => ({
     ...prize,
-    odds: Number(prize.odds) || 0
+    odds: parseOdds(prize.odds)
   }));
 
   const totalOdds = numericPrizes.reduce((sum, prize) => sum + prize.odds, 0);
