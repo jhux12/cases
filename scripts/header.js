@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="flex justify-between h-16">
           <div class="flex items-center">
             <a href="index.html" class="flex-shrink-0 flex items-center">
-              <span class="text-2xl font-bold gradient-text">Packly.gg</span>
+              <span class="text-2xl font-bold gradient-text">packly.gg</span>
             </a>
             <div class="hidden md:ml-6 md:flex md:space-x-8">
               <a data-nav="index.html" href="index.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-box-open mr-1"></i>Open Packs</a>
@@ -140,7 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const themeButtons = header.querySelectorAll('.theme-toggle');
   const storedTheme = localStorage.getItem('packly-theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
   const applyTheme = (mode) => {
     const isDark = mode === 'dark';
@@ -158,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  applyTheme(storedTheme || (prefersDark ? 'dark' : 'light'));
+  applyTheme(storedTheme || 'light');
 
   themeButtons.forEach((btn) =>
     btn.addEventListener('click', () => {
