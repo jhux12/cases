@@ -2293,23 +2293,61 @@
                 </select>
               </label>
             </div>
-            <div class="space-y-2">
-              <button onclick="loadHistory('${uid}', this)" class="inline-flex items-center gap-2 rounded-xl bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-500/30">Load history</button>
-              <div class="overflow-x-auto border border-slate-800/70 rounded-xl">
-                <table class="min-w-full text-xs text-slate-300">
-                  <thead>
-                    <tr>
-                      <th class="px-3 py-2 text-left">Item</th>
-                      <th class="px-3 py-2 text-left">Rarity</th>
-                      <th class="px-3 py-2 text-left">Value</th>
-                      <th class="px-3 py-2 text-left">Status</th>
-                      <th class="px-3 py-2 text-left">Unbox Balance</th>
-                      <th class="px-3 py-2 text-left">Sale Balance</th>
-                      <th class="px-3 py-2 text-left">Timestamp</th>
-                    </tr>
-                  </thead>
-                  <tbody id="unbox-${uid}"><tr><td colspan="7" class="px-3 py-2">History not loaded.</td></tr></tbody>
-                </table>
+            <div class="space-y-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <button onclick="loadHistory('${uid}', this)" class="inline-flex items-center gap-2 rounded-xl bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-500/30"><i class="fa-solid fa-rotate"></i>Load inventory & history</button>
+                <div id="history-badges-${uid}" class="flex flex-wrap gap-2 text-[11px]"></div>
+              </div>
+              <div class="grid gap-3 lg:grid-cols-2">
+                <div class="glass-subcard space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Inventory</p>
+                      <h4 class="text-sm font-semibold text-white">On-hand items</h4>
+                    </div>
+                    <span class="text-[11px] text-slate-400">Manage items directly</span>
+                  </div>
+                  <div class="overflow-x-auto border border-slate-800/70 rounded-xl">
+                    <table class="min-w-full text-xs text-slate-300">
+                      <thead>
+                        <tr>
+                          <th class="px-3 py-2 text-left">Item</th>
+                          <th class="px-3 py-2 text-left">Rarity</th>
+                          <th class="px-3 py-2 text-left">Value</th>
+                          <th class="px-3 py-2 text-left">Status</th>
+                          <th class="px-3 py-2 text-left">Last update</th>
+                          <th class="px-3 py-2 text-left">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="inventory-${uid}"><tr><td colspan="6" class="px-3 py-2">Inventory not loaded.</td></tr></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="glass-subcard space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Unboxing history</p>
+                      <h4 class="text-sm font-semibold text-white">Recent pulls</h4>
+                    </div>
+                    <span class="text-[11px] text-slate-400">Timeline with balances</span>
+                  </div>
+                  <div class="overflow-x-auto border border-slate-800/70 rounded-xl">
+                    <table class="min-w-full text-xs text-slate-300">
+                      <thead>
+                        <tr>
+                          <th class="px-3 py-2 text-left">Item</th>
+                          <th class="px-3 py-2 text-left">Rarity</th>
+                          <th class="px-3 py-2 text-left">Value</th>
+                          <th class="px-3 py-2 text-left">Status</th>
+                          <th class="px-3 py-2 text-left">Unbox Balance</th>
+                          <th class="px-3 py-2 text-left">Sale Balance</th>
+                          <th class="px-3 py-2 text-left">Timestamp</th>
+                        </tr>
+                      </thead>
+                      <tbody id="unbox-${uid}"><tr><td colspan="7" class="px-3 py-2">History not loaded.</td></tr></tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
           `;
@@ -2319,9 +2357,86 @@
         updateUserInsights(matches, stats);
       });
     }
-    function loadHistory(uid, btn) {
+    function renderHistoryBadges(uid, { inventoryCount, inventoryValue, unboxCount, recentUnboxes }) {
+      const wrap = document.getElementById(`history-badges-${uid}`);
+      if (!wrap) return;
+      wrap.innerHTML = '';
+      const badges = [
+        { label: 'Inventory items', value: inventoryCount },
+        { label: 'Inventory value', value: formatCurrency(inventoryValue) },
+        { label: 'Unbox entries', value: unboxCount },
+        { label: 'Last 7d pulls', value: recentUnboxes }
+      ];
+      badges.forEach(badge => {
+        const span = document.createElement('span');
+        span.className = 'inline-flex items-center gap-1 rounded-full bg-slate-800/70 px-3 py-1';
+        span.innerHTML = `<i class="fa-solid fa-circle-dot text-[10px] text-indigo-300"></i> ${badge.label}: <strong class="text-white">${badge.value}</strong>`;
+        wrap.appendChild(span);
+      });
+    }
+
+    function renderInventory(uid, inventoryItems) {
+      const inventoryList = document.getElementById(`inventory-${uid}`);
+      if (!inventoryList) return;
+      if (!inventoryItems.length) {
+        inventoryList.innerHTML = '<tr><td colspan="6" class="px-3 py-2">No inventory items.</td></tr>';
+        return;
+      }
+      inventoryList.innerHTML = '';
+      inventoryItems
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+        .forEach(item => {
+          const date = item.timestamp ? new Date(item.timestamp).toLocaleString() : '—';
+          const status = item.sold ? 'Sold' : 'Owned';
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td class="px-3 py-2">${item.name || 'Item'} <span class="text-[10px] text-slate-500">${item.key || ''}</span></td>
+            <td class="px-3 py-2">${item.rarity || ''}</td>
+            <td class="px-3 py-2">${formatCurrency(item.value || 0)}</td>
+            <td class="px-3 py-2">${status}</td>
+            <td class="px-3 py-2 text-xs">${date}</td>
+            <td class="px-3 py-2">
+              <div class="flex flex-wrap gap-2">
+                <button class="rounded-lg bg-emerald-500/20 px-2 py-1 text-[11px] font-semibold text-emerald-200 hover:bg-emerald-500/30" onclick="toggleInventorySold('${uid}', '${item.key}', ${!item.sold})">${item.sold ? 'Mark owned' : 'Mark sold'}</button>
+                <button class="rounded-lg bg-rose-500/20 px-2 py-1 text-[11px] font-semibold text-rose-200 hover:bg-rose-500/30" onclick="removeInventoryItem('${uid}', '${item.key}')">Delete</button>
+              </div>
+            </td>
+          `;
+          inventoryList.appendChild(row);
+        });
+    }
+
+    function renderUnboxHistory(uid, unboxItems) {
       const unboxList = document.getElementById(`unbox-${uid}`);
       if (!unboxList) return;
+      if (!unboxItems.length) {
+        unboxList.innerHTML = '<tr><td colspan="7" class="px-3 py-2">No history found.</td></tr>';
+        return;
+      }
+      unboxList.innerHTML = '';
+      unboxItems
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+        .forEach(winData => {
+          const date = winData.timestamp ? new Date(winData.timestamp).toLocaleString() : '';
+          const status = winData.sold ? 'Sold' : 'Owned';
+          const unboxBal = `${winData.balanceBefore ?? '-'}→${winData.balanceAfter ?? '-'}`;
+          const saleBal = winData.sold ? `${winData.saleBalanceBefore ?? '-'}→${winData.saleBalanceAfter ?? '-'}` : '-';
+          unboxList.innerHTML += `<tr>
+              <td class="px-3 py-2">${winData.name || 'Drop'}</td>
+              <td class="px-3 py-2">${winData.rarity || ''}</td>
+              <td class="px-3 py-2">${formatCurrency(winData.value || 0)}</td>
+              <td class="px-3 py-2">${status}</td>
+              <td class="px-3 py-2">${unboxBal}</td>
+              <td class="px-3 py-2">${saleBal}</td>
+              <td class="px-3 py-2 text-xs">${date}</td>
+            </tr>`;
+        });
+    }
+
+    function loadHistory(uid, btn) {
+      const unboxList = document.getElementById(`unbox-${uid}`);
+      const inventoryList = document.getElementById(`inventory-${uid}`);
+      if (!unboxList || !inventoryList) return;
       if (btn) {
         btn.disabled = true;
         btn.textContent = 'Loading...';
@@ -2330,42 +2445,52 @@
         firebase.database().ref(`users/${uid}/unboxHistory`).once('value'),
         firebase.database().ref(`users/${uid}/inventory`).once('value')
       ]).then(([histSnap, invSnap]) => {
-        const itemMap = new Map();
+        const unboxes = [];
         if (histSnap.exists()) {
           histSnap.forEach(item => {
-            itemMap.set(item.key, item.val());
+            unboxes.push({ key: item.key, ...(item.val() || {}) });
           });
         }
+
+        const inventory = [];
         if (invSnap.exists()) {
           invSnap.forEach(item => {
-            if (!itemMap.has(item.key)) itemMap.set(item.key, item.val());
+            inventory.push({ key: item.key, ...(item.val() || {}) });
           });
         }
-        const items = Array.from(itemMap.values());
-        if (items.length) {
-          unboxList.innerHTML = '';
-          items
-            .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
-            .forEach(winData => {
-              const date = winData.timestamp ? new Date(winData.timestamp).toLocaleString() : '';
-              const status = winData.sold ? 'Sold' : 'Owned';
-              const unboxBal = `${winData.balanceBefore ?? '-'}→${winData.balanceAfter ?? '-'}`;
-              const saleBal = winData.sold ? `${winData.saleBalanceBefore ?? '-'}→${winData.saleBalanceAfter ?? '-'}` : '-';
-              unboxList.innerHTML += `<tr>
-                  <td class="px-3 py-2">${winData.name}</td>
-                  <td class="px-3 py-2">${winData.rarity || ''}</td>
-                  <td class="px-3 py-2">$${winData.value || 0}</td>
-                  <td class="px-3 py-2">${status}</td>
-                  <td class="px-3 py-2">${unboxBal}</td>
-                  <td class="px-3 py-2">${saleBal}</td>
-                  <td class="px-3 py-2 text-xs">${date}</td>
-                </tr>`;
-            });
-        } else {
-          unboxList.innerHTML = '<tr><td colspan="7" class="px-3 py-2">No history found.</td></tr>';
-        }
+
+        renderInventory(uid, inventory);
+        renderUnboxHistory(uid, unboxes);
+
+        const recentThreshold = Date.now() - (7 * 24 * 60 * 60 * 1000);
+        renderHistoryBadges(uid, {
+          inventoryCount: inventory.length,
+          inventoryValue: inventory.reduce((sum, item) => sum + (Number(item.value) || 0), 0),
+          unboxCount: unboxes.length,
+          recentUnboxes: unboxes.filter(item => (item.timestamp || 0) >= recentThreshold).length
+        });
       }).finally(() => {
-        if (btn) btn.remove();
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Reload inventory & history';
+        }
+      });
+    }
+
+    function toggleInventorySold(uid, itemKey, sold) {
+      if (!uid || !itemKey) return;
+      firebase.database().ref(`users/${uid}/inventory/${itemKey}`).update({ sold }).then(() => {
+        showToast(sold ? '✅ Marked as sold' : '✅ Marked as owned');
+        loadHistory(uid);
+      });
+    }
+
+    function removeInventoryItem(uid, itemKey) {
+      if (!uid || !itemKey) return;
+      if (!confirm('Delete this inventory item?')) return;
+      firebase.database().ref(`users/${uid}/inventory/${itemKey}`).remove().then(() => {
+        showToast('🗑️ Inventory item removed');
+        loadHistory(uid);
       });
     }
 
