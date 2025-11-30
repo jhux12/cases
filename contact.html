@@ -42,32 +42,62 @@
 
 <!-- Contact Us Section -->
 <section class="pt-32 px-6">
-  <div class="max-w-3xl mx-auto text-center">
-    <h1 class="text-3xl font-bold mb-6">Contact Us</h1>
-<p class="text-sm text-gray-300 mb-4">
-  Please fill out the form or email us support@packly.gg. Typical response time is within 24 hours.
-</p>
-    <div class="terms-box p-6 rounded-xl text-left terms-text">
-      <form id="contact-form" class="space-y-4">
-        <div>
-          <label for="email" class="block text-sm font-semibold mb-1">Email</label>
-          <input type="email" id="email" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required />
-        </div>
-        <div>
-          <label for="subject" class="block text-sm font-semibold mb-1">Subject</label>
-          <input type="text" id="subject" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required />
-        </div>
-        <div>
-          <label for="message" class="block text-sm font-semibold mb-1">Message</label>
-          <textarea id="message" rows="4" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required></textarea>
-        </div>
-        <button type="submit" class="bg-yellow-400 text-black font-bold px-6 py-2 rounded hover:bg-yellow-300 transition">Submit</button>
-      </form>
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-10">
+      <h1 class="text-3xl font-bold mb-4">Contact Us</h1>
+      <p class="text-sm text-gray-300 max-w-3xl mx-auto">Need help? Start a live chat with our AI assistant or send a note to the team. We'll auto-reply instantly and loop in a human whenever you request it.</p>
+    </div>
 
-      <div class="mt-12">
-        <h2 class="text-2xl font-bold mb-4 text-white">Your Support Conversations</h2>
-        <div id="user-cases" class="space-y-6"></div>
+    <div class="grid gap-6 lg:grid-cols-2">
+      <div class="terms-box p-6 rounded-xl text-left terms-text">
+        <h2 class="text-xl font-semibold text-white mb-4">Create a ticket</h2>
+        <p class="text-sm text-gray-300 mb-4">Share a subject and first message to kick off a tracked conversation. You'll also see it inside the live chat.</p>
+        <form id="contact-form" class="space-y-4">
+          <div>
+            <label for="email" class="block text-sm font-semibold mb-1">Email</label>
+            <input type="email" id="email" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required />
+          </div>
+          <div>
+            <label for="subject" class="block text-sm font-semibold mb-1">Subject</label>
+            <input type="text" id="subject" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" placeholder="Eg. Billing question, shipping help" required />
+          </div>
+          <div>
+            <label for="message" class="block text-sm font-semibold mb-1">Message</label>
+            <textarea id="message" rows="4" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" placeholder="Tell us what's going on" required></textarea>
+          </div>
+          <button type="submit" class="bg-yellow-400 text-black font-bold px-6 py-2 rounded hover:bg-yellow-300 transition">Create ticket & chat</button>
+        </form>
       </div>
+
+      <div class="terms-box p-6 rounded-xl text-left terms-text">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-semibold text-white mb-1">AI support chat</h2>
+            <p class="text-sm text-gray-300">Most replies come from our assistant. Ask away or request a person at any time.</p>
+          </div>
+          <span id="chat-status" class="text-xs text-gray-400">Not connected</span>
+        </div>
+        <div id="chat-log" class="mt-4 space-y-3 max-h-80 overflow-y-auto bg-gray-900 border border-gray-700 rounded-lg p-3"></div>
+        <div id="chat-empty" class="mt-4 text-sm text-gray-400">Sign in and send a message to start chatting.</div>
+        <div class="mt-4 flex flex-col gap-3">
+          <div class="flex gap-2">
+            <input id="chat-input" type="text" class="flex-1 p-2 rounded bg-gray-700 text-white border border-gray-600" placeholder="Type a message" />
+            <button id="chat-send" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Send</button>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-300">
+            <label class="inline-flex items-center gap-2">
+              <input type="checkbox" id="chat-human-toggle" class="h-4 w-4 rounded border-gray-500 bg-gray-800" />
+              Request a person in the admin inbox
+            </label>
+            <p class="text-xs text-gray-400">We auto-reply instantly and share the thread with the admin panel.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="terms-box p-6 rounded-xl text-left terms-text mt-8">
+      <h2 class="text-2xl font-bold mb-4 text-white">Your Support Conversations</h2>
+      <div id="user-cases" class="space-y-6"></div>
     </div>
   </div>
 </section>
@@ -86,32 +116,186 @@
   const auth = firebase.auth();
   const db = firebase.database();
 
+  const chatLog = document.getElementById('chat-log');
+  const chatInput = document.getElementById('chat-input');
+  const chatSend = document.getElementById('chat-send');
+  const chatStatus = document.getElementById('chat-status');
+  const chatEmpty = document.getElementById('chat-empty');
+  const chatHumanToggle = document.getElementById('chat-human-toggle');
+
+  let liveChatCaseId = null;
+  let messagesListener = null;
+
+  const aiResponses = [
+    { keywords: ['refund', 'charge', 'billing', 'payment'], reply: "I can help with billing. Do you see an error message or a missing transaction? If it's urgent, I've tagged this for the admin team as well." },
+    { keywords: ['shipping', 'ship', 'tracking', 'delivery'], reply: "Shipping usually takes 3-5 business days. Drop your order ID and I'll send it over to a person if it needs a manual check." },
+    { keywords: ['account', 'login', 'password'], reply: "Try signing out/in and double-checking your email. If you're still stuck, I'll flag this chat for a human right away." },
+    { keywords: ['reward', 'quest', 'daily'], reply: "Rewards reset daily at midnight UTC. Let me know if something didn't update and I'll loop in the team." },
+    { keywords: ['help', 'support', 'human', 'agent'], reply: "I'm here to help! I've also shared this thread with an admin in case you want a person to follow up." }
+  ];
+
+  function setChatStatus(text) {
+    if (chatStatus) chatStatus.textContent = text;
+  }
+
+  function formatSender(sender) {
+    if (sender === 'admin') return 'Admin';
+    if (sender === 'ai') return 'AI Assistant';
+    return 'You';
+  }
+
+  function renderChatMessages(messages = []) {
+    if (!chatLog) return;
+    chatLog.innerHTML = '';
+    if (!messages.length) {
+      chatEmpty?.classList.remove('hidden');
+      return;
+    }
+    chatEmpty?.classList.add('hidden');
+    messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+    messages.forEach(msg => {
+      const bubble = document.createElement('div');
+      const isUser = msg.sender === 'user';
+      const isAdmin = msg.sender === 'admin';
+      const isAi = msg.sender === 'ai';
+      const bubbleColor = isAdmin ? 'bg-amber-500/20 border-amber-500/40 text-amber-100' : isAi ? 'bg-blue-500/10 border-blue-500/30 text-blue-100' : 'bg-gray-800 border-gray-700 text-white';
+      bubble.className = `p-3 rounded-lg border ${bubbleColor}`;
+      bubble.innerHTML = `
+        <p class="text-xs uppercase tracking-[0.2em] text-gray-400 mb-1">${formatSender(msg.sender)}</p>
+        <p class="text-sm leading-relaxed">${msg.text}</p>
+        <p class="text-[0.7rem] text-gray-500 mt-1">${new Date(msg.timestamp || Date.now()).toLocaleString()}</p>
+      `;
+      if (isUser) bubble.classList.add('ml-auto', 'bg-gray-700/80');
+      chatLog.appendChild(bubble);
+    });
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  async function ensureLiveChatCase(user, metadata = {}) {
+    const snapshot = await db.ref('supportCases').orderByChild('uid').equalTo(user.uid).once('value');
+    let existingKey = null;
+    snapshot.forEach(child => {
+      const value = child.val() || {};
+      if (value.channel === 'live-chat' || value.autoResponder) {
+        existingKey = child.key;
+      }
+    });
+
+    if (existingKey) {
+      const updates = {};
+      if (metadata.email) updates.email = metadata.email;
+      if (metadata.subject) updates.subject = metadata.subject;
+      if (Object.keys(updates).length) await db.ref(`supportCases/${existingKey}`).update(updates);
+      return existingKey;
+    }
+
+    const caseRef = db.ref('supportCases').push();
+    await caseRef.set({
+      uid: user.uid,
+      email: metadata.email || user.email || 'No email provided',
+      subject: metadata.subject || 'Live chat support',
+      status: 'Open',
+      channel: 'live-chat',
+      autoResponder: true,
+      needsHuman: false,
+      createdAt: Date.now(),
+      messages: {}
+    });
+    return caseRef.key;
+  }
+
+  async function appendMessage(caseId, sender, text, extra = {}) {
+    const newKey = db.ref().push().key;
+    const updates = {};
+    updates[`supportCases/${caseId}/messages/${newKey}`] = {
+      sender,
+      text,
+      timestamp: Date.now(),
+      ...extra
+    };
+    updates[`supportCases/${caseId}/status`] = extra.status || (sender === 'user' ? 'Open' : 'Replied');
+    if (typeof extra.needsHuman === 'boolean') {
+      updates[`supportCases/${caseId}/needsHuman`] = extra.needsHuman;
+    }
+    await db.ref().update(updates);
+  }
+
+  function pickAiResponse(message) {
+    const lower = (message || '').toLowerCase();
+    const matched = aiResponses.find(item => item.keywords.some(k => lower.includes(k)));
+    if (matched) return matched.reply;
+    return "Thanks for reaching out! I shared this chat with the admin team and will keep you posted. Feel free to request a person if you'd like a human response.";
+  }
+
+  async function autoRespond(caseId, userText, needsHuman) {
+    const reply = pickAiResponse(userText);
+    await appendMessage(caseId, 'ai', reply, { status: needsHuman ? 'Pending' : 'Replied', needsHuman: !!needsHuman });
+  }
+
+  async function requestHuman(caseId) {
+    await appendMessage(caseId, 'ai', 'I flagged this chat for a human. An admin will reply from the inbox shortly.', { status: 'Pending', needsHuman: true });
+  }
+
+  async function startChat(user) {
+    setChatStatus('Connecting…');
+    liveChatCaseId = await ensureLiveChatCase(user, { email: document.getElementById('email').value || user.email });
+    if (messagesListener) messagesListener.off();
+    messagesListener = db.ref(`supportCases/${liveChatCaseId}/messages`);
+    messagesListener.on('value', snapshot => {
+      const messages = snapshot.exists() ? Object.values(snapshot.val()) : [];
+      renderChatMessages(messages);
+      setChatStatus('Live');
+    });
+  }
+
+  async function handleUserMessage(text) {
+    const user = firebase.auth().currentUser;
+    if (!user) return alert('Please sign in to send a message.');
+    if (!text.trim()) return;
+    if (!liveChatCaseId) await startChat(user);
+    await appendMessage(liveChatCaseId, 'user', text, { status: chatHumanToggle?.checked ? 'Pending' : 'Open', needsHuman: !!chatHumanToggle?.checked });
+    chatInput.value = '';
+    if (chatHumanToggle?.checked) {
+      await requestHuman(liveChatCaseId);
+    } else {
+      await autoRespond(liveChatCaseId, text);
+    }
+  }
+
   document.getElementById('contact-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const user = firebase.auth().currentUser;
     if (!user) return alert('Please sign in to send a message.');
+    const email = document.getElementById('email').value;
+    const subject = document.getElementById('subject').value;
+    const message = document.getElementById('message').value;
 
-    const formRef = db.ref('supportCases').push();
-    const newMessageKey = db.ref().push().key;
-await formRef.set({
-  uid: user.uid,
-  email: document.getElementById('email').value,
-  subject: document.getElementById('subject').value,
-  status: 'Open',
-  messages: {
-    [newMessageKey]: {
-      sender: 'user',
-      text: document.getElementById('message').value,
-      timestamp: Date.now()
+    liveChatCaseId = await ensureLiveChatCase(user, { email, subject });
+    await appendMessage(liveChatCaseId, 'user', message, { status: chatHumanToggle?.checked ? 'Pending' : 'Open', needsHuman: !!chatHumanToggle?.checked });
+    document.getElementById('message').value = '';
+    setChatStatus('Ticket created • Chatting');
+
+    if (chatHumanToggle?.checked) {
+      await requestHuman(liveChatCaseId);
+    } else {
+      await autoRespond(liveChatCaseId, message);
     }
-  }
-});
-    alert('✅ Message sent successfully!');
-    document.getElementById('contact-form').reset();
   });
 
-  auth.onAuthStateChanged(user => {
-    if (!user) return;
+  chatSend?.addEventListener('click', () => handleUserMessage(chatInput.value));
+  chatInput?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleUserMessage(chatInput.value);
+    }
+  });
+
+  chatHumanToggle?.addEventListener('change', async () => {
+    if (!chatHumanToggle.checked || !liveChatCaseId) return;
+    await requestHuman(liveChatCaseId);
+  });
+
+  function renderUserCases(user) {
     const supportCasesRef = db.ref('supportCases');
     supportCasesRef.orderByChild('uid').equalTo(user.uid).on('value', snapshot => {
       const container = document.getElementById('user-cases');
@@ -122,26 +306,32 @@ await formRef.set({
       }
       snapshot.forEach(child => {
         const data = child.val();
-const messagesHtml = Object.values(data.messages || {}).map(msg => {
-          const color = msg.sender === 'admin' ? 'text-yellow-300' : 'text-white';
-          return `<p class="text-sm ${color}"><strong>${msg.sender}:</strong> ${msg.text}</p>`;
+        const messagesHtml = Object.values(data.messages || {}).map(msg => {
+          const sender = formatSender(msg.sender);
+          const color = msg.sender === 'admin' ? 'text-yellow-300' : msg.sender === 'ai' ? 'text-blue-300' : 'text-white';
+          return `<p class="text-sm ${color}"><strong>${sender}:</strong> ${msg.text}</p>`;
         }).join('');
 
         container.innerHTML += `
           <div class="p-4 bg-gray-800 border border-gray-700 rounded-lg">
-            <h3 class="font-semibold text-yellow-300 mb-2">${data.subject}</h3>
-            ${messagesHtml}
-            <p class="text-sm text-green-400 font-semibold mt-2">Status: ${data.status}</p>
-            <form onsubmit="sendReply(event, '${child.key}')" class="mt-4 space-y-2">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <h3 class="font-semibold text-yellow-300 mb-1">${data.subject}</h3>
+                <p class="text-xs text-gray-400">Status: ${data.status}${data.needsHuman ? ' • Waiting for a person' : ''}</p>
+              </div>
+              ${data.channel === 'live-chat' ? '<span class="text-[0.65rem] uppercase tracking-[0.25em] text-blue-200">AI chat</span>' : ''}
+            </div>
+            <div class="mt-2 space-y-1">${messagesHtml}</div>
+            <form onsubmit="sendReply(event, '${child.key}')" class="mt-3 space-y-2">
               <textarea placeholder="Reply..." rows="2" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 reply-message"></textarea>
               <button type="submit" class="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600">Send Reply</button>
             </form>
           </div>`;
       });
     });
-  });
+  }
 
-  function sendReply(event, caseId) {
+  window.sendReply = async function sendReply(event, caseId) {
     event.preventDefault();
     const form = event.target;
     const textarea = form.querySelector('.reply-message');
@@ -149,20 +339,23 @@ const messagesHtml = Object.values(data.messages || {}).map(msg => {
     if (!replyText) return;
     const user = firebase.auth().currentUser;
     if (!user) return alert('Please sign in.');
+    await appendMessage(caseId, 'user', replyText, { status: 'Open' });
+    textarea.value = '';
+    await autoRespond(caseId, replyText);
+  };
 
-    const caseRef = db.ref('supportCases/' + caseId + '/messages');
-    caseRef.once('value').then(snapshot => {
-      const newReplyKey = db.ref().push().key;
-const updates = {};
-updates[`supportCases/${caseId}/messages/${newReplyKey}`] = {
-  sender: 'user',
-  text: replyText,
-  timestamp: Date.now()
-};
-db.ref().update(updates);
-      textarea.value = '';
-    });
-  }
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      setChatStatus('Not connected');
+      return;
+    }
+    if (user.email) {
+      const emailField = document.getElementById('email');
+      if (emailField && !emailField.value) emailField.value = user.email;
+    }
+    startChat(user);
+    renderUserCases(user);
+  });
 </script>
 
 <script src="scripts/header.js"></script>

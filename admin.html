@@ -1982,12 +1982,19 @@
       }
       return messages.map(msg => {
         const time = formatRelativeTime(msg.timestamp);
-        const alignment = msg.sender === 'admin' ? 'items-end text-emerald-200' : 'items-start text-slate-200';
-        const bubble = msg.sender === 'admin' ? 'bg-emerald-500/20 text-emerald-100' : 'bg-slate-800/80 text-slate-100';
+        const isAdmin = msg.sender === 'admin';
+        const isAi = msg.sender === 'ai';
+        const alignment = isAdmin ? 'items-end text-emerald-200' : 'items-start text-slate-200';
+        const bubble = isAdmin
+          ? 'bg-emerald-500/20 text-emerald-100'
+          : isAi
+            ? 'bg-indigo-500/15 text-indigo-100 border border-indigo-500/40'
+            : 'bg-slate-800/80 text-slate-100';
+        const senderLabel = isAdmin ? 'Admin' : isAi ? 'AI assistant' : 'User';
         return `
           <div class="flex ${alignment}">
             <div class="max-w-full rounded-xl ${bubble} px-3 py-2 text-xs">
-              <p class="font-semibold text-[0.7rem] uppercase tracking-[0.3em] mb-1">${msg.sender}</p>
+              <p class="font-semibold text-[0.7rem] uppercase tracking-[0.3em] mb-1">${senderLabel}</p>
               <p class="text-sm leading-relaxed">${msg.text}</p>
               <p class="mt-1 text-[0.65rem] text-slate-400">${time}</p>
             </div>
@@ -1999,7 +2006,7 @@
     function summarizeSupport(cases = []) {
       const now = Date.now();
       const open = cases.filter(item => (item.data.status || '').toLowerCase() !== 'resolved').length;
-      const unreplied = cases.filter(item => !(item.messages || []).some(msg => msg.sender === 'admin')).length;
+      const unreplied = cases.filter(item => !(item.messages || []).some(msg => msg.sender === 'admin' || msg.sender === 'ai')).length;
       const active = cases.filter(item => now - (item.latestTimestamp || 0) <= 24 * 60 * 60 * 1000).length;
       return { open, unreplied, active };
     }
@@ -2026,7 +2033,7 @@
       }
 
       if (supportFilters.onlyUnreplied) {
-        filtered = filtered.filter(({ messages }) => !messages.some(msg => msg.sender === 'admin'));
+        filtered = filtered.filter(({ messages }) => !messages.some(msg => msg.sender === 'admin' || msg.sender === 'ai'));
       }
 
       filtered.sort((a, b) => {
@@ -2075,9 +2082,10 @@
       filtered.forEach(({ key, data, messages, latestTimestamp }) => {
         const status = data.status || 'Open';
         const statusClass = status === 'Resolved' ? 'text-emerald-300' : status === 'Pending' ? 'text-amber-300' : 'text-sky-300';
-        const hasAdminReply = messages.some(msg => msg.sender === 'admin');
-        const lastUserMessage = [...messages].reverse().find(msg => msg.sender !== 'admin');
+        const hasAdminReply = messages.some(msg => msg.sender === 'admin' || msg.sender === 'ai');
+        const lastUserMessage = [...messages].reverse().find(msg => msg.sender === 'user');
         const createdAt = data.createdAt || (messages[0]?.timestamp || latestTimestamp);
+        const needsHuman = !!data.needsHuman;
         const card = document.createElement('div');
         card.className = 'glass-card space-y-4';
         card.innerHTML = `
@@ -2088,6 +2096,7 @@
               <div class="flex flex-wrap gap-2 text-[0.7rem] text-slate-400">
                 <span class="inline-flex items-center gap-1 rounded-full bg-slate-800/70 px-3 py-1"><i class="fa-solid fa-envelope-open-text"></i> ${messages.length} msgs</span>
                 <span class="inline-flex items-center gap-1 rounded-full bg-slate-800/70 px-3 py-1"><i class="fa-solid fa-clock"></i> Updated ${formatRelativeTime(latestTimestamp)}</span>
+                ${needsHuman ? '<span class="inline-flex items-center gap-1 rounded-full bg-rose-500/15 text-rose-100 px-3 py-1"><i class="fa-solid fa-user-clock"></i> Waiting for human</span>' : ''}
                 ${hasAdminReply ? '' : '<span class="inline-flex items-center gap-1 rounded-full bg-amber-500/15 text-amber-100 px-3 py-1"><i class="fa-solid fa-bell"></i> Needs reply</span>'}
               </div>
             </div>
