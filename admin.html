@@ -389,6 +389,243 @@
               </div>
             </div>
 
+            <div class="glass-card space-y-6">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p class="text-xs uppercase tracking-[0.35em] text-slate-400">AI assisted</p>
+                  <h3 class="text-xl font-semibold text-white">Smart Pack Wizard</h3>
+                  <p class="text-sm text-slate-400">Generate balanced odds from price + margin goals, tune with sliders, and publish in one click.</p>
+                </div>
+                <div class="flex flex-wrap gap-2 items-center">
+                  <select id="wizard-duplicate" class="form-select min-w-[220px]">
+                    <option value="">Duplicate from existing pack…</option>
+                  </select>
+                  <button type="button" id="wizard-reset" class="inline-flex items-center gap-2 rounded-xl border border-slate-700/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-800/70">
+                    <i class="fa-solid fa-rotate"></i> Reset wizard
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid gap-2 md:grid-cols-4 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+                <div id="wizard-step-chip-1" class="rounded-xl border border-slate-800/70 bg-slate-900/50 px-3 py-2 flex items-center gap-2">
+                  <span class="h-7 w-7 inline-flex items-center justify-center rounded-lg bg-indigo-500/30 text-indigo-100">1</span>
+                  Basics
+                </div>
+                <div id="wizard-step-chip-2" class="rounded-xl border border-slate-800/70 bg-slate-900/30 px-3 py-2 flex items-center gap-2">
+                  <span class="h-7 w-7 inline-flex items-center justify-center rounded-lg bg-slate-800 text-slate-200">2</span>
+                  Prizes
+                </div>
+                <div id="wizard-step-chip-3" class="rounded-xl border border-slate-800/70 bg-slate-900/30 px-3 py-2 flex items-center gap-2">
+                  <span class="h-7 w-7 inline-flex items-center justify-center rounded-lg bg-slate-800 text-slate-200">3</span>
+                  AI odds
+                </div>
+                <div id="wizard-step-chip-4" class="rounded-xl border border-slate-800/70 bg-slate-900/30 px-3 py-2 flex items-center gap-2">
+                  <span class="h-7 w-7 inline-flex items-center justify-center rounded-lg bg-slate-800 text-slate-200">4</span>
+                  Publish
+                </div>
+              </div>
+
+              <div id="wizard-step-1" class="grid gap-5 lg:grid-cols-2">
+                <div class="space-y-3">
+                  <div class="space-y-1">
+                    <label class="text-sm font-medium text-slate-300">Pack name</label>
+                    <input id="wizard-pack-name" type="text" class="form-input" placeholder="AI boosted bundle" />
+                  </div>
+                  <div class="grid gap-3 sm:grid-cols-2">
+                    <label class="space-y-1 text-sm text-slate-300">Pack price ($)
+                      <input id="wizard-pack-price" type="number" class="form-input" placeholder="49.99" step="0.01" min="0" />
+                    </label>
+                    <label class="space-y-1 text-sm text-slate-300">Target margin (%)
+                      <input id="wizard-pack-margin" type="number" class="form-input" placeholder="20" step="1" min="0" max="95" />
+                    </label>
+                  </div>
+                  <div class="grid gap-3 sm:grid-cols-3">
+                    <label class="inline-flex items-center gap-3 rounded-xl border border-slate-800/80 bg-slate-900/60 px-4 py-3 text-xs uppercase tracking-wide text-slate-300">
+                      <input type="checkbox" id="wizard-pack-free" class="h-4 w-4 rounded border-slate-600 bg-slate-900 text-purple-500 focus:ring-purple-400" />
+                      Free pack
+                    </label>
+                    <label class="inline-flex items-center gap-3 rounded-xl border border-slate-800/80 bg-slate-900/60 px-4 py-3 text-xs uppercase tracking-wide text-slate-300">
+                      <input type="checkbox" id="wizard-pack-vault" class="h-4 w-4 rounded border-slate-600 bg-slate-900 text-purple-500 focus:ring-purple-400" />
+                      Pick'em mode
+                    </label>
+                    <label class="inline-flex items-center gap-3 rounded-xl border border-slate-800/80 bg-slate-900/60 px-4 py-3 text-xs uppercase tracking-wide text-slate-300">
+                      <input type="checkbox" id="wizard-pack-featured" class="h-4 w-4 rounded border-slate-600 bg-slate-900 text-purple-500 focus:ring-purple-400" />
+                      Featured
+                    </label>
+                  </div>
+                  <div class="grid gap-3 sm:grid-cols-2">
+                    <label class="space-y-1 text-sm text-slate-300">Badge or tag
+                      <input id="wizard-pack-tag" type="text" class="form-input" placeholder="🔥 Hot drop" />
+                    </label>
+                    <label class="space-y-1 text-sm text-slate-300">Card back (Pick'em)
+                      <input id="wizard-pack-card-back" type="text" class="form-input" placeholder="https://…" />
+                    </label>
+                  </div>
+                  <div class="rounded-xl border border-slate-800/70 bg-slate-900/40 p-3 text-sm text-slate-300 space-y-1">
+                    <div class="flex items-center justify-between">
+                      <span>Target expected payout</span>
+                      <span id="wizard-target-ev" class="font-semibold text-indigo-200">$0.00</span>
+                    </div>
+                    <p class="text-xs text-slate-500">EV is calculated from price × (1 − margin). Adjust the margin slider to hit your business goal.</p>
+                  </div>
+                </div>
+                <div class="space-y-3">
+                  <div class="space-y-2">
+                    <label class="text-sm font-medium text-slate-300">Hero artwork</label>
+                    <input id="wizard-pack-image" type="text" class="form-input" placeholder="https://…" />
+                    <p class="text-xs text-slate-500">Use square artwork. Preview updates after you paste the URL.</p>
+                  </div>
+                  <div class="glass-subcard flex items-center justify-center min-h-[160px] border-dashed border-2 border-slate-700/60">
+                    <img id="wizard-image-preview" src="" alt="Wizard preview" class="hidden h-28 w-28 rounded-xl object-cover shadow-lg shadow-purple-900/50" />
+                    <p class="text-sm text-slate-500" id="wizard-image-placeholder">Artwork preview appears here.</p>
+                  </div>
+                  <div class="flex justify-end">
+                    <button type="button" id="wizard-next-1" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 px-5 py-2 text-sm font-semibold">
+                      Continue <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="wizard-step-2" class="hidden space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                  <div>
+                    <h4 class="text-lg font-semibold text-white">Prize inputs</h4>
+                    <p class="text-sm text-slate-400">Add items, values, rarity, and optional stock context to steer the AI.</p>
+                  </div>
+                  <button type="button" id="wizard-add-prize" class="inline-flex items-center gap-2 rounded-xl bg-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-200 hover:bg-emerald-500/30">
+                    <i class="fa-solid fa-plus"></i> Add prize
+                  </button>
+                </div>
+                <div id="wizard-prizes" class="space-y-3"></div>
+                <div class="flex justify-between items-center">
+                  <p id="wizard-prize-count" class="text-xs text-slate-500">Add at least 2 prizes.</p>
+                  <div class="flex gap-2">
+                    <button type="button" id="wizard-prev-2" class="inline-flex items-center gap-2 rounded-xl border border-slate-700/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-800/70">
+                      <i class="fa-solid fa-arrow-left"></i> Back
+                    </button>
+                    <button type="button" id="wizard-next-2" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 px-5 py-2 text-sm font-semibold">
+                      Continue <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="wizard-step-3" class="hidden space-y-5">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div>
+                    <h4 class="text-lg font-semibold text-white">AI odds & tuning</h4>
+                    <p class="text-sm text-slate-400">Generate suggested odds, then nudge risk with presets or the risk slider.</p>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" data-preset="generous" class="wizard-preset inline-flex items-center gap-2 rounded-xl border border-slate-700/80 px-3 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-500/20">
+                      <i class="fa-solid fa-sparkles"></i> More generous
+                    </button>
+                    <button type="button" data-preset="margin" class="wizard-preset inline-flex items-center gap-2 rounded-xl border border-slate-700/80 px-3 py-2 text-xs font-semibold text-amber-200 hover:bg-amber-500/20">
+                      <i class="fa-solid fa-coins"></i> More margin
+                    </button>
+                    <button type="button" data-preset="balanced" class="wizard-preset inline-flex items-center gap-2 rounded-xl border border-slate-700/80 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-500/20">
+                      <i class="fa-solid fa-scale-balanced"></i> Balanced
+                    </button>
+                  </div>
+                </div>
+                <div class="grid gap-4 lg:grid-cols-3">
+                  <div class="lg:col-span-2 space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                      <button type="button" id="wizard-generate" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 px-5 py-2 text-sm font-semibold">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generate odds
+                      </button>
+                      <div class="flex items-center gap-3 text-sm text-slate-300">
+                        <span class="text-xs uppercase tracking-[0.35em] text-slate-500">Risk balance</span>
+                        <input id="wizard-risk" type="range" min="0" max="100" value="55" class="w-48 accent-purple-500" />
+                      </div>
+                    </div>
+                    <div class="overflow-x-auto border border-slate-800/70 rounded-xl">
+                      <table class="min-w-full text-sm text-slate-300">
+                        <thead class="bg-slate-900/60">
+                          <tr>
+                            <th class="px-3 py-2 text-left">Prize</th>
+                            <th class="px-3 py-2 text-left">Tier</th>
+                            <th class="px-3 py-2 text-left">Value</th>
+                            <th class="px-3 py-2 text-left">Odds</th>
+                          </tr>
+                        </thead>
+                        <tbody id="wizard-odds-rows"><tr><td colspan="4" class="px-3 py-2 text-slate-500">Run the generator to see odds.</td></tr></tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="glass-subcard space-y-3">
+                    <div class="flex items-center justify-between">
+                      <h5 class="text-sm font-semibold text-white">Guardrails</h5>
+                      <span id="wizard-odds-total" class="rounded-full bg-slate-800/70 px-3 py-1 text-xs text-slate-300">Odds: 0%</span>
+                    </div>
+                    <p id="wizard-validation" class="text-sm text-slate-300">Awaiting generation…</p>
+                    <div id="wizard-explanation" class="rounded-lg border border-slate-800/70 bg-slate-900/60 p-3 text-xs text-slate-400">
+                      The AI rationale will appear here after you generate odds.
+                    </div>
+                    <div class="space-y-2 text-xs text-slate-500">
+                      <p>We normalize to 100% and target your EV. Inline errors will flag negative odds or missing values.</p>
+                      <p>Use presets or the risk slider to gently re-weight tiers while keeping totals locked.</p>
+                    </div>
+                    <div class="flex justify-end">
+                      <button type="button" id="wizard-next-3" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 px-5 py-2 text-sm font-semibold">
+                        Continue <i class="fa-solid fa-arrow-right"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="wizard-step-4" class="hidden space-y-4">
+                <div class="grid gap-4 lg:grid-cols-3">
+                  <div class="glass-subcard space-y-2">
+                    <div class="flex items-center justify-between text-sm text-slate-300">
+                      <span>Total odds</span>
+                      <span id="wizard-summary-odds" class="font-semibold text-indigo-200">0%</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm text-slate-300">
+                      <span>Expected value</span>
+                      <span id="wizard-summary-ev" class="font-semibold text-indigo-200">$0.00</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm text-slate-300">
+                      <span>Target vs actual margin</span>
+                      <span id="wizard-summary-margin" class="font-semibold text-indigo-200">--</span>
+                    </div>
+                  </div>
+                  <div class="glass-subcard space-y-2">
+                    <p class="text-sm font-semibold text-white">Inline checks</p>
+                    <ul id="wizard-summary-checks" class="list-disc list-inside text-sm text-slate-300 space-y-1">
+                      <li>Total odds must equal 100%.</li>
+                      <li>No negative or blank odds.</li>
+                      <li>EV should be ≤ price unless free.</li>
+                    </ul>
+                  </div>
+                  <div class="glass-subcard space-y-3">
+                    <p class="text-sm font-semibold text-white">Simulate outcomes</p>
+                    <button type="button" id="wizard-simulate" class="inline-flex items-center gap-2 rounded-xl border border-slate-700/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-800/70">
+                      <i class="fa-solid fa-dice"></i> Test open x10
+                    </button>
+                    <div id="wizard-sim-output" class="rounded-lg border border-slate-800/70 bg-slate-900/60 p-3 text-xs text-slate-400">Run a quick simulation to preview pulls.</div>
+                  </div>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div class="flex gap-2">
+                    <button type="button" id="wizard-prev-4" class="inline-flex items-center gap-2 rounded-xl border border-slate-700/80 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-800/70">
+                      <i class="fa-solid fa-arrow-left"></i> Back
+                    </button>
+                    <button type="button" id="wizard-rollback" class="inline-flex items-center gap-2 rounded-xl border border-rose-500/50 bg-rose-500/10 px-4 py-2 text-xs font-semibold text-rose-200 hover:bg-rose-500/20">
+                      <i class="fa-solid fa-rotate-left"></i> Rollback last publish
+                    </button>
+                  </div>
+                  <div class="flex gap-2">
+                    <button type="button" id="wizard-publish" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 via-indigo-500 to-sky-500 px-6 py-3 text-sm font-semibold shadow-lg shadow-emerald-900/40">
+                      <i class="fa-solid fa-rocket"></i> Publish pack
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="grid gap-6 xl:grid-cols-3">
               <div class="glass-card space-y-4 xl:col-span-2">
                 <div class="flex flex-wrap items-center justify-between gap-3">
@@ -758,6 +995,58 @@
       </button>
     `;
 
+    const wizardSteps = {
+      1: document.getElementById('wizard-step-1'),
+      2: document.getElementById('wizard-step-2'),
+      3: document.getElementById('wizard-step-3'),
+      4: document.getElementById('wizard-step-4')
+    };
+    const wizardChips = {
+      1: document.getElementById('wizard-step-chip-1'),
+      2: document.getElementById('wizard-step-chip-2'),
+      3: document.getElementById('wizard-step-chip-3'),
+      4: document.getElementById('wizard-step-chip-4')
+    };
+    const wizardDuplicateSelect = document.getElementById('wizard-duplicate');
+    const wizardResetBtn = document.getElementById('wizard-reset');
+    const wizardAddPrizeBtn = document.getElementById('wizard-add-prize');
+    const wizardPrizeList = document.getElementById('wizard-prizes');
+    const wizardPrizeCount = document.getElementById('wizard-prize-count');
+    const wizardTargetEV = document.getElementById('wizard-target-ev');
+    const wizardOddsRows = document.getElementById('wizard-odds-rows');
+    const wizardOddsTotal = document.getElementById('wizard-odds-total');
+    const wizardValidation = document.getElementById('wizard-validation');
+    const wizardExplanation = document.getElementById('wizard-explanation');
+    const wizardSimOutput = document.getElementById('wizard-sim-output');
+    const wizardSummaryOdds = document.getElementById('wizard-summary-odds');
+    const wizardSummaryEV = document.getElementById('wizard-summary-ev');
+    const wizardSummaryMargin = document.getElementById('wizard-summary-margin');
+    const wizardSummaryChecks = document.getElementById('wizard-summary-checks');
+    const wizardImagePreview = document.getElementById('wizard-image-preview');
+    const wizardImagePlaceholder = document.getElementById('wizard-image-placeholder');
+
+    const wizardRiskSlider = document.getElementById('wizard-risk');
+    const wizardPresetButtons = document.querySelectorAll('.wizard-preset');
+
+    const wizardButtons = {
+      next1: document.getElementById('wizard-next-1'),
+      next2: document.getElementById('wizard-next-2'),
+      next3: document.getElementById('wizard-next-3'),
+      prev2: document.getElementById('wizard-prev-2'),
+      prev4: document.getElementById('wizard-prev-4'),
+      generate: document.getElementById('wizard-generate'),
+      simulate: document.getElementById('wizard-simulate'),
+      publish: document.getElementById('wizard-publish'),
+      rollback: document.getElementById('wizard-rollback')
+    };
+
+    let wizardCurrentStep = 1;
+    let wizardGeneratedOdds = [];
+    let wizardTilt = 1.1;
+    let wizardLastPublished = {};
+    let wizardEditingKey = null;
+    let wizardEditingPath = null;
+
     function resetPrizesSection() {
       prizesSection.innerHTML = basePrizeMarkup;
     }
@@ -920,8 +1209,427 @@
       }
     }
 
+    function previewWizardImage(url) {
+      if (url) {
+        wizardImagePreview.src = url;
+        wizardImagePreview.classList.remove('hidden');
+        wizardImagePlaceholder?.classList.add('hidden');
+      } else {
+        wizardImagePreview.classList.add('hidden');
+        wizardImagePlaceholder?.classList.remove('hidden');
+      }
+    }
+
+    function updateWizardStep(step) {
+      wizardCurrentStep = step;
+      Object.entries(wizardSteps).forEach(([id, el]) => {
+        if (el) el.classList.toggle('hidden', Number(id) !== step);
+      });
+      Object.entries(wizardChips).forEach(([id, chip]) => {
+        const isActive = Number(id) === step;
+        if (chip) {
+          chip.classList.toggle('bg-slate-900/50', isActive);
+          chip.classList.toggle('bg-slate-900/30', !isActive);
+          chip.querySelector('span')?.classList.toggle('bg-indigo-500/30', isActive);
+          chip.querySelector('span')?.classList.toggle('bg-slate-800', !isActive);
+        }
+      });
+    }
+
+    function updateWizardTargetEV() {
+      const price = parseFloat(document.getElementById('wizard-pack-price').value) || 0;
+      const margin = parseFloat(document.getElementById('wizard-pack-margin').value) || 0;
+      const isFree = document.getElementById('wizard-pack-free').checked;
+      const targetEV = isFree ? 0 : price * (1 - margin / 100);
+      wizardTargetEV.textContent = `$${targetEV.toFixed(2)}`;
+      return targetEV;
+    }
+
+    function addWizardPrize(prize = {}) {
+      const div = document.createElement('div');
+      div.className = 'rounded-xl border border-slate-800/70 bg-slate-900/60 p-4 space-y-3 shadow-sm shadow-slate-900/40';
+      div.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="text-sm font-semibold text-slate-100">${prize.name ? prize.name : 'Prize'}</span>
+          <button type="button" class="remove-wizard-prize text-xs uppercase tracking-[0.3em] text-rose-300 hover:text-rose-200 inline-flex items-center gap-1">
+            <i class="fa-solid fa-xmark"></i> Remove
+          </button>
+        </div>
+        <div class="grid gap-3 md:grid-cols-3">
+          <label class="space-y-1 text-sm text-slate-300">Name
+            <input type="text" value="${prize.name || ''}" class="wizard-prize-name form-input" placeholder="Premium pull" />
+          </label>
+          <label class="space-y-1 text-sm text-slate-300">Value ($)
+            <input type="number" step="0.01" min="0" value="${prize.value || ''}" class="wizard-prize-value form-input" placeholder="49.99" />
+          </label>
+          <label class="space-y-1 text-sm text-slate-300">Tier
+            <select class="wizard-prize-tier form-select">
+              <option value="common" ${prize.tier === 'common' ? 'selected' : ''}>Common</option>
+              <option value="rare" ${prize.tier === 'rare' ? 'selected' : ''}>Rare</option>
+              <option value="ultra" ${prize.tier === 'ultra' ? 'selected' : ''}>Ultra</option>
+              <option value="legendary" ${prize.tier === 'legendary' ? 'selected' : ''}>Legendary</option>
+            </select>
+          </label>
+        </div>
+        <div class="grid gap-3 md:grid-cols-3">
+          <label class="space-y-1 text-sm text-slate-300">Rarity
+            <input type="text" value="${prize.rarity || ''}" class="wizard-prize-rarity form-input" placeholder="Ultra rare" />
+          </label>
+          <label class="space-y-1 text-sm text-slate-300">Stock notes
+            <input type="text" value="${prize.stock || ''}" class="wizard-prize-stock form-input" placeholder="In stock" />
+          </label>
+          <label class="space-y-1 text-sm text-slate-300">Image URL
+            <input type="text" value="${prize.image || ''}" class="wizard-prize-image form-input" placeholder="https://…" />
+          </label>
+        </div>
+      `;
+      div.querySelector('.remove-wizard-prize')?.addEventListener('click', () => {
+        div.remove();
+        updateWizardPrizeCount();
+      });
+      wizardPrizeList.appendChild(div);
+      updateWizardPrizeCount();
+    }
+
+    function updateWizardPrizeCount() {
+      const count = wizardPrizeList.querySelectorAll('.wizard-prize-name').length;
+      wizardPrizeCount.textContent = count ? `${count} prize${count === 1 ? '' : 's'} added` : 'Add at least 2 prizes.';
+    }
+
+    function collectWizardBasics() {
+      const name = document.getElementById('wizard-pack-name').value.trim();
+      const price = document.getElementById('wizard-pack-free').checked ? 0 : (parseFloat(document.getElementById('wizard-pack-price').value) || 0);
+      const margin = parseFloat(document.getElementById('wizard-pack-margin').value) || 0;
+      const tag = document.getElementById('wizard-pack-tag').value.trim();
+      const cardBack = document.getElementById('wizard-pack-card-back').value.trim();
+      const image = document.getElementById('wizard-pack-image').value.trim();
+      const vaultMode = document.getElementById('wizard-pack-vault').checked;
+      const featured = document.getElementById('wizard-pack-featured').checked;
+      return { name, price, margin, tag, cardBack, image, vaultMode, featured };
+    }
+
+    function collectWizardPrizes() {
+      return Array.from(wizardPrizeList.querySelectorAll('.wizard-prize-name')).map((input, idx) => {
+        const wrapper = input.closest('.rounded-xl');
+        return {
+          name: input.value.trim() || `Prize ${idx + 1}`,
+          value: parseFloat(wrapper.querySelector('.wizard-prize-value').value) || 0,
+          tier: wrapper.querySelector('.wizard-prize-tier').value,
+          rarity: wrapper.querySelector('.wizard-prize-rarity').value.trim(),
+          stock: wrapper.querySelector('.wizard-prize-stock').value.trim(),
+          image: wrapper.querySelector('.wizard-prize-image').value.trim()
+        };
+      });
+    }
+
+    function normalizeOdds(odds = []) {
+      const total = odds.reduce((a, b) => a + b, 0) || 1;
+      return odds.map(o => (o / total) * 100);
+    }
+
+    function computeOddsForTilt(prizes, tilt) {
+      const weights = prizes.map(p => 1 / Math.pow(Math.max(p.value, 0.01), tilt));
+      const normalized = normalizeOdds(weights);
+      const ev = normalized.reduce((sum, odds, idx) => sum + (odds / 100) * (prizes[idx].value || 0), 0);
+      return { odds: normalized, ev };
+    }
+
+    function generateWizardOdds(forceMargin) {
+      const basics = collectWizardBasics();
+      const prizes = collectWizardPrizes();
+      const targetEV = forceMargin != null ? basics.price * (1 - forceMargin / 100) : updateWizardTargetEV();
+      if (!prizes.length) {
+        wizardValidation.textContent = 'Add prizes before generating odds.';
+        return;
+      }
+      const risk = wizardRiskSlider ? wizardRiskSlider.value : 55;
+      const tiltMin = 0.05 + (risk / 200);
+      const tiltMax = 2.75 + (risk / 120);
+      let low = tiltMin;
+      let high = tiltMax;
+      const { ev: generousEV } = computeOddsForTilt(prizes, low);
+      const { ev: conservativeEV } = computeOddsForTilt(prizes, high);
+      const target = Math.max(Math.min(targetEV, generousEV), conservativeEV);
+
+      for (let i = 0; i < 26; i++) {
+        const mid = (low + high) / 2;
+        const { ev } = computeOddsForTilt(prizes, mid);
+        if (ev > target) {
+          low = mid;
+        } else {
+          high = mid;
+        }
+      }
+      wizardTilt = (low + high) / 2;
+      const { odds, ev } = computeOddsForTilt(prizes, wizardTilt);
+      wizardGeneratedOdds = odds;
+      renderWizardOdds(prizes, odds);
+      wizardValidation.textContent = `EV $${ev.toFixed(2)} vs target $${targetEV.toFixed(2)} (tilt ${wizardTilt.toFixed(2)})`;
+      wizardExplanation.textContent = `Odds favor lower-value items to hit the target EV while respecting your risk slider (${risk}%) and margin. Higher-value tiers stay rarer to protect margin.`;
+      updateWizardSummary(prizes, odds, basics, ev, targetEV);
+      wizardSimOutput.textContent = 'Run a quick simulation to preview pulls.';
+    }
+
+    function renderWizardOdds(prizes, odds) {
+      wizardOddsRows.innerHTML = '';
+      prizes.forEach((prize, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-3 py-2">${prize.name}</td>
+          <td class="px-3 py-2">${prize.tier || prize.rarity || '—'}</td>
+          <td class="px-3 py-2">$${(prize.value || 0).toFixed(2)}</td>
+          <td class="px-3 py-2 font-semibold text-indigo-200">${odds[idx].toFixed(2)}%</td>
+        `;
+        wizardOddsRows.appendChild(tr);
+      });
+      const totalOdds = odds.reduce((a, b) => a + b, 0);
+      wizardOddsTotal.textContent = `Odds: ${totalOdds.toFixed(2)}%`;
+      wizardOddsTotal.classList.toggle('text-emerald-200', Math.abs(totalOdds - 100) < 0.2);
+      wizardOddsTotal.classList.toggle('text-amber-200', Math.abs(totalOdds - 100) >= 0.2);
+    }
+
+    function updateWizardSummary(prizes, odds, basics, ev, targetEV) {
+      const totalOdds = odds.reduce((a, b) => a + b, 0);
+      wizardSummaryOdds.textContent = `${totalOdds.toFixed(2)}%`;
+      wizardSummaryEV.textContent = `$${(ev || 0).toFixed(2)}`;
+      const margin = basics.price > 0 ? ((1 - (ev / basics.price)) * 100) : 0;
+      wizardSummaryMargin.textContent = `${margin.toFixed(1)}% (target ${basics.margin || 0}%)`;
+      const checks = [];
+      if (Math.abs(totalOdds - 100) < 0.2) {
+        checks.push('✅ Odds total 100%.');
+      } else {
+        checks.push('❌ Odds must total 100%.');
+      }
+      const hasNegative = odds.some(o => o < 0);
+      checks.push(hasNegative ? '❌ Remove negative odds.' : '✅ No negative odds.');
+      if (basics.price === 0 || ev <= basics.price + 0.01) {
+        checks.push('✅ EV is within the price guardrail.');
+      } else {
+        checks.push('❌ EV exceeds price – increase margin or tilt.');
+      }
+      wizardSummaryChecks.innerHTML = checks.map(c => `<li>${c}</li>`).join('');
+    }
+
+    function validateWizardPrereqs(step) {
+      if (step === 2) {
+        const basics = collectWizardBasics();
+        if (!basics.name || (!basics.price && !document.getElementById('wizard-pack-free').checked)) {
+          showToast('⚠️ Add a name and price first');
+          return false;
+        }
+      }
+      if (step === 3) {
+        if (collectWizardPrizes().length < 2) {
+          showToast('⚠️ Add at least 2 prizes');
+          return false;
+        }
+      }
+      if (step === 4) {
+        if (!wizardGeneratedOdds.length) {
+          showToast('⚠️ Generate odds before publishing');
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function resetWizard() {
+      wizardPrizeList.innerHTML = '';
+      wizardGeneratedOdds = [];
+      wizardSimOutput.textContent = 'Run a quick simulation to preview pulls.';
+      document.getElementById('wizard-pack-name').value = '';
+      document.getElementById('wizard-pack-price').value = '';
+      document.getElementById('wizard-pack-margin').value = '20';
+      document.getElementById('wizard-pack-tag').value = '';
+      document.getElementById('wizard-pack-card-back').value = '';
+      document.getElementById('wizard-pack-image').value = '';
+      document.getElementById('wizard-pack-free').checked = false;
+      document.getElementById('wizard-pack-vault').checked = false;
+      document.getElementById('wizard-pack-featured').checked = false;
+      wizardDuplicateSelect.value = '';
+      wizardValidation.textContent = 'Awaiting generation…';
+      wizardOddsRows.innerHTML = '<tr><td colspan="4" class="px-3 py-2 text-slate-500">Run the generator to see odds.</td></tr>';
+      wizardOddsTotal.textContent = 'Odds: 0%';
+      wizardSummaryChecks.innerHTML = '<li>Total odds must equal 100%.</li><li>No negative or blank odds.</li><li>EV should be ≤ price unless free.</li>';
+      wizardSummaryEV.textContent = '$0.00';
+      wizardSummaryMargin.textContent = '--';
+      previewWizardImage('');
+      addWizardPrize();
+      addWizardPrize();
+      updateWizardTargetEV();
+      updateWizardStep(1);
+      wizardEditingKey = null;
+      wizardEditingPath = null;
+    }
+
+    function loadWizardFromCase(item, path) {
+      resetWizard();
+      document.getElementById('wizard-pack-name').value = item.name || '';
+      document.getElementById('wizard-pack-price').value = item.price || 0;
+      document.getElementById('wizard-pack-free').checked = !!item.isFree;
+      document.getElementById('wizard-pack-margin').value = item.targetMargin || 20;
+      document.getElementById('wizard-pack-tag').value = item.tag || '';
+      document.getElementById('wizard-pack-image').value = item.image || '';
+      document.getElementById('wizard-pack-featured').checked = !!(item.categories && item.categories.featured);
+      document.getElementById('wizard-pack-vault').checked = path === 'vaults';
+      document.getElementById('wizard-pack-card-back').value = item.cardBack || '';
+      previewWizardImage(item.image || '');
+      wizardPrizeList.innerHTML = '';
+      Object.values(item.prizes || {}).forEach(p => addWizardPrize(p));
+      if (!wizardPrizeList.children.length) {
+        addWizardPrize();
+        addWizardPrize();
+      }
+      updateWizardPrizeCount();
+      updateWizardTargetEV();
+      wizardEditingKey = item.key || null;
+      wizardEditingPath = path;
+    }
+
+    function refreshWizardDuplicateOptions() {
+      if (!wizardDuplicateSelect) return;
+      const options = ['<option value="">Duplicate from existing pack…</option>'];
+      casesData.forEach(item => options.push(`<option value="cases:${item.key}">Case · ${item.name || 'Untitled'}</option>`));
+      vaultsData.forEach(item => options.push(`<option value="vaults:${item.key}">Pick'em · ${item.name || 'Untitled'}</option>`));
+      wizardDuplicateSelect.innerHTML = options.join('');
+    }
+
+    function simulateWizardOpens() {
+      const prizes = collectWizardPrizes();
+      if (!prizes.length || !wizardGeneratedOdds.length) {
+        wizardSimOutput.textContent = 'Generate odds first, then run the simulator.';
+        return;
+      }
+      const picks = [];
+      for (let i = 0; i < 10; i++) {
+        const roll = Math.random() * 100;
+        let cumulative = 0;
+        for (let j = 0; j < wizardGeneratedOdds.length; j++) {
+          cumulative += wizardGeneratedOdds[j];
+          if (roll <= cumulative) {
+            picks.push(prizes[j]);
+            break;
+          }
+        }
+      }
+      const summary = picks.reduce((acc, prize) => {
+        acc[prize.name] = (acc[prize.name] || 0) + 1;
+        return acc;
+      }, {});
+      wizardSimOutput.textContent = Object.entries(summary).map(([name, count]) => `${count}× ${name}`).join(', ') || 'No pulls recorded.';
+    }
+
+    function publishWizardPack() {
+      const basics = collectWizardBasics();
+      const prizes = collectWizardPrizes();
+      if (!wizardGeneratedOdds.length) {
+        showToast('⚠️ Generate odds before publishing');
+        return;
+      }
+      const totalOdds = wizardGeneratedOdds.reduce((a, b) => a + b, 0);
+      if (Math.abs(totalOdds - 100) > 0.5) {
+        showToast('❌ Fix odds total before publishing');
+        return;
+      }
+      const path = basics.vaultMode ? 'vaults' : 'cases';
+      const id = wizardEditingKey || db.ref(path).push().key;
+      const data = {
+        name: basics.name || 'Wizard pack',
+        price: basics.price,
+        isFree: basics.price === 0,
+        tag: basics.tag,
+        targetMargin: basics.margin,
+        image: basics.image,
+        cardBack: basics.cardBack,
+        vault: basics.vaultMode,
+        categories: { featured: basics.featured },
+        prizes: {}
+      };
+      prizes.forEach((p, idx) => {
+        data.prizes[idx] = { ...p, odds: wizardGeneratedOdds[idx] };
+      });
+
+      const fullPath = `${path}/${id}`;
+      db.ref(fullPath).once('value').then(snapshot => {
+        wizardLastPublished[fullPath] = snapshot.val();
+        return db.ref(fullPath).set(data);
+      }).then(() => {
+        showToast('✅ Pack published with AI odds');
+        wizardEditingKey = id;
+        wizardEditingPath = path;
+        refreshWizardDuplicateOptions();
+      });
+    }
+
+    function rollbackWizardPack() {
+      const path = wizardEditingPath;
+      const id = wizardEditingKey;
+      if (!path || !id) {
+        showToast('⚠️ Nothing to rollback yet');
+        return;
+      }
+      const fullPath = `${path}/${id}`;
+      const previous = wizardLastPublished[fullPath];
+      if (!previous) {
+        showToast('⚠️ No previous version stored');
+        return;
+      }
+      db.ref(fullPath).set(previous).then(() => showToast('↩️ Rolled back to last publish'));
+    }
+
     vaultCheck.addEventListener('change', () => {
       cardBackWrapper.classList.toggle('hidden', !vaultCheck.checked);
+    });
+
+    document.getElementById('wizard-pack-price').addEventListener('input', updateWizardTargetEV);
+    document.getElementById('wizard-pack-margin').addEventListener('input', updateWizardTargetEV);
+    document.getElementById('wizard-pack-free').addEventListener('change', updateWizardTargetEV);
+    document.getElementById('wizard-pack-image').addEventListener('input', e => previewWizardImage(e.target.value));
+    wizardAddPrizeBtn?.addEventListener('click', () => addWizardPrize());
+    wizardResetBtn?.addEventListener('click', resetWizard);
+    wizardDuplicateSelect?.addEventListener('change', e => {
+      const value = e.target.value;
+      if (!value) return;
+      const [path, id] = value.split(':');
+      const source = (path === 'vaults' ? vaultsData : casesData).find(item => item.key === id);
+      if (source) loadWizardFromCase(source, path);
+    });
+
+    wizardButtons.next1?.addEventListener('click', () => {
+      if (validateWizardPrereqs(2)) updateWizardStep(2);
+    });
+    wizardButtons.next2?.addEventListener('click', () => {
+      if (validateWizardPrereqs(3)) updateWizardStep(3);
+    });
+    wizardButtons.next3?.addEventListener('click', () => {
+      if (validateWizardPrereqs(4)) updateWizardStep(4);
+    });
+    wizardButtons.prev2?.addEventListener('click', () => updateWizardStep(1));
+    wizardButtons.prev4?.addEventListener('click', () => updateWizardStep(3));
+    wizardButtons.generate?.addEventListener('click', () => generateWizardOdds());
+    wizardButtons.simulate?.addEventListener('click', simulateWizardOpens);
+    wizardButtons.publish?.addEventListener('click', publishWizardPack);
+    wizardButtons.rollback?.addEventListener('click', rollbackWizardPack);
+
+    wizardRiskSlider?.addEventListener('input', () => {
+      wizardValidation.textContent = 'Risk adjusted — regenerate to update odds.';
+    });
+
+    wizardPresetButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const preset = btn.dataset.preset;
+        if (preset === 'generous') {
+          wizardRiskSlider.value = 25;
+          document.getElementById('wizard-pack-margin').value = Math.max(0, (parseFloat(document.getElementById('wizard-pack-margin').value) || 20) - 5);
+        } else if (preset === 'margin') {
+          wizardRiskSlider.value = 85;
+          document.getElementById('wizard-pack-margin').value = Math.min(95, (parseFloat(document.getElementById('wizard-pack-margin').value) || 20) + 5);
+        } else {
+          wizardRiskSlider.value = 55;
+        }
+        updateWizardTargetEV();
+        if (wizardGeneratedOdds.length) generateWizardOdds();
+      });
     });
 
     if (caseSearchInput) {
@@ -1061,6 +1769,7 @@
       setStat('totalCases', casesData.length);
       setStat('pickemCases', vaultsData.length);
       updateCaseHighlights();
+      refreshWizardDuplicateOptions();
     }
 
     function loadCases() {
@@ -1545,6 +2254,8 @@
         showToast('✅ Reset email sent');
       }).catch(err => alert(err.message));
     }
+
+    resetWizard();
 
     firebase.auth().onAuthStateChanged(user => {
       if (!user) {
