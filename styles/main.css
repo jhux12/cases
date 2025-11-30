@@ -1,9 +1,43 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
+:root {
+  --page-bg: #f8fafc;
+  --card-surface: #ffffff;
+  --card-border: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-muted: #475569;
+  --nav-bg: rgba(255, 255, 255, 0.85);
+  --nav-border: #e2e8f0;
+  --nav-link: #475569;
+  --nav-link-hover: #111827;
+  --nav-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+  --accent-strong: #3b82f6;
+  --accent-soft: #8b5cf6;
+  --control-surface: rgba(226, 232, 240, 0.6);
+}
+
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: #f8fafc;
-  color: #1f2937;
+  background-color: var(--page-bg);
+  color: var(--text-primary);
+}
+
+body.dark-mode {
+  --page-bg: #0b1120;
+  --card-surface: #0f172a;
+  --card-border: #1f2937;
+  --text-primary: #e2e8f0;
+  --text-muted: #cbd5e1;
+  --nav-bg: rgba(15, 23, 42, 0.9);
+  --nav-border: #1f2937;
+  --nav-link: #e2e8f0;
+  --nav-link-hover: #93c5fd;
+  --nav-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  --accent-strong: #60a5fa;
+  --accent-soft: #a78bfa;
+  --control-surface: rgba(51, 65, 85, 0.65);
+  background-color: var(--page-bg);
+  color: var(--text-primary);
 }
 
 .case-card-img {
@@ -11,6 +45,115 @@ body {
   width: 100%;
   object-fit: contain;
   border-radius: 8px;
+}
+
+.navbar {
+  backdrop-filter: blur(10px);
+  background-color: var(--nav-bg) !important;
+  border-color: var(--nav-border) !important;
+  box-shadow: var(--nav-shadow);
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.navbar a {
+  color: var(--nav-link) !important;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.navbar a:hover {
+  color: var(--nav-link-hover) !important;
+}
+
+.navbar .border-indigo-500 {
+  border-color: var(--accent-strong) !important;
+  color: var(--nav-link-hover) !important;
+}
+
+.navbar .gradient-text {
+  background: linear-gradient(90deg, var(--accent-strong), var(--accent-soft));
+}
+
+#user-dropdown,
+#mobile-dropdown,
+.topup-chip,
+.balance-chip {
+  background-color: var(--card-surface);
+  color: var(--text-primary);
+  border-color: var(--card-border);
+}
+
+#user-dropdown {
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.12);
+}
+
+body.dark-mode #user-dropdown,
+body.dark-mode #mobile-dropdown {
+  background-color: rgba(15, 23, 42, 0.95);
+  border-color: var(--card-border);
+}
+
+.balance-amount {
+  color: var(--text-primary);
+}
+
+.balance-label {
+  color: var(--text-muted);
+}
+
+.topup-chip {
+  background: linear-gradient(135deg, #34d399, #10b981);
+  color: #ecfdf5;
+}
+
+body.dark-mode .text-gray-500,
+body.dark-mode .text-gray-600,
+body.dark-mode .text-gray-700,
+body.dark-mode .text-gray-800,
+body.dark-mode .text-gray-900,
+body.dark-mode p,
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+  color: var(--text-primary) !important;
+}
+
+body.dark-mode .bg-white,
+body.dark-mode .bg-gray-50,
+body.dark-mode .bg-gray-100,
+body.dark-mode .bg-indigo-50 {
+  background-color: var(--card-surface) !important;
+}
+
+body.dark-mode .border-gray-200,
+body.dark-mode .border-gray-300 {
+  border-color: var(--card-border) !important;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--card-border);
+  background: var(--control-surface);
+  color: var(--text-primary);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
 }
 
 .fade {
@@ -167,8 +310,8 @@ body {
 
 .balance-amount {
   font-weight: 700;
-  color: #bfdbfe;
-  text-shadow: 0 0 10px rgba(191, 219, 254, 0.75);
+  color: var(--text-primary);
+  text-shadow: 0 0 10px rgba(191, 219, 254, 0.2);
   letter-spacing: 0.015em;
   font-size: 0.95rem;
 }
@@ -177,7 +320,7 @@ body {
   font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: rgba(224, 242, 254, 0.85);
+  color: var(--text-muted);
 }
 
 .active-nav-link {

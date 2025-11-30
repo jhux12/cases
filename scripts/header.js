@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="flex justify-between h-16">
           <div class="flex items-center">
             <a href="index.html" class="flex-shrink-0 flex items-center">
-              <span class="text-2xl font-bold gradient-text">Packly.gg</span>
+              <span class="text-2xl font-bold gradient-text">packly.gg</span>
             </a>
             <div class="hidden md:ml-6 md:flex md:space-x-8">
               <a data-nav="index.html" href="index.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-box-open mr-1"></i>Open Packs</a>
@@ -33,6 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
           <div class="hidden md:ml-6 md:flex md:items-center md:space-x-6">
+            <button class="theme-toggle" type="button" aria-label="Toggle dark mode">
+              <i class="fas fa-moon"></i>
+            </button>
             <div id="auth-buttons" class="flex items-center space-x-4">
               <a id="signin-desktop" href="auth.html" class="text-sm font-medium text-gray-700 hover:text-gray-900">Sign In</a>
               <a id="register-desktop" href="auth.html#register" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
@@ -67,6 +70,9 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
           <div class="-mr-2 flex items-center md:hidden">
+            <button class="theme-toggle mr-3" type="button" aria-label="Toggle dark mode">
+              <i class="fas fa-moon"></i>
+            </button>
             <div id="user-balance-mobile-header" class="hidden balance-chip items-center gap-3 px-3 py-1.5 text-white mr-3">
               <div class="balance-icon flex items-center justify-center w-8 h-8 rounded-full">
                 <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5 object-contain" alt="Gems" />
@@ -131,4 +137,32 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
+
+  const themeButtons = header.querySelectorAll('.theme-toggle');
+  const storedTheme = localStorage.getItem('packly-theme');
+
+  const applyTheme = (mode) => {
+    const isDark = mode === 'dark';
+    document.body.classList.toggle('dark-mode', isDark);
+    document.documentElement.classList.toggle('dark-mode', isDark);
+    localStorage.setItem('packly-theme', isDark ? 'dark' : 'light');
+
+    themeButtons.forEach((btn) => {
+      const icon = btn.querySelector('i');
+      btn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+      if (icon) {
+        icon.classList.toggle('fa-moon', !isDark);
+        icon.classList.toggle('fa-sun', isDark);
+      }
+    });
+  };
+
+  applyTheme(storedTheme || 'light');
+
+  themeButtons.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const nextTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+      applyTheme(nextTheme);
+    })
+  );
 });
