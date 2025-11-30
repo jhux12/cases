@@ -30,6 +30,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const topupBtn = document.getElementById("topup-button");
     const topupMobileHeader = document.getElementById("topup-button-mobile-header");
     const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
+    const mobileInventoryLink = document.getElementById("mobile-inventory-link");
+    const mobileProfileLink = document.getElementById("mobile-profile-link");
+    const inventoryLink = document.getElementById("inventory-link");
+    const userLinks = document.querySelectorAll(".user-nav-link");
 
       if (!usernameEl || !balanceEl) return;
 
@@ -74,7 +78,10 @@ document.addEventListener("DOMContentLoaded", () => {
         userRef.on("value", handler);
 
         if (authButtons) authButtons.classList.add("hidden");
-        if (userArea) userArea.classList.remove("hidden");
+        if (userArea) {
+          userArea.classList.remove("hidden", "md:hidden");
+          userArea.classList.add("md:flex");
+        }
         if (balanceContainer) balanceContainer.classList.remove("hidden");
         if (balanceMobileHeader) balanceMobileHeader.classList.remove("hidden");
         if (balanceMobileDrawer) balanceMobileDrawer.classList.remove("hidden");
@@ -82,6 +89,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (topupMobileHeader) topupMobileHeader.classList.remove("hidden");
         if (topupMobileDrawer) topupMobileDrawer.classList.remove("hidden");
         if (mobileRegisterBtn) mobileRegisterBtn.classList.add("hidden");
+        [inventoryLink, mobileInventoryLink, mobileProfileLink].forEach((el) => {
+          if (el) el.classList.remove("hidden");
+        });
+        userLinks.forEach((link) => link.classList.remove("hidden"));
 
         if (logoutBtn) {
           logoutBtn.style.display = "block";
@@ -113,7 +124,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (popupBalance) popupBalance.innerText = "0 gems";
 
         if (authButtons) authButtons.classList.remove("hidden");
-        if (userArea) userArea.classList.add("hidden");
+        if (userArea) {
+          userArea.classList.add("hidden", "md:hidden");
+          userArea.classList.remove("md:flex");
+        }
         if (balanceContainer) balanceContainer.classList.add("hidden");
         if (balanceMobileHeader) balanceMobileHeader.classList.add("hidden");
         if (balanceMobileDrawer) balanceMobileDrawer.classList.add("hidden");
@@ -121,6 +135,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (topupMobileHeader) topupMobileHeader.classList.add("hidden");
         if (topupMobileDrawer) topupMobileDrawer.classList.add("hidden");
         if (mobileRegisterBtn) mobileRegisterBtn.classList.remove("hidden");
+        [inventoryLink, mobileInventoryLink, mobileProfileLink].forEach((el) => {
+          if (el) el.classList.add("hidden");
+        });
+        userLinks.forEach((link) => link.classList.add("hidden"));
 
         if (logoutBtn) logoutBtn.style.display = "none";
 
