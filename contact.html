@@ -44,60 +44,51 @@
 <section class="pt-32 px-6">
   <div class="max-w-5xl mx-auto">
     <div class="text-center mb-10">
-      <h1 class="text-3xl font-bold mb-4">Contact Us</h1>
-      <p class="text-sm text-gray-300 max-w-3xl mx-auto">Need help? Start a live chat or send a note to the team. You'll get instant replies and can keep everything in one thread.</p>
+      <h1 class="text-3xl font-bold mb-4">Instant Support</h1>
+      <p class="text-sm text-gray-300 max-w-3xl mx-auto">Chat with us any time. You'll see quick answers here, plus a history of every conversation.</p>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-2">
-      <div class="terms-box p-6 rounded-xl text-left terms-text">
-        <h2 class="text-xl font-semibold text-white mb-4">Create a ticket</h2>
-        <p class="text-sm text-gray-300 mb-4">Share a subject and first message to kick off a tracked conversation. You'll also see it inside the live chat.</p>
-        <form id="contact-form" class="space-y-4">
-          <div>
-            <label for="email" class="block text-sm font-semibold mb-1">Email</label>
-            <input type="email" id="email" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required />
-          </div>
-          <div>
-            <label for="subject" class="block text-sm font-semibold mb-1">Subject</label>
-            <input type="text" id="subject" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" placeholder="Eg. Billing question, shipping help" required />
-          </div>
-          <div>
-            <label for="message" class="block text-sm font-semibold mb-1">Message</label>
-            <textarea id="message" rows="4" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" placeholder="Tell us what's going on" required></textarea>
-          </div>
-          <button type="submit" class="bg-yellow-400 text-black font-bold px-6 py-2 rounded hover:bg-yellow-300 transition">Create ticket & chat</button>
-        </form>
-      </div>
-
-      <div class="terms-box p-6 rounded-xl text-left terms-text">
+      <div class="terms-box p-6 rounded-xl text-left terms-text space-y-4">
         <div class="flex items-start justify-between gap-3">
           <div>
-            <h2 class="text-xl font-semibold text-white mb-1">Instant support chat</h2>
-            <p class="text-sm text-gray-300">Ask anything and we'll respond right away. Use the toggle if you want the team to review.</p>
+            <h2 class="text-xl font-semibold text-white mb-1">Instant chat</h2>
+            <p class="text-sm text-gray-300">Ask about your account, gems, shipping, or anything else. We'll keep the conversation moving here.</p>
           </div>
           <span id="chat-status" class="text-xs text-gray-400">Not connected</span>
         </div>
-        <div id="chat-log" class="mt-4 space-y-3 max-h-80 overflow-y-auto bg-gray-900 border border-gray-700 rounded-lg p-3"></div>
-        <div id="chat-empty" class="mt-4 text-sm text-gray-400">Sign in and send a message to start chatting.</div>
-        <div class="mt-4 flex flex-col gap-3">
-          <div class="flex gap-2">
-            <input id="chat-input" type="text" class="flex-1 p-2 rounded bg-gray-700 text-white border border-gray-600" placeholder="Type a message" />
-            <button id="chat-send" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Send</button>
-          </div>
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-300">
-            <label class="inline-flex items-center gap-2">
-              <input type="checkbox" id="chat-human-toggle" class="h-4 w-4 rounded border-gray-500 bg-gray-800" />
-              Share this thread with support
-            </label>
-            <p class="text-xs text-gray-400">We'll keep the conversation moving and route it to the inbox when you ask.</p>
-          </div>
+
+        <div id="guest-info" class="space-y-2 bg-gray-900/70 border border-gray-800 rounded-lg p-3 hidden">
+          <p class="text-sm text-gray-200 font-semibold">Share details so we can respond</p>
+          <input id="guest-name" type="text" class="w-full p-2 rounded bg-gray-800 text-white border border-gray-700" placeholder="Name (optional)" />
+          <input id="guest-email" type="email" class="w-full p-2 rounded bg-gray-800 text-white border border-gray-700" placeholder="Email for updates" />
+          <input id="guest-subject" type="text" class="w-full p-2 rounded bg-gray-800 text-white border border-gray-700" placeholder="What do you need help with?" />
+          <p class="text-xs text-gray-400">We'll keep these details with your chat so the team can follow up if needed.</p>
         </div>
+
+        <div id="chat-log" class="mt-1 space-y-3 max-h-80 overflow-y-auto bg-gray-900 border border-gray-700 rounded-lg p-3"></div>
+        <div id="chat-empty" class="mt-1 text-sm text-gray-400">Send a message to start chatting.</div>
+        <div class="mt-2 flex gap-2">
+          <input id="chat-input" type="text" class="flex-1 p-2 rounded bg-gray-700 text-white border border-gray-600" placeholder="Type a message" />
+          <button id="chat-send" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Send</button>
+        </div>
+      </div>
+
+      <div class="terms-box p-6 rounded-xl text-left terms-text">
+        <h2 class="text-2xl font-bold mb-4 text-white">Previous chats</h2>
+        <div id="user-cases" class="space-y-6"></div>
       </div>
     </div>
 
-    <div class="terms-box p-6 rounded-xl text-left terms-text mt-8">
-      <h2 class="text-2xl font-bold mb-4 text-white">Your Support Conversations</h2>
-      <div id="user-cases" class="space-y-6"></div>
+    <div id="escalation-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60">
+      <div class="bg-gray-900 border border-gray-700 rounded-xl p-6 max-w-sm w-full mx-4 space-y-3">
+        <h3 class="text-lg font-semibold text-white">Need a person?</h3>
+        <p class="text-sm text-gray-300">I couldn't find a clear answer. Send this conversation to support and we'll follow up.</p>
+        <div class="flex justify-end gap-3">
+          <button id="escalation-cancel" class="px-4 py-2 rounded bg-gray-800 border border-gray-700 text-gray-200">Keep chatting</button>
+          <button id="escalation-confirm" class="px-4 py-2 rounded bg-yellow-400 text-black font-semibold">Send to support</button>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -121,17 +112,43 @@
   const chatSend = document.getElementById('chat-send');
   const chatStatus = document.getElementById('chat-status');
   const chatEmpty = document.getElementById('chat-empty');
-  const chatHumanToggle = document.getElementById('chat-human-toggle');
+  const guestInfoContainer = document.getElementById('guest-info');
+  const guestNameInput = document.getElementById('guest-name');
+  const guestEmailInput = document.getElementById('guest-email');
+  const guestSubjectInput = document.getElementById('guest-subject');
+  const escalationModal = document.getElementById('escalation-modal');
+  const escalationConfirm = document.getElementById('escalation-confirm');
+  const escalationCancel = document.getElementById('escalation-cancel');
 
   let liveChatCaseId = null;
   let messagesListener = null;
 
   const aiResponses = [
-    { keywords: ['refund', 'charge', 'billing', 'payment'], reply: "I can help with billing. Do you see an error message or a missing transaction?" },
-    { keywords: ['shipping', 'ship', 'tracking', 'delivery'], reply: "Shipping usually takes 3-5 business days. Drop your order ID and I can check on it." },
-    { keywords: ['account', 'login', 'password'], reply: "Try signing out/in and double-checking your email. If you're still stuck, tell me what you see and I'll help troubleshoot." },
-    { keywords: ['reward', 'quest', 'daily'], reply: "Rewards reset daily at midnight UTC. If something didn't update, share details and I'll look into it." },
-    { keywords: ['help', 'support', 'human', 'agent'], reply: "Happy to help! Tell me what's going on and I'll keep the conversation moving." }
+    {
+      keywords: ['gem', 'gems', 'top up', 'add funds', 'balance', 'payment'],
+      reply: (message) => {
+        const hasError = message.toLowerCase().includes('error');
+        return hasError
+          ? 'If a gem purchase failed, try a quick refresh and check your payment card. Tell me what error you saw and I will line up the steps to fix it.'
+          : 'To add gems, open the top-up panel and choose a pack. I can also verify recent payments—drop the approximate time or amount and I will match it.';
+      }
+    },
+    {
+      keywords: ['password', 'login', 'sign in', 'signin', 'log in', 'account'],
+      reply: () => 'If you forgot your password, use the reset option on the sign-in page. Check spam for the email, then sign back in. Tell me where it stalls and I will outline the next step.'
+    },
+    {
+      keywords: ['shipping', 'ship', 'tracking', 'delivery', 'order'],
+      reply: () => 'Shipping is usually 3-5 business days. Share your order ID or the item you shipped and I can confirm the current status for you.'
+    },
+    {
+      keywords: ['how', 'work', 'case', 'pack', 'open', 'site'],
+      reply: () => 'You can open cases or packs from the main page, and rewards land in your inventory. From there you can ship items, sell, or hold them. What part are you looking at right now?'
+    },
+    {
+      keywords: ['reward', 'quest', 'daily', 'streak'],
+      reply: () => 'Rewards and quests refresh daily at midnight UTC. If something didn’t update, tell me which reward and I’ll check your streak and progress.'
+    }
   ];
 
   function setChatStatus(text) {
@@ -172,7 +189,8 @@
   }
 
   async function ensureLiveChatCase(user, metadata = {}) {
-    const snapshot = await db.ref('supportCases').orderByChild('uid').equalTo(user.uid).once('value');
+    const uid = user?.uid || `guest:${metadata.email || 'no-email'}`;
+    const snapshot = await db.ref('supportCases').orderByChild('uid').equalTo(uid).once('value');
     let existingKey = null;
     snapshot.forEach(child => {
       const value = child.val() || {};
@@ -185,14 +203,16 @@
       const updates = {};
       if (metadata.email) updates.email = metadata.email;
       if (metadata.subject) updates.subject = metadata.subject;
+      if (metadata.name) updates.name = metadata.name;
       if (Object.keys(updates).length) await db.ref(`supportCases/${existingKey}`).update(updates);
       return existingKey;
     }
 
     const caseRef = db.ref('supportCases').push();
     await caseRef.set({
-      uid: user.uid,
-      email: metadata.email || user.email || 'No email provided',
+      uid,
+      email: metadata.email || user?.email || 'No email provided',
+      name: metadata.name || user?.displayName || 'Guest',
       subject: metadata.subject || 'Live chat support',
       status: 'Open',
       channel: 'live-chat',
@@ -223,22 +243,46 @@
   function pickAiResponse(message) {
     const lower = (message || '').toLowerCase();
     const matched = aiResponses.find(item => item.keywords.some(k => lower.includes(k)));
-    if (matched) return matched.reply;
-    return "Thanks for reaching out! I can help with questions, updates, or troubleshooting—share any details you have.";
+    if (matched) {
+      const reply = typeof matched.reply === 'function' ? matched.reply(message) : matched.reply;
+      return { reply, matched: true };
+    }
+    return {
+      reply: "I want to help but don't have a clear answer yet. Can you share more details or tap \"Send to support\" so the team can step in?",
+      matched: false
+    };
+  }
+
+  function showEscalationPrompt() {
+    if (escalationModal) {
+      escalationModal.classList.remove('hidden');
+      escalationModal.classList.add('flex');
+    }
+  }
+
+  function hideEscalationPrompt() {
+    if (escalationModal) {
+      escalationModal.classList.add('hidden');
+      escalationModal.classList.remove('flex');
+    }
   }
 
   async function autoRespond(caseId, userText, needsHuman) {
-    const reply = pickAiResponse(userText);
+    const { reply, matched } = pickAiResponse(userText);
+    if (!matched) {
+      showEscalationPrompt();
+    }
     await appendMessage(caseId, 'ai', reply, { status: needsHuman ? 'Pending' : 'Replied', needsHuman: !!needsHuman });
   }
 
   async function requestHuman(caseId) {
-    await appendMessage(caseId, 'ai', 'I shared this conversation with the support team for review. You can keep chatting here while they look.', { status: 'Pending', needsHuman: true });
+    hideEscalationPrompt();
+    await appendMessage(caseId, 'ai', 'I sent this chat to support. They will follow up, and you can keep messaging here meanwhile.', { status: 'Pending', needsHuman: true });
   }
 
-  async function startChat(user) {
+  async function startChat(user, metadata = {}) {
     setChatStatus('Connecting…');
-    liveChatCaseId = await ensureLiveChatCase(user, { email: document.getElementById('email').value || user.email });
+    liveChatCaseId = await ensureLiveChatCase(user, metadata);
     if (messagesListener) messagesListener.off();
     messagesListener = db.ref(`supportCases/${liveChatCaseId}/messages`);
     messagesListener.on('value', snapshot => {
@@ -248,39 +292,26 @@
     });
   }
 
-  async function handleUserMessage(text) {
-    const user = firebase.auth().currentUser;
-    if (!user) return alert('Please sign in to send a message.');
-    if (!text.trim()) return;
-    if (!liveChatCaseId) await startChat(user);
-    await appendMessage(liveChatCaseId, 'user', text, { status: chatHumanToggle?.checked ? 'Pending' : 'Open', needsHuman: !!chatHumanToggle?.checked });
-    chatInput.value = '';
-    if (chatHumanToggle?.checked) {
-      await requestHuman(liveChatCaseId);
-    } else {
-      await autoRespond(liveChatCaseId, text);
-    }
+  function collectGuestMetadata() {
+    const email = guestEmailInput?.value.trim();
+    const subject = guestSubjectInput?.value.trim();
+    const name = guestNameInput?.value.trim();
+    return { email, subject, name };
   }
 
-  document.getElementById('contact-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
+  async function handleUserMessage(text) {
     const user = firebase.auth().currentUser;
-    if (!user) return alert('Please sign in to send a message.');
-    const email = document.getElementById('email').value;
-    const subject = document.getElementById('subject').value;
-    const message = document.getElementById('message').value;
-
-    liveChatCaseId = await ensureLiveChatCase(user, { email, subject });
-    await appendMessage(liveChatCaseId, 'user', message, { status: chatHumanToggle?.checked ? 'Pending' : 'Open', needsHuman: !!chatHumanToggle?.checked });
-    document.getElementById('message').value = '';
-    setChatStatus('Ticket created • Chatting');
-
-    if (chatHumanToggle?.checked) {
-      await requestHuman(liveChatCaseId);
-    } else {
-      await autoRespond(liveChatCaseId, message);
+    if (!text.trim()) return;
+    const metadata = collectGuestMetadata();
+    if (!user && !metadata.email) {
+      alert('Please add an email so we can follow up if the team needs to respond.');
+      return;
     }
-  });
+    if (!liveChatCaseId) await startChat(user, metadata);
+    await appendMessage(liveChatCaseId, 'user', text, { status: 'Open' });
+    chatInput.value = '';
+    await autoRespond(liveChatCaseId, text);
+  }
 
   chatSend?.addEventListener('click', () => handleUserMessage(chatInput.value));
   chatInput?.addEventListener('keydown', (event) => {
@@ -290,15 +321,22 @@
     }
   });
 
-  chatHumanToggle?.addEventListener('change', async () => {
-    if (!chatHumanToggle.checked || !liveChatCaseId) return;
-    await requestHuman(liveChatCaseId);
+  escalationConfirm?.addEventListener('click', () => {
+    if (!liveChatCaseId) return;
+    requestHuman(liveChatCaseId);
   });
 
+  escalationCancel?.addEventListener('click', hideEscalationPrompt);
+
   function renderUserCases(user) {
+    const container = document.getElementById('user-cases');
+    if (!user) {
+      container.innerHTML = '<p class="text-gray-400">Sign in to see your past chats and keep everything together.</p>';
+      return;
+    }
+
     const supportCasesRef = db.ref('supportCases');
     supportCasesRef.orderByChild('uid').equalTo(user.uid).on('value', snapshot => {
-      const container = document.getElementById('user-cases');
       container.innerHTML = '';
       if (!snapshot.exists()) {
         container.innerHTML = '<p class="text-gray-400">You have not submitted any support cases yet.</p>';
@@ -347,12 +385,11 @@
   auth.onAuthStateChanged(user => {
     if (!user) {
       setChatStatus('Not connected');
+      guestInfoContainer?.classList.remove('hidden');
+      renderUserCases(null);
       return;
     }
-    if (user.email) {
-      const emailField = document.getElementById('email');
-      if (emailField && !emailField.value) emailField.value = user.email;
-    }
+    guestInfoContainer?.classList.add('hidden');
     startChat(user);
     renderUserCases(user);
   });
