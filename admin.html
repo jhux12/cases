@@ -909,6 +909,54 @@
                 <p class="text-slate-400 text-sm max-w-2xl">Stay close to your community, reply with context, and keep the vibes high.</p>
               </div>
             </div>
+            <div class="glass-card space-y-5">
+              <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4 text-xs">
+                <div class="glass-subcard space-y-1">
+                  <p class="uppercase tracking-[0.25em] text-slate-400">Open cases</p>
+                  <p id="support-open-count" class="text-2xl font-semibold text-white">--</p>
+                  <p class="text-slate-500">Anything not marked resolved.</p>
+                </div>
+                <div class="glass-subcard space-y-1">
+                  <p class="uppercase tracking-[0.25em] text-slate-400">Needs reply</p>
+                  <p id="support-unreplied-count" class="text-2xl font-semibold text-amber-200">--</p>
+                  <p class="text-slate-500">Threads without an admin response.</p>
+                </div>
+                <div class="glass-subcard space-y-1">
+                  <p class="uppercase tracking-[0.25em] text-slate-400">Recently updated</p>
+                  <p id="support-active-count" class="text-2xl font-semibold text-sky-200">--</p>
+                  <p class="text-slate-500">Active in the last 24 hours.</p>
+                </div>
+                <div class="glass-subcard space-y-1">
+                  <p class="uppercase tracking-[0.25em] text-slate-400">Last sync</p>
+                  <p id="support-last-sync" class="text-2xl font-semibold text-emerald-200">--</p>
+                  <p class="text-slate-500">Auto-refreshing from Realtime DB.</p>
+                </div>
+              </div>
+              <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div class="grid flex-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+                  <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                    <input id="support-search" type="search" class="form-input pl-9" placeholder="Search subject, email, or message" />
+                  </div>
+                  <select id="support-status-filter" class="form-select text-sm">
+                    <option value="all">All statuses</option>
+                    <option value="open">Open</option>
+                    <option value="pending">Pending</option>
+                    <option value="replied">Replied</option>
+                    <option value="resolved">Resolved</option>
+                  </select>
+                  <select id="support-sort" class="form-select text-sm">
+                    <option value="recent">Most recent activity</option>
+                    <option value="newest">Newest cases</option>
+                    <option value="oldest">Oldest cases</option>
+                  </select>
+                </div>
+                <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-200">
+                  <input id="support-unreplied-toggle" type="checkbox" class="h-4 w-4 rounded border-slate-700 bg-slate-900" />
+                  Show only threads needing a reply
+                </label>
+              </div>
+            </div>
             <div id="support-list" class="space-y-6"></div>
           </section>
 
@@ -926,7 +974,57 @@
                   <i class="fa-solid fa-magnifying-glass"></i> Search
                 </button>
               </div>
-              <p class="text-xs text-slate-500">Tip: You can also use the quick search in the top bar to jump straight to results.</p>
+              <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+                <label class="space-y-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Role
+                  <select id="user-role-filter" class="form-select text-sm">
+                    <option value="all">All roles</option>
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </label>
+                <label class="space-y-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Verification
+                  <select id="user-verification-filter" class="form-select text-sm">
+                    <option value="all">All</option>
+                    <option value="verified">Verified</option>
+                    <option value="unverified">Unverified</option>
+                  </select>
+                </label>
+                <label class="space-y-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Free case
+                  <select id="user-free-filter" class="form-select text-sm">
+                    <option value="all">All</option>
+                    <option value="opened">Opened</option>
+                    <option value="locked">Not opened</option>
+                  </select>
+                </label>
+                <label class="space-y-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Sort
+                  <select id="user-sort" class="form-select text-sm">
+                    <option value="recent">Recently added</option>
+                    <option value="balance-desc">Balance: high → low</option>
+                    <option value="balance-asc">Balance: low → high</option>
+                    <option value="name">Name A → Z</option>
+                  </select>
+                </label>
+              </div>
+              <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-xs">
+                <div class="glass-subcard flex items-center justify-between">
+                  <span class="text-slate-400">Matches</span>
+                  <span id="user-stats-total" class="text-base font-semibold text-white">0</span>
+                </div>
+                <div class="glass-subcard flex items-center justify-between">
+                  <span class="text-slate-400">Admins</span>
+                  <span id="user-stats-admins" class="text-base font-semibold text-white">0</span>
+                </div>
+                <div class="glass-subcard flex items-center justify-between">
+                  <span class="text-slate-400">Verified</span>
+                  <span id="user-stats-verified" class="text-base font-semibold text-white">0</span>
+                </div>
+                <div class="glass-subcard flex items-center justify-between">
+                  <span class="text-slate-400">Total balance</span>
+                  <span id="user-stats-balance" class="text-base font-semibold text-white">$0</span>
+                </div>
+              </div>
+              <p class="text-xs text-slate-500">Tip: You can also use the quick search in the top bar to jump straight to results or apply filters without typing.</p>
+              <div id="user-insights" class="glass-subcard space-y-2 bg-gradient-to-br from-indigo-900/40 via-slate-900/80 to-purple-900/40 border border-indigo-500/20"></div>
               <div id="user-results" class="space-y-6"></div>
             </div>
           </section>
@@ -959,6 +1057,14 @@
     const homeSpinnerImage = document.getElementById('home-spinner-image');
     const homeSpinnerTitle = document.getElementById('home-spinner-title');
     const homeSpinnerSubtitle = document.getElementById('home-spinner-subtitle');
+    const supportSearchInput = document.getElementById('support-search');
+    const supportStatusFilter = document.getElementById('support-status-filter');
+    const supportSortSelect = document.getElementById('support-sort');
+    const supportUnrepliedToggle = document.getElementById('support-unreplied-toggle');
+    const supportOpenCount = document.getElementById('support-open-count');
+    const supportUnrepliedCount = document.getElementById('support-unreplied-count');
+    const supportActiveCount = document.getElementById('support-active-count');
+    const supportLastSync = document.getElementById('support-last-sync');
     const statElements = {
       totalCases: document.getElementById('stat-total-cases'),
       pickemCases: document.getElementById('stat-pickem-cases'),
@@ -984,6 +1090,13 @@
     let casesData = [];
     let vaultsData = [];
     let homeSpinnerConfig = {};
+    let supportCasesCache = [];
+    const supportFilters = {
+      search: '',
+      status: 'all',
+      sort: 'recent',
+      onlyUnreplied: false
+    };
 
     const basePrizeMarkup = `
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
@@ -1197,6 +1310,13 @@
         }
       });
     }
+
+    ['user-role-filter', 'user-verification-filter', 'user-free-filter', 'user-sort'].forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.addEventListener('change', () => searchUsers());
+      }
+    });
 
     function previewImage(url) {
       if (url) {
@@ -1843,12 +1963,25 @@
       });
     }
 
+    function formatRelativeTime(timestamp) {
+      if (!timestamp) return 'No activity';
+      const diff = Date.now() - timestamp;
+      const minutes = Math.floor(diff / 60000);
+      if (minutes < 1) return 'Just now';
+      if (minutes < 60) return `${minutes}m ago`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours}h ago`;
+      const days = Math.floor(hours / 24);
+      if (days < 7) return `${days}d ago`;
+      return new Date(timestamp).toLocaleDateString();
+    }
+
     function renderSupportMessages(messages = []) {
       if (!messages.length) {
         return '<p class="text-xs text-slate-500">No messages yet.</p>';
       }
       return messages.map(msg => {
-        const time = msg.timestamp ? new Date(msg.timestamp).toLocaleString() : '';
+        const time = formatRelativeTime(msg.timestamp);
         const alignment = msg.sender === 'admin' ? 'items-end text-emerald-200' : 'items-start text-slate-200';
         const bubble = msg.sender === 'admin' ? 'bg-emerald-500/20 text-emerald-100' : 'bg-slate-800/80 text-slate-100';
         return `
@@ -1863,10 +1996,136 @@
       }).join('');
     }
 
+    function summarizeSupport(cases = []) {
+      const now = Date.now();
+      const open = cases.filter(item => (item.data.status || '').toLowerCase() !== 'resolved').length;
+      const unreplied = cases.filter(item => !(item.messages || []).some(msg => msg.sender === 'admin')).length;
+      const active = cases.filter(item => now - (item.latestTimestamp || 0) <= 24 * 60 * 60 * 1000).length;
+      return { open, unreplied, active };
+    }
+
+    function applySupportFilters() {
+      let filtered = [...supportCasesCache];
+      const searchTerm = (supportFilters.search || '').toLowerCase();
+
+      if (searchTerm) {
+        filtered = filtered.filter(({ data, messages }) => {
+          const subject = (data.subject || '').toLowerCase();
+          const email = (data.email || '').toLowerCase();
+          const messageText = messages.map(m => m.text || '').join(' ').toLowerCase();
+          return subject.includes(searchTerm) || email.includes(searchTerm) || messageText.includes(searchTerm);
+        });
+      }
+
+      if (supportFilters.status !== 'all') {
+        filtered = filtered.filter(({ data }) => {
+          const status = (data.status || 'open').toLowerCase();
+          if (supportFilters.status === 'open') return status !== 'resolved';
+          return status === supportFilters.status;
+        });
+      }
+
+      if (supportFilters.onlyUnreplied) {
+        filtered = filtered.filter(({ messages }) => !messages.some(msg => msg.sender === 'admin'));
+      }
+
+      filtered.sort((a, b) => {
+        const createdA = a.data.createdAt || (a.messages[0]?.timestamp || a.latestTimestamp || 0);
+        const createdB = b.data.createdAt || (b.messages[0]?.timestamp || b.latestTimestamp || 0);
+        if (supportFilters.sort === 'newest') return createdB - createdA;
+        if (supportFilters.sort === 'oldest') return createdA - createdB;
+        return (b.latestTimestamp || 0) - (a.latestTimestamp || 0);
+      });
+
+      return filtered;
+    }
+
+    function renderSupportInsights(stats) {
+      if (supportOpenCount) supportOpenCount.textContent = stats.open ?? '--';
+      if (supportUnrepliedCount) supportUnrepliedCount.textContent = stats.unreplied ?? '--';
+      if (supportActiveCount) supportActiveCount.textContent = stats.active ?? '--';
+      if (supportLastSync) supportLastSync.textContent = new Date().toLocaleTimeString();
+      setStat('supportOpen', stats.open || 0);
+    }
+
+    function updateSupportStatus(caseId, status) {
+      firebase.database().ref(`supportCases/${caseId}`).update({ status }).then(() => {
+        showToast(`📌 Marked as ${status}`);
+      });
+    }
+
+    function prefillSupportReply(caseId, text) {
+      const textarea = document.querySelector(`form[data-case="${caseId}"] .admin-reply`);
+      if (!textarea) return;
+      textarea.value = text;
+      textarea.focus();
+    }
+
+    function renderSupportList() {
+      const container = document.getElementById('support-list');
+      if (!container) return;
+      container.innerHTML = '';
+      const filtered = applySupportFilters();
+
+      if (!filtered.length) {
+        container.innerHTML = '<p class="text-sm text-slate-500">No threads match these filters right now.</p>';
+        return;
+      }
+
+      filtered.forEach(({ key, data, messages, latestTimestamp }) => {
+        const status = data.status || 'Open';
+        const statusClass = status === 'Resolved' ? 'text-emerald-300' : status === 'Pending' ? 'text-amber-300' : 'text-sky-300';
+        const hasAdminReply = messages.some(msg => msg.sender === 'admin');
+        const lastUserMessage = [...messages].reverse().find(msg => msg.sender !== 'admin');
+        const createdAt = data.createdAt || (messages[0]?.timestamp || latestTimestamp);
+        const card = document.createElement('div');
+        card.className = 'glass-card space-y-4';
+        card.innerHTML = `
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="space-y-1">
+              <p class="text-base font-semibold text-white">${data.subject || 'Support case'}</p>
+              <p class="text-sm text-slate-400">${data.email || 'No email provided'}</p>
+              <div class="flex flex-wrap gap-2 text-[0.7rem] text-slate-400">
+                <span class="inline-flex items-center gap-1 rounded-full bg-slate-800/70 px-3 py-1"><i class="fa-solid fa-envelope-open-text"></i> ${messages.length} msgs</span>
+                <span class="inline-flex items-center gap-1 rounded-full bg-slate-800/70 px-3 py-1"><i class="fa-solid fa-clock"></i> Updated ${formatRelativeTime(latestTimestamp)}</span>
+                ${hasAdminReply ? '' : '<span class="inline-flex items-center gap-1 rounded-full bg-amber-500/15 text-amber-100 px-3 py-1"><i class="fa-solid fa-bell"></i> Needs reply</span>'}
+              </div>
+            </div>
+            <div class="flex flex-col items-end gap-2">
+              <span class="text-xs uppercase tracking-[0.35em] ${statusClass}">${status}</span>
+              <div class="flex flex-wrap justify-end gap-2 text-xs">
+                <button type="button" class="inline-flex items-center gap-1 rounded-lg border border-slate-800 px-3 py-2 font-semibold hover:border-sky-500/60" onclick="updateSupportStatus('${key}', 'Pending')"><i class="fa-solid fa-hourglass-half"></i>Pending</button>
+                <button type="button" class="inline-flex items-center gap-1 rounded-lg border border-slate-800 px-3 py-2 font-semibold hover:border-emerald-500/60" onclick="updateSupportStatus('${key}', 'Resolved')"><i class="fa-solid fa-circle-check"></i>Resolve</button>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-2 rounded-2xl border border-slate-800/70 bg-slate-950/50 p-3 max-h-72 overflow-y-auto">
+            ${renderSupportMessages(messages)}
+          </div>
+          <div class="flex flex-wrap gap-2 text-xs text-slate-400">
+            <span class="inline-flex items-center gap-1 rounded-full bg-slate-800/60 px-3 py-1"><i class="fa-solid fa-user-clock"></i> Created ${formatRelativeTime(createdAt)}</span>
+            ${lastUserMessage ? `<span class="inline-flex items-center gap-1 rounded-full bg-slate-800/60 px-3 py-1"><i class="fa-solid fa-message"></i> User last wrote ${formatRelativeTime(lastUserMessage.timestamp)}</span>` : ''}
+          </div>
+          <form data-case="${key}" onsubmit="adminReply(event, '${key}')" class="space-y-2">
+            <textarea class="form-textarea admin-reply" placeholder="Craft a thoughtful reply…"></textarea>
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap gap-2 text-xs">
+                <button type="button" class="inline-flex items-center gap-1 rounded-lg border border-slate-800 px-3 py-2 font-semibold hover:border-emerald-500/60" onclick="prefillSupportReply('${key}', 'Hey there! Appreciate you reaching out — we\'re on it and will update you shortly.')"><i class="fa-solid fa-bolt"></i> Quick ack</button>
+                <button type="button" class="inline-flex items-center gap-1 rounded-lg border border-slate-800 px-3 py-2 font-semibold hover:border-sky-500/60" onclick="prefillSupportReply('${key}', 'Thanks for the details! Can you share any screenshots or extra context so we can close this fast?')"><i class="fa-solid fa-wand-magic-sparkles"></i> Ask for context</button>
+              </div>
+              <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-sky-500 px-5 py-2 text-sm font-semibold">
+                <i class="fa-solid fa-paper-plane"></i> Send reply
+              </button>
+            </div>
+          </form>
+        `;
+        container.appendChild(card);
+      });
+    }
+
     function loadSupportForms() {
       const container = document.getElementById('support-list');
       firebase.database().ref('supportCases').on('value', snapshot => {
-        container.innerHTML = '';
         const supportArray = [];
         snapshot.forEach(child => {
           const data = child.val() || {};
@@ -1874,48 +2133,17 @@
           const latestTimestamp = messages.length ? Math.max(...messages.map(m => m.timestamp || 0)) : 0;
           supportArray.push({ key: child.key, data, messages, latestTimestamp });
         });
-        supportArray.sort((a, b) => b.latestTimestamp - a.latestTimestamp);
-        const openCases = supportArray.filter(item => (item.data.status || '').toLowerCase() !== 'resolved');
-        setStat('supportOpen', openCases.length);
+        supportCasesCache = supportArray.sort((a, b) => b.latestTimestamp - a.latestTimestamp);
+        const stats = summarizeSupport(supportCasesCache);
+        renderSupportInsights(stats);
         updateSyncStamp('support');
-
-        if (!supportArray.length) {
-          container.innerHTML = '<p class="text-sm text-slate-500">No support messages at the moment.</p>';
-        }
-
-        supportArray.forEach(({ key, data, messages }) => {
-          const status = data.status || 'Open';
-          const statusClass = status === 'Resolved' ? 'text-emerald-300' : status === 'Pending' ? 'text-amber-300' : 'text-sky-300';
-          const div = document.createElement('div');
-          div.className = 'glass-card space-y-4';
-          div.innerHTML = `
-            <div class="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p class="text-base font-semibold text-white">${data.subject || 'Support case'}</p>
-                <p class="text-sm text-slate-400">${data.email || 'No email provided'}</p>
-              </div>
-              <span class="text-xs uppercase tracking-[0.35em] ${statusClass}">${status}</span>
-            </div>
-            <div class="space-y-2 rounded-2xl border border-slate-800/70 bg-slate-950/50 p-3 max-h-64 overflow-y-auto">
-              ${renderSupportMessages(messages)}
-            </div>
-            <form onsubmit="adminReply(event, '${key}')" class="space-y-2">
-              <textarea class="form-textarea admin-reply" placeholder="Craft a thoughtful reply…"></textarea>
-              <div class="flex justify-end">
-                <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-sky-500 px-5 py-2 text-sm font-semibold">
-                  <i class="fa-solid fa-paper-plane"></i> Send reply
-                </button>
-              </div>
-            </form>
-          `;
-          container.appendChild(div);
-        });
+        renderSupportList();
 
         if (recentSupport) {
-          if (!supportArray.length) {
+          if (!supportCasesCache.length) {
             recentSupport.innerHTML = '<p class="text-sm text-slate-500">Support inbox is clear – nice work!</p>';
           } else {
-            recentSupport.innerHTML = supportArray.slice(0, 3).map(({ key, data }) => {
+            recentSupport.innerHTML = supportCasesCache.slice(0, 3).map(({ key, data }) => {
               return `
                 <div class="glass-subcard space-y-1">
                   <div class="flex items-center justify-between">
@@ -2081,98 +2309,305 @@
       }
     });
 
+    function formatCurrency(value) {
+      const numericValue = Number(value) || 0;
+      return `$${numericValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+    }
+
+    function updateUserStats(stats) {
+      const { total = 0, admins = 0, verified = 0, balance = 0 } = stats || {};
+      const totalEl = document.getElementById('user-stats-total');
+      const adminEl = document.getElementById('user-stats-admins');
+      const verifiedEl = document.getElementById('user-stats-verified');
+      const balanceEl = document.getElementById('user-stats-balance');
+      if (totalEl) totalEl.textContent = total;
+      if (adminEl) adminEl.textContent = admins;
+      if (verifiedEl) verifiedEl.textContent = verified;
+      if (balanceEl) balanceEl.textContent = formatCurrency(balance);
+    }
+
+    function updateUserInsights(users = [], stats = {}) {
+      const panel = document.getElementById('user-insights');
+      if (!panel) return;
+      if (!users.length) {
+        panel.innerHTML = '<p class="text-sm text-slate-300">No users found. Try expanding your search or clearing filters.</p>';
+        return;
+      }
+
+      const unverified = users.filter(u => !u.data.emailVerified);
+      const freeLocked = users.filter(u => !u.data.freeCaseOpened);
+      const admins = users.filter(u => u.data.role === 'admin');
+      const topBalance = [...users].sort((a, b) => (b.data.balance || 0) - (a.data.balance || 0))[0];
+
+      const suggestions = [];
+      suggestions.push(`Found ${stats.total || users.length} matching profile${users.length === 1 ? '' : 's'} with ${admins.length} admin${admins.length === 1 ? '' : 's'}.`);
+      if (topBalance?.data) {
+        suggestions.push(`Highest balance: ${topBalance.data.username || topBalance.data.email || 'User'} is holding ${formatCurrency(topBalance.data.balance || 0)}.`);
+      }
+      if (unverified.length) {
+        suggestions.push(`Verification check: ${unverified.length} account${unverified.length === 1 ? '' : 's'} still unverified—great candidates for a follow-up.`);
+      } else {
+        suggestions.push('All matched accounts are verified—no action needed there.');
+      }
+      if (freeLocked.length) {
+        suggestions.push(`${freeLocked.length} user${freeLocked.length === 1 ? '' : 's'} have not opened the free case yet. Consider nudging them with a bonus.`);
+      }
+
+      panel.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs uppercase tracking-[0.35em] text-indigo-300/80">AI account coach</p>
+            <h3 class="text-lg font-semibold text-white">Suggested actions</h3>
+          </div>
+          <span class="inline-flex items-center gap-1 rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-semibold text-indigo-100"><i class="fa-solid fa-wand-magic-sparkles"></i> Live insights</span>
+        </div>
+        <ul class="space-y-2 text-sm text-slate-200 list-disc list-inside">
+          ${suggestions.map(item => `<li>${item}</li>`).join('')}
+        </ul>
+        <p class="text-xs text-slate-500">Insights are generated locally from your current search and filters.</p>
+      `;
+    }
+
     function searchUsers() {
       const query = document.getElementById('user-search').value.trim().toLowerCase();
-      if (!query) return;
+      const roleFilter = document.getElementById('user-role-filter')?.value || 'all';
+      const verificationFilter = document.getElementById('user-verification-filter')?.value || 'all';
+      const freeFilter = document.getElementById('user-free-filter')?.value || 'all';
+      const sortOption = document.getElementById('user-sort')?.value || 'recent';
 
       const resultsDiv = document.getElementById('user-results');
       resultsDiv.innerHTML = 'Searching...';
 
       firebase.database().ref('users').once('value').then(snapshot => {
-        let found = false;
-        resultsDiv.innerHTML = '';
-
+        const matches = [];
         snapshot.forEach(child => {
           const user = child.val() || {};
           const email = (user.email || '').toLowerCase();
           const username = (user.username || '').toLowerCase();
           const uid = child.key.toLowerCase();
 
-          if (
-            email === query ||
-            username === query ||
-            uid === query ||
-            email.includes(query) ||
-            username.includes(query) ||
-            uid.includes(query)
-          ) {
-            found = true;
-            const div = document.createElement('div');
-            div.className = 'glass-card space-y-4';
-            div.innerHTML = `
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <h3 class="text-lg font-semibold text-white">${user.username || user.email || 'User'} <span class="text-xs text-slate-400">(${child.key})</span></h3>
-                <div class="flex flex-wrap gap-2">
-                  <button onclick="saveUser('${child.key}')" class="inline-flex items-center gap-2 rounded-xl bg-emerald-500/20 px-3 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-500/30"><i class="fa-solid fa-floppy-disk"></i>Save</button>
-                  <button onclick="sendPasswordReset('${user.email || ''}')" class="inline-flex items-center gap-2 rounded-xl bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-500/30"><i class="fa-solid fa-key"></i>Reset password</button>
-                  <button onclick="deleteUser('${child.key}')" class="inline-flex items-center gap-2 rounded-xl bg-rose-500/20 px-3 py-2 text-xs font-semibold text-rose-200 hover:bg-rose-500/30"><i class="fa-solid fa-trash"></i>Delete</button>
-                </div>
-              </div>
-              <div class="grid gap-4 md:grid-cols-2">
-                <label class="space-y-1 text-sm text-slate-300">Name<input type="text" id="name-${child.key}" value="${user.name || ''}" class="form-input"></label>
-                <label class="space-y-1 text-sm text-slate-300">Username<input type="text" id="username-${child.key}" value="${user.username || ''}" class="form-input"></label>
-                <label class="space-y-1 text-sm text-slate-300">Email<input type="text" id="email-${child.key}" value="${user.email || ''}" class="form-input"></label>
-                <label class="space-y-1 text-sm text-slate-300">Email verified
-                  <select id="verified-${child.key}" class="form-select">
-                    <option value="false" ${!user.emailVerified ? 'selected' : ''}>No</option>
-                    <option value="true" ${user.emailVerified ? 'selected' : ''}>Yes</option>
-                  </select>
-                </label>
-                <label class="space-y-1 text-sm text-slate-300">Phone<input type="text" id="phone-${child.key}" value="${user.phone || ''}" class="form-input"></label>
-                <label class="space-y-1 text-sm text-slate-300">Balance<input type="number" step="any" id="balance-${child.key}" value="${user.balance || 0}" class="form-input"></label>
-                <label class="space-y-1 text-sm text-slate-300">Role
-                  <select id="role-${child.key}" class="form-select">
-                    <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
-                    <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
-                  </select>
-                </label>
-                <label class="space-y-1 text-sm text-slate-300">Free case opened
-                  <select id="free-${child.key}" class="form-select">
-                    <option value="false" ${!user.freeCaseOpened ? 'selected' : ''}>No</option>
-                    <option value="true" ${user.freeCaseOpened ? 'selected' : ''}>Yes</option>
-                  </select>
-                </label>
-              </div>
-              <div class="space-y-2">
-                <button onclick="loadHistory('${child.key}', this)" class="inline-flex items-center gap-2 rounded-xl bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-500/30">Load history</button>
-                <div class="overflow-x-auto border border-slate-800/70 rounded-xl">
-                  <table class="min-w-full text-xs text-slate-300">
-                    <thead>
-                      <tr>
-                        <th class="px-3 py-2 text-left">Item</th>
-                        <th class="px-3 py-2 text-left">Rarity</th>
-                        <th class="px-3 py-2 text-left">Value</th>
-                        <th class="px-3 py-2 text-left">Status</th>
-                        <th class="px-3 py-2 text-left">Unbox Balance</th>
-                        <th class="px-3 py-2 text-left">Sale Balance</th>
-                        <th class="px-3 py-2 text-left">Timestamp</th>
-                      </tr>
-                    </thead>
-                    <tbody id="unbox-${child.key}"><tr><td colspan="7" class="px-3 py-2">History not loaded.</td></tr></tbody>
-                  </table>
-                </div>
-              </div>
-            `;
-            resultsDiv.appendChild(div);
+          const queryMatch = !query || email.includes(query) || username.includes(query) || uid.includes(query);
+          const roleMatch = roleFilter === 'all' || user.role === roleFilter;
+          const verificationMatch = verificationFilter === 'all' || (verificationFilter === 'verified' ? user.emailVerified : !user.emailVerified);
+          const freeMatch = freeFilter === 'all' || (freeFilter === 'opened' ? user.freeCaseOpened : !user.freeCaseOpened);
+
+          if (queryMatch && roleMatch && verificationMatch && freeMatch) {
+            matches.push({ uid: child.key, data: user });
           }
         });
 
-        if (!found) resultsDiv.innerHTML = 'No users found.';
+        if (!matches.length) {
+          resultsDiv.innerHTML = 'No users found.';
+          updateUserStats({ total: 0, admins: 0, verified: 0, balance: 0 });
+          updateUserInsights([], {});
+          return;
+        }
+
+        matches.sort((a, b) => {
+          if (sortOption === 'balance-desc') return (b.data.balance || 0) - (a.data.balance || 0);
+          if (sortOption === 'balance-asc') return (a.data.balance || 0) - (b.data.balance || 0);
+          if (sortOption === 'name') return (a.data.username || a.data.email || '').localeCompare(b.data.username || b.data.email || '');
+          return a.uid.localeCompare(b.uid);
+        });
+
+        resultsDiv.innerHTML = '';
+        const stats = {
+          total: matches.length,
+          admins: matches.filter(item => item.data.role === 'admin').length,
+          verified: matches.filter(item => item.data.emailVerified).length,
+          balance: matches.reduce((sum, item) => sum + (Number(item.data.balance) || 0), 0)
+        };
+        updateUserStats(stats);
+
+        matches.forEach(({ uid, data }) => {
+          const div = document.createElement('div');
+          div.className = 'glass-card space-y-4';
+          div.innerHTML = `
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="space-y-1">
+                <h3 class="text-lg font-semibold text-white">${data.username || data.email || 'User'} <span class="text-xs text-slate-400">(${uid})</span></h3>
+                <div class="flex flex-wrap gap-2 text-xs">
+                  <span class="inline-flex items-center gap-1 rounded-full bg-slate-800/70 px-3 py-1"><i class="fa-solid fa-id-card"></i> ${data.role || 'user'}</span>
+                  <span class="inline-flex items-center gap-1 rounded-full ${data.emailVerified ? 'bg-emerald-500/20 text-emerald-100' : 'bg-amber-500/20 text-amber-100'} px-3 py-1"><i class="fa-solid fa-shield-check"></i> ${data.emailVerified ? 'Verified' : 'Unverified'}</span>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-sky-500/20 text-sky-100 px-3 py-1"><i class="fa-solid fa-coins"></i> ${formatCurrency(data.balance || 0)}</span>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-purple-500/20 text-purple-100 px-3 py-1"><i class="fa-solid fa-gift"></i> ${data.freeCaseOpened ? 'Free case opened' : 'Free case locked'}</span>
+                </div>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="saveUser('${uid}')" class="inline-flex items-center gap-2 rounded-xl bg-emerald-500/20 px-3 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-500/30"><i class="fa-solid fa-floppy-disk"></i>Save</button>
+                <button onclick="sendPasswordReset('${data.email || ''}')" class="inline-flex items-center gap-2 rounded-xl bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-500/30"><i class="fa-solid fa-key"></i>Reset password</button>
+                <button onclick="deleteUser('${uid}')" class="inline-flex items-center gap-2 rounded-xl bg-rose-500/20 px-3 py-2 text-xs font-semibold text-rose-200 hover:bg-rose-500/30"><i class="fa-solid fa-trash"></i>Delete</button>
+              </div>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2">
+              <label class="space-y-1 text-sm text-slate-300">Name<input type="text" id="name-${uid}" value="${data.name || ''}" class="form-input"></label>
+              <label class="space-y-1 text-sm text-slate-300">Username<input type="text" id="username-${uid}" value="${data.username || ''}" class="form-input"></label>
+              <label class="space-y-1 text-sm text-slate-300">Email<input type="text" id="email-${uid}" value="${data.email || ''}" class="form-input"></label>
+              <label class="space-y-1 text-sm text-slate-300">Email verified
+                <select id="verified-${uid}" class="form-select">
+                  <option value="false" ${!data.emailVerified ? 'selected' : ''}>No</option>
+                  <option value="true" ${data.emailVerified ? 'selected' : ''}>Yes</option>
+                </select>
+              </label>
+              <label class="space-y-1 text-sm text-slate-300">Phone<input type="text" id="phone-${uid}" value="${data.phone || ''}" class="form-input"></label>
+              <label class="space-y-1 text-sm text-slate-300">Balance<input type="number" step="any" id="balance-${uid}" value="${data.balance || 0}" class="form-input"></label>
+              <label class="space-y-1 text-sm text-slate-300">Role
+                <select id="role-${uid}" class="form-select">
+                  <option value="user" ${data.role === 'user' ? 'selected' : ''}>User</option>
+                  <option value="admin" ${data.role === 'admin' ? 'selected' : ''}>Admin</option>
+                </select>
+              </label>
+              <label class="space-y-1 text-sm text-slate-300">Free case opened
+                <select id="free-${uid}" class="form-select">
+                  <option value="false" ${!data.freeCaseOpened ? 'selected' : ''}>No</option>
+                  <option value="true" ${data.freeCaseOpened ? 'selected' : ''}>Yes</option>
+                </select>
+              </label>
+            </div>
+            <div class="space-y-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <button onclick="loadHistory('${uid}', this)" class="inline-flex items-center gap-2 rounded-xl bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-500/30"><i class="fa-solid fa-rotate"></i>Load inventory & history</button>
+                <div id="history-badges-${uid}" class="flex flex-wrap gap-2 text-[11px]"></div>
+              </div>
+              <div class="grid gap-3 lg:grid-cols-2">
+                <div class="glass-subcard space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Inventory</p>
+                      <h4 class="text-sm font-semibold text-white">On-hand items</h4>
+                    </div>
+                    <span class="text-[11px] text-slate-400">Manage items directly</span>
+                  </div>
+                  <div class="overflow-x-auto border border-slate-800/70 rounded-xl">
+                    <table class="min-w-full text-xs text-slate-300">
+                      <thead>
+                        <tr>
+                          <th class="px-3 py-2 text-left">Item</th>
+                          <th class="px-3 py-2 text-left">Rarity</th>
+                          <th class="px-3 py-2 text-left">Value</th>
+                          <th class="px-3 py-2 text-left">Status</th>
+                          <th class="px-3 py-2 text-left">Last update</th>
+                          <th class="px-3 py-2 text-left">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="inventory-${uid}"><tr><td colspan="6" class="px-3 py-2">Inventory not loaded.</td></tr></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="glass-subcard space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Unboxing history</p>
+                      <h4 class="text-sm font-semibold text-white">Recent pulls</h4>
+                    </div>
+                    <span class="text-[11px] text-slate-400">Timeline with balances</span>
+                  </div>
+                  <div class="overflow-x-auto border border-slate-800/70 rounded-xl">
+                    <table class="min-w-full text-xs text-slate-300">
+                      <thead>
+                        <tr>
+                          <th class="px-3 py-2 text-left">Item</th>
+                          <th class="px-3 py-2 text-left">Rarity</th>
+                          <th class="px-3 py-2 text-left">Value</th>
+                          <th class="px-3 py-2 text-left">Status</th>
+                          <th class="px-3 py-2 text-left">Unbox Balance</th>
+                          <th class="px-3 py-2 text-left">Sale Balance</th>
+                          <th class="px-3 py-2 text-left">Timestamp</th>
+                        </tr>
+                      </thead>
+                      <tbody id="unbox-${uid}"><tr><td colspan="7" class="px-3 py-2">History not loaded.</td></tr></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          resultsDiv.appendChild(div);
+        });
+
+        updateUserInsights(matches, stats);
       });
     }
-    function loadHistory(uid, btn) {
+    function renderHistoryBadges(uid, { inventoryCount, inventoryValue, unboxCount, recentUnboxes }) {
+      const wrap = document.getElementById(`history-badges-${uid}`);
+      if (!wrap) return;
+      wrap.innerHTML = '';
+      const badges = [
+        { label: 'Inventory items', value: inventoryCount },
+        { label: 'Inventory value', value: formatCurrency(inventoryValue) },
+        { label: 'Unbox entries', value: unboxCount },
+        { label: 'Last 7d pulls', value: recentUnboxes }
+      ];
+      badges.forEach(badge => {
+        const span = document.createElement('span');
+        span.className = 'inline-flex items-center gap-1 rounded-full bg-slate-800/70 px-3 py-1';
+        span.innerHTML = `<i class="fa-solid fa-circle-dot text-[10px] text-indigo-300"></i> ${badge.label}: <strong class="text-white">${badge.value}</strong>`;
+        wrap.appendChild(span);
+      });
+    }
+
+    function renderInventory(uid, inventoryItems) {
+      const inventoryList = document.getElementById(`inventory-${uid}`);
+      if (!inventoryList) return;
+      if (!inventoryItems.length) {
+        inventoryList.innerHTML = '<tr><td colspan="6" class="px-3 py-2">No inventory items.</td></tr>';
+        return;
+      }
+      inventoryList.innerHTML = '';
+      inventoryItems
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+        .forEach(item => {
+          const date = item.timestamp ? new Date(item.timestamp).toLocaleString() : '—';
+          const status = item.sold ? 'Sold' : 'Owned';
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td class="px-3 py-2">${item.name || 'Item'} <span class="text-[10px] text-slate-500">${item.key || ''}</span></td>
+            <td class="px-3 py-2">${item.rarity || ''}</td>
+            <td class="px-3 py-2">${formatCurrency(item.value || 0)}</td>
+            <td class="px-3 py-2">${status}</td>
+            <td class="px-3 py-2 text-xs">${date}</td>
+            <td class="px-3 py-2">
+              <div class="flex flex-wrap gap-2">
+                <button class="rounded-lg bg-emerald-500/20 px-2 py-1 text-[11px] font-semibold text-emerald-200 hover:bg-emerald-500/30" onclick="toggleInventorySold('${uid}', '${item.key}', ${!item.sold})">${item.sold ? 'Mark owned' : 'Mark sold'}</button>
+                <button class="rounded-lg bg-rose-500/20 px-2 py-1 text-[11px] font-semibold text-rose-200 hover:bg-rose-500/30" onclick="removeInventoryItem('${uid}', '${item.key}')">Delete</button>
+              </div>
+            </td>
+          `;
+          inventoryList.appendChild(row);
+        });
+    }
+
+    function renderUnboxHistory(uid, unboxItems) {
       const unboxList = document.getElementById(`unbox-${uid}`);
       if (!unboxList) return;
+      if (!unboxItems.length) {
+        unboxList.innerHTML = '<tr><td colspan="7" class="px-3 py-2">No history found.</td></tr>';
+        return;
+      }
+      unboxList.innerHTML = '';
+      unboxItems
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+        .forEach(winData => {
+          const date = winData.timestamp ? new Date(winData.timestamp).toLocaleString() : '';
+          const status = winData.sold ? 'Sold' : 'Owned';
+          const unboxBal = `${winData.balanceBefore ?? '-'}→${winData.balanceAfter ?? '-'}`;
+          const saleBal = winData.sold ? `${winData.saleBalanceBefore ?? '-'}→${winData.saleBalanceAfter ?? '-'}` : '-';
+          unboxList.innerHTML += `<tr>
+              <td class="px-3 py-2">${winData.name || 'Drop'}</td>
+              <td class="px-3 py-2">${winData.rarity || ''}</td>
+              <td class="px-3 py-2">${formatCurrency(winData.value || 0)}</td>
+              <td class="px-3 py-2">${status}</td>
+              <td class="px-3 py-2">${unboxBal}</td>
+              <td class="px-3 py-2">${saleBal}</td>
+              <td class="px-3 py-2 text-xs">${date}</td>
+            </tr>`;
+        });
+    }
+
+    function loadHistory(uid, btn) {
+      const unboxList = document.getElementById(`unbox-${uid}`);
+      const inventoryList = document.getElementById(`inventory-${uid}`);
+      if (!unboxList || !inventoryList) return;
       if (btn) {
         btn.disabled = true;
         btn.textContent = 'Loading...';
@@ -2181,42 +2616,52 @@
         firebase.database().ref(`users/${uid}/unboxHistory`).once('value'),
         firebase.database().ref(`users/${uid}/inventory`).once('value')
       ]).then(([histSnap, invSnap]) => {
-        const itemMap = new Map();
+        const unboxes = [];
         if (histSnap.exists()) {
           histSnap.forEach(item => {
-            itemMap.set(item.key, item.val());
+            unboxes.push({ key: item.key, ...(item.val() || {}) });
           });
         }
+
+        const inventory = [];
         if (invSnap.exists()) {
           invSnap.forEach(item => {
-            if (!itemMap.has(item.key)) itemMap.set(item.key, item.val());
+            inventory.push({ key: item.key, ...(item.val() || {}) });
           });
         }
-        const items = Array.from(itemMap.values());
-        if (items.length) {
-          unboxList.innerHTML = '';
-          items
-            .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
-            .forEach(winData => {
-              const date = winData.timestamp ? new Date(winData.timestamp).toLocaleString() : '';
-              const status = winData.sold ? 'Sold' : 'Owned';
-              const unboxBal = `${winData.balanceBefore ?? '-'}→${winData.balanceAfter ?? '-'}`;
-              const saleBal = winData.sold ? `${winData.saleBalanceBefore ?? '-'}→${winData.saleBalanceAfter ?? '-'}` : '-';
-              unboxList.innerHTML += `<tr>
-                  <td class="px-3 py-2">${winData.name}</td>
-                  <td class="px-3 py-2">${winData.rarity || ''}</td>
-                  <td class="px-3 py-2">$${winData.value || 0}</td>
-                  <td class="px-3 py-2">${status}</td>
-                  <td class="px-3 py-2">${unboxBal}</td>
-                  <td class="px-3 py-2">${saleBal}</td>
-                  <td class="px-3 py-2 text-xs">${date}</td>
-                </tr>`;
-            });
-        } else {
-          unboxList.innerHTML = '<tr><td colspan="7" class="px-3 py-2">No history found.</td></tr>';
-        }
+
+        renderInventory(uid, inventory);
+        renderUnboxHistory(uid, unboxes);
+
+        const recentThreshold = Date.now() - (7 * 24 * 60 * 60 * 1000);
+        renderHistoryBadges(uid, {
+          inventoryCount: inventory.length,
+          inventoryValue: inventory.reduce((sum, item) => sum + (Number(item.value) || 0), 0),
+          unboxCount: unboxes.length,
+          recentUnboxes: unboxes.filter(item => (item.timestamp || 0) >= recentThreshold).length
+        });
       }).finally(() => {
-        if (btn) btn.remove();
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Reload inventory & history';
+        }
+      });
+    }
+
+    function toggleInventorySold(uid, itemKey, sold) {
+      if (!uid || !itemKey) return;
+      firebase.database().ref(`users/${uid}/inventory/${itemKey}`).update({ sold }).then(() => {
+        showToast(sold ? '✅ Marked as sold' : '✅ Marked as owned');
+        loadHistory(uid);
+      });
+    }
+
+    function removeInventoryItem(uid, itemKey) {
+      if (!uid || !itemKey) return;
+      if (!confirm('Delete this inventory item?')) return;
+      firebase.database().ref(`users/${uid}/inventory/${itemKey}`).remove().then(() => {
+        showToast('🗑️ Inventory item removed');
+        loadHistory(uid);
       });
     }
 
@@ -2255,6 +2700,26 @@
       }).catch(err => alert(err.message));
     }
 
+    supportSearchInput?.addEventListener('input', event => {
+      supportFilters.search = event.target.value;
+      renderSupportList();
+    });
+
+    supportStatusFilter?.addEventListener('change', event => {
+      supportFilters.status = event.target.value;
+      renderSupportList();
+    });
+
+    supportSortSelect?.addEventListener('change', event => {
+      supportFilters.sort = event.target.value;
+      renderSupportList();
+    });
+
+    supportUnrepliedToggle?.addEventListener('change', event => {
+      supportFilters.onlyUnreplied = event.target.checked;
+      renderSupportList();
+    });
+
     resetWizard();
 
     firebase.auth().onAuthStateChanged(user => {
@@ -2280,6 +2745,7 @@
       loadQuestConfig();
       loadWheelRewards();
       loadUserCount();
+      searchUsers();
     });
 
     homeSpinnerSelect?.addEventListener('change', () => {
