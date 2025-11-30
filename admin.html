@@ -909,6 +909,54 @@
                 <p class="text-slate-400 text-sm max-w-2xl">Stay close to your community, reply with context, and keep the vibes high.</p>
               </div>
             </div>
+            <div class="glass-card space-y-5">
+              <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4 text-xs">
+                <div class="glass-subcard space-y-1">
+                  <p class="uppercase tracking-[0.25em] text-slate-400">Open cases</p>
+                  <p id="support-open-count" class="text-2xl font-semibold text-white">--</p>
+                  <p class="text-slate-500">Anything not marked resolved.</p>
+                </div>
+                <div class="glass-subcard space-y-1">
+                  <p class="uppercase tracking-[0.25em] text-slate-400">Needs reply</p>
+                  <p id="support-unreplied-count" class="text-2xl font-semibold text-amber-200">--</p>
+                  <p class="text-slate-500">Threads without an admin response.</p>
+                </div>
+                <div class="glass-subcard space-y-1">
+                  <p class="uppercase tracking-[0.25em] text-slate-400">Recently updated</p>
+                  <p id="support-active-count" class="text-2xl font-semibold text-sky-200">--</p>
+                  <p class="text-slate-500">Active in the last 24 hours.</p>
+                </div>
+                <div class="glass-subcard space-y-1">
+                  <p class="uppercase tracking-[0.25em] text-slate-400">Last sync</p>
+                  <p id="support-last-sync" class="text-2xl font-semibold text-emerald-200">--</p>
+                  <p class="text-slate-500">Auto-refreshing from Realtime DB.</p>
+                </div>
+              </div>
+              <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div class="grid flex-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+                  <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                    <input id="support-search" type="search" class="form-input pl-9" placeholder="Search subject, email, or message" />
+                  </div>
+                  <select id="support-status-filter" class="form-select text-sm">
+                    <option value="all">All statuses</option>
+                    <option value="open">Open</option>
+                    <option value="pending">Pending</option>
+                    <option value="replied">Replied</option>
+                    <option value="resolved">Resolved</option>
+                  </select>
+                  <select id="support-sort" class="form-select text-sm">
+                    <option value="recent">Most recent activity</option>
+                    <option value="newest">Newest cases</option>
+                    <option value="oldest">Oldest cases</option>
+                  </select>
+                </div>
+                <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-200">
+                  <input id="support-unreplied-toggle" type="checkbox" class="h-4 w-4 rounded border-slate-700 bg-slate-900" />
+                  Show only threads needing a reply
+                </label>
+              </div>
+            </div>
             <div id="support-list" class="space-y-6"></div>
           </section>
 
@@ -1009,6 +1057,14 @@
     const homeSpinnerImage = document.getElementById('home-spinner-image');
     const homeSpinnerTitle = document.getElementById('home-spinner-title');
     const homeSpinnerSubtitle = document.getElementById('home-spinner-subtitle');
+    const supportSearchInput = document.getElementById('support-search');
+    const supportStatusFilter = document.getElementById('support-status-filter');
+    const supportSortSelect = document.getElementById('support-sort');
+    const supportUnrepliedToggle = document.getElementById('support-unreplied-toggle');
+    const supportOpenCount = document.getElementById('support-open-count');
+    const supportUnrepliedCount = document.getElementById('support-unreplied-count');
+    const supportActiveCount = document.getElementById('support-active-count');
+    const supportLastSync = document.getElementById('support-last-sync');
     const statElements = {
       totalCases: document.getElementById('stat-total-cases'),
       pickemCases: document.getElementById('stat-pickem-cases'),
@@ -1034,6 +1090,13 @@
     let casesData = [];
     let vaultsData = [];
     let homeSpinnerConfig = {};
+    let supportCasesCache = [];
+    const supportFilters = {
+      search: '',
+      status: 'all',
+      sort: 'recent',
+      onlyUnreplied: false
+    };
 
     const basePrizeMarkup = `
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
@@ -1900,12 +1963,25 @@
       });
     }
 
+    function formatRelativeTime(timestamp) {
+      if (!timestamp) return 'No activity';
+      const diff = Date.now() - timestamp;
+      const minutes = Math.floor(diff / 60000);
+      if (minutes < 1) return 'Just now';
+      if (minutes < 60) return `${minutes}m ago`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours}h ago`;
+      const days = Math.floor(hours / 24);
+      if (days < 7) return `${days}d ago`;
+      return new Date(timestamp).toLocaleDateString();
+    }
+
     function renderSupportMessages(messages = []) {
       if (!messages.length) {
         return '<p class="text-xs text-slate-500">No messages yet.</p>';
       }
       return messages.map(msg => {
-        const time = msg.timestamp ? new Date(msg.timestamp).toLocaleString() : '';
+        const time = formatRelativeTime(msg.timestamp);
         const alignment = msg.sender === 'admin' ? 'items-end text-emerald-200' : 'items-start text-slate-200';
         const bubble = msg.sender === 'admin' ? 'bg-emerald-500/20 text-emerald-100' : 'bg-slate-800/80 text-slate-100';
         return `
@@ -1920,10 +1996,136 @@
       }).join('');
     }
 
+    function summarizeSupport(cases = []) {
+      const now = Date.now();
+      const open = cases.filter(item => (item.data.status || '').toLowerCase() !== 'resolved').length;
+      const unreplied = cases.filter(item => !(item.messages || []).some(msg => msg.sender === 'admin')).length;
+      const active = cases.filter(item => now - (item.latestTimestamp || 0) <= 24 * 60 * 60 * 1000).length;
+      return { open, unreplied, active };
+    }
+
+    function applySupportFilters() {
+      let filtered = [...supportCasesCache];
+      const searchTerm = (supportFilters.search || '').toLowerCase();
+
+      if (searchTerm) {
+        filtered = filtered.filter(({ data, messages }) => {
+          const subject = (data.subject || '').toLowerCase();
+          const email = (data.email || '').toLowerCase();
+          const messageText = messages.map(m => m.text || '').join(' ').toLowerCase();
+          return subject.includes(searchTerm) || email.includes(searchTerm) || messageText.includes(searchTerm);
+        });
+      }
+
+      if (supportFilters.status !== 'all') {
+        filtered = filtered.filter(({ data }) => {
+          const status = (data.status || 'open').toLowerCase();
+          if (supportFilters.status === 'open') return status !== 'resolved';
+          return status === supportFilters.status;
+        });
+      }
+
+      if (supportFilters.onlyUnreplied) {
+        filtered = filtered.filter(({ messages }) => !messages.some(msg => msg.sender === 'admin'));
+      }
+
+      filtered.sort((a, b) => {
+        const createdA = a.data.createdAt || (a.messages[0]?.timestamp || a.latestTimestamp || 0);
+        const createdB = b.data.createdAt || (b.messages[0]?.timestamp || b.latestTimestamp || 0);
+        if (supportFilters.sort === 'newest') return createdB - createdA;
+        if (supportFilters.sort === 'oldest') return createdA - createdB;
+        return (b.latestTimestamp || 0) - (a.latestTimestamp || 0);
+      });
+
+      return filtered;
+    }
+
+    function renderSupportInsights(stats) {
+      if (supportOpenCount) supportOpenCount.textContent = stats.open ?? '--';
+      if (supportUnrepliedCount) supportUnrepliedCount.textContent = stats.unreplied ?? '--';
+      if (supportActiveCount) supportActiveCount.textContent = stats.active ?? '--';
+      if (supportLastSync) supportLastSync.textContent = new Date().toLocaleTimeString();
+      setStat('supportOpen', stats.open || 0);
+    }
+
+    function updateSupportStatus(caseId, status) {
+      firebase.database().ref(`supportCases/${caseId}`).update({ status }).then(() => {
+        showToast(`📌 Marked as ${status}`);
+      });
+    }
+
+    function prefillSupportReply(caseId, text) {
+      const textarea = document.querySelector(`form[data-case="${caseId}"] .admin-reply`);
+      if (!textarea) return;
+      textarea.value = text;
+      textarea.focus();
+    }
+
+    function renderSupportList() {
+      const container = document.getElementById('support-list');
+      if (!container) return;
+      container.innerHTML = '';
+      const filtered = applySupportFilters();
+
+      if (!filtered.length) {
+        container.innerHTML = '<p class="text-sm text-slate-500">No threads match these filters right now.</p>';
+        return;
+      }
+
+      filtered.forEach(({ key, data, messages, latestTimestamp }) => {
+        const status = data.status || 'Open';
+        const statusClass = status === 'Resolved' ? 'text-emerald-300' : status === 'Pending' ? 'text-amber-300' : 'text-sky-300';
+        const hasAdminReply = messages.some(msg => msg.sender === 'admin');
+        const lastUserMessage = [...messages].reverse().find(msg => msg.sender !== 'admin');
+        const createdAt = data.createdAt || (messages[0]?.timestamp || latestTimestamp);
+        const card = document.createElement('div');
+        card.className = 'glass-card space-y-4';
+        card.innerHTML = `
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="space-y-1">
+              <p class="text-base font-semibold text-white">${data.subject || 'Support case'}</p>
+              <p class="text-sm text-slate-400">${data.email || 'No email provided'}</p>
+              <div class="flex flex-wrap gap-2 text-[0.7rem] text-slate-400">
+                <span class="inline-flex items-center gap-1 rounded-full bg-slate-800/70 px-3 py-1"><i class="fa-solid fa-envelope-open-text"></i> ${messages.length} msgs</span>
+                <span class="inline-flex items-center gap-1 rounded-full bg-slate-800/70 px-3 py-1"><i class="fa-solid fa-clock"></i> Updated ${formatRelativeTime(latestTimestamp)}</span>
+                ${hasAdminReply ? '' : '<span class="inline-flex items-center gap-1 rounded-full bg-amber-500/15 text-amber-100 px-3 py-1"><i class="fa-solid fa-bell"></i> Needs reply</span>'}
+              </div>
+            </div>
+            <div class="flex flex-col items-end gap-2">
+              <span class="text-xs uppercase tracking-[0.35em] ${statusClass}">${status}</span>
+              <div class="flex flex-wrap justify-end gap-2 text-xs">
+                <button type="button" class="inline-flex items-center gap-1 rounded-lg border border-slate-800 px-3 py-2 font-semibold hover:border-sky-500/60" onclick="updateSupportStatus('${key}', 'Pending')"><i class="fa-solid fa-hourglass-half"></i>Pending</button>
+                <button type="button" class="inline-flex items-center gap-1 rounded-lg border border-slate-800 px-3 py-2 font-semibold hover:border-emerald-500/60" onclick="updateSupportStatus('${key}', 'Resolved')"><i class="fa-solid fa-circle-check"></i>Resolve</button>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-2 rounded-2xl border border-slate-800/70 bg-slate-950/50 p-3 max-h-72 overflow-y-auto">
+            ${renderSupportMessages(messages)}
+          </div>
+          <div class="flex flex-wrap gap-2 text-xs text-slate-400">
+            <span class="inline-flex items-center gap-1 rounded-full bg-slate-800/60 px-3 py-1"><i class="fa-solid fa-user-clock"></i> Created ${formatRelativeTime(createdAt)}</span>
+            ${lastUserMessage ? `<span class="inline-flex items-center gap-1 rounded-full bg-slate-800/60 px-3 py-1"><i class="fa-solid fa-message"></i> User last wrote ${formatRelativeTime(lastUserMessage.timestamp)}</span>` : ''}
+          </div>
+          <form data-case="${key}" onsubmit="adminReply(event, '${key}')" class="space-y-2">
+            <textarea class="form-textarea admin-reply" placeholder="Craft a thoughtful reply…"></textarea>
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap gap-2 text-xs">
+                <button type="button" class="inline-flex items-center gap-1 rounded-lg border border-slate-800 px-3 py-2 font-semibold hover:border-emerald-500/60" onclick="prefillSupportReply('${key}', 'Hey there! Appreciate you reaching out — we\'re on it and will update you shortly.')"><i class="fa-solid fa-bolt"></i> Quick ack</button>
+                <button type="button" class="inline-flex items-center gap-1 rounded-lg border border-slate-800 px-3 py-2 font-semibold hover:border-sky-500/60" onclick="prefillSupportReply('${key}', 'Thanks for the details! Can you share any screenshots or extra context so we can close this fast?')"><i class="fa-solid fa-wand-magic-sparkles"></i> Ask for context</button>
+              </div>
+              <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-sky-500 px-5 py-2 text-sm font-semibold">
+                <i class="fa-solid fa-paper-plane"></i> Send reply
+              </button>
+            </div>
+          </form>
+        `;
+        container.appendChild(card);
+      });
+    }
+
     function loadSupportForms() {
       const container = document.getElementById('support-list');
       firebase.database().ref('supportCases').on('value', snapshot => {
-        container.innerHTML = '';
         const supportArray = [];
         snapshot.forEach(child => {
           const data = child.val() || {};
@@ -1931,48 +2133,17 @@
           const latestTimestamp = messages.length ? Math.max(...messages.map(m => m.timestamp || 0)) : 0;
           supportArray.push({ key: child.key, data, messages, latestTimestamp });
         });
-        supportArray.sort((a, b) => b.latestTimestamp - a.latestTimestamp);
-        const openCases = supportArray.filter(item => (item.data.status || '').toLowerCase() !== 'resolved');
-        setStat('supportOpen', openCases.length);
+        supportCasesCache = supportArray.sort((a, b) => b.latestTimestamp - a.latestTimestamp);
+        const stats = summarizeSupport(supportCasesCache);
+        renderSupportInsights(stats);
         updateSyncStamp('support');
-
-        if (!supportArray.length) {
-          container.innerHTML = '<p class="text-sm text-slate-500">No support messages at the moment.</p>';
-        }
-
-        supportArray.forEach(({ key, data, messages }) => {
-          const status = data.status || 'Open';
-          const statusClass = status === 'Resolved' ? 'text-emerald-300' : status === 'Pending' ? 'text-amber-300' : 'text-sky-300';
-          const div = document.createElement('div');
-          div.className = 'glass-card space-y-4';
-          div.innerHTML = `
-            <div class="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p class="text-base font-semibold text-white">${data.subject || 'Support case'}</p>
-                <p class="text-sm text-slate-400">${data.email || 'No email provided'}</p>
-              </div>
-              <span class="text-xs uppercase tracking-[0.35em] ${statusClass}">${status}</span>
-            </div>
-            <div class="space-y-2 rounded-2xl border border-slate-800/70 bg-slate-950/50 p-3 max-h-64 overflow-y-auto">
-              ${renderSupportMessages(messages)}
-            </div>
-            <form onsubmit="adminReply(event, '${key}')" class="space-y-2">
-              <textarea class="form-textarea admin-reply" placeholder="Craft a thoughtful reply…"></textarea>
-              <div class="flex justify-end">
-                <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-sky-500 px-5 py-2 text-sm font-semibold">
-                  <i class="fa-solid fa-paper-plane"></i> Send reply
-                </button>
-              </div>
-            </form>
-          `;
-          container.appendChild(div);
-        });
+        renderSupportList();
 
         if (recentSupport) {
-          if (!supportArray.length) {
+          if (!supportCasesCache.length) {
             recentSupport.innerHTML = '<p class="text-sm text-slate-500">Support inbox is clear – nice work!</p>';
           } else {
-            recentSupport.innerHTML = supportArray.slice(0, 3).map(({ key, data }) => {
+            recentSupport.innerHTML = supportCasesCache.slice(0, 3).map(({ key, data }) => {
               return `
                 <div class="glass-subcard space-y-1">
                   <div class="flex items-center justify-between">
@@ -2528,6 +2699,26 @@
         showToast('✅ Reset email sent');
       }).catch(err => alert(err.message));
     }
+
+    supportSearchInput?.addEventListener('input', event => {
+      supportFilters.search = event.target.value;
+      renderSupportList();
+    });
+
+    supportStatusFilter?.addEventListener('change', event => {
+      supportFilters.status = event.target.value;
+      renderSupportList();
+    });
+
+    supportSortSelect?.addEventListener('change', event => {
+      supportFilters.sort = event.target.value;
+      renderSupportList();
+    });
+
+    supportUnrepliedToggle?.addEventListener('change', event => {
+      supportFilters.onlyUnreplied = event.target.checked;
+      renderSupportList();
+    });
 
     resetWizard();
 
