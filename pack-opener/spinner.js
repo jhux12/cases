@@ -161,11 +161,11 @@
     state.root.style.transform = "translate3d(0,0,0)";
 
     const startX = 0;
-    const duration = opts.durationMs || 5200;
+    const duration = opts.durationMs || 7000;
     state.isSpinning = true;
 
     const tiles = state.root.children;
-    const extraLoops = Math.min(2, Math.max(1, opts.extraLoops || 2));
+    const extraLoops = Math.min(4, Math.max(2, opts.extraLoops || 3));
     const targetCopy = 2 + extraLoops;
     const midStart = state.items.length * targetCopy;
     let offset = 0;
@@ -199,16 +199,17 @@
     const finalX = perfectX + offset;
     const distance = finalX - startX;
 
-    // longer cruise with a dramatic slowdown near the end
-    const accDur = duration * 0.18,
-      decelDur = duration * 0.5,
+    // single long spin with a heavy slow-down near the end
+    const accDur = duration * 0.16,
+      decelDur = duration * 0.48,
       cruiseDur = duration - accDur - decelDur;
     const accDist = distance * (accDur / duration),
       decelDist = distance * (decelDur / duration),
       cruiseDist = distance - accDist - decelDist;
 
     let lastTick = 0,
-      start = null;
+      start = null,
+      lastPos = startX;
     emit("start");
 
     function easeInCubic(t) {
@@ -241,9 +242,12 @@
 
       const pos = startX + delta;
       state.root.style.transform = `translate3d(${pos}px,0,0)`;
-      if (timestamp - lastTick > 120) {
+      const speedRatio = Math.min(1, Math.abs(pos - lastPos) / (state.tileWidth * 0.75));
+      const tickInterval = 65 + (1 - speedRatio) * 320;
+      if (timestamp - lastTick > tickInterval) {
         playTick();
         lastTick = timestamp;
+        lastPos = pos;
       }
 
       if (elapsed < duration) {
