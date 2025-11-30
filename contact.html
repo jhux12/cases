@@ -45,7 +45,7 @@
   <div class="max-w-5xl mx-auto">
     <div class="text-center mb-10">
       <h1 class="text-3xl font-bold mb-4">Contact Us</h1>
-      <p class="text-sm text-gray-300 max-w-3xl mx-auto">Need help? Start a live chat with our AI assistant or send a note to the team. We'll auto-reply instantly and loop in a human whenever you request it.</p>
+      <p class="text-sm text-gray-300 max-w-3xl mx-auto">Need help? Start a live chat or send a note to the team. You'll get instant replies and can keep everything in one thread.</p>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-2">
@@ -72,8 +72,8 @@
       <div class="terms-box p-6 rounded-xl text-left terms-text">
         <div class="flex items-start justify-between gap-3">
           <div>
-            <h2 class="text-xl font-semibold text-white mb-1">AI support chat</h2>
-            <p class="text-sm text-gray-300">Most replies come from our assistant. Ask away or request a person at any time.</p>
+            <h2 class="text-xl font-semibold text-white mb-1">Instant support chat</h2>
+            <p class="text-sm text-gray-300">Ask anything and we'll respond right away. Use the toggle if you want the team to review.</p>
           </div>
           <span id="chat-status" class="text-xs text-gray-400">Not connected</span>
         </div>
@@ -87,9 +87,9 @@
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-300">
             <label class="inline-flex items-center gap-2">
               <input type="checkbox" id="chat-human-toggle" class="h-4 w-4 rounded border-gray-500 bg-gray-800" />
-              Request a person in the admin inbox
+              Share this thread with support
             </label>
-            <p class="text-xs text-gray-400">We auto-reply instantly and share the thread with the admin panel.</p>
+            <p class="text-xs text-gray-400">We'll keep the conversation moving and route it to the inbox when you ask.</p>
           </div>
         </div>
       </div>
@@ -127,11 +127,11 @@
   let messagesListener = null;
 
   const aiResponses = [
-    { keywords: ['refund', 'charge', 'billing', 'payment'], reply: "I can help with billing. Do you see an error message or a missing transaction? If it's urgent, I've tagged this for the admin team as well." },
-    { keywords: ['shipping', 'ship', 'tracking', 'delivery'], reply: "Shipping usually takes 3-5 business days. Drop your order ID and I'll send it over to a person if it needs a manual check." },
-    { keywords: ['account', 'login', 'password'], reply: "Try signing out/in and double-checking your email. If you're still stuck, I'll flag this chat for a human right away." },
-    { keywords: ['reward', 'quest', 'daily'], reply: "Rewards reset daily at midnight UTC. Let me know if something didn't update and I'll loop in the team." },
-    { keywords: ['help', 'support', 'human', 'agent'], reply: "I'm here to help! I've also shared this thread with an admin in case you want a person to follow up." }
+    { keywords: ['refund', 'charge', 'billing', 'payment'], reply: "I can help with billing. Do you see an error message or a missing transaction?" },
+    { keywords: ['shipping', 'ship', 'tracking', 'delivery'], reply: "Shipping usually takes 3-5 business days. Drop your order ID and I can check on it." },
+    { keywords: ['account', 'login', 'password'], reply: "Try signing out/in and double-checking your email. If you're still stuck, tell me what you see and I'll help troubleshoot." },
+    { keywords: ['reward', 'quest', 'daily'], reply: "Rewards reset daily at midnight UTC. If something didn't update, share details and I'll look into it." },
+    { keywords: ['help', 'support', 'human', 'agent'], reply: "Happy to help! Tell me what's going on and I'll keep the conversation moving." }
   ];
 
   function setChatStatus(text) {
@@ -140,7 +140,7 @@
 
   function formatSender(sender) {
     if (sender === 'admin') return 'Admin';
-    if (sender === 'ai') return 'AI Assistant';
+    if (sender === 'ai') return 'Auto reply';
     return 'You';
   }
 
@@ -224,7 +224,7 @@
     const lower = (message || '').toLowerCase();
     const matched = aiResponses.find(item => item.keywords.some(k => lower.includes(k)));
     if (matched) return matched.reply;
-    return "Thanks for reaching out! I shared this chat with the admin team and will keep you posted. Feel free to request a person if you'd like a human response.";
+    return "Thanks for reaching out! I can help with questions, updates, or troubleshooting—share any details you have.";
   }
 
   async function autoRespond(caseId, userText, needsHuman) {
@@ -233,7 +233,7 @@
   }
 
   async function requestHuman(caseId) {
-    await appendMessage(caseId, 'ai', 'I flagged this chat for a human. An admin will reply from the inbox shortly.', { status: 'Pending', needsHuman: true });
+    await appendMessage(caseId, 'ai', 'I shared this conversation with the support team for review. You can keep chatting here while they look.', { status: 'Pending', needsHuman: true });
   }
 
   async function startChat(user) {
@@ -319,7 +319,7 @@
                 <h3 class="font-semibold text-yellow-300 mb-1">${data.subject}</h3>
                 <p class="text-xs text-gray-400">Status: ${data.status}${data.needsHuman ? ' • Waiting for a person' : ''}</p>
               </div>
-              ${data.channel === 'live-chat' ? '<span class="text-[0.65rem] uppercase tracking-[0.25em] text-blue-200">AI chat</span>' : ''}
+              ${data.channel === 'live-chat' ? '<span class="text-[0.65rem] uppercase tracking-[0.25em] text-blue-200">Live chat</span>' : ''}
             </div>
             <div class="mt-2 space-y-1">${messagesHtml}</div>
             <form onsubmit="sendReply(event, '${child.key}')" class="mt-3 space-y-2">
