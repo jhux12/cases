@@ -54,6 +54,7 @@
           <div>
             <h2 class="text-xl font-semibold text-white mb-1">Instant chat</h2>
             <p class="text-sm text-gray-300">Ask about your account, gems, shipping, or anything else. We'll keep the conversation moving here.</p>
+            <p class="text-xs text-gray-400 mt-1">Order IDs live on your Orders page—share one here to check the status quickly.</p>
           </div>
           <span id="chat-status" class="text-xs text-gray-400">Not connected</span>
         </div>
@@ -139,7 +140,7 @@
     },
     {
       keywords: ['shipping', 'ship', 'tracking', 'delivery', 'order'],
-      reply: () => 'Shipping is usually 3-5 business days. Share your order ID or the item you shipped and I can confirm the current status for you.'
+      reply: () => 'Shipping is usually 3-5 business days. You can grab your order ID from the Orders page—share it or the item you shipped and I can confirm the current status for you.'
     },
     {
       keywords: ['how', 'work', 'case', 'pack', 'open', 'site'],
@@ -150,6 +151,38 @@
       reply: () => 'Rewards and quests refresh daily at midnight UTC. If something didn’t update, tell me which reward and I’ll check your streak and progress.'
     }
   ];
+
+  function generateOrderId() {
+    const stamp = Date.now().toString(36).toUpperCase();
+    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `ORD-${stamp}-${random}`;
+  }
+
+  async function createFutureOrderRecord(caseId, note = 'Future order') {
+    const orderId = generateOrderId();
+    const futureOrderRef = db.ref(`supportCases/${caseId}/futureOrders`).push();
+    await futureOrderRef.set({
+      orderId,
+      note,
+      status: 'Preparing',
+      createdAt: Date.now()
+    });
+    return orderId;
+  }
+
+  async function lookupOrderStatus(caseId, orderId) {
+    const futureOrdersRef = db.ref(`supportCases/${caseId}/futureOrders`);
+    const snapshot = await futureOrdersRef.once('value');
+    if (!snapshot.exists()) return null;
+    let result = null;
+    snapshot.forEach(child => {
+      const value = child.val();
+      if (value.orderId?.toLowerCase() === orderId.toLowerCase()) {
+        result = value;
+      }
+    });
+    return result;
+  }
 
   function setChatStatus(text) {
     if (chatStatus) chatStatus.textContent = text;
@@ -240,8 +273,34 @@
     await db.ref().update(updates);
   }
 
-  function pickAiResponse(message) {
-    const lower = (message || '').toLowerCase();
+  async function pickAiResponse(message, caseId) {
+    const text = message || '';
+    const lower = text.toLowerCase();
+    const orderIdMatch = text.match(/ord-[0-9a-z]{6,}-[0-9a-z]{3,}/i);
+
+    if (orderIdMatch && caseId) {
+      const orderId = orderIdMatch[0];
+      const order = await lookupOrderStatus(caseId, orderId);
+      if (order) {
+        return {
+          reply: `I found order ${order.orderId}. It is currently marked as ${order.status}. You can also view it any time on your Orders page for updates.`,
+          matched: true
+        };
+      }
+      return {
+        reply: `I couldn't find order ${orderId} here. Double-check the Orders page for the full ID, then send it and I'll look again.`,
+        matched: true
+      };
+    }
+
+    if (lower.includes('new order') || lower.includes('future order') || lower.includes('preorder')) {
+      const orderId = caseId ? await createFutureOrderRecord(caseId, message.slice(0, 120)) : generateOrderId();
+      return {
+        reply: `I saved a new order placeholder (${orderId}) so we can track it. You'll also see the confirmed order ID on your Orders page once it's placed. Share that ID here any time to check the status.`,
+        matched: true
+      };
+    }
+
     const matched = aiResponses.find(item => item.keywords.some(k => lower.includes(k)));
     if (matched) {
       const reply = typeof matched.reply === 'function' ? matched.reply(message) : matched.reply;
@@ -268,7 +327,7 @@
   }
 
   async function autoRespond(caseId, userText, needsHuman) {
-    const { reply, matched } = pickAiResponse(userText);
+    const { reply, matched } = await pickAiResponse(userText, caseId);
     if (!matched) {
       showEscalationPrompt();
     }
