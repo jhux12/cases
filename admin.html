@@ -926,7 +926,57 @@
                   <i class="fa-solid fa-magnifying-glass"></i> Search
                 </button>
               </div>
-              <p class="text-xs text-slate-500">Tip: You can also use the quick search in the top bar to jump straight to results.</p>
+              <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+                <label class="space-y-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Role
+                  <select id="user-role-filter" class="form-select text-sm">
+                    <option value="all">All roles</option>
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </label>
+                <label class="space-y-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Verification
+                  <select id="user-verification-filter" class="form-select text-sm">
+                    <option value="all">All</option>
+                    <option value="verified">Verified</option>
+                    <option value="unverified">Unverified</option>
+                  </select>
+                </label>
+                <label class="space-y-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Free case
+                  <select id="user-free-filter" class="form-select text-sm">
+                    <option value="all">All</option>
+                    <option value="opened">Opened</option>
+                    <option value="locked">Not opened</option>
+                  </select>
+                </label>
+                <label class="space-y-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Sort
+                  <select id="user-sort" class="form-select text-sm">
+                    <option value="recent">Recently added</option>
+                    <option value="balance-desc">Balance: high → low</option>
+                    <option value="balance-asc">Balance: low → high</option>
+                    <option value="name">Name A → Z</option>
+                  </select>
+                </label>
+              </div>
+              <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-xs">
+                <div class="glass-subcard flex items-center justify-between">
+                  <span class="text-slate-400">Matches</span>
+                  <span id="user-stats-total" class="text-base font-semibold text-white">0</span>
+                </div>
+                <div class="glass-subcard flex items-center justify-between">
+                  <span class="text-slate-400">Admins</span>
+                  <span id="user-stats-admins" class="text-base font-semibold text-white">0</span>
+                </div>
+                <div class="glass-subcard flex items-center justify-between">
+                  <span class="text-slate-400">Verified</span>
+                  <span id="user-stats-verified" class="text-base font-semibold text-white">0</span>
+                </div>
+                <div class="glass-subcard flex items-center justify-between">
+                  <span class="text-slate-400">Total balance</span>
+                  <span id="user-stats-balance" class="text-base font-semibold text-white">$0</span>
+                </div>
+              </div>
+              <p class="text-xs text-slate-500">Tip: You can also use the quick search in the top bar to jump straight to results or apply filters without typing.</p>
+              <div id="user-insights" class="glass-subcard space-y-2 bg-gradient-to-br from-indigo-900/40 via-slate-900/80 to-purple-900/40 border border-indigo-500/20"></div>
               <div id="user-results" class="space-y-6"></div>
             </div>
           </section>
@@ -1197,6 +1247,13 @@
         }
       });
     }
+
+    ['user-role-filter', 'user-verification-filter', 'user-free-filter', 'user-sort'].forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.addEventListener('change', () => searchUsers());
+      }
+    });
 
     function previewImage(url) {
       if (url) {
@@ -2081,93 +2138,185 @@
       }
     });
 
+    function formatCurrency(value) {
+      const numericValue = Number(value) || 0;
+      return `$${numericValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+    }
+
+    function updateUserStats(stats) {
+      const { total = 0, admins = 0, verified = 0, balance = 0 } = stats || {};
+      const totalEl = document.getElementById('user-stats-total');
+      const adminEl = document.getElementById('user-stats-admins');
+      const verifiedEl = document.getElementById('user-stats-verified');
+      const balanceEl = document.getElementById('user-stats-balance');
+      if (totalEl) totalEl.textContent = total;
+      if (adminEl) adminEl.textContent = admins;
+      if (verifiedEl) verifiedEl.textContent = verified;
+      if (balanceEl) balanceEl.textContent = formatCurrency(balance);
+    }
+
+    function updateUserInsights(users = [], stats = {}) {
+      const panel = document.getElementById('user-insights');
+      if (!panel) return;
+      if (!users.length) {
+        panel.innerHTML = '<p class="text-sm text-slate-300">No users found. Try expanding your search or clearing filters.</p>';
+        return;
+      }
+
+      const unverified = users.filter(u => !u.data.emailVerified);
+      const freeLocked = users.filter(u => !u.data.freeCaseOpened);
+      const admins = users.filter(u => u.data.role === 'admin');
+      const topBalance = [...users].sort((a, b) => (b.data.balance || 0) - (a.data.balance || 0))[0];
+
+      const suggestions = [];
+      suggestions.push(`Found ${stats.total || users.length} matching profile${users.length === 1 ? '' : 's'} with ${admins.length} admin${admins.length === 1 ? '' : 's'}.`);
+      if (topBalance?.data) {
+        suggestions.push(`Highest balance: ${topBalance.data.username || topBalance.data.email || 'User'} is holding ${formatCurrency(topBalance.data.balance || 0)}.`);
+      }
+      if (unverified.length) {
+        suggestions.push(`Verification check: ${unverified.length} account${unverified.length === 1 ? '' : 's'} still unverified—great candidates for a follow-up.`);
+      } else {
+        suggestions.push('All matched accounts are verified—no action needed there.');
+      }
+      if (freeLocked.length) {
+        suggestions.push(`${freeLocked.length} user${freeLocked.length === 1 ? '' : 's'} have not opened the free case yet. Consider nudging them with a bonus.`);
+      }
+
+      panel.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs uppercase tracking-[0.35em] text-indigo-300/80">AI account coach</p>
+            <h3 class="text-lg font-semibold text-white">Suggested actions</h3>
+          </div>
+          <span class="inline-flex items-center gap-1 rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-semibold text-indigo-100"><i class="fa-solid fa-wand-magic-sparkles"></i> Live insights</span>
+        </div>
+        <ul class="space-y-2 text-sm text-slate-200 list-disc list-inside">
+          ${suggestions.map(item => `<li>${item}</li>`).join('')}
+        </ul>
+        <p class="text-xs text-slate-500">Insights are generated locally from your current search and filters.</p>
+      `;
+    }
+
     function searchUsers() {
       const query = document.getElementById('user-search').value.trim().toLowerCase();
-      if (!query) return;
+      const roleFilter = document.getElementById('user-role-filter')?.value || 'all';
+      const verificationFilter = document.getElementById('user-verification-filter')?.value || 'all';
+      const freeFilter = document.getElementById('user-free-filter')?.value || 'all';
+      const sortOption = document.getElementById('user-sort')?.value || 'recent';
 
       const resultsDiv = document.getElementById('user-results');
       resultsDiv.innerHTML = 'Searching...';
 
       firebase.database().ref('users').once('value').then(snapshot => {
-        let found = false;
-        resultsDiv.innerHTML = '';
-
+        const matches = [];
         snapshot.forEach(child => {
           const user = child.val() || {};
           const email = (user.email || '').toLowerCase();
           const username = (user.username || '').toLowerCase();
           const uid = child.key.toLowerCase();
 
-          if (
-            email === query ||
-            username === query ||
-            uid === query ||
-            email.includes(query) ||
-            username.includes(query) ||
-            uid.includes(query)
-          ) {
-            found = true;
-            const div = document.createElement('div');
-            div.className = 'glass-card space-y-4';
-            div.innerHTML = `
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <h3 class="text-lg font-semibold text-white">${user.username || user.email || 'User'} <span class="text-xs text-slate-400">(${child.key})</span></h3>
-                <div class="flex flex-wrap gap-2">
-                  <button onclick="saveUser('${child.key}')" class="inline-flex items-center gap-2 rounded-xl bg-emerald-500/20 px-3 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-500/30"><i class="fa-solid fa-floppy-disk"></i>Save</button>
-                  <button onclick="sendPasswordReset('${user.email || ''}')" class="inline-flex items-center gap-2 rounded-xl bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-500/30"><i class="fa-solid fa-key"></i>Reset password</button>
-                  <button onclick="deleteUser('${child.key}')" class="inline-flex items-center gap-2 rounded-xl bg-rose-500/20 px-3 py-2 text-xs font-semibold text-rose-200 hover:bg-rose-500/30"><i class="fa-solid fa-trash"></i>Delete</button>
-                </div>
-              </div>
-              <div class="grid gap-4 md:grid-cols-2">
-                <label class="space-y-1 text-sm text-slate-300">Name<input type="text" id="name-${child.key}" value="${user.name || ''}" class="form-input"></label>
-                <label class="space-y-1 text-sm text-slate-300">Username<input type="text" id="username-${child.key}" value="${user.username || ''}" class="form-input"></label>
-                <label class="space-y-1 text-sm text-slate-300">Email<input type="text" id="email-${child.key}" value="${user.email || ''}" class="form-input"></label>
-                <label class="space-y-1 text-sm text-slate-300">Email verified
-                  <select id="verified-${child.key}" class="form-select">
-                    <option value="false" ${!user.emailVerified ? 'selected' : ''}>No</option>
-                    <option value="true" ${user.emailVerified ? 'selected' : ''}>Yes</option>
-                  </select>
-                </label>
-                <label class="space-y-1 text-sm text-slate-300">Phone<input type="text" id="phone-${child.key}" value="${user.phone || ''}" class="form-input"></label>
-                <label class="space-y-1 text-sm text-slate-300">Balance<input type="number" step="any" id="balance-${child.key}" value="${user.balance || 0}" class="form-input"></label>
-                <label class="space-y-1 text-sm text-slate-300">Role
-                  <select id="role-${child.key}" class="form-select">
-                    <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
-                    <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
-                  </select>
-                </label>
-                <label class="space-y-1 text-sm text-slate-300">Free case opened
-                  <select id="free-${child.key}" class="form-select">
-                    <option value="false" ${!user.freeCaseOpened ? 'selected' : ''}>No</option>
-                    <option value="true" ${user.freeCaseOpened ? 'selected' : ''}>Yes</option>
-                  </select>
-                </label>
-              </div>
-              <div class="space-y-2">
-                <button onclick="loadHistory('${child.key}', this)" class="inline-flex items-center gap-2 rounded-xl bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-500/30">Load history</button>
-                <div class="overflow-x-auto border border-slate-800/70 rounded-xl">
-                  <table class="min-w-full text-xs text-slate-300">
-                    <thead>
-                      <tr>
-                        <th class="px-3 py-2 text-left">Item</th>
-                        <th class="px-3 py-2 text-left">Rarity</th>
-                        <th class="px-3 py-2 text-left">Value</th>
-                        <th class="px-3 py-2 text-left">Status</th>
-                        <th class="px-3 py-2 text-left">Unbox Balance</th>
-                        <th class="px-3 py-2 text-left">Sale Balance</th>
-                        <th class="px-3 py-2 text-left">Timestamp</th>
-                      </tr>
-                    </thead>
-                    <tbody id="unbox-${child.key}"><tr><td colspan="7" class="px-3 py-2">History not loaded.</td></tr></tbody>
-                  </table>
-                </div>
-              </div>
-            `;
-            resultsDiv.appendChild(div);
+          const queryMatch = !query || email.includes(query) || username.includes(query) || uid.includes(query);
+          const roleMatch = roleFilter === 'all' || user.role === roleFilter;
+          const verificationMatch = verificationFilter === 'all' || (verificationFilter === 'verified' ? user.emailVerified : !user.emailVerified);
+          const freeMatch = freeFilter === 'all' || (freeFilter === 'opened' ? user.freeCaseOpened : !user.freeCaseOpened);
+
+          if (queryMatch && roleMatch && verificationMatch && freeMatch) {
+            matches.push({ uid: child.key, data: user });
           }
         });
 
-        if (!found) resultsDiv.innerHTML = 'No users found.';
+        if (!matches.length) {
+          resultsDiv.innerHTML = 'No users found.';
+          updateUserStats({ total: 0, admins: 0, verified: 0, balance: 0 });
+          updateUserInsights([], {});
+          return;
+        }
+
+        matches.sort((a, b) => {
+          if (sortOption === 'balance-desc') return (b.data.balance || 0) - (a.data.balance || 0);
+          if (sortOption === 'balance-asc') return (a.data.balance || 0) - (b.data.balance || 0);
+          if (sortOption === 'name') return (a.data.username || a.data.email || '').localeCompare(b.data.username || b.data.email || '');
+          return a.uid.localeCompare(b.uid);
+        });
+
+        resultsDiv.innerHTML = '';
+        const stats = {
+          total: matches.length,
+          admins: matches.filter(item => item.data.role === 'admin').length,
+          verified: matches.filter(item => item.data.emailVerified).length,
+          balance: matches.reduce((sum, item) => sum + (Number(item.data.balance) || 0), 0)
+        };
+        updateUserStats(stats);
+
+        matches.forEach(({ uid, data }) => {
+          const div = document.createElement('div');
+          div.className = 'glass-card space-y-4';
+          div.innerHTML = `
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="space-y-1">
+                <h3 class="text-lg font-semibold text-white">${data.username || data.email || 'User'} <span class="text-xs text-slate-400">(${uid})</span></h3>
+                <div class="flex flex-wrap gap-2 text-xs">
+                  <span class="inline-flex items-center gap-1 rounded-full bg-slate-800/70 px-3 py-1"><i class="fa-solid fa-id-card"></i> ${data.role || 'user'}</span>
+                  <span class="inline-flex items-center gap-1 rounded-full ${data.emailVerified ? 'bg-emerald-500/20 text-emerald-100' : 'bg-amber-500/20 text-amber-100'} px-3 py-1"><i class="fa-solid fa-shield-check"></i> ${data.emailVerified ? 'Verified' : 'Unverified'}</span>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-sky-500/20 text-sky-100 px-3 py-1"><i class="fa-solid fa-coins"></i> ${formatCurrency(data.balance || 0)}</span>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-purple-500/20 text-purple-100 px-3 py-1"><i class="fa-solid fa-gift"></i> ${data.freeCaseOpened ? 'Free case opened' : 'Free case locked'}</span>
+                </div>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="saveUser('${uid}')" class="inline-flex items-center gap-2 rounded-xl bg-emerald-500/20 px-3 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-500/30"><i class="fa-solid fa-floppy-disk"></i>Save</button>
+                <button onclick="sendPasswordReset('${data.email || ''}')" class="inline-flex items-center gap-2 rounded-xl bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-500/30"><i class="fa-solid fa-key"></i>Reset password</button>
+                <button onclick="deleteUser('${uid}')" class="inline-flex items-center gap-2 rounded-xl bg-rose-500/20 px-3 py-2 text-xs font-semibold text-rose-200 hover:bg-rose-500/30"><i class="fa-solid fa-trash"></i>Delete</button>
+              </div>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2">
+              <label class="space-y-1 text-sm text-slate-300">Name<input type="text" id="name-${uid}" value="${data.name || ''}" class="form-input"></label>
+              <label class="space-y-1 text-sm text-slate-300">Username<input type="text" id="username-${uid}" value="${data.username || ''}" class="form-input"></label>
+              <label class="space-y-1 text-sm text-slate-300">Email<input type="text" id="email-${uid}" value="${data.email || ''}" class="form-input"></label>
+              <label class="space-y-1 text-sm text-slate-300">Email verified
+                <select id="verified-${uid}" class="form-select">
+                  <option value="false" ${!data.emailVerified ? 'selected' : ''}>No</option>
+                  <option value="true" ${data.emailVerified ? 'selected' : ''}>Yes</option>
+                </select>
+              </label>
+              <label class="space-y-1 text-sm text-slate-300">Phone<input type="text" id="phone-${uid}" value="${data.phone || ''}" class="form-input"></label>
+              <label class="space-y-1 text-sm text-slate-300">Balance<input type="number" step="any" id="balance-${uid}" value="${data.balance || 0}" class="form-input"></label>
+              <label class="space-y-1 text-sm text-slate-300">Role
+                <select id="role-${uid}" class="form-select">
+                  <option value="user" ${data.role === 'user' ? 'selected' : ''}>User</option>
+                  <option value="admin" ${data.role === 'admin' ? 'selected' : ''}>Admin</option>
+                </select>
+              </label>
+              <label class="space-y-1 text-sm text-slate-300">Free case opened
+                <select id="free-${uid}" class="form-select">
+                  <option value="false" ${!data.freeCaseOpened ? 'selected' : ''}>No</option>
+                  <option value="true" ${data.freeCaseOpened ? 'selected' : ''}>Yes</option>
+                </select>
+              </label>
+            </div>
+            <div class="space-y-2">
+              <button onclick="loadHistory('${uid}', this)" class="inline-flex items-center gap-2 rounded-xl bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-500/30">Load history</button>
+              <div class="overflow-x-auto border border-slate-800/70 rounded-xl">
+                <table class="min-w-full text-xs text-slate-300">
+                  <thead>
+                    <tr>
+                      <th class="px-3 py-2 text-left">Item</th>
+                      <th class="px-3 py-2 text-left">Rarity</th>
+                      <th class="px-3 py-2 text-left">Value</th>
+                      <th class="px-3 py-2 text-left">Status</th>
+                      <th class="px-3 py-2 text-left">Unbox Balance</th>
+                      <th class="px-3 py-2 text-left">Sale Balance</th>
+                      <th class="px-3 py-2 text-left">Timestamp</th>
+                    </tr>
+                  </thead>
+                  <tbody id="unbox-${uid}"><tr><td colspan="7" class="px-3 py-2">History not loaded.</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          `;
+          resultsDiv.appendChild(div);
+        });
+
+        updateUserInsights(matches, stats);
       });
     }
     function loadHistory(uid, btn) {
@@ -2280,6 +2429,7 @@
       loadQuestConfig();
       loadWheelRewards();
       loadUserCount();
+      searchUsers();
     });
 
     homeSpinnerSelect?.addEventListener('change', () => {
