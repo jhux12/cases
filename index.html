@@ -501,40 +501,60 @@
     <!-- Available Packs Section -->
     <div id="available-packs" class="py-12 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8">
-  <div>
-    <h2 class="text-2xl font-bold text-gray-900">Available Packs</h2>
-    <p class="mt-2 text-gray-600">Rip, collect, and uncover what's inside 🔥</p>
-  </div>
-  <div class="mt-4 sm:mt-0 flex gap-2 w-full sm:w-auto">
-    <button id="filter-toggle" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"><i class="fas fa-filter"></i><span>Filters</span></button>
-    <button id="clear-filters" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300"><i class="fas fa-undo"></i><span>Clear</span></button>
-  </div>
-</div>
+
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900">Available Packs</h2>
+            <p class="mt-2 text-gray-600">Rip, collect, and uncover what's inside 🔥</p>
+          </div>
+          <div class="flex gap-2 w-full sm:w-auto">
+            <button id="filter-toggle" class="filter-toggle-btn"><i class="fas fa-filter"></i><span>Show Filters</span></button>
+            <button id="clear-filters" class="filter-clear-btn"><i class="fas fa-undo"></i><span>Clear</span></button>
+          </div>
+        </div>
 
         <!-- Filter Panel -->
 
-<div id="filter-panel" class="hidden flex-col sm:flex sm:flex-wrap gap-4 mb-6 bg-gray-50 p-4 rounded-lg">
-  <input id="search-box" type="text" placeholder="Search packs" class="w-full sm:w-48 px-3 py-2 rounded-md border border-gray-300 text-gray-900 placeholder-gray-500" />
-  <input id="min-price" type="number" placeholder="Min" class="w-full sm:w-24 px-3 py-2 rounded-md border border-gray-300 text-gray-900 placeholder-gray-500" />
-  <input id="max-price" type="number" placeholder="Max" class="w-full sm:w-24 px-3 py-2 rounded-md border border-gray-300 text-gray-900 placeholder-gray-500" />
-  <div class="flex items-center gap-3 px-3 py-2 rounded-md border border-gray-300 bg-white w-full sm:w-auto">
-    <label for="affordable-only" class="flex items-center cursor-pointer select-none">
-      <div class="relative">
-        <input type="checkbox" id="affordable-only" class="sr-only peer">
-        <div class="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-indigo-600 transition-all duration-300"></div>
-        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
+<div id="filter-panel" class="hidden sm:flex flex-col gap-4 mb-6 bg-white border border-gray-200 rounded-2xl shadow-sm px-4 py-5">
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+    <div class="md:col-span-5 flex flex-col gap-2">
+      <label for="search-box" class="filter-label">Search packs</label>
+      <div class="filter-input-wrapper">
+        <i class="fas fa-search"></i>
+        <input id="search-box" type="text" placeholder="Search by name or theme" class="filter-input" />
       </div>
-      <span class="ml-3 text-sm text-gray-700">Enough gems to buy</span>
-    </label>
+    </div>
+    <div class="md:col-span-3 flex flex-col gap-2">
+      <label class="filter-label">Price range</label>
+      <div class="flex gap-3">
+        <input id="min-price" type="number" placeholder="Min" class="filter-input" />
+        <input id="max-price" type="number" placeholder="Max" class="filter-input" />
+      </div>
+    </div>
+    <div class="md:col-span-2 flex flex-col gap-2">
+      <span class="filter-label">Affordability</span>
+      <label for="affordable-only" class="toggle-card">
+        <span class="text-sm font-medium text-gray-800">Enough gems to buy</span>
+        <div class="relative inline-flex items-center ml-auto">
+          <input type="checkbox" id="affordable-only" class="sr-only peer">
+          <div class="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-indigo-600 transition-all duration-300"></div>
+          <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
+        </div>
+      </label>
+    </div>
+    <div class="md:col-span-2 flex flex-col gap-2">
+      <label for="sort-select" class="filter-label">Sort by</label>
+      <div class="filter-input-wrapper">
+        <i class="fas fa-sort"></i>
+        <select id="sort-select" class="filter-select">
+          <option value="default">Recommended</option>
+          <option value="asc">Price: Low to High</option>
+          <option value="desc">Price: High to Low</option>
+          <option value="rarity">Rarity</option>
+        </select>
+      </div>
+    </div>
   </div>
-  <select id="sort-select" class="w-full sm:w-auto px-3 py-2 rounded-md border border-gray-300 text-gray-900">
-    <option value="default">Sorting</option>
-    <option value="asc">Ascending</option>
-    <option value="desc">Descending</option>
-    <option value="rarity">Rarity</option>
-  </select>
 </div>
 
         <!-- Category Tabs -->
