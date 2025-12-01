@@ -1,0 +1,353 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  --collectibles-bg: #0a0c14;
+  --collectibles-surface: rgba(255, 255, 255, 0.04);
+  --collectibles-border: rgba(255, 255, 255, 0.12);
+  --collectibles-ink: #f8fafc;
+  --collectibles-subtle: #cdd5e0;
+  --collectibles-accent: #a5ff5e;
+  --collectibles-accent-2: #6ae3ff;
+  --collectibles-gradient: linear-gradient(135deg, #baff6c, #4cd4ff 45%, #7b6bff 80%);
+  --collectibles-radius: 18px;
+  --collectibles-blur: 14px;
+}
+
+body.collectibles-page {
+  background: radial-gradient(circle at 20% 20%, rgba(110, 255, 140, 0.08), transparent 25%),
+    radial-gradient(circle at 80% 0%, rgba(82, 132, 255, 0.12), transparent 25%),
+    radial-gradient(circle at 50% 90%, rgba(161, 114, 255, 0.14), transparent 30%),
+    var(--collectibles-bg);
+  color: var(--collectibles-ink);
+  font-family: 'Space Grotesk', 'Poppins', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  letter-spacing: 0.01em;
+}
+
+body.collectibles-page * {
+  scroll-behavior: smooth;
+}
+
+.navbar.collectibles-nav {
+  background: rgba(12, 14, 22, 0.8);
+  border: 1px solid var(--collectibles-border);
+  border-radius: var(--collectibles-radius);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(var(--collectibles-blur));
+  margin: 12px auto;
+  max-width: 1200px;
+  padding: 10px 16px;
+}
+
+.collectibles-nav .brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--collectibles-gradient);
+  color: #0a0c14;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 10px 30px rgba(164, 255, 108, 0.35);
+}
+
+.collectibles-nav .brand-mark span {
+  color: #0a0c14;
+}
+
+.collectibles-nav .nav-link {
+  color: var(--collectibles-subtle) !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 12px 8px;
+  position: relative;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.collectibles-nav .nav-link::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 0;
+  height: 2px;
+  background: var(--collectibles-gradient);
+  transition: width 0.2s ease, left 0.2s ease;
+}
+
+.collectibles-nav .nav-link:hover {
+  color: var(--collectibles-ink) !important;
+  transform: translateY(-1px);
+}
+
+.collectibles-nav .nav-link:hover::after,
+.collectibles-nav .nav-link.border-indigo-500::after {
+  width: 70%;
+  left: 15%;
+}
+
+.collectibles-nav .nav-link.border-indigo-500 {
+  color: var(--collectibles-ink) !important;
+  border-color: transparent !important;
+}
+
+.collectibles-nav .nav-pill {
+  border-radius: 999px;
+  border: 1px solid var(--collectibles-border);
+  background: var(--collectibles-surface);
+  color: var(--collectibles-ink);
+  padding: 10px 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.collectibles-nav .nav-pill:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.collectibles-nav .nav-cta {
+  padding: 10px 18px;
+  border-radius: 12px;
+  background: var(--collectibles-gradient);
+  color: #0a0c14 !important;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  box-shadow: 0 12px 30px rgba(164, 255, 108, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.collectibles-nav .nav-cta:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 16px 40px rgba(122, 211, 255, 0.35);
+}
+
+.collectibles-nav .theme-toggle {
+  border-color: var(--collectibles-border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--collectibles-ink);
+}
+
+.collectibles-nav .theme-toggle:hover {
+  box-shadow: 0 0 0 1px var(--collectibles-border), 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.collectibles-hero {
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: 32px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  position: relative;
+}
+
+.collectibles-hero::before,
+.collectibles-hero::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.6;
+}
+
+.collectibles-hero::before {
+  width: 320px;
+  height: 320px;
+  background: rgba(164, 255, 108, 0.35);
+  top: -120px;
+  left: -120px;
+}
+
+.collectibles-hero::after {
+  width: 360px;
+  height: 360px;
+  background: rgba(107, 120, 255, 0.32);
+  bottom: -140px;
+  right: -140px;
+}
+
+.collectibles-hero .hero-copy-shell {
+  padding: 56px 48px 72px;
+  color: var(--collectibles-ink);
+}
+
+.collectibles-hero h1 {
+  font-size: clamp(42px, 4vw, 58px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.collectibles-hero p {
+  color: var(--collectibles-subtle);
+  font-size: 18px;
+}
+
+.collectibles-hero .cta-group a {
+  border-radius: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.collectibles-hero .cta-primary {
+  background: var(--collectibles-gradient);
+  color: #0a0c14;
+  box-shadow: 0 16px 36px rgba(107, 120, 255, 0.35);
+}
+
+.collectibles-hero .cta-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--collectibles-border);
+  color: var(--collectibles-ink);
+}
+
+.collectibles-hero .spinner-featured-pack {
+  background: rgba(10, 12, 20, 0.75);
+  border: 1px solid var(--collectibles-border);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+  border-radius: 28px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(var(--collectibles-blur));
+}
+
+.collectibles-hero .spinner-featured-pack::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+}
+
+.collectibles-hero .reel-wrapper {
+  border: 1px solid var(--collectibles-border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.section-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.section-shell .section-heading h2,
+.section-shell .section-heading p {
+  color: var(--collectibles-ink);
+}
+
+.section-shell .section-heading h2 {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.section-shell .section-heading p {
+  color: var(--collectibles-subtle);
+}
+
+.hot-reel-wrapper {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--collectibles-border);
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.4);
+}
+
+.hot-reel-wrapper .tile {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--collectibles-border);
+  color: var(--collectibles-ink);
+}
+
+.hot-reel-wrapper .tile-info .name,
+.hot-reel-wrapper .tile-info .price span {
+  color: var(--collectibles-ink);
+}
+
+.hot-reel-wrapper .pill {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--collectibles-ink);
+  border: 1px solid var(--collectibles-border);
+}
+
+#available-packs.section-shell {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--collectibles-border);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+  border-radius: 28px;
+  padding: 48px 32px;
+}
+
+#available-packs input,
+#available-packs select {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--collectibles-border);
+  color: var(--collectibles-ink);
+}
+
+#available-packs button,
+#available-packs .topup-chip {
+  border-radius: 12px;
+}
+
+.filter-surface {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--collectibles-border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.collectibles-card,
+.card,
+.pack-card,
+.case-card {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid var(--collectibles-border) !important;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4) !important;
+  border-radius: 18px !important;
+}
+
+.collectibles-card:hover,
+.pack-card:hover,
+.case-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55) !important;
+}
+
+.collectibles-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--collectibles-surface);
+  border: 1px solid var(--collectibles-border);
+  color: var(--collectibles-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.collectibles-chip .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--collectibles-gradient);
+  box-shadow: 0 0 0 6px rgba(164, 255, 108, 0.12);
+}
+
+.pill.common { background: rgba(255, 255, 255, 0.1); color: var(--collectibles-subtle); }
+.pill.uncommon { background: rgba(165, 255, 108, 0.2); color: #dcfce7; }
+.pill.rare { background: rgba(76, 212, 255, 0.2); color: #dbeafe; }
+.pill.ultrarare { background: rgba(123, 107, 255, 0.18); color: #ede9fe; }
+
+.footer-glow {
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid var(--collectibles-border);
+  color: var(--collectibles-subtle);
+}
