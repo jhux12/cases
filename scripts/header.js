@@ -2,10 +2,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const header = document.querySelector("header");
   if (!header) return;
 
+  document.body.classList.add('collectibles-page');
+
   if (!document.querySelector('link[href="styles/main.css"]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = 'styles/main.css';
+    document.head.appendChild(link);
+  }
+
+  if (!document.querySelector('link[href="styles/collectibles-theme.css"]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'styles/collectibles-theme.css';
     document.head.appendChild(link);
   }
 
@@ -17,19 +26,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   header.innerHTML = `
-    <nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200 backdrop-blur bg-white/80">
+    <nav class="navbar collectibles-nav fixed top-0 left-0 right-0 z-50 border-b border-gray-200 backdrop-blur bg-white/80">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
             <a href="index.html" class="flex-shrink-0 flex items-center">
-              <span class="text-2xl font-bold gradient-text">packly.gg</span>
+              <span class="brand-mark text-2xl font-bold">packly.gg</span>
             </a>
             <div class="hidden md:ml-6 md:flex md:space-x-8">
-              <a data-nav="index.html" href="index.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-box-open mr-1"></i>Open Packs</a>
-              <a data-nav="box-battles.html" href="box-battles.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-sword mr-1"></i><i class="fas fa-shield-alt mr-2"></i> Battles</a>
-              <a data-nav="leaderboard.html" href="leaderboard.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-trophy mr-1"></i>Leaderboard</a>
-              <a data-nav="marketplace.html" href="marketplace.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-store mr-1"></i>Marketplace</a>
-              <a data-nav="rewards.html" href="rewards.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-gift mr-1"></i>Rewards</a>
+              <a data-nav="index.html" href="index.html" class="nav-link inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-box-open mr-1"></i>Open Packs</a>
+              <a data-nav="box-battles.html" href="box-battles.html" class="nav-link inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-sword mr-1"></i><i class="fas fa-shield-alt mr-2"></i> Battles</a>
+              <a data-nav="leaderboard.html" href="leaderboard.html" class="nav-link inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-trophy mr-1"></i>Leaderboard</a>
+              <a data-nav="marketplace.html" href="marketplace.html" class="nav-link inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-store mr-1"></i>Marketplace</a>
+              <a data-nav="rewards.html" href="rewards.html" class="nav-link inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-gift mr-1"></i>Rewards</a>
             </div>
           </div>
           <div class="hidden md:ml-6 md:flex md:items-center md:space-x-6">
@@ -37,8 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
               <i class="fas fa-moon"></i>
             </button>
             <div id="auth-buttons" class="flex items-center space-x-4">
-              <a id="signin-desktop" href="auth.html" class="text-sm font-medium text-gray-700 hover:text-gray-900">Sign In</a>
-              <a id="register-desktop" href="auth.html#register" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
+              <a id="signin-desktop" href="auth.html" class="nav-pill text-sm font-medium text-gray-700 hover:text-gray-900">Sign In</a>
+              <a id="register-desktop" href="auth.html#register" class="nav-cta text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
             </div>
             <div id="user-area" class="hidden md:hidden md:items-center md:space-x-4">
               <div id="user-balance" class="hidden balance-chip items-center gap-3 px-3 py-1.5 text-white">
