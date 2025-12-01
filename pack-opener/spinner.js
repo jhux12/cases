@@ -87,14 +87,26 @@
   function playTick() {
     if (state.muted) return;
     const ctx = getCtx();
+    const now = ctx.currentTime;
+
     const osc = ctx.createOscillator();
-    osc.type = "triangle";
-    osc.frequency.value = 800;
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(320, now);
+    osc.frequency.exponentialRampToValueAtTime(980, now + 0.09);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = 1200;
+    filter.Q.value = 9;
+
     const gain = ctx.createGain();
-    gain.gain.value = 0.02;
-    osc.connect(gain).connect(ctx.destination);
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.exponentialRampToValueAtTime(0.08, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+
+    osc.connect(filter).connect(gain).connect(ctx.destination);
     osc.start();
-    osc.stop(ctx.currentTime + 0.05);
+    osc.stop(now + 0.25);
   }
 
   let audioCtx;
@@ -149,11 +161,13 @@
     state.root.style.transform = "translate3d(0,0,0)";
 
     const startX = 0;
-    const duration = opts.durationMs || 2400;
+    const duration = opts.durationMs || 7000;
     state.isSpinning = true;
 
     const tiles = state.root.children;
-    const midStart = state.items.length * 2;
+    const extraLoops = Math.min(4, Math.max(2, opts.extraLoops || 3));
+    const targetCopy = 2 + extraLoops;
+    const midStart = state.items.length * targetCopy;
     let offset = 0;
 
     if (opts.nearMiss && Math.random() < 0.25) {
@@ -180,21 +194,22 @@
     const containerWidth = container.getBoundingClientRect().width;
     const centerOffset = containerWidth / 2 - state.tileWidth / 2;
 
-    const targetIndex = state.items.length * 2 + index;
+    const targetIndex = state.items.length * targetCopy + index;
     const perfectX = -(targetIndex * state.tileWidth - centerOffset);
     const finalX = perfectX + offset;
     const distance = finalX - startX;
 
-    // heavier deceleration for slower end spin
-    const accDur = duration * 0.25,
-      decelDur = duration * 0.45,
+    // single long spin with a heavy slow-down near the end
+    const accDur = duration * 0.16,
+      decelDur = duration * 0.48,
       cruiseDur = duration - accDur - decelDur;
     const accDist = distance * (accDur / duration),
       decelDist = distance * (decelDur / duration),
       cruiseDist = distance - accDist - decelDist;
 
     let lastTick = 0,
-      start = null;
+      start = null,
+      lastPos = startX;
     emit("start");
 
     function easeInCubic(t) {
@@ -227,9 +242,12 @@
 
       const pos = startX + delta;
       state.root.style.transform = `translate3d(${pos}px,0,0)`;
-      if (timestamp - lastTick > 120) {
+      const speedRatio = Math.min(1, Math.abs(pos - lastPos) / (state.tileWidth * 0.75));
+      const tickInterval = 65 + (1 - speedRatio) * 320;
+      if (timestamp - lastTick > tickInterval) {
         playTick();
         lastTick = timestamp;
+        lastPos = pos;
       }
 
       if (elapsed < duration) {
