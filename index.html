@@ -513,16 +513,18 @@
                     <div class="hero-card-stack">
                         <div class="hero-card frosted-panel">
                             <div class="card-title">
-                                <span>Featured pack</span>
-                                <div class="price">from $1.99</div>
-                            </div>
-                            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Pika Pika pack cover" />
-                            <div class="flex items-center justify-between mt-3">
-                                <div class="flex gap-2 flex-wrap">
-                                    <span class="pill-compact">Pokemon</span>
-                                    <span class="pill-compact">Guaranteed pull</span>
+                                <div class="flex flex-col gap-1">
+                                    <span class="uppercase tracking-wide text-xs text-indigo-100">Featured pack</span>
+                                    <span id="hero-pack-name" class="text-base font-semibold text-white">Loading…</span>
                                 </div>
-                                <a href="#available-packs" class="text-indigo-100 font-semibold hover:text-white">Open now →</a>
+                                <div id="hero-pack-price" class="price price-chip">Open for —</div>
+                            </div>
+                            <img id="hero-pack-image" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Featured pack cover" />
+                            <div class="flex items-center justify-between mt-3">
+                                <div class="flex gap-2 flex-wrap" id="hero-pack-tags">
+                                    <span class="pill-compact">Loading tags…</span>
+                                </div>
+                                <a id="hero-pack-link" href="#available-packs" class="text-indigo-100 font-semibold hover:text-white">Open now →</a>
                             </div>
                         </div>
                         <div class="frosted-panel rounded-2xl p-4">
@@ -868,6 +870,11 @@
             const badgeImage = document.getElementById('spinner-pack-image');
             const badgeName = document.getElementById('spinner-pack-name');
             const badgePrice = document.getElementById('spinner-pack-price');
+            const heroPrice = document.getElementById('hero-pack-price');
+            const heroName = document.getElementById('hero-pack-name');
+            const heroImage = document.getElementById('hero-pack-image');
+            const heroTags = document.getElementById('hero-pack-tags');
+            const heroLink = document.getElementById('hero-pack-link');
             const DEFAULT_CASE_ID = '-OPd7bkeviB4Xq_1Ea6i';
 
             function formatPackPrice(data) {
@@ -877,26 +884,52 @@
                 return value.toLocaleString();
             }
 
-            function applyBadge(data, fallbackConfig = {}) {
+            function buildPriceMarkup({ priceValue, isFree }) {
+                if (!priceValue && !isFree) return 'Available now';
+
+                const isFreeLabel = priceValue === 'Free' || isFree;
+                const chipValue = isFreeLabel ? 'Free' : `${priceValue} gems`;
+                const icon = isFreeLabel
+                    ? ''
+                    : `<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gems" />`;
+
+                return `
+                    <span class="price-prefix">Open for</span>
+                    <span class="price-amount">${icon}<span>${chipValue}</span></span>
+                `;
+            }
+
+            function applyBadge(data, fallbackConfig = {}, caseId = DEFAULT_CASE_ID) {
                 if (!badge || !badgeImage || !badgeName || !badgePrice) return;
                 const packName = data?.name || fallbackConfig.caseName || 'Featured pack';
                 const packImage = data?.image || fallbackConfig.thumbnail || `https://ui-avatars.com/api/?name=${encodeURIComponent(packName)}&background=1e293b&color=f8fafc&rounded=true`;
                 const priceValue = formatPackPrice(data) || formatPackPrice(fallbackConfig);
+                const priceMarkup = buildPriceMarkup({ priceValue, isFree: data?.isFree || fallbackConfig?.isFree });
                 badgeImage.src = packImage;
                 badgeImage.alt = `${packName} thumbnail`;
                 badgeName.textContent = packName;
-                if (priceValue) {
-                    badgePrice.innerHTML = `
-                        <span class="price-prefix">Open for</span>
-                        <span class="price-amount">
-                            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gems" />
-                            <span>${priceValue} gems</span>
-                        </span>
-                    `;
-                } else {
-                    badgePrice.textContent = 'Available now';
-                }
+                badgePrice.innerHTML = priceMarkup;
                 badge.classList.remove('hidden');
+
+                if (heroImage) {
+                    heroImage.src = packImage;
+                    heroImage.alt = `${packName} cover`;
+                }
+                if (heroName) heroName.textContent = packName;
+                if (heroPrice) heroPrice.innerHTML = priceMarkup;
+                if (heroLink) heroLink.href = `case.html?id=${caseId}`;
+                if (heroTags) {
+                    const tagList = [];
+                    if (data?.tag) tagList.push(data.tag);
+                    const categoryTags = Object.entries(data?.categories || {})
+                        .filter(([, enabled]) => enabled)
+                        .map(([key]) => key.replace(/([A-Z])/g, ' $1').trim());
+                    tagList.push(...categoryTags);
+                    if (!tagList.length) tagList.push('Featured');
+                    heroTags.innerHTML = tagList.slice(0, 3)
+                        .map(tag => `<span class="pill-compact">${tag}</span>`)
+                        .join('');
+                }
             }
 
             async function loadDemoSpinner() {
@@ -927,7 +960,7 @@
 
                 PackOpener.init({ root, items });
                 PackOpener.setMuted(true);
-                applyBadge(caseData, config);
+                applyBadge(caseData, config, caseResult.id || DEFAULT_CASE_ID);
 
                 const legendaryIndices = items.reduce((arr, it, idx) => {
                     if (it.rarity === 'legendary') arr.push(idx);
