@@ -237,6 +237,7 @@ function loadCases() {
 
       const filterControls = setupFilters(allCases, renderCases, getUserBalance);
       setupCategoryTabs(filterControls);
+      document.dispatchEvent(new CustomEvent('cases:loaded', { detail: { cases: allCases } }));
     });
   });
 }
