@@ -1397,6 +1397,9 @@ html {
 
 .gem-icon {
   filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.7));
+  display: inline-block;
+  vertical-align: middle;
+  object-fit: contain;
 }
 
 .gradient-text {
