@@ -327,7 +327,7 @@
         .spinner-pack-meta .price .price-amount {
             display: inline-flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.15rem;
             padding: 0.25rem 0.65rem;
             border-radius: 999px;
             background: linear-gradient(120deg, rgba(148, 163, 184, 0.22), rgba(99, 102, 241, 0.32));
@@ -336,8 +336,9 @@
         }
 
         .spinner-pack-meta .price .price-amount img {
-            width: 0.9rem;
-            height: 0.9rem;
+            width: 1.05rem;
+            height: 1.05rem;
+            flex-shrink: 0;
             filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.4));
         }
 
@@ -894,9 +895,9 @@
                 const chipValue = isFreeLabel ? 'Free' : `${priceValue}`;
                 const icon = isFreeLabel
                     ? ''
-                    : `<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gems" />`;
+                    : `<img class="gem-icon price-gem" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gems" />`;
 
-                return `<span class="price-amount">${icon}<span>${chipValue}</span></span>`;
+                return `<span class="price-amount"><span class="price-number">${chipValue}</span>${icon}</span>`;
             }
 
             function applyBadge(data, fallbackConfig = {}, caseId = DEFAULT_CASE_ID) {
