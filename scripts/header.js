@@ -19,21 +19,25 @@ document.addEventListener("DOMContentLoaded", () => {
   header.innerHTML = `
     <nav class="navbar fixed top-0 left-0 right-0 z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16 items-center">
-          <div class="flex items-center gap-8">
+        <div class="flex justify-between h-16 items-center gap-4">
+          <div class="flex items-center gap-6">
             <a href="index.html" class="brand">
               <span class="orb"><i class="fa-solid fa-sparkles"></i></span>
               <span class="text-xl">packly.gg</span>
             </a>
-            <div class="hidden md:flex nav-links gap-2">
-              <a data-nav="index.html" href="index.html"><i class="fas fa-box-open mr-2"></i>Open Packs</a>
-              <a data-nav="box-battles.html" href="box-battles.html"><i class="fas fa-sword mr-1"></i><i class="fas fa-shield-alt mr-2"></i>Battles</a>
-              <a data-nav="leaderboard.html" href="leaderboard.html"><i class="fas fa-trophy mr-2"></i>Leaderboard</a>
-              <a data-nav="marketplace.html" href="marketplace.html"><i class="fas fa-store mr-2"></i>Marketplace</a>
-              <a data-nav="rewards.html" href="rewards.html"><i class="fas fa-gift mr-2"></i>Rewards</a>
+            <div class="hidden md:flex nav-links gap-1">
+              <a data-nav="index.html" href="index.html"><i class="fas fa-box-open"></i>Open</a>
+              <a data-nav="box-battles.html" href="box-battles.html"><i class="fas fa-sword"></i>Battles</a>
+              <a data-nav="leaderboard.html" href="leaderboard.html"><i class="fas fa-trophy"></i>Leaders</a>
+              <a data-nav="marketplace.html" href="marketplace.html"><i class="fas fa-store"></i>Marketplace</a>
+              <a data-nav="rewards.html" href="rewards.html"><i class="fas fa-gift"></i>Rewards</a>
+            </div>
+            <div class="hidden md:flex items-center gap-2">
+              <span class="chip live text-xs">Live now</span>
+              <span class="chip text-xs">2025 beta</span>
             </div>
           </div>
-          <div class="hidden md:flex items-center gap-3">
+          <div class="hidden md:flex items-center gap-3 nav-actions">
             <button class="theme-toggle" type="button" aria-label="Toggle dark mode">
               <i class="fas fa-moon"></i>
             </button>
