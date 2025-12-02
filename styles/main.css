@@ -616,8 +616,9 @@ body.dark-mode .border-gray-300 {
   position: relative;
   background: radial-gradient(ellipse at bottom, #0d0b1f, #070414);
   overflow: hidden;
-  border-radius: 1rem;
-  padding: 2rem;
+  border-radius: 0;
+  padding: 0;
+  isolation: isolate;
 }
 
 .cosmic-stars::before,
