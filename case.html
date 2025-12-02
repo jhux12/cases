@@ -35,6 +35,9 @@
     }
     .gem-icon {
       filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.7));
+      display: inline-block;
+      vertical-align: middle;
+      object-fit: contain;
     }
     .reel-wrapper {
       position: relative;
@@ -205,7 +208,6 @@
     <div class="flex justify-center items-center gap-4 mt-6">
       <button id="open-case-button" class="relative px-6 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-extrabold flex items-center justify-center gap-2 shadow transition-transform transform hover:scale-105 focus:outline-none overflow-hidden">
         <span class="relative z-10 flex items-center gap-2">
-          Open for
           <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 gem-icon" />
           <span id="button-price">...</span>
         </span>
@@ -506,7 +508,7 @@ document.getElementById("case-spice").innerHTML = spiceHTML;
 const openBtn = document.getElementById("open-case-button");
 const priceEl = document.getElementById("button-price");
 if (isFreeCase) {
-  openBtn.innerHTML = '<span class="relative z-10">Open for Free</span>';
+  openBtn.innerHTML = '<span class="relative z-10">Free</span>';
 } else if (priceEl) {
   priceEl.textContent = formatGems(caseData.price || 0);
 }
@@ -636,7 +638,7 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     showToast("Free case already opened!", "bg-red-600");
     btn.disabled = false;
     btn.classList.remove("cursor-not-allowed", "opacity-60");
-    btn.innerHTML = '<span class="relative z-10">Open for Free</span>';
+    btn.innerHTML = '<span class="relative z-10">Free</span>';
     return;
   }
 
@@ -646,7 +648,6 @@ document.getElementById("open-case-button").addEventListener("click", async () =
     btn.classList.remove("cursor-not-allowed", "opacity-60");
     btn.innerHTML = `
       <span class="relative z-10 flex items-center gap-2">
-        Open for
         <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5" />
         <span id="button-price">${formatGems(caseData.price)}</span>
       </span>
@@ -734,10 +735,9 @@ document.getElementById("open-case-button").addEventListener("click", async () =
   btn.disabled = false;
   btn.classList.remove('cursor-not-allowed', 'opacity-60');
   btn.innerHTML = isFreeCase
-    ? '<span class="relative z-10">Open for Free</span>'
+    ? '<span class="relative z-10">Free</span>'
     : `<div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50z-0 animate-spin-slow"></div>
       <span class="relative z-10 flex items-center gap-2">
-        Open for
         <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5" />
         <span id="button-price">${formatGems(caseData.price)}</span>
       </span>`;
