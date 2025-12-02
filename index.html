@@ -532,24 +532,6 @@
                                 <a id="hero-pack-link" href="#available-packs" class="text-indigo-100 font-semibold hover:text-white">Open now →</a>
                             </div>
                         </div>
-                        <div class="frosted-panel rounded-2xl p-4">
-                            <div id="spinner-pack-badge" class="spinner-pack-badge hidden">
-                                <img id="spinner-pack-image" src="" alt="Featured pack thumbnail">
-                                <div class="spinner-pack-meta">
-                                    <span class="label">Featured pack</span>
-                                    <span id="spinner-pack-name" class="name"></span>
-                                    <span id="spinner-pack-price" class="price"></span>
-                                </div>
-                            </div>
-                            <div class="reel-wrapper mt-3">
-                                <div id="demo-spinner" class="reel"></div>
-                                <div class="center-marker">
-                                    <span class="marker-arrow top"></span>
-                                    <span class="marker-line"></span>
-                                    <span class="marker-arrow bottom"></span>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </main>
             </div>
@@ -869,8 +851,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const root = document.getElementById('demo-spinner');
-            if (!root) return;
-
             const badge = document.getElementById('spinner-pack-badge');
             const badgeImage = document.getElementById('spinner-pack-image');
             const badgeName = document.getElementById('spinner-pack-name');
@@ -902,16 +882,18 @@
             }
 
             function applyBadge(data, fallbackConfig = {}, caseId = DEFAULT_CASE_ID) {
-                if (!badge || !badgeImage || !badgeName || !badgePrice) return;
                 const packName = data?.name || fallbackConfig.caseName || 'Featured pack';
                 const packImage = data?.image || fallbackConfig.thumbnail || `https://ui-avatars.com/api/?name=${encodeURIComponent(packName)}&background=1e293b&color=f8fafc&rounded=true`;
                 const priceValue = formatPackPrice(data) || formatPackPrice(fallbackConfig);
                 const priceMarkup = buildPriceMarkup({ priceValue, isFree: data?.isFree || fallbackConfig?.isFree });
-                badgeImage.src = packImage;
-                badgeImage.alt = `${packName} thumbnail`;
-                badgeName.textContent = packName;
-                badgePrice.innerHTML = priceMarkup;
-                badge.classList.remove('hidden');
+
+                if (badge && badgeImage && badgeName && badgePrice) {
+                    badgeImage.src = packImage;
+                    badgeImage.alt = `${packName} thumbnail`;
+                    badgeName.textContent = packName;
+                    badgePrice.innerHTML = priceMarkup;
+                    badge.classList.remove('hidden');
+                }
 
                 if (heroImage) {
                     heroImage.src = packImage;
@@ -960,15 +942,17 @@
                 const items = Object.values(caseData.prizes || {});
                 if (!items.length) return;
 
-                PackOpener.init({ root, items });
-                PackOpener.setMuted(true);
+                if (root) {
+                    PackOpener.init({ root, items });
+                    PackOpener.setMuted(true);
+                }
                 applyBadge(caseData, config, caseResult.id || DEFAULT_CASE_ID);
 
                 const legendaryIndices = items.reduce((arr, it, idx) => {
                     if (it.rarity === 'legendary') arr.push(idx);
                     return arr;
                 }, []);
-                if (!legendaryIndices.length) return;
+                if (!root || !legendaryIndices.length) return;
 
                 function loop() {
                     const winIndex = legendaryIndices[Math.floor(Math.random() * legendaryIndices.length)];
