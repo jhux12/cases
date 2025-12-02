@@ -422,9 +422,11 @@
   <header></header>
 
   <!-- Hero Section -->
-  <div class="relative bg-white overflow-hidden pt-20">
-        <div class="max-w-7xl mx-auto">
-            <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+  <div class="relative overflow-hidden pt-20 cosmic-section cosmic-stars">
+        <div id="hero-stardust" class="stardust" aria-hidden="true"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-white/85 via-white/70 to-white/30 pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto relative">
+            <div class="relative z-10 pb-8 bg-white/90 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32 backdrop-blur-md">
                 <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
                     <div class="sm:text-center lg:text-left">
                         <div class="flex items-center mb-4">
@@ -459,26 +461,48 @@
             </div>
         </div>
         <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 flex items-center justify-center p-4">
-            <div class="spinner-featured-pack">
-                <div id="spinner-pack-badge" class="spinner-pack-badge hidden">
-                    <img id="spinner-pack-image" src="" alt="Featured pack thumbnail">
-                    <div class="spinner-pack-meta">
-                        <span class="label">Featured pack</span>
-                        <span id="spinner-pack-name" class="name"></span>
-                        <span id="spinner-pack-price" class="price"></span>
-                    </div>
+            <div class="w-full flex flex-col items-center gap-6">
+                <div id="hero-pack-stage" class="hero-pack-stage">
+                    <div class="hero-pack-stage-glow" aria-hidden="true"></div>
+                    <div class="hero-pack-placeholder">Featuring top selling packs...</div>
                 </div>
-                <div class="reel-wrapper">
-                    <div id="demo-spinner" class="reel"></div>
-                    <div class="center-marker">
-                        <span class="marker-arrow top"></span>
-                        <span class="marker-line"></span>
-                        <span class="marker-arrow bottom"></span>
+                <div class="spinner-featured-pack">
+                    <div id="spinner-pack-badge" class="spinner-pack-badge hidden">
+                        <img id="spinner-pack-image" src="" alt="Featured pack thumbnail">
+                        <div class="spinner-pack-meta">
+                            <span class="label">Featured pack</span>
+                            <span id="spinner-pack-name" class="name"></span>
+                            <span id="spinner-pack-price" class="price"></span>
+                        </div>
+                    </div>
+                    <div class="reel-wrapper">
+                        <div id="demo-spinner" class="reel"></div>
+                        <div class="center-marker">
+                            <span class="marker-arrow top"></span>
+                            <span class="marker-line"></span>
+                            <span class="marker-arrow bottom"></span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Pack Showcase Flip Section -->
+    <section id="pack-showcase" class="relative bg-slate-900 py-12 text-white overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/10 to-sky-500/10"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                <div>
+                    <p class="text-indigo-200 uppercase tracking-[0.2em] text-xs font-semibold">Showcase</p>
+                    <h2 class="text-3xl font-extrabold mt-1">Flip to preview the hits</h2>
+                    <p class="mt-2 text-indigo-100/80 max-w-2xl">Front-to-back peeks at crowd-favorite packs. Cards auto-flip to reveal the chase.</p>
+                </div>
+                <div class="text-sm text-indigo-100/70">Auto-flipping every few seconds</div>
+            </div>
+            <div id="pack-showcase-grid" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </section>
 
     <!-- Featured Cards Section -->
     <div class="py-12 bg-gray-50">
@@ -906,6 +930,7 @@
     <script type="module" src="scripts/hot-cards.js"></script>
     <script type="module" src="scripts/auth.js"></script>
     <script type="module" src="scripts/packs.js"></script>
+    <script type="module" src="scripts/immersive.js"></script>
     <script src="scripts/popups.js"></script>
     <script src="scripts/footer.js"></script>
     <script src="scripts/topup.js"></script>
