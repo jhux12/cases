@@ -205,6 +205,7 @@ body.dark-mode {
   background: var(--chip-surface);
   color: var(--text-primary);
   font-weight: 700;
+  line-height: 1;
 }
 
 .hero-card img {
@@ -236,15 +237,22 @@ body.dark-mode {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  line-height: 1;
 }
 
 .price-amount img {
-  width: 0.9rem;
-  height: 0.9rem;
-  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  display: block;
+  flex-shrink: 0;
   vertical-align: middle;
   object-fit: contain;
   filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.4));
+}
+
+.price-amount span {
+  line-height: 1;
+  display: inline-block;
 }
 
 .case-rail {
