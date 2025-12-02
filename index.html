@@ -517,7 +517,7 @@
                                     <span class="uppercase tracking-wide text-xs text-indigo-100">Featured pack</span>
                                     <span id="hero-pack-name" class="text-base font-semibold text-white">Loading…</span>
                                 </div>
-                                <div id="hero-pack-price" class="price price-chip">Open for —</div>
+                                <div id="hero-pack-price" class="price price-chip">—</div>
                             </div>
                             <img id="hero-pack-image" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Featured pack cover" />
                             <div class="flex items-center justify-between mt-3">
@@ -884,18 +884,19 @@
                 return value.toLocaleString();
             }
 
-            function buildPriceMarkup({ priceValue, isFree }) {
-                if (!priceValue && !isFree) return 'Available now';
+            function buildHeroPriceMarkup({ priceValue, isFree }) {
+                if (!priceValue && !isFree) return '';
 
                 const isFreeLabel = priceValue === 'Free' || isFree;
-                const chipValue = isFreeLabel ? 'Free' : `${priceValue} gems`;
-                const icon = isFreeLabel
-                    ? ''
-                    : `<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gems" />`;
+                if (isFreeLabel) {
+                    return `<span class="price-amount"><span>Free</span></span>`;
+                }
 
                 return `
-                    <span class="price-prefix">Open for</span>
-                    <span class="price-amount">${icon}<span>${chipValue}</span></span>
+                    <span class="price-amount">
+                        <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gems" />
+                        <span>${priceValue} gems</span>
+                    </span>
                 `;
             }
 
@@ -904,11 +905,12 @@
                 const packName = data?.name || fallbackConfig.caseName || 'Featured pack';
                 const packImage = data?.image || fallbackConfig.thumbnail || `https://ui-avatars.com/api/?name=${encodeURIComponent(packName)}&background=1e293b&color=f8fafc&rounded=true`;
                 const priceValue = formatPackPrice(data) || formatPackPrice(fallbackConfig);
-                const priceMarkup = buildPriceMarkup({ priceValue, isFree: data?.isFree || fallbackConfig?.isFree });
+                const priceMarkup = buildHeroPriceMarkup({ priceValue, isFree: data?.isFree || fallbackConfig?.isFree });
                 badgeImage.src = packImage;
                 badgeImage.alt = `${packName} thumbnail`;
                 badgeName.textContent = packName;
-                badgePrice.innerHTML = priceMarkup;
+                badgePrice.innerHTML = '';
+                badgePrice.classList.add('hidden');
                 badge.classList.remove('hidden');
 
                 if (heroImage) {
