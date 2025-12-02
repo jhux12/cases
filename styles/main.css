@@ -241,6 +241,9 @@ body.dark-mode {
 .price-amount img {
   width: 0.9rem;
   height: 0.9rem;
+  display: inline-block;
+  vertical-align: middle;
+  object-fit: contain;
   filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.4));
 }
 
