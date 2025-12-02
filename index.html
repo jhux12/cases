@@ -422,100 +422,104 @@
   <header></header>
 
   <!-- Hero Section -->
-  <div class="relative overflow-hidden pt-20 cosmic-section cosmic-stars">
-        <div id="hero-stardust" class="stardust" aria-hidden="true"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-white/85 via-white/70 to-white/30 pointer-events-none"></div>
-        <div class="max-w-7xl mx-auto relative">
-            <div class="relative z-10 pb-8 bg-white/90 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32 backdrop-blur-md">
-                <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-                    <div class="sm:text-center lg:text-left">
-                        <div class="flex items-center mb-4">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-indigo-400" fill="currentColor" viewBox="0 0 8 8">
-                                    <circle cx="4" cy="4" r="3" />
-                                </svg>
-                                New drops daily
-                            </span>
-                        </div>
-                        <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                            <span class="block">Virtual packs,</span>
-                            <span class="block gradient-text">real cards.</span>
-                        </h1>
-                        <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                            Open digital packs. Win real cards. Start ripping in seconds.
-                        </p>
-                        <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                            <div class="rounded-md shadow">
-                                <a href="#available-packs" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 md:py-4 md:text-lg md:px-10">
-                                    Grab A Pack
-                                </a>
-                            </div>
-                            <div class="mt-3 sm:mt-0 sm:ml-3">
-                                <a href="how-it-works.html" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-lg md:px-10">
-                                    How It Works
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </main>
+  <section class="immersive-hero cosmic-section cosmic-stars">
+    <div id="hero-stardust" class="stardust" aria-hidden="true"></div>
+    <div class="aurora-veil"></div>
+    <div class="floating-orb orb-1"></div>
+    <div class="floating-orb orb-2"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="hero-grid">
+        <div class="hero-copy glass-panel">
+          <div class="hero-badges">
+            <span class="pulse-chip">Live drops</span>
+            <span class="ghost-chip">Provably fair</span>
+            <span class="ghost-chip">Ships to your door</span>
+          </div>
+          <h1 class="hero-title">
+            Virtual packs, real cardboard thrills.
+          </h1>
+          <p class="hero-subtitle">
+            Rip cosmic-grade packs, chase legendary pulls, and watch the deck flip in real time. Every hit is tracked, vaulted, and ready to ship.
+          </p>
+          <div class="hero-actions">
+            <a href="#available-packs" class="cta primary">Open a pack</a>
+            <a href="how-it-works.html" class="cta ghost">How it works</a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-card">
+              <p class="label">Live breakers</p>
+              <p class="value" id="live-breakers">2,341</p>
+              <p class="hint">watching the feed</p>
             </div>
-        </div>
-        <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 flex items-center justify-center p-4">
-            <div class="w-full flex flex-col items-center gap-6">
-                <div id="hero-pack-stage" class="hero-pack-stage">
-                    <div class="hero-pack-stage-glow" aria-hidden="true"></div>
-                    <div class="hero-pack-placeholder">Featuring top selling packs...</div>
-                </div>
-                <div class="spinner-featured-pack">
-                    <div id="spinner-pack-badge" class="spinner-pack-badge hidden">
-                        <img id="spinner-pack-image" src="" alt="Featured pack thumbnail">
-                        <div class="spinner-pack-meta">
-                            <span class="label">Featured pack</span>
-                            <span id="spinner-pack-name" class="name"></span>
-                            <span id="spinner-pack-price" class="price"></span>
-                        </div>
-                    </div>
-                    <div class="reel-wrapper">
-                        <div id="demo-spinner" class="reel"></div>
-                        <div class="center-marker">
-                            <span class="marker-arrow top"></span>
-                            <span class="marker-line"></span>
-                            <span class="marker-arrow bottom"></span>
-                        </div>
-                    </div>
-                </div>
+            <div class="stat-card">
+              <p class="label">Cards vaulted</p>
+              <p class="value" id="vaulted-count">184,230</p>
+              <p class="hint">ready to ship</p>
             </div>
+            <div class="stat-card">
+              <p class="label">Packs opened today</p>
+              <p class="value" id="packs-today">12,487</p>
+              <p class="hint">updated live</p>
+            </div>
+          </div>
         </div>
+        <div class="hero-visual">
+          <div id="hero-pack-stage" class="hero-pack-stage">
+            <div class="hero-pack-stage-glow" aria-hidden="true"></div>
+            <div class="hero-pack-placeholder">Featuring top selling packs...</div>
+          </div>
+          <div class="spinner-featured-pack glass-panel">
+            <div id="spinner-pack-badge" class="spinner-pack-badge hidden">
+              <img id="spinner-pack-image" src="" alt="Featured pack thumbnail">
+              <div class="spinner-pack-meta">
+                <span class="label">Featured pack</span>
+                <span id="spinner-pack-name" class="name"></span>
+                <span id="spinner-pack-price" class="price"></span>
+              </div>
+            </div>
+            <div class="reel-wrapper">
+              <div id="demo-spinner" class="reel"></div>
+              <div class="center-marker">
+                <span class="marker-arrow top"></span>
+                <span class="marker-line"></span>
+                <span class="marker-arrow bottom"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </section>
 
     <!-- Pack Showcase Flip Section -->
-    <section id="pack-showcase" class="relative bg-slate-900 py-12 text-white overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/10 to-sky-500/10"></div>
+    <section id="pack-showcase" class="immersive-slab">
+        <div class="nebula"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div class="section-header">
                 <div>
-                    <p class="text-indigo-200 uppercase tracking-[0.2em] text-xs font-semibold">Showcase</p>
-                    <h2 class="text-3xl font-extrabold mt-1">Flip to preview the hits</h2>
-                    <p class="mt-2 text-indigo-100/80 max-w-2xl">Front-to-back peeks at crowd-favorite packs. Cards auto-flip to reveal the chase.</p>
+                    <p class="eyebrow">Showcase</p>
+                    <h2 class="section-title">Flip to preview the hits</h2>
+                    <p class="section-lead">Front-to-back peeks at crowd-favorite packs. Cards auto-flip to reveal the chase.</p>
                 </div>
-                <div class="text-sm text-indigo-100/70">Auto-flipping every few seconds</div>
+                <div class="section-chip">Auto-flipping every few seconds</div>
             </div>
-            <div id="pack-showcase-grid" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <div id="pack-showcase-grid" class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
     </section>
 
     <!-- Featured Cards Section -->
-    <div class="py-12 bg-gray-50">
+    <div class="section-shell soft-gradient">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="lg:text-center">
-                <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">Recent Drops</h2>
-                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-                    Hot items from recent packs
-                </p>
+            <div class="section-header center">
+                <div>
+                    <p class="eyebrow">Recent Drops</p>
+                    <h2 class="section-title">Hot items from recent packs</h2>
+                    <p class="section-lead">Looping ticker of the freshest pulls ripping through the platform right now.</p>
+                </div>
             </div>
 
             <div class="mt-10">
-                <div class="reel-wrapper hot-reel-wrapper">
+                <div class="reel-wrapper hot-reel-wrapper glass-panel">
                     <div id="hot-items-spinner" class="reel"></div>
                 </div>
             </div>
@@ -523,37 +527,38 @@
     </div>
 
     <!-- Available Packs Section -->
-    <div id="available-packs" class="py-12 bg-white">
+    <div id="available-packs" class="section-shell">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8">
+
+<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
   <div>
-    <h2 class="text-2xl font-bold text-gray-900">Available Packs</h2>
-    <p class="mt-2 text-gray-600">Rip, collect, and uncover what's inside 🔥</p>
+    <p class="eyebrow">Marketplace</p>
+    <h2 class="section-title">Available Packs</h2>
+    <p class="section-lead">Rip, collect, and uncover what's inside 🔥</p>
   </div>
-  <div class="mt-4 sm:mt-0 flex gap-2 w-full sm:w-auto">
-    <button id="filter-toggle" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"><i class="fas fa-filter"></i><span>Filters</span></button>
-    <button id="clear-filters" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300"><i class="fas fa-undo"></i><span>Clear</span></button>
+  <div class="mt-2 sm:mt-0 flex gap-2 w-full sm:w-auto">
+    <button id="filter-toggle" class="chip-control primary"><i class="fas fa-filter"></i><span>Filters</span></button>
+    <button id="clear-filters" class="chip-control ghost"><i class="fas fa-undo"></i><span>Clear</span></button>
   </div>
 </div>
 
         <!-- Filter Panel -->
 
-<div id="filter-panel" class="hidden flex-col sm:flex sm:flex-wrap gap-4 mb-6 bg-gray-50 p-4 rounded-lg">
-  <input id="search-box" type="text" placeholder="Search packs" class="w-full sm:w-48 px-3 py-2 rounded-md border border-gray-300 text-gray-900 placeholder-gray-500" />
-  <input id="min-price" type="number" placeholder="Min" class="w-full sm:w-24 px-3 py-2 rounded-md border border-gray-300 text-gray-900 placeholder-gray-500" />
-  <input id="max-price" type="number" placeholder="Max" class="w-full sm:w-24 px-3 py-2 rounded-md border border-gray-300 text-gray-900 placeholder-gray-500" />
-  <div class="flex items-center gap-3 px-3 py-2 rounded-md border border-gray-300 bg-white w-full sm:w-auto">
-    <label for="affordable-only" class="flex items-center cursor-pointer select-none">
+<div id="filter-panel" class="hidden flex-col sm:flex sm:flex-wrap gap-4 mb-6 glass-panel subtle">
+  <input id="search-box" type="text" placeholder="Search packs" class="filter-input" />
+  <input id="min-price" type="number" placeholder="Min" class="filter-input w-24" />
+  <input id="max-price" type="number" placeholder="Max" class="filter-input w-24" />
+  <div class="filter-toggle">
+    <label for="affordable-only" class="flex items-center cursor-pointer select-none w-full">
       <div class="relative">
         <input type="checkbox" id="affordable-only" class="sr-only peer">
-        <div class="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-indigo-600 transition-all duration-300"></div>
-        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
+        <div class="w-11 h-6 bg-slate-300/60 rounded-full peer-checked:bg-indigo-500 transition-all duration-300"></div>
+        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300 shadow"></div>
       </div>
-      <span class="ml-3 text-sm text-gray-700">Enough gems to buy</span>
+      <span class="ml-3 text-sm text-slate-900">Enough gems to buy</span>
     </label>
   </div>
-  <select id="sort-select" class="w-full sm:w-auto px-3 py-2 rounded-md border border-gray-300 text-gray-900">
+  <select id="sort-select" class="filter-input w-40">
     <option value="default">Sorting</option>
     <option value="asc">Ascending</option>
     <option value="desc">Descending</option>
@@ -563,7 +568,7 @@
 
         <!-- Category Tabs -->
 
-<div id="category-tabs" class="flex overflow-x-auto sm:flex-wrap gap-2 mb-6">
+<div id="category-tabs" class="flex overflow-x-auto sm:flex-wrap gap-2 mb-6 custom-scroll">
   <button data-category="all" class="category-tab active"><i class="fas fa-layer-group"></i><span class="tab-label">All</span></button>
   <button data-category="new" class="category-tab"><i class="fas fa-star"></i><span class="tab-label">New</span></button>
   <button data-category="featured" class="category-tab"><i class="fas fa-fire"></i><span class="tab-label">Featured</span></button>
@@ -577,7 +582,7 @@
 
         <!-- See More Button -->
         <div class="flex justify-center mt-6">
-          <button id="see-more-cases" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hidden">See more</button>
+          <button id="see-more-cases" class="see-more">See more</button>
         </div>
       </div>
     </div>
