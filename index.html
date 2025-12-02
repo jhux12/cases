@@ -900,10 +900,22 @@
                 return `<span class="price-amount"><span class="price-number">${chipValue}</span>${icon}</span>`;
             }
 
+            function getPackImage(data = {}, fallbackConfig = {}, fallbackName = 'Featured pack') {
+                const sources = [
+                    data.image,
+                    data.thumbnail,
+                    fallbackConfig.image,
+                    fallbackConfig.thumbnail
+                ];
+                const match = sources.find(Boolean);
+                const safeName = data.name || fallbackConfig.caseName || fallbackName;
+                return match || `https://ui-avatars.com/api/?name=${encodeURIComponent(safeName)}&background=1e293b&color=f8fafc&rounded=true`;
+            }
+
             function applyBadge(data, fallbackConfig = {}, caseId = DEFAULT_CASE_ID) {
                 if (!badge || !badgeImage || !badgeName || !badgePrice) return;
                 const packName = data?.name || fallbackConfig.caseName || 'Featured pack';
-                const packImage = data?.image || fallbackConfig.thumbnail || `https://ui-avatars.com/api/?name=${encodeURIComponent(packName)}&background=1e293b&color=f8fafc&rounded=true`;
+                const packImage = getPackImage(data, fallbackConfig, packName);
                 const priceValue = formatPackPrice(data) || formatPackPrice(fallbackConfig);
                 const priceMarkup = buildPriceMarkup({ priceValue, isFree: data?.isFree || fallbackConfig?.isFree });
                 badgeImage.src = packImage;
