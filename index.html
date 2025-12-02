@@ -443,7 +443,6 @@
                         <div class="flex flex-wrap gap-3">
                             <span class="pill-compact"><i class="fas fa-shield-alt mr-2"></i>Provably fair</span>
                             <span class="pill-compact"><i class="fas fa-bag-shopping mr-2"></i>Live inventory</span>
-                            <span class="pill-compact"><i class="fas fa-truck-fast mr-2"></i>Fast shipping</span>
                         </div>
                         <div class="mt-4 sm:mt-6 flex flex-wrap gap-3">
                             <a href="#available-packs" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-semibold rounded-lg text-white bg-gradient-to-r from-indigo-600 to-cyan-400 hover:from-indigo-500 hover:to-cyan-300 md:py-3.5 md:text-lg md:px-10 shadow-lg shadow-indigo-800/40">
@@ -462,13 +461,6 @@
                                 </div>
                             </div>
                             <div class="hero-stat">
-                                <i class="fas fa-box-open text-cyan-300"></i>
-                                <div>
-                                    <p class="muted-label">Cases ready</p>
-                                    <span>Use your balance</span>
-                                </div>
-                            </div>
-                            <div class="hero-stat">
                                 <i class="fas fa-gift text-violet-300"></i>
                                 <div>
                                     <p class="muted-label">Free rewards</p>
@@ -480,16 +472,18 @@
                     <div class="hero-card-stack">
                         <div class="hero-card frosted-panel">
                             <div class="card-title">
-                                <span>Featured pack</span>
-                                <div class="price">from $1.99</div>
-                            </div>
-                            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Pika Pika pack cover" />
-                            <div class="flex items-center justify-between mt-3">
-                                <div class="flex gap-2 flex-wrap">
-                                    <span class="pill-compact">Pokemon</span>
-                                    <span class="pill-compact">Guaranteed pull</span>
+                                <div class="flex flex-col">
+                                    <span>Featured pack</span>
+                                    <span id="hero-pack-name" class="text-base font-semibold text-white">Pika Pika</span>
                                 </div>
-                                <a href="#available-packs" class="text-indigo-100 font-semibold hover:text-white">Open now →</a>
+                                <div id="hero-pack-price" class="price">Loading...</div>
+                            </div>
+                            <img id="hero-pack-image" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Featured pack cover" />
+                            <div class="flex items-center justify-between mt-3">
+                                <div class="flex gap-2 flex-wrap" id="hero-pack-tags">
+                                    <span class="pill-compact">Featured</span>
+                                </div>
+                                <a id="hero-pack-link" href="#available-packs" class="text-indigo-100 font-semibold hover:text-white">Open now →</a>
                             </div>
                         </div>
                         <div class="frosted-panel rounded-2xl p-4">
@@ -835,6 +829,11 @@
             const badgeImage = document.getElementById('spinner-pack-image');
             const badgeName = document.getElementById('spinner-pack-name');
             const badgePrice = document.getElementById('spinner-pack-price');
+            const heroName = document.getElementById('hero-pack-name');
+            const heroPrice = document.getElementById('hero-pack-price');
+            const heroImage = document.getElementById('hero-pack-image');
+            const heroLink = document.getElementById('hero-pack-link');
+            const heroTags = document.getElementById('hero-pack-tags');
             const DEFAULT_CASE_ID = '-OPd7bkeviB4Xq_1Ea6i';
 
             function formatPackPrice(data) {
@@ -854,6 +853,20 @@
                 badgeName.textContent = packName;
                 badgePrice.textContent = priceLabel;
                 badge.classList.remove('hidden');
+
+                if (heroName) heroName.textContent = packName;
+                if (heroPrice) heroPrice.textContent = priceLabel ? `from ${priceLabel}` : 'Available now';
+                if (heroImage) {
+                    heroImage.src = packImage;
+                    heroImage.alt = `${packName} cover`;
+                }
+                if (heroLink) {
+                    const packId = data?.id || fallbackConfig.caseId || DEFAULT_CASE_ID;
+                    heroLink.href = `case.html?id=${packId}`;
+                }
+                if (heroTags) {
+                    heroTags.innerHTML = `<span class="pill-compact">${packName}</span>`;
+                }
             }
 
             async function loadDemoSpinner() {
@@ -876,7 +889,7 @@
                 if (!caseResult.data && requestedCaseId !== DEFAULT_CASE_ID) {
                     caseResult = await fetchCase(DEFAULT_CASE_ID);
                 }
-                const caseData = caseResult.data;
+                const caseData = caseResult.data ? { ...caseResult.data, id: caseResult.id } : null;
                 if (!caseData) return;
 
                 const items = Object.values(caseData.prizes || {});
