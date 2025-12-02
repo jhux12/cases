@@ -18,227 +18,95 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: var(--page-bg);
-            color: var(--text-primary);
+            background: radial-gradient(circle at 20% 20%, rgba(99,102,241,0.12), transparent 25%),
+                        radial-gradient(circle at 80% 10%, rgba(236,72,153,0.12), transparent 25%),
+                        radial-gradient(circle at 50% 70%, rgba(34,211,238,0.14), transparent 35%),
+                        #0b1020;
+            color: #e5e7eb;
         }
-        
+
         .gradient-text {
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            background: linear-gradient(90deg, #a855f7, #6366f1, #22d3ee);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
-        
+
         .card-hover:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-        
+
         .pack-card {
             transition: all 0.3s ease;
         }
-        
+
         .pack-card:hover {
-            transform: scale(1.03);
+            transform: translateY(-4px) scale(1.01);
         }
-        
+
         .gem-icon {
             filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.7));
         }
-        
+
         .navbar {
             backdrop-filter: blur(10px);
             background-color: var(--nav-bg);
             border-color: var(--nav-border);
             box-shadow: var(--nav-shadow);
         }
-        
+
         @keyframes float {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
             100% { transform: translateY(0px); }
         }
-        
+
         .floating {
             animation: float 3s ease-in-out infinite;
         }
 
-        /* Demo spinner styles */
         .reel-wrapper {
             position: relative;
             overflow: hidden;
             width: 100%;
-            max-width: 360px;
-            height: 240px;
+            height: 260px;
             margin: 0 auto;
-            border: 1px solid #2a2f3a;
-            border-radius: 12px;
-            background: linear-gradient(180deg,#1e2333,#151820);
+            border-radius: 20px;
+            background: radial-gradient(circle at 20% 20%, rgba(99,102,241,0.2), transparent 45%),
+                        radial-gradient(circle at 80% 0%, rgba(236,72,153,0.25), transparent 45%),
+                        #0f172a;
             padding: 1rem 0;
             display: flex;
             align-items: center;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 24px 38px rgba(8, 7, 27, 0.55);
         }
 
         .hot-reel-wrapper {
-            position: relative;
-            max-width: 1100px;
-            width: 100%;
-            height: auto;
-            min-height: 260px;
-            padding: 2.5rem 2rem;
-            margin-left: auto;
-            margin-right: auto;
-            background: linear-gradient(135deg,#ffffff 0%,#f1f5f9 100%);
-            border: 1px solid #e2e8f0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            box-shadow: 0 25px 45px rgba(15,23,42,0.08);
-        }
-
-        .hot-reel-wrapper .reel {
-            align-items: stretch;
-            padding: 0.25rem;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.35);
+            padding: 2rem;
         }
 
         .hot-reel-wrapper .tile {
-            flex: 0 0 200px;
-            height: auto;
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1.25rem 1rem;
-            margin: 0 12px;
+            flex: 0 0 210px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 18px;
-            border: 1px solid rgba(148,163,184,0.35);
-            background: rgba(255,255,255,0.98);
-            color: #0f172a;
-            box-shadow: 0 22px 38px rgba(148,163,184,0.25);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .hot-reel-wrapper .tile:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 28px 46px rgba(15,23,42,0.18);
+            box-shadow: 0 18px 36px rgba(0,0,0,0.25);
+            margin: 0 12px;
         }
 
         .hot-reel-wrapper .tile-info {
-            position: static;
-            width: 100%;
-            font-size: 0.8rem;
-            background: transparent;
-            padding: 0;
-            border-radius: 0;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 0.35rem;
-        }
-
-        .hot-reel-wrapper .tile-info .name {
-            font-weight: 600;
-            letter-spacing: 0.01em;
-            color: #1f2937;
-        }
-
-        .hot-reel-wrapper .pill {
-            margin-top: 6px;
-            text-transform: uppercase;
-            font-size: 0.65rem;
-            letter-spacing: 0.08em;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0), rgba(15, 23, 42, 0.85));
+            border-radius: 0 0 18px 18px;
         }
 
         .hot-reel-wrapper .tile img {
-            width: 100%;
-            height: 160px;
-            object-fit: contain;
-            border-radius: 14px;
-            background: linear-gradient(135deg,rgba(241,245,249,0.6),rgba(255,255,255,0.9));
-            padding: 0.5rem;
-        }
-
-        .hot-reel-wrapper .tile-info .price {
-            margin-top: 0;
-            color: #334155;
-            gap: 0.3rem;
-        }
-
-        .hot-reel-wrapper .tile-info .price img {
-            width: 0.75rem;
-            height: 0.75rem;
-            filter: drop-shadow(0 0 1px rgba(148,163,184,0.35));
-        }
-
-        .hot-reel-wrapper .tile-info .price span {
-            font-weight: 600;
-        }
-
-        .pill {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 999px;
-            font-weight: 600;
-        }
-
-        .pill.common {
-            background: #e2e8f0;
-            color: #475569;
-        }
-
-        .pill.uncommon {
-            background: #dcfce7;
-            color: #047857;
-        }
-
-        .pill.rare {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-
-        .pill.ultrarare {
-            background: #ede9fe;
-            color: #6d28d9;
-        }
-
-        body.dark-mode .hot-reel-wrapper {
-            background: linear-gradient(135deg, #111827 0%, #0b1224 100%);
-            border-color: var(--card-border);
-            color: var(--text-primary);
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4);
-        }
-
-        body.dark-mode .hot-reel-wrapper .tile {
-            background: var(--card-surface);
-            border-color: var(--card-border);
-            color: var(--text-primary);
-            box-shadow: 0 22px 38px rgba(0, 0, 0, 0.25);
-        }
-
-        body.dark-mode .hot-reel-wrapper .tile-info .price,
-        body.dark-mode .hot-reel-wrapper .tile-info .name {
-            color: var(--text-primary);
-        }
-
-        .pill.legendary {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        @media (max-width: 640px) {
-            .hot-reel-wrapper {
-                min-height: 220px;
-                padding: 1.75rem 1.25rem;
-            }
-
-            .hot-reel-wrapper .tile {
-                flex: 0 0 180px;
-                padding: 1rem;
-            }
-
-            .hot-reel-wrapper .tile img {
-                height: 140px;
-            }
+            height: 170px;
         }
 
         .spinner-featured-pack {
@@ -247,33 +115,33 @@
             align-items: center;
             gap: 18px;
             width: 100%;
-            max-width: 360px;
+            max-width: 520px;
         }
 
         .spinner-pack-badge {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 10px 18px 10px 12px;
+            padding: 12px 18px;
             border-radius: 16px;
-            background: rgba(15, 23, 42, 0.88);
-            border: 1px solid rgba(148, 163, 184, 0.35);
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+            border: 1px solid rgba(255,255,255,0.15);
             box-shadow: 0 18px 32px rgba(15, 23, 42, 0.3);
-            max-width: 320px;
+            max-width: 360px;
             width: 100%;
+            color: #e5e7eb;
+            backdrop-filter: blur(12px);
         }
 
-        .spinner-pack-badge.hidden {
-            display: none;
-        }
+        .spinner-pack-badge.hidden { display: none; }
 
         .spinner-pack-badge img {
-            width: 42px;
-            height: 42px;
+            width: 48px;
+            height: 48px;
             border-radius: 999px;
             object-fit: cover;
             border: 2px solid rgba(99, 102, 241, 0.7);
-            background: #111827;
+            background: #0f172a;
         }
 
         .spinner-pack-meta {
@@ -293,54 +161,40 @@
         }
 
         .spinner-pack-meta .name {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #e2e8f0;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #f8fafc;
             letter-spacing: 0.02em;
         }
 
         .spinner-pack-meta .price {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: #cbd5f5;
-            opacity: 0.85;
+            opacity: 0.9;
         }
 
-        .reel {
-            display: flex;
-            will-change: transform;
-            padding: 0;
-            align-items: center;
-        }
+        .reel { display: flex; will-change: transform; padding: 0; align-items: center; }
 
         .tile {
             flex: 0 0 150px;
             margin: 0 8px;
             position: relative;
-            background: #2a2f3a;
-            border: 1px solid #3a4050;
-            border-radius: 12px;
+            background: #1f2937;
+            border: 1px solid #2e3649;
+            border-radius: 16px;
             padding: 6px;
             color: #f1f5f9;
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
 
         .tile img {
             width: 138px;
             height: 184px;
             object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .tile.win {
-            box-shadow: 0 0 0 3px var(--win-color,#FFD36E);
-            animation: flash 0.6s;
-        }
-
-        @keyframes flash {
-            0%,100% { filter: brightness(1); }
-            50% { filter: brightness(1.8); }
+            border-radius: 12px;
         }
 
         .tile-info {
@@ -348,33 +202,27 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.55);
             font-size: 0.75rem;
-            padding: 2px 4px;
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
+            padding: 6px 8px;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
             text-align: center;
+            backdrop-filter: blur(6px);
         }
 
-        .tile-info .name {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        .tile-info .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .tile-info .price {
-            margin-top: 2px;
+            margin-top: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 2px;
+            gap: 4px;
             color: #fbbf24;
         }
 
-        .tile-info .price img {
-            width: 0.6rem;
-            height: 0.6rem;
-        }
+        .tile-info .price img { width: 0.75rem; height: 0.75rem; }
 
         .center-marker {
             position: absolute;
@@ -391,619 +239,572 @@
         .center-marker .marker-line {
             flex: 1;
             width: 2px;
-            background: linear-gradient(#8b5cf6,#3b82f6);
-            box-shadow: 0 0 6px #8b5cf6;
+            background: linear-gradient(#c084fc,#22d3ee);
+            box-shadow: 0 0 10px #c084fc;
         }
 
-        .center-marker .marker-arrow {
-            width: 0;
-            height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-        }
-
+        .center-marker .marker-arrow { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; }
         .center-marker .marker-arrow.top { border-top: 12px solid #cbd5e1; }
         .center-marker .marker-arrow.bottom { border-bottom: 12px solid #cbd5e1; }
 
-        .confetti {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            animation: fall 0.7s forwards;
-        }
+        .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+        .pill.common { background: #e2e8f0; color: #475569; }
+        .pill.uncommon { background: #dcfce7; color: #047857; }
+        .pill.rare { background: #dbeafe; color: #1d4ed8; }
+        .pill.ultrarare { background: #ede9fe; color: #6d28d9; }
+        .pill.legendary { background: #fef3c7; color: #92400e; }
 
-        @keyframes fall {
-            to { transform: translateY(60px) rotate(360deg); opacity: 0; }
+        @media (max-width: 640px) {
+            .reel-wrapper { height: 220px; }
+            .hot-reel-wrapper { padding: 1.25rem; }
+            .hot-reel-wrapper .tile { flex: 0 0 180px; }
+            .hot-reel-wrapper .tile img { height: 140px; }
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-slate-900">
   <script src="scripts/preloader.js"></script>
   <header></header>
 
-  <!-- Hero Section -->
-  <div class="relative bg-white overflow-hidden pt-20">
-        <div class="max-w-7xl mx-auto">
-            <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-                <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-                    <div class="sm:text-center lg:text-left">
-                        <div class="flex items-center mb-4">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-indigo-400" fill="currentColor" viewBox="0 0 8 8">
-                                    <circle cx="4" cy="4" r="3" />
-                                </svg>
-                                New drops daily
-                            </span>
-                        </div>
-                        <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                            <span class="block">Virtual packs,</span>
-                            <span class="block gradient-text">real cards.</span>
-                        </h1>
-                        <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                            Open digital packs. Win real cards. Start ripping in seconds.
-                        </p>
-                        <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                            <div class="rounded-md shadow">
-                                <a href="#available-packs" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 md:py-4 md:text-lg md:px-10">
-                                    Grab A Pack
-                                </a>
-                            </div>
-                            <div class="mt-3 sm:mt-0 sm:ml-3">
-                                <a href="how-it-works.html" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-lg md:px-10">
-                                    How It Works
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </main>
+  <main class="homepage-shell">
+    <section class="hero-neon">
+      <div class="hero-gradient"></div>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="hero-chip">Arcade dropverse</div>
+          <h1 class="hero-title">Open surreal <span class="gradient-text">packs</span> & flex the <span class="gradient-text">wins</span>.</h1>
+          <p class="hero-subtext">Dive into a neon playground of virtual packs, live pulls, and IRL-ready cards. Rip, reveal, and reroll without leaving the couch.</p>
+          <div class="hero-cta">
+            <a href="#available-packs" class="btn-primary">Open a pack</a>
+            <a href="how-it-works.html" class="btn-ghost">Watch how it works</a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-card">
+              <span class="label">Cards shipped</span>
+              <strong>1.2M+</strong>
             </div>
+            <div class="stat-card">
+              <span class="label">Live rips today</span>
+              <strong>8,431</strong>
+            </div>
+            <div class="stat-card">
+              <span class="label">Avg. win boost</span>
+              <strong>3.4x</strong>
+            </div>
+          </div>
         </div>
-        <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 flex items-center justify-center p-4">
+        <div class="hero-stage">
+          <div class="orb orb-purple"></div>
+          <div class="orb orb-cyan"></div>
+          <div class="hero-stage-card floating">
+            <div class="stage-top">
+              <div class="glow-pill">
+                <i class="fa-solid fa-bolt"></i>
+                <span>Legendary heat</span>
+              </div>
+              <div class="hero-badges">
+                <span class="badge-pill">Instant payout</span>
+                <span class="badge-pill">Clips saved</span>
+              </div>
+            </div>
             <div class="spinner-featured-pack">
-                <div id="spinner-pack-badge" class="spinner-pack-badge hidden">
-                    <img id="spinner-pack-image" src="" alt="Featured pack thumbnail">
-                    <div class="spinner-pack-meta">
-                        <span class="label">Featured pack</span>
-                        <span id="spinner-pack-name" class="name"></span>
-                        <span id="spinner-pack-price" class="price"></span>
-                    </div>
+              <div id="spinner-pack-badge" class="spinner-pack-badge hidden">
+                <img id="spinner-pack-image" src="" alt="Featured pack thumbnail">
+                <div class="spinner-pack-meta">
+                  <span class="label">Featured pack</span>
+                  <span id="spinner-pack-name" class="name"></span>
+                  <span id="spinner-pack-price" class="price"></span>
                 </div>
-                <div class="reel-wrapper">
-                    <div id="demo-spinner" class="reel"></div>
-                    <div class="center-marker">
-                        <span class="marker-arrow top"></span>
-                        <span class="marker-line"></span>
-                        <span class="marker-arrow bottom"></span>
-                    </div>
+              </div>
+              <div class="reel-wrapper">
+                <div id="demo-spinner" class="reel"></div>
+                <div class="center-marker">
+                  <span class="marker-arrow top"></span>
+                  <span class="marker-line"></span>
+                  <span class="marker-arrow bottom"></span>
                 </div>
+              </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Featured Cards Section -->
-    <div class="py-12 bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="lg:text-center">
-                <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">Recent Drops</h2>
-                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-                    Hot items from recent packs
-                </p>
+            <div class="stage-bottom">
+              <div class="avatar-row">
+                <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=80&q=80" alt="fan" />
+                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80" alt="fan" />
+                <img src="https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=80&q=80" alt="fan" />
+                <span class="avatar-count">8.4k now ripping</span>
+              </div>
             </div>
-
-            <div class="mt-10">
-                <div class="reel-wrapper hot-reel-wrapper">
-                    <div id="hot-items-spinner" class="reel"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Available Packs Section -->
-    <div id="available-packs" class="py-12 bg-white">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900">Available Packs</h2>
-            <p class="mt-2 text-gray-600">Rip, collect, and uncover what's inside 🔥</p>
-          </div>
-          <div class="flex gap-2 w-full sm:w-auto">
-            <button id="filter-toggle" class="filter-toggle-btn"><i class="fas fa-filter"></i><span>Show Filters</span></button>
-            <button id="clear-filters" class="filter-clear-btn"><i class="fas fa-undo"></i><span>Clear</span></button>
           </div>
         </div>
-
-        <!-- Filter Panel -->
-
-<div id="filter-panel" class="hidden sm:flex flex-col gap-4 mb-6 bg-white border border-gray-200 rounded-2xl shadow-sm px-4 py-5">
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
-    <div class="md:col-span-5 flex flex-col gap-2">
-      <label for="search-box" class="filter-label">Search packs</label>
-      <div class="filter-input-wrapper">
-        <i class="fas fa-search"></i>
-        <input id="search-box" type="text" placeholder="Search by name or theme" class="filter-input" />
       </div>
-    </div>
-    <div class="md:col-span-3 flex flex-col gap-2">
-      <label class="filter-label">Price range</label>
-      <div class="flex gap-3">
-        <input id="min-price" type="number" placeholder="Min" class="filter-input" />
-        <input id="max-price" type="number" placeholder="Max" class="filter-input" />
-      </div>
-    </div>
-    <div class="md:col-span-2 flex flex-col gap-2">
-      <span class="filter-label">Affordability</span>
-      <label for="affordable-only" class="toggle-card">
-        <span class="text-sm font-medium text-gray-800">Enough gems to buy</span>
-        <div class="relative inline-flex items-center ml-auto">
-          <input type="checkbox" id="affordable-only" class="sr-only peer">
-          <div class="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-indigo-600 transition-all duration-300"></div>
-          <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
+    </section>
+
+    <section class="stacked-section">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">Energize your pulls</p>
+          <h2 class="section-title">Pocket-ready drops, arcade-grade polish</h2>
         </div>
-      </label>
-    </div>
-    <div class="md:col-span-2 flex flex-col gap-2">
-      <label for="sort-select" class="filter-label">Sort by</label>
-      <div class="filter-input-wrapper">
-        <i class="fas fa-sort"></i>
-        <select id="sort-select" class="filter-select">
-          <option value="default">Recommended</option>
-          <option value="asc">Price: Low to High</option>
-          <option value="desc">Price: High to Low</option>
-          <option value="rarity">Rarity</option>
-        </select>
+        <div class="header-actions">
+          <span class="chip ghost">Fast shipping</span>
+          <span class="chip ghost">Live clips</span>
+          <span class="chip ghost">Instant relist</span>
+        </div>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="icon-ring">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <h3>Studio-grade reveal</h3>
+          <p>Every spin is wrapped in glassy gradients, glow markers, and cinematic roll-stop timing.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-ring">
+            <i class="fa-solid fa-rocket"></i>
+          </div>
+          <h3>Speed to flex</h3>
+          <p>Clip your wins, vault them, or ship worldwide with the tap of a glowing button.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-ring">
+            <i class="fa-solid fa-shield-heart"></i>
+          </div>
+          <h3>Built-in trust layer</h3>
+          <p>Verified drops, transparent odds, and balance-aware filters to keep rips honest.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="live-strip">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">Live heat</p>
+          <h2 class="section-title">Freshest pulls flying across the screen</h2>
+        </div>
+        <div class="header-actions">
+          <span class="chip primary">Streaming now</span>
+          <span class="chip outline">Auto-refresh</span>
+        </div>
+      </div>
+      <div class="hot-reel-wrapper">
+        <div id="hot-items-spinner" class="reel"></div>
+      </div>
+    </section>
+
+    <section id="available-packs" class="packs-zone">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">Pick your flavor</p>
+          <h2 class="section-title">Available packs</h2>
+          <p class="section-subtext">Dial in by budget, chase tier, or let the vibes pick for you.</p>
+        </div>
+        <div class="header-actions">
+          <button id="filter-toggle" class="filter-toggle-btn"><i class="fas fa-filter"></i><span>Show Filters</span></button>
+          <button id="clear-filters" class="filter-clear-btn"><i class="fas fa-undo"></i><span>Clear</span></button>
+        </div>
+      </div>
+
+      <div id="filter-panel" class="filter-panel hidden">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label for="search-box" class="filter-label">Search</label>
+            <div class="filter-input-wrapper">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="search-box" placeholder="Search packs, vibes, or themes" class="filter-input">
+            </div>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Price range (gems)</label>
+            <div class="filter-price-grid">
+              <div class="filter-input-wrapper">
+                <i class="fa-solid fa-arrow-down-1-9"></i>
+                <input type="number" id="min-price" min="0" placeholder="Min" class="filter-input">
+              </div>
+              <div class="filter-input-wrapper">
+                <i class="fa-solid fa-arrow-up-9-1"></i>
+                <input type="number" id="max-price" min="0" placeholder="Max" class="filter-input">
+              </div>
+            </div>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Sort</label>
+            <div class="filter-input-wrapper">
+              <i class="fa-solid fa-arrows-up-down"></i>
+              <select id="sort-select" class="filter-input">
+                <option value="default">Featured</option>
+                <option value="asc">Price: Low to High</option>
+                <option value="desc">Price: High to Low</option>
+                <option value="rarity">Highest Rarity</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Affordability</label>
+            <label class="checkbox-pill">
+              <input type="checkbox" id="affordable-only" class="sr-only">
+              <span class="pill-label">
+                <i class="fa-solid fa-coins"></i>
+                Show only what I can rip
+              </span>
+            </label>
+          </div>
+        </div>
+        <div class="filter-row categories">
+          <button class="category-tab active" data-category="new"><i class="fa-solid fa-sparkles"></i><span class="tab-label">New</span></button>
+          <button class="category-tab" data-category="featured"><i class="fa-solid fa-fire"></i><span class="tab-label">Featured</span></button>
+          <button class="category-tab" data-category="starter"><i class="fa-solid fa-seedling"></i><span class="tab-label">Starter</span></button>
+          <button class="category-tab" data-category="other"><i class="fa-solid fa-shuffle"></i><span class="tab-label">Shuffle all</span></button>
+        </div>
+      </div>
+
+      <div class="packs-display">
+        <div id="cases-carousel" class="pack-carousel hidden space-x-4 overflow-x-auto pb-4"></div>
+        <div id="cases-container" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+      </div>
+      <div class="see-more-wrap">
+        <button id="see-more-cases" class="see-more-btn hidden">Load more magic</button>
+      </div>
+    </section>
+
+    <section class="legendary-grid">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">Treasure room</p>
+          <h2 class="section-title">Legendary pulls that broke the chat</h2>
+          <p class="section-subtext">Saved clips, rarity tags, and the packs they came from.</p>
+        </div>
+        <div class="header-actions">
+          <span class="chip primary">Verified hits</span>
+          <span class="chip outline">Shipped or vaulted</span>
+        </div>
+      </div>
+      <div class="legendary-cards">
+        <article class="legendary-card">
+          <div class="legendary-card__media">
+            <span class="legendary-chip">Hall of Fame</span>
+            <div class="legendary-pack">
+              <img src="https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=400&q=80" alt="Cosmic Court">
+              <div>
+                <p class="pack-label">Pulled from</p>
+                <p class="pack-name">Cosmic Court</p>
+              </div>
+            </div>
+            <div class="legendary-ribbons">
+              <span class="legendary-tag">1/1 Found</span>
+              <span class="legendary-tag">$4,320 Valuation</span>
+            </div>
+          </div>
+          <div class="legendary-card__info">
+            <h3>Neon Monarch PSA10</h3>
+            <p>Foil etched centerpiece with aurora overlays and a hero badge that glows when tilted.</p>
+            <div class="legendary-meta">
+              <span>⚡ Minted live on stream</span>
+              <span>🎥 Clip locked in vault</span>
+            </div>
+          </div>
+        </article>
+        <article class="legendary-card">
+          <div class="legendary-card__media">
+            <span class="legendary-chip">Streamer pick</span>
+            <div class="legendary-pack">
+              <img src="https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=400&q=80" alt="Aurora Arsenal">
+              <div>
+                <p class="pack-label">Pulled from</p>
+                <p class="pack-name">Aurora Arsenal</p>
+              </div>
+            </div>
+            <div class="legendary-ribbons">
+              <span class="legendary-tag">Signed insert</span>
+              <span class="legendary-tag">Serial 05/25</span>
+            </div>
+          </div>
+          <div class="legendary-card__info">
+            <h3>Starlit Striker</h3>
+            <p>Holo shattered glass background with electric foil edging and pastel nebula accents.</p>
+            <div class="legendary-meta">
+              <span>🚀 Claimed in 12s</span>
+              <span>📦 Same-day ship</span>
+            </div>
+          </div>
+        </article>
+        <article class="legendary-card">
+          <div class="legendary-card__media">
+            <span class="legendary-chip">Community vote</span>
+            <div class="legendary-pack">
+              <img src="https://images.unsplash.com/photo-1565538420870-da08ff96a207?auto=format&fit=crop&w=400&q=80" alt="Twin Dragons">
+              <div>
+                <p class="pack-label">Pulled from</p>
+                <p class="pack-name">Twin Dragons</p>
+              </div>
+            </div>
+            <div class="legendary-ribbons">
+              <span class="legendary-tag">Dragon chase</span>
+              <span class="legendary-tag">Clip saved</span>
+            </div>
+          </div>
+          <div class="legendary-card__info">
+            <h3>N's Reshiram</h3>
+            <p>Storybook illustration with swirling blues and silvers plus a bronze champion seal.</p>
+            <div class="legendary-meta">
+              <span>🔥 Crowd favorite</span>
+              <span>🎥 Highlight replay</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="reasons">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">Why Packly.gg</p>
+          <h2 class="section-title">The smoothest way to collect</h2>
+          <p class="section-subtext">Drop-in ready for both collectors and casuals.</p>
+        </div>
+      </div>
+      <div class="reason-grid">
+        <div class="reason-card">
+          <div class="icon-ring">
+            <i class="fa-solid fa-certificate"></i>
+          </div>
+          <h3>100% authentic</h3>
+          <p>Verified from trusted sources like StockX and official retailers. Real gear, guaranteed.</p>
+        </div>
+        <div class="reason-card">
+          <div class="icon-ring">
+            <i class="fa-solid fa-repeat"></i>
+          </div>
+          <h3>Swap or reroll</h3>
+          <p>Don't love the pull? Trade, sell back for gems, or rip again instantly with no fees.</p>
+        </div>
+        <div class="reason-card">
+          <div class="icon-ring">
+            <i class="fa-solid fa-plane-departure"></i>
+          </div>
+          <h3>Global shipping</h3>
+          <p>Ship worldwide or keep it digital by vaulting items. You're in control of every prize.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="payments">
+      <h3>Accepted Payment Methods</h3>
+      <div class="payment-logos">
+        <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/349/349221.png" alt="Visa">
+        <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/11378/11378185.png" alt="MasterCard">
+        <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/179/179431.png" alt="Amex">
+        <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/5968/5968279.png" alt="Apple Pay">
+        <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/6124/6124998.png" alt="Google Pay">
+      </div>
+    </section>
+  </main>
+
+  <footer></footer>
+
+  <!-- Free Pack Modal -->
+  <div id="freePackModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black opacity-50"></div>
+    <div class="relative bg-white rounded-lg max-w-md w-full mx-4 p-6">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+      <div class="text-center">
+        <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ChatGPT%20Image%20Aug%2010%2C%202025%2C%2011_08_17%20PM.png?alt=media&token=4950e6a0-1cf9-4c7b-aa56-686dc42693a8" class="h-24 w-24 mx-auto mb-4" alt="Mascot">
+        <h3 class="text-lg font-medium text-gray-900">Get a FREE pack</h3>
+        <p class="mt-2 text-sm text-gray-500">Find out how it works and get a FREE pack! All you have to do is sign up to claim it!</p>
+        <div class="mt-6 flex justify-center space-x-4">
+          <button onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">No thanks</button>
+          <a href="auth.html" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Sign Up</a>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-        <!-- Category Tabs -->
-
-<div id="category-tabs" class="flex overflow-x-auto sm:flex-wrap gap-2 mb-6">
-  <button data-category="all" class="category-tab active"><i class="fas fa-layer-group"></i><span class="tab-label">All</span></button>
-  <button data-category="new" class="category-tab"><i class="fas fa-star"></i><span class="tab-label">New</span></button>
-  <button data-category="featured" class="category-tab"><i class="fas fa-fire"></i><span class="tab-label">Featured</span></button>
-  <button data-category="starter" class="category-tab"><i class="fas fa-seedling"></i><span class="tab-label">Starter</span></button>
-  <button data-category="other" class="category-tab"><i class="fas fa-ellipsis-h"></i><span class="tab-label">Other</span></button>
-</div>
-
-        <!-- Cases Containers -->
-        <div id="cases-carousel" class="flex space-x-4 overflow-x-auto sm:hidden pb-4"></div>
-        <div id="cases-container" class="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-
-        <!-- See More Button -->
-        <div class="flex justify-center mt-6">
-          <button id="see-more-cases" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hidden">See more</button>
+  <!-- Add Gems Modal -->
+  <div id="addGemsModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black opacity-50"></div>
+    <div class="relative bg-white rounded-lg max-w-lg w-full mx-4 p-6">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Add Gems</h3>
+          <div class="space-y-4">
+            <button class="w-full px-4 py-3 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 text-left">
+              <div class="flex justify-between items-center">
+                <span class="font-semibold">1,000 +100 Bonus</span>
+                <span>$10.00</span>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Starter bundle with bonus gems</p>
+            </button>
+            <button class="w-full px-4 py-3 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 text-left">
+              <div class="flex justify-between items-center">
+                <span class="font-semibold">5,000 +800 Bonus</span>
+                <span>$50.00</span>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Best value for daily rips</p>
+            </button>
+            <button class="w-full px-4 py-3 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 text-left">
+              <div class="flex justify-between items-center">
+                <span class="font-semibold">15,000 +1,500 Bonus</span>
+                <span>$150.00</span>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Stream big drops with max bonus</p>
+            </button>
+          </div>
+          <div class="mt-4 text-sm text-gray-500">Payments processed securely by Stripe.</div>
+        </div>
+        <div class="bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-xl p-6 shadow-lg flex flex-col justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-wide text-white/70">Perks</p>
+            <ul class="mt-3 space-y-3 text-sm">
+              <li class="flex items-start gap-3"><i class="fa-solid fa-bolt mt-1"></i><span>Instant top-up with vault auto-protect.</span></li>
+              <li class="flex items-start gap-3"><i class="fa-solid fa-ticket mt-1"></i><span>Priority access to limited packs.</span></li>
+              <li class="flex items-start gap-3"><i class="fa-solid fa-shield-heart mt-1"></i><span>Charge protection and live support.</span></li>
+            </ul>
+          </div>
+          <button class="mt-6 w-full bg-white text-indigo-700 font-semibold py-3 rounded-lg shadow">Continue to Stripe</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Legendary Pulls Section -->
-    <div class="legendary-section relative overflow-hidden py-16">
-        <div class="legendary-aura"></div>
-        <div class="legendary-gridline"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-                <div class="space-y-4 text-white max-w-3xl">
-                    <div class="flex items-center gap-3">
-                        <span class="legendary-chip">Community Hall of Fame</span>
-                        <span class="legendary-chip ghost">Verified pulls • 24/7</span>
-                    </div>
-                    <h2 class="legendary-title">Legendary pulls from our community</h2>
-                    <p class="text-indigo-100 max-w-2xl">
-                        A showcase of grails ripped live on Packly.gg — secret rares, art cards, and
-                        mythic foils that made everyone in chat lose their minds.
-                    </p>
-                    <div class="flex flex-wrap gap-3">
-                        <div class="legendary-pill">✨ Handpicked highlights from this week</div>
-                        <div class="legendary-pill">💫 Pack art + pull art captured side-by-side</div>
-                        <div class="legendary-pill">🔒 Provenance logged with pack IDs</div>
-                    </div>
-                </div>
-                <div class="legendary-trophy">
-                    <div class="legendary-trophy-inner">
-                        <div class="legendary-glow"></div>
-                        <div class="legendary-trophy-text">
-                            <span class="block text-sm text-indigo-100">Best Drops</span>
-                            <span class="text-2xl font-semibold">Prism Showcase</span>
-                            <span class="text-sm text-indigo-100 mt-1">Updated nightly</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <script src="pack-opener/spinner.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const root = document.getElementById('demo-spinner');
+      if (!root) return;
 
-            <div class="mt-12">
-                <div class="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-                    <!-- Drop 1 -->
-                    <div class="legendary-card">
-                        <div class="legendary-card__glow"></div>
-                        <div class="legendary-card__content">
-                            <div class="legendary-card__header">
-                                <span class="rarity-tag">Secret Rare</span>
-                                <span class="pull-tag">Fan favorite</span>
-                            </div>
-                            <div class="legendary-card__media">
-                                <img class="legendary-art" src="https://tcgplayer-cdn.tcgplayer.com/product/284302_in_1000x1000.jpg" alt="Pikachu VMAX">
-                                <div class="pack-chip">
-                                    <img class="pack-thumb" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Pika Pika pack">
-                                    <div>
-                                        <p class="pack-label">Pulled from</p>
-                                        <p class="pack-name">Pika Pika</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="legendary-card__info">
-                                <h3>Pikachu VMAX (Secret)</h3>
-                                <p>Electric grail with rainbow foil texture that stole the show.</p>
-                                <div class="legendary-meta">
-                                    <span>🎇 Live break hype • 3.2k views</span>
-                                    <span>⚡️ Lightning collection icon</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+      const badge = document.getElementById('spinner-pack-badge');
+      const badgeImage = document.getElementById('spinner-pack-image');
+      const badgeName = document.getElementById('spinner-pack-name');
+      const badgePrice = document.getElementById('spinner-pack-price');
+      const DEFAULT_CASE_ID = '-OPd7bkeviB4Xq_1Ea6i';
 
-                    <!-- Drop 2 -->
-                    <div class="legendary-card">
-                        <div class="legendary-card__glow"></div>
-                        <div class="legendary-card__content">
-                            <div class="legendary-card__header">
-                                <span class="rarity-tag">Secret Rare</span>
-                                <span class="pull-tag">Alt art</span>
-                            </div>
-                            <div class="legendary-card__media">
-                                <img class="legendary-art" src="https://tcgplayer-cdn.tcgplayer.com/product/201352_in_1000x1000.jpg" alt="Pikachu Secret SM">
-                                <div class="pack-chip">
-                                    <img class="pack-thumb" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Pika Pika pack">
-                                    <div>
-                                        <p class="pack-label">Pulled from</p>
-                                        <p class="pack-name">Pika Pika</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="legendary-card__info">
-                                <h3>Pikachu (Secret) SM</h3>
-                                <p>Charming alt art with a mirror holo that glows under the light.</p>
-                                <div class="legendary-meta">
-                                    <span>🌟 Collector's pick of the night</span>
-                                    <span>🛡️ Pack authentication logged</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+      function formatPackPrice(data) {
+        if (data?.isFree) return 'Free pack';
+        const value = Number(data?.price || 0);
+        if (!value) return '';
+        return `${value.toLocaleString()} gems`;
+      }
 
-                    <!-- Drop 3 -->
-                    <div class="legendary-card">
-                        <div class="legendary-card__glow"></div>
-                        <div class="legendary-card__content">
-                            <div class="legendary-card__header">
-                                <span class="rarity-tag">Mythic Foil</span>
-                                <span class="pull-tag">Dragon duo</span>
-                            </div>
-                            <div class="legendary-card__media">
-                                <img class="legendary-art" src="https://boxed.gg/_next/image?url=https%3A%2F%2Fproduct-images.tcgplayer.com%2F623594.jpg&w=640&q=75" alt="N's Reshiram">
-                                <div class="pack-chip">
-                                    <img class="pack-thumb" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FChatGPT_Image_Aug_10__2025__11_20_09_PM-removebg-preview.png?alt=media&token=34a17fd5-2a05-4c2c-899c-c4ac0484a152" alt="Twin Dragons pack">
-                                    <div>
-                                        <p class="pack-label">Pulled from</p>
-                                        <p class="pack-name">Twin Dragons</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="legendary-card__info">
-                                <h3>N's Reshiram</h3>
-                                <p>Storybook illustration with swirling blues and silvers for the duo.</p>
-                                <div class="legendary-meta">
-                                    <span>🔥 Dragon chase hit</span>
-                                    <span>🎥 Clip saved to vault</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+      function applyBadge(data, fallbackConfig = {}) {
+        if (!badge || !badgeImage || !badgeName || !badgePrice) return;
+        const packName = data?.name || fallbackConfig.caseName || 'Featured pack';
+        const packImage = data?.image || fallbackConfig.thumbnail || `https://ui-avatars.com/api/?name=${encodeURIComponent(packName)}&background=1e293b&color=f8fafc&rounded=true`;
+        const priceLabel = formatPackPrice(data) || formatPackPrice(fallbackConfig) || 'Available now';
+        badgeImage.src = packImage;
+        badgeImage.alt = `${packName} thumbnail`;
+        badgeName.textContent = packName;
+        badgePrice.textContent = priceLabel;
+        badge.classList.remove('hidden');
+      }
 
-    <!-- Features Section -->
-    <div class="py-12 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="lg:text-center">
-                <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">Why Packly.gg</h2>
-                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-                    The best way to collect
-                </p>
-            </div>
-
-            <div class="mt-10">
-                <div class="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
-                    <div class="text-center">
-                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white mx-auto">
-                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        </div>
-                        <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">100% Authentic Items</h3>
-                        <p class="mt-2 text-base text-gray-500">
-                            Every item is verified from trusted sources like StockX and official retailers. Real gear, guaranteed.
-                        </p>
-                    </div>
-
-                    <div class="text-center">
-                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white mx-auto">
-                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                            </svg>
-                        </div>
-                        <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Exchange or Re-Roll</h3>
-                        <p class="mt-2 text-base text-gray-500">
-                            Don't want it? Instantly trade or sell back for gems. No fees. No wait.
-                        </p>
-                    </div>
-
-                    <div class="text-center">
-                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white mx-auto">
-                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                            </svg>
-                        </div>
-                        <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Fast Global Shipping</h3>
-                        <p class="mt-2 text-base text-gray-500">
-                            We ship worldwide. Or keep it digital by converting items into gems instantly.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Payment Methods -->
-    <div class="bg-gray-50 py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h3 class="text-center text-sm font-medium text-gray-500">Accepted Payment Methods</h3>
-            <div class="flex justify-center mt-6 space-x-8">
-                <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/349/349221.png" alt="Visa">
-                <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/11378/11378185.png" alt="MasterCard">
-                <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/179/179431.png" alt="Amex">
-                <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/5968/5968279.png" alt="Apple Pay">
-                <img class="h-12" src="https://cdn-icons-png.flaticon.com/128/6124/6124998.png" alt="Google Pay">
-            </div>
-        </div>
-    </div>
-
-    <footer></footer>
-
-    <!-- Free Pack Modal -->
-    <div id="freePackModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-        <div class="absolute inset-0 bg-black opacity-50"></div>
-        <div class="relative bg-white rounded-lg max-w-md w-full mx-4 p-6">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-            <div class="text-center">
-                <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ChatGPT%20Image%20Aug%2010%2C%202025%2C%2011_08_17%20PM.png?alt=media&token=4950e6a0-1cf9-4c7b-aa56-686dc42693a8" class="h-24 w-24 mx-auto mb-4" alt="Mascot">
-                <h3 class="text-lg font-medium text-gray-900">Get a FREE pack</h3>
-                <p class="mt-2 text-sm text-gray-500">
-                    Find out how it works and get a FREE pack! All you have to do is sign up to claim it!
-                </p>
-                <div class="mt-6 flex justify-center space-x-4">
-                    <button onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                        No thanks
-                    </button>
-                    <a href="auth.html" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
-                        Sign Up
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Gems Modal -->
-    <div id="addGemsModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-        <div class="absolute inset-0 bg-black opacity-50"></div>
-        <div class="relative bg-white rounded-lg max-w-md w-full mx-4 p-6">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-            <div>
-                <h3 class="text-lg font-medium text-gray-900 text-center">Add Gems</h3>
-                <p class="mt-2 text-sm text-gray-500 text-center">Choose a package</p>
-                
-                <div class="mt-6 grid grid-cols-1 gap-4">
-                    <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
-                        <div class="flex items-center">
-                            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="h-6 w-6 gem-icon mr-2" alt="Gems">
-                            <span class="font-medium">2,000</span>
-                        </div>
-                        <div class="mt-2 text-right">
-                            <span class="text-lg font-bold">$20.00</span>
-                        </div>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
-                        <div class="flex items-center">
-                            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="h-6 w-6 gem-icon mr-2" alt="Gems">
-                            <span class="font-medium">3,000</span>
-                        </div>
-                        <div class="mt-2 text-right">
-                            <span class="text-lg font-bold">$30.00</span>
-                        </div>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
-                        <div class="flex items-center">
-                            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="h-6 w-6 gem-icon mr-2" alt="Gems">
-                            <span class="font-medium">5,000</span>
-                        </div>
-                        <div class="mt-2 text-right">
-                            <span class="text-lg font-bold">$50.00</span>
-                        </div>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
-                        <div class="flex items-center">
-                            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="h-6 w-6 gem-icon mr-2" alt="Gems">
-                            <span class="font-medium">10,000</span>
-                        </div>
-                        <div class="mt-2 text-right">
-                            <span class="text-lg font-bold">$100.00</span>
-                        </div>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-500 cursor-pointer">
-                        <div class="flex items-center">
-                            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="h-6 w-6 gem-icon mr-2" alt="Gems">
-                            <span class="font-medium">15,000 +1,500 Bonus</span>
-                        </div>
-                        <div class="mt-2 text-right">
-                            <span class="text-lg font-bold">$150.00</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mt-6 text-center">
-                    <p class="text-xs text-gray-500">Payments processed securely by</p>
-                    <img src="https://stripe.com/img/v3/home/social.png" class="h-8 mx-auto mt-2" alt="Stripe">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="pack-opener/spinner.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const root = document.getElementById('demo-spinner');
-            if (!root) return;
-
-            const badge = document.getElementById('spinner-pack-badge');
-            const badgeImage = document.getElementById('spinner-pack-image');
-            const badgeName = document.getElementById('spinner-pack-name');
-            const badgePrice = document.getElementById('spinner-pack-price');
-            const DEFAULT_CASE_ID = '-OPd7bkeviB4Xq_1Ea6i';
-
-            function formatPackPrice(data) {
-                if (data?.isFree) return 'Free pack';
-                const value = Number(data?.price || 0);
-                if (!value) return '';
-                return `${value.toLocaleString()} gems`;
-            }
-
-            function applyBadge(data, fallbackConfig = {}) {
-                if (!badge || !badgeImage || !badgeName || !badgePrice) return;
-                const packName = data?.name || fallbackConfig.caseName || 'Featured pack';
-                const packImage = data?.image || fallbackConfig.thumbnail || `https://ui-avatars.com/api/?name=${encodeURIComponent(packName)}&background=1e293b&color=f8fafc&rounded=true`;
-                const priceLabel = formatPackPrice(data) || formatPackPrice(fallbackConfig) || 'Available now';
-                badgeImage.src = packImage;
-                badgeImage.alt = `${packName} thumbnail`;
-                badgeName.textContent = packName;
-                badgePrice.textContent = priceLabel;
-                badge.classList.remove('hidden');
-            }
-
-            async function loadDemoSpinner() {
-                let config = {};
-                try {
-                    const configSnap = await firebase.database().ref('homeSpinnerConfig').once('value');
-                    config = configSnap.val() || {};
-                } catch (err) {
-                    console.warn('Failed to load spinner config', err);
-                }
-
-                const requestedCaseId = config.caseId || DEFAULT_CASE_ID;
-
-                async function fetchCase(caseId) {
-                    const snap = await firebase.database().ref('cases/' + caseId).once('value');
-                    return { id: caseId, data: snap.val() };
-                }
-
-                let caseResult = await fetchCase(requestedCaseId);
-                if (!caseResult.data && requestedCaseId !== DEFAULT_CASE_ID) {
-                    caseResult = await fetchCase(DEFAULT_CASE_ID);
-                }
-                const caseData = caseResult.data;
-                if (!caseData) return;
-
-                const items = Object.values(caseData.prizes || {});
-                if (!items.length) return;
-
-                PackOpener.init({ root, items });
-                PackOpener.setMuted(true);
-                applyBadge(caseData, config);
-
-                const legendaryIndices = items.reduce((arr, it, idx) => {
-                    if (it.rarity === 'legendary') arr.push(idx);
-                    return arr;
-                }, []);
-                if (!legendaryIndices.length) return;
-
-                function loop() {
-                    const winIndex = legendaryIndices[Math.floor(Math.random() * legendaryIndices.length)];
-                    PackOpener.spinToIndex(winIndex, {
-                        durationMs: 2400,
-                        onReveal: () => setTimeout(loop, 1500)
-                    });
-                }
-
-                loop();
-            }
-
-            loadDemoSpinner();
-        });
-    </script>
-    <script src="scripts/navbar.js"></script>
-    <script>
-        // Show free pack modal 7 seconds after load for signed-out users
-        let freePackTimeout;
-        firebase.auth().onAuthStateChanged(user => {
-            if (!user && !sessionStorage.getItem('freePackDismissed')) {
-                freePackTimeout = setTimeout(() => {
-                    const modal = document.getElementById('freePackModal');
-                    if (modal) modal.classList.remove('hidden');
-                }, 7000);
-            } else {
-                clearTimeout(freePackTimeout);
-            }
-        });
-
-        function closeModal() {
-            const freePackModal = document.getElementById('freePackModal');
-            const addGemsModal = document.getElementById('addGemsModal');
-            if (freePackModal && !freePackModal.classList.contains('hidden')) {
-                sessionStorage.setItem('freePackDismissed', 'true');
-            }
-            if (freePackModal) freePackModal.classList.add('hidden');
-            if (addGemsModal) addGemsModal.classList.add('hidden');
+      async function loadDemoSpinner() {
+        let config = {};
+        try {
+          const configSnap = await firebase.database().ref('homeSpinnerConfig').once('value');
+          config = configSnap.val() || {};
+        } catch (err) {
+          console.warn('Failed to load spinner config', err);
         }
 
-        function showAddGemsModal() {
-            document.getElementById('addGemsModal').classList.remove('hidden');
+        const requestedCaseId = config.caseId || DEFAULT_CASE_ID;
+
+        async function fetchCase(caseId) {
+          const snap = await firebase.database().ref('cases/' + caseId).once('value');
+          return { id: caseId, data: snap.val() };
         }
 
-        const filterToggle = document.getElementById('filter-toggle');
-        const filterPanel = document.getElementById('filter-panel');
-        if (filterToggle && filterPanel) {
-          const labelSpan = filterToggle.querySelector('span');
-          const updateLabel = () => {
-            const hidden = filterPanel.classList.contains('hidden');
-            if (labelSpan) labelSpan.textContent = hidden ? 'Show Filters' : 'Hide Filters';
-          };
-          updateLabel();
-          filterToggle.addEventListener('click', () => {
-            filterPanel.classList.toggle('hidden');
-            updateLabel();
+        let caseResult = await fetchCase(requestedCaseId);
+        if (!caseResult.data && requestedCaseId !== DEFAULT_CASE_ID) {
+          caseResult = await fetchCase(DEFAULT_CASE_ID);
+        }
+        const caseData = caseResult.data;
+        if (!caseData) return;
+
+        const items = Object.values(caseData.prizes || {});
+        if (!items.length) return;
+
+        PackOpener.init({ root, items });
+        PackOpener.setMuted(true);
+        applyBadge(caseData, config);
+
+        const legendaryIndices = items.reduce((arr, it, idx) => {
+          if (it.rarity === 'legendary') arr.push(idx);
+          return arr;
+        }, []);
+        if (!legendaryIndices.length) return;
+
+        function loop() {
+          const winIndex = legendaryIndices[Math.floor(Math.random() * legendaryIndices.length)];
+          PackOpener.spinToIndex(winIndex, {
+            durationMs: 2400,
+            onReveal: () => setTimeout(loop, 1500)
           });
         }
-    </script>
-    <script type="module" src="scripts/hot-cards.js"></script>
-    <script type="module" src="scripts/auth.js"></script>
-    <script type="module" src="scripts/packs.js"></script>
-    <script src="scripts/popups.js"></script>
-    <script src="scripts/footer.js"></script>
-    <script src="scripts/topup.js"></script>
-    <script src="scripts/header.js"></script>
-</html>
 
+        loop();
+      }
+
+      loadDemoSpinner();
+    });
+  </script>
+  <script src="scripts/navbar.js"></script>
+  <script>
+    // Show free pack modal 7 seconds after load for signed-out users
+    let freePackTimeout;
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user && !sessionStorage.getItem('freePackDismissed')) {
+        freePackTimeout = setTimeout(() => {
+          const modal = document.getElementById('freePackModal');
+          if (modal) modal.classList.remove('hidden');
+        }, 7000);
+      } else {
+        clearTimeout(freePackTimeout);
+      }
+    });
+
+    function closeModal() {
+      const freePackModal = document.getElementById('freePackModal');
+      const addGemsModal = document.getElementById('addGemsModal');
+      if (freePackModal && !freePackModal.classList.contains('hidden')) {
+        sessionStorage.setItem('freePackDismissed', 'true');
+      }
+      if (freePackModal) freePackModal.classList.add('hidden');
+      if (addGemsModal) addGemsModal.classList.add('hidden');
+    }
+
+    function showAddGemsModal() {
+      document.getElementById('addGemsModal').classList.remove('hidden');
+    }
+
+    const filterToggle = document.getElementById('filter-toggle');
+    const filterPanel = document.getElementById('filter-panel');
+    if (filterToggle && filterPanel) {
+      const labelSpan = filterToggle.querySelector('span');
+      const updateLabel = () => {
+        const hidden = filterPanel.classList.contains('hidden');
+        if (labelSpan) labelSpan.textContent = hidden ? 'Show Filters' : 'Hide Filters';
+      };
+      updateLabel();
+      filterToggle.addEventListener('click', () => {
+        filterPanel.classList.toggle('hidden');
+        updateLabel();
+      });
+    }
+  </script>
+  <script type="module" src="scripts/hot-cards.js"></script>
+  <script type="module" src="scripts/auth.js"></script>
+  <script type="module" src="scripts/packs.js"></script>
+  <script src="scripts/popups.js"></script>
+  <script src="scripts/footer.js"></script>
+  <script src="scripts/topup.js"></script>
+  <script src="scripts/header.js"></script>
+</body>
+</html>
