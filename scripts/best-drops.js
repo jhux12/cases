@@ -12,11 +12,13 @@ const elements = {
   itemRight: qs('free-pack-item-right')
 };
 
+const FREE_PACK_ART_URL =
+  'https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(13).png?alt=media&token=c5062628-843e-4726-b842-135706f5a9a7';
+
 const defaults = {
   name: 'Free mystery pack',
   description: 'See the two biggest hits waiting inside your welcome pack. Claim them by signing up.',
-  image:
-    'https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001',
+  image: FREE_PACK_ART_URL,
   items: [
     {
       label: 'Top sneaker pull',
@@ -64,12 +66,7 @@ const setItemContent = (el, data, fallback) => {
   }
 };
 
-const resolvePackImage = pack => {
-  if (!pack) return defaults.image;
-  const { image, cardBack, coverImage, packImage, caseImage, images } = pack;
-  const nestedImage = images?.cover || images?.main || images?.card;
-  return image || cardBack || coverImage || packImage || caseImage || nestedImage || defaults.image;
-};
+const resolvePackImage = () => FREE_PACK_ART_URL;
 
 const renderPack = pack => {
   if (!elements.card) return;
