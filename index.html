@@ -260,86 +260,51 @@
             max-width: 360px;
         }
 
-        .spinner-pack-badge {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 18px 10px 12px;
-            border-radius: 16px;
-            background: rgba(15, 23, 42, 0.88);
-            border: 1px solid rgba(148, 163, 184, 0.35);
-            box-shadow: 0 18px 32px rgba(15, 23, 42, 0.3);
-            max-width: 320px;
+        .hero-pack-visual {
+            position: relative;
             width: 100%;
+            aspect-ratio: 5 / 3;
+            border-radius: 18px;
+            overflow: hidden;
+            background: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15), transparent 45%),
+                        radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.15), transparent 40%),
+                        linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 25px 45px rgba(0, 0, 0, 0.35);
         }
 
-        .spinner-pack-badge.hidden {
-            display: none;
+        .hero-pack-visual::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0));
+            pointer-events: none;
         }
 
-        .spinner-pack-badge img {
-            width: 42px;
-            height: 42px;
-            border-radius: 999px;
-            object-fit: cover;
-            border: 2px solid rgba(99, 102, 241, 0.7);
-            background: #111827;
+        .hero-pack-image-frame {
+            position: absolute;
+            inset: 12px;
+            border-radius: 14px;
+            background: radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.45));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
-        .spinner-pack-meta {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.1;
-            gap: 2px;
-            align-items: flex-start;
-            text-align: left;
+        .hero-pack-img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            max-width: 82%;
+            max-height: 82%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.45s ease, transform 0.45s ease;
+            filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.4));
         }
 
-        .spinner-pack-meta .label {
-            font-size: 0.7rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #a5b4fc;
-        }
-
-        .spinner-pack-meta .name {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #e2e8f0;
-            letter-spacing: 0.02em;
-        }
-
-        .spinner-pack-meta .price {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.72rem;
-            color: #e2e8f0;
-            opacity: 0.95;
-        }
-
-        .spinner-pack-meta .price .price-prefix {
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: #cbd5f5;
-        }
-
-        .spinner-pack-meta .price .price-amount {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.15rem;
-            padding: 0.25rem 0.65rem;
-            border-radius: 999px;
-            background: linear-gradient(120deg, rgba(148, 163, 184, 0.22), rgba(99, 102, 241, 0.32));
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 16px rgba(0, 0, 0, 0.22);
-            font-weight: 700;
-        }
-
-        .spinner-pack-meta .price .price-amount img {
-            width: 1.05rem;
-            height: 1.05rem;
-            flex-shrink: 0;
-            filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.4));
+        .hero-pack-img.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
         }
 
         .reel {
@@ -523,17 +488,15 @@
                                 </div>
                                 <a id="hero-pack-link" href="#available-packs" class="text-indigo-100 font-semibold hover:text-white">Open now →</a>
                             </div>
+                            <div class="hero-pack-visual mt-4">
+                                <div class="hero-pack-image-frame"></div>
+                                <img id="hero-pack-image" class="hero-pack-img" src="" alt="Featured pack" loading="lazy">
+                            </div>
                             <div class="flex items-center flex-wrap gap-2 mt-3" id="hero-pack-tags">
                                 <span class="pill-compact">Loading tags…</span>
                             </div>
                         </div>
                         <div class="frosted-panel rounded-2xl p-4">
-                            <div id="spinner-pack-badge" class="spinner-pack-badge hidden">
-                                <div class="spinner-pack-meta">
-                                    <span class="label">Featured pack</span>
-                                    <span id="spinner-pack-name" class="name"></span>
-                                </div>
-                            </div>
                             <div class="reel-wrapper mt-3">
                                 <div id="demo-spinner" class="reel"></div>
                                 <div class="center-marker">
@@ -864,18 +827,22 @@
             const root = document.getElementById('demo-spinner');
             if (!root) return;
 
-            const badge = document.getElementById('spinner-pack-badge');
-            const badgeName = document.getElementById('spinner-pack-name');
             const heroName = document.getElementById('hero-pack-name');
             const heroTags = document.getElementById('hero-pack-tags');
             const heroLink = document.getElementById('hero-pack-link');
+            const heroImage = document.getElementById('hero-pack-image');
             const DEFAULT_CASE_ID = '-OPd7bkeviB4Xq_1Ea6i';
 
+            function resolvePackImage(data, fallbackConfig = {}) {
+                const directImage = data?.image || data?.thumbnail || fallbackConfig?.image || fallbackConfig?.packImage;
+                if (directImage) return directImage;
+
+                const firstPrizeWithImage = Object.values(data?.prizes || {}).find(prize => prize?.image);
+                return firstPrizeWithImage?.image || '';
+            }
+
             function applyBadge(data, fallbackConfig = {}, caseId = DEFAULT_CASE_ID) {
-                if (!badge || !badgeName) return;
                 const packName = data?.name || fallbackConfig.caseName || 'Featured pack';
-                badgeName.textContent = packName;
-                badge.classList.remove('hidden');
 
                 if (heroName) heroName.textContent = packName;
                 if (heroLink) heroLink.href = `case.html?id=${caseId}`;
@@ -890,6 +857,13 @@
                     heroTags.innerHTML = tagList.slice(0, 3)
                         .map(tag => `<span class="pill-compact">${tag}</span>`)
                         .join('');
+                }
+
+                if (heroImage) {
+                    const imageSrc = resolvePackImage(data, fallbackConfig);
+                    heroImage.src = imageSrc;
+                    heroImage.alt = packName;
+                    heroImage.classList.toggle('active', Boolean(imageSrc));
                 }
             }
 
