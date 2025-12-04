@@ -238,7 +238,7 @@
     <img class="case-pack-image absolute -top-10 right-0 translate-x-1/2 w-64 opacity-20 z-0 pointer-events-none rotate-12" alt="Case Pack" />
     <div class="relative z-10">
       <div class="text-center mb-6">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 shadow">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 shadow cta-on-gradient">
           <img src="https://cdn-icons-png.flaticon.com/128/5172/5172637.png" alt="Rewards Icon" class="w-5 h-5" />
           <span class="text-sm font-bold uppercase tracking-wider text-white cta-on-gradient">Rewards Table</span>
         </div>
@@ -595,11 +595,11 @@ if (repeatedBestDrops.length) {
       <div class="prize-name font-semibold text-sm clamp-2">${prize.name}</div>
     </div>
     <div class="flex items-center justify-between px-2 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-medium cta-on-gradient">
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1 cta-on-gradient">
         <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4" />
-        ${formatGems(getEffectiveValue(prize))}
+        <span class="cta-on-gradient">${formatGems(getEffectiveValue(prize))}</span>
       </div>
-      <div>${formatOdds(prize.odds)}%</div>
+      <span class="cta-on-gradient">${formatOdds(prize.odds)}%</span>
     </div>
   </div>`;
         })
