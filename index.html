@@ -523,17 +523,12 @@
                                 </div>
                                 <a id="hero-pack-link" href="#available-packs" class="text-indigo-100 font-semibold hover:text-white">Open now →</a>
                             </div>
-                            <img id="hero-pack-image" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Featured pack cover" />
-                            <div class="flex items-center justify-between mt-3">
-                                <div class="flex gap-2 flex-wrap" id="hero-pack-tags">
-                                    <span class="pill-compact">Loading tags…</span>
-                                </div>
-                                <div id="hero-pack-price" class="price price-chip">—</div>
+                            <div class="flex items-center flex-wrap gap-2 mt-3" id="hero-pack-tags">
+                                <span class="pill-compact">Loading tags…</span>
                             </div>
                         </div>
                         <div class="frosted-panel rounded-2xl p-4">
                             <div id="spinner-pack-badge" class="spinner-pack-badge hidden">
-                                <img id="spinner-pack-image" src="" alt="Featured pack thumbnail">
                                 <div class="spinner-pack-meta">
                                     <span class="label">Featured pack</span>
                                     <span id="spinner-pack-name" class="name"></span>
@@ -870,63 +865,19 @@
             if (!root) return;
 
             const badge = document.getElementById('spinner-pack-badge');
-            const badgeImage = document.getElementById('spinner-pack-image');
             const badgeName = document.getElementById('spinner-pack-name');
-            const heroPrice = document.getElementById('hero-pack-price');
             const heroName = document.getElementById('hero-pack-name');
-            const heroImage = document.getElementById('hero-pack-image');
             const heroTags = document.getElementById('hero-pack-tags');
             const heroLink = document.getElementById('hero-pack-link');
             const DEFAULT_CASE_ID = '-OPd7bkeviB4Xq_1Ea6i';
 
-            function formatPackPrice(data) {
-                if (data?.isFree) return 'Free';
-                const value = Number(data?.price || 0);
-                if (!value) return '';
-                return value.toLocaleString();
-            }
-
-            function buildPriceMarkup({ priceValue, isFree }) {
-                if (!priceValue && !isFree) return '';
-
-                const isFreeLabel = priceValue === 'Free' || isFree;
-                const chipValue = isFreeLabel ? 'Free' : `${priceValue}`;
-                const icon = isFreeLabel
-                    ? ''
-                    : `<img class="gem-icon price-gem" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gems" />`;
-
-                return `<span class="price-amount"><span class="price-number">${chipValue}</span>${icon}</span>`;
-            }
-
-            function getPackImage(data = {}, fallbackConfig = {}, fallbackName = 'Featured pack') {
-                const sources = [
-                    data.image,
-                    data.thumbnail,
-                    fallbackConfig.image,
-                    fallbackConfig.thumbnail
-                ];
-                const match = sources.find(Boolean);
-                const safeName = data.name || fallbackConfig.caseName || fallbackName;
-                return match || `https://ui-avatars.com/api/?name=${encodeURIComponent(safeName)}&background=1e293b&color=f8fafc&rounded=true`;
-            }
-
             function applyBadge(data, fallbackConfig = {}, caseId = DEFAULT_CASE_ID) {
-                if (!badge || !badgeImage || !badgeName) return;
+                if (!badge || !badgeName) return;
                 const packName = data?.name || fallbackConfig.caseName || 'Featured pack';
-                const packImage = getPackImage(data, fallbackConfig, packName);
-                const priceValue = formatPackPrice(data) || formatPackPrice(fallbackConfig);
-                const priceMarkup = buildPriceMarkup({ priceValue, isFree: data?.isFree || fallbackConfig?.isFree });
-                badgeImage.src = packImage;
-                badgeImage.alt = `${packName} thumbnail`;
                 badgeName.textContent = packName;
                 badge.classList.remove('hidden');
 
-                if (heroImage) {
-                    heroImage.src = packImage;
-                    heroImage.alt = `${packName} cover`;
-                }
                 if (heroName) heroName.textContent = packName;
-                if (heroPrice) heroPrice.innerHTML = priceMarkup;
                 if (heroLink) heroLink.href = `case.html?id=${caseId}`;
                 if (heroTags) {
                     const tagList = [];
