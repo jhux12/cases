@@ -64,6 +64,13 @@ const setItemContent = (el, data, fallback) => {
   }
 };
 
+const resolvePackImage = pack => {
+  if (!pack) return defaults.image;
+  const { image, cardBack, coverImage, packImage, caseImage, images } = pack;
+  const nestedImage = images?.cover || images?.main || images?.card;
+  return image || cardBack || coverImage || packImage || caseImage || nestedImage || defaults.image;
+};
+
 const renderPack = pack => {
   if (!elements.card) return;
   const selected = pack || defaults;
@@ -76,7 +83,7 @@ const renderPack = pack => {
   setItemContent(elements.itemRight, right, fallbackRight);
 
   if (elements.image) {
-    elements.image.src = selected.image || defaults.image;
+    elements.image.src = resolvePackImage(selected);
     elements.image.alt = selected.name ? `${selected.name} pack` : 'Free signup pack';
   }
   if (elements.title) {
