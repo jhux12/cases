@@ -2,16 +2,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebas
 import { getDatabase, ref, get, set, child, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyCyRm6dWH8b_BZ0oImEBPW_T3sF14Tz8dE",
-  authDomain: "cases-e5b4e.firebaseapp.com",
-  databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
-  projectId: "cases-e5b4e",
-  storageBucket: "cases-e5b4e.appspot.com",
-  messagingSenderId: "1094023497986",
-  appId: "1:1094023497986:web:59e018f1aa5e8c4093d7a5"
-};
+const firebaseConfig = window.APP_CONFIG?.firebase;
+
+if (!firebaseConfig) {
+  throw new Error('Missing Firebase configuration. Provide config/app-config.js before loading scripts/main.js.');
+}
 
 // Initialize
 const app = initializeApp(firebaseConfig);
