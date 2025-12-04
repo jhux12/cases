@@ -1511,6 +1511,13 @@ html {
     box-shadow: 0 24px 48px rgba(15, 23, 42, 0.35);
   }
 
+  body:not(.dark-mode) .free-pack-card {
+    background: linear-gradient(135deg, rgba(224, 242, 254, 0.9), rgba(199, 210, 254, 0.9));
+    border-color: rgba(148, 163, 184, 0.45);
+    box-shadow: 0 18px 28px rgba(15, 23, 42, 0.18);
+    color: #0f172a;
+  }
+
   .free-pack-glow {
     position: absolute;
     inset: -35%;
@@ -1546,6 +1553,13 @@ html {
     box-shadow: 0 12px 24px rgba(14, 165, 233, 0.3);
   }
 
+  body:not(.dark-mode) .free-pack-pill {
+    background: rgba(14, 165, 233, 0.12);
+    color: #0f172a;
+    border-color: rgba(14, 165, 233, 0.35);
+    box-shadow: none;
+  }
+
   .free-pack-spark {
     color: #a5b4fc;
     font-size: 1.25rem;
@@ -1570,6 +1584,11 @@ html {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(148, 163, 184, 0.28);
     overflow: hidden;
+  }
+
+  body:not(.dark-mode) .free-pack-art {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(148, 163, 184, 0.5);
   }
 
   .free-pack-art img {
@@ -1705,6 +1724,13 @@ html {
     transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.25s ease;
   }
 
+  body:not(.dark-mode) .free-pack-button {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(14, 165, 233, 0.2));
+    color: #0b172a;
+    border-color: rgba(59, 130, 246, 0.45);
+    box-shadow: 0 10px 20px rgba(14, 165, 233, 0.15);
+  }
+
   .free-pack-button:hover {
     transform: translateY(-1px);
     box-shadow: 0 16px 32px rgba(14, 165, 233, 0.28);
@@ -1717,9 +1743,27 @@ html {
     box-shadow: none;
   }
 
+  body:not(.dark-mode) .free-pack-button.ghost {
+    background: rgba(15, 23, 42, 0.06);
+    color: #0f172a;
+    border-color: rgba(148, 163, 184, 0.6);
+  }
+
   .free-pack-status {
     color: #c7d2fe;
     font-weight: 700;
+  }
+
+  body:not(.dark-mode) .free-pack-title {
+    color: #0f172a;
+  }
+
+  body:not(.dark-mode) .free-pack-sub {
+    color: #0f172a;
+  }
+
+  body:not(.dark-mode) .free-pack-status {
+    color: #0f172a;
   }
 
   @keyframes pulse {
