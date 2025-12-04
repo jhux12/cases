@@ -303,6 +303,9 @@ body.dark-mode {
 
 .navbar .gradient-text {
   background: linear-gradient(90deg, var(--accent-strong), var(--accent-soft));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 #user-dropdown,
@@ -1412,6 +1415,7 @@ html {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 
 .crazy-bottom-nav {
