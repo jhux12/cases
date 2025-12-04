@@ -596,55 +596,76 @@
     <!-- Best Drops Section -->
     <section id="best-drops-section" class="py-14 bg-transparent">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col lg:flex-row gap-6 items-start">
-                <div class="frosted-panel rounded-2xl p-6 w-full lg:w-1/3 space-y-4 border border-slate-800/80 relative overflow-hidden best-drops-hero">
-                    <div class="absolute -right-12 -top-16 w-48 h-48 best-drop-orb"></div>
-                    <div class="absolute -left-20 -bottom-24 w-64 h-64 best-drop-orb"></div>
-                    <p class="text-[12px] uppercase tracking-[0.28em] text-cyan-300 font-semibold">Best Drops</p>
-                    <h2 class="text-3xl font-extrabold text-white leading-tight">Legendary pulls from our community</h2>
-                    <p class="text-slate-300 text-sm">Cheer on the biggest hits, shuffle the showcase, and watch the live ticker heat up as the hype meter climbs.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="best-drop-chip">Live rotation</span>
-                        <span class="best-drop-chip best-drop-chip-soft">Community-picked</span>
-                        <span class="best-drop-chip best-drop-chip-soft">Secret rares</span>
-                    </div>
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between text-xs text-slate-300">
-                            <span>Hype meter</span>
-                            <span id="hype-meter-label" class="font-semibold text-cyan-200">62% charged</span>
+            <div class="grid gap-6 lg:grid-cols-[1.1fr,0.9fr] items-start best-drops-layout">
+                <div class="frosted-panel rounded-2xl p-6 w-full space-y-5 border border-slate-800/80 relative overflow-hidden drop-spotlight-card">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 drop-spotlight-orb"></div>
+                    <div class="absolute -left-16 -bottom-24 w-52 h-52 drop-spotlight-orb"></div>
+                    <div class="flex items-start justify-between gap-3 flex-wrap">
+                        <div>
+                            <p class="text-[12px] uppercase tracking-[0.28em] text-cyan-300 font-semibold">Best Drops</p>
+                            <h2 class="text-3xl font-extrabold text-white leading-tight">Spotlight shuffle</h2>
+                            <p class="text-slate-300 text-sm">Meet one epic pull at a time. Tap shuffle to deal a new feature or applaud to bump the badge count.</p>
                         </div>
-                        <div class="hype-meter">
-                            <div id="hype-meter-fill" class="hype-meter-fill" style="width: 62%"></div>
+                        <span class="spotlight-pill" id="spotlight-pill">Live queue • 3 drops</span>
+                    </div>
+
+                    <div class="spotlight-visual" id="spotlight-visual">
+                        <div class="spotlight-visual-card">
+                            <img id="spotlight-card" src="" alt="Spotlight card" loading="lazy">
+                        </div>
+                        <div class="spotlight-visual-pack">
+                            <img id="spotlight-pack" src="" alt="Pack art" loading="lazy">
                         </div>
                     </div>
-                    <div class="flex flex-wrap gap-3">
-                        <button id="shuffle-drops" class="best-drop-control">
+
+                    <div class="spotlight-meta">
+                        <div class="flex flex-wrap gap-2">
+                            <span class="spotlight-chip" id="spotlight-rarity"></span>
+                            <span class="spotlight-chip soft" id="spotlight-odds"></span>
+                            <span class="spotlight-chip soft" id="spotlight-streak"></span>
+                        </div>
+                        <div class="space-y-1">
+                            <h3 class="text-xl font-bold text-white leading-tight" id="spotlight-title"></h3>
+                            <p class="text-slate-300 text-sm" id="spotlight-pack-name"></p>
+                            <p class="text-emerald-200 font-semibold" id="spotlight-value"></p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button id="applaud-button" class="spotlight-control">
+                                <i class="fa-regular fa-thumbs-up"></i>
+                                Applaud
+                                <span class="applause-count" id="applause-count"></span>
+                            </button>
+                            <div class="applause-meter">
+                                <div class="applause-meter-fill" id="applause-meter-fill"></div>
+                            </div>
+                            <span class="note-chip" id="note-chip"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 spotlight-actions">
+                        <button id="deal-next" class="spotlight-control alt">
                             <i class="fa-solid fa-shuffle"></i>
                             Shuffle spotlight
                         </button>
-                        <button id="boost-meter" class="best-drop-control best-drop-control-ghost">
-                            <i class="fa-solid fa-bolt"></i>
-                            Boost hype
+                        <button id="toggle-auto" class="spotlight-control ghost active">
+                            <i class="fa-regular fa-circle-play"></i>
+                            Auto-rotate on
                         </button>
-                    </div>
-                    <div id="drop-ticker" class="drop-ticker" aria-live="polite">
-                        <span class="ticker-dot"></span>
-                        <span class="ticker-text">Kai just dropped a 1/480 Pikachu VMAX and the chat is losing it.</span>
+                        <div class="auto-progress" aria-hidden="true">
+                            <div id="auto-progress-fill"></div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="w-full lg:w-2/3 space-y-4">
-                    <div class="flex items-center justify-between gap-3 flex-wrap">
+                <div class="frosted-panel rounded-2xl p-6 w-full space-y-4 border border-slate-800/80 drop-queue-panel">
+                    <div class="flex items-start justify-between gap-3 flex-wrap">
                         <div>
-                            <p class="text-sm text-cyan-300 font-semibold uppercase tracking-wide">Legendary lineup</p>
-                            <p class="text-slate-300 text-sm">Tap a card to cheer and help decide which pull takes the spotlight next.</p>
+                            <p class="text-sm text-cyan-300 font-semibold uppercase tracking-wide">Next up</p>
+                            <p class="text-slate-300 text-sm">Tap any card in the queue to bring it into the spotlight instantly.</p>
                         </div>
-                        <div class="flex items-center gap-2 text-xs text-slate-400">
-                            <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                            Spotlight rotates every 6 seconds
-                        </div>
+                        <span class="queue-dot" aria-hidden="true"></span>
                     </div>
-                    <div id="best-drops-grid" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"></div>
+                    <div id="drop-queue" class="drop-queue" role="list"></div>
                 </div>
             </div>
         </div>
