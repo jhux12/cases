@@ -595,77 +595,31 @@
 
     <!-- Best Drops Section -->
     <section id="best-drops-section" class="py-14 bg-transparent">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid gap-6 lg:grid-cols-[1.1fr,0.9fr] items-start best-drops-layout">
-                <div class="frosted-panel rounded-2xl p-6 w-full space-y-5 border border-slate-800/80 relative overflow-hidden drop-spotlight-card">
-                    <div class="absolute -right-10 -top-10 w-40 h-40 drop-spotlight-orb"></div>
-                    <div class="absolute -left-16 -bottom-24 w-52 h-52 drop-spotlight-orb"></div>
-                    <div class="flex items-start justify-between gap-3 flex-wrap">
-                        <div>
-                            <p class="text-[12px] uppercase tracking-[0.28em] text-cyan-300 font-semibold">Best Drops</p>
-                            <h2 class="text-3xl font-extrabold text-white leading-tight">Spotlight shuffle</h2>
-                            <p class="text-slate-300 text-sm">Meet one epic pull at a time. Tap shuffle to deal a new feature or applaud to bump the badge count.</p>
-                        </div>
-                        <span class="spotlight-pill" id="spotlight-pill">Live queue • 3 drops</span>
-                    </div>
-
-                    <div class="spotlight-visual" id="spotlight-visual">
-                        <div class="spotlight-visual-card">
-                            <img id="spotlight-card" src="" alt="Spotlight card" loading="lazy">
-                        </div>
-                        <div class="spotlight-visual-pack">
-                            <img id="spotlight-pack" src="" alt="Pack art" loading="lazy">
-                        </div>
-                    </div>
-
-                    <div class="spotlight-meta">
-                        <div class="flex flex-wrap gap-2">
-                            <span class="spotlight-chip" id="spotlight-rarity"></span>
-                            <span class="spotlight-chip soft" id="spotlight-odds"></span>
-                            <span class="spotlight-chip soft" id="spotlight-streak"></span>
-                        </div>
-                        <div class="space-y-1">
-                            <h3 class="text-xl font-bold text-white leading-tight" id="spotlight-title"></h3>
-                            <p class="text-slate-300 text-sm" id="spotlight-pack-name"></p>
-                            <p class="text-emerald-200 font-semibold" id="spotlight-value"></p>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-3">
-                            <button id="applaud-button" class="spotlight-control">
-                                <i class="fa-regular fa-thumbs-up"></i>
-                                Applaud
-                                <span class="applause-count" id="applause-count"></span>
-                            </button>
-                            <div class="applause-meter">
-                                <div class="applause-meter-fill" id="applause-meter-fill"></div>
-                            </div>
-                            <span class="note-chip" id="note-chip"></span>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-3 spotlight-actions">
-                        <button id="deal-next" class="spotlight-control alt">
-                            <i class="fa-solid fa-shuffle"></i>
-                            Shuffle spotlight
-                        </button>
-                        <button id="toggle-auto" class="spotlight-control ghost active">
-                            <i class="fa-regular fa-circle-play"></i>
-                            Auto-rotate on
-                        </button>
-                        <div class="auto-progress" aria-hidden="true">
-                            <div id="auto-progress-fill"></div>
-                        </div>
-                    </div>
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="free-pack-card" id="free-pack-card">
+                <div class="free-pack-glow" aria-hidden="true"></div>
+                <div class="free-pack-header">
+                    <span class="free-pack-pill">New player drop</span>
+                    <span class="free-pack-spark" aria-hidden="true">✦</span>
                 </div>
-
-                <div class="frosted-panel rounded-2xl p-6 w-full space-y-4 border border-slate-800/80 drop-queue-panel">
-                    <div class="flex items-start justify-between gap-3 flex-wrap">
-                        <div>
-                            <p class="text-sm text-cyan-300 font-semibold uppercase tracking-wide">Next up</p>
-                            <p class="text-slate-300 text-sm">Tap any card in the queue to bring it into the spotlight instantly.</p>
-                        </div>
-                        <span class="queue-dot" aria-hidden="true"></span>
+                <div class="free-pack-body">
+                    <div class="free-pack-art">
+                        <div class="free-pack-pulse" id="free-pack-pulse"></div>
+                        <img id="free-pack-image" src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Pack%20Images%2FUntitled%20design%20(27).png?alt=media&token=27661ed2-182e-49d5-a635-f07d19410001" alt="Free signup pack" loading="lazy">
+                        <div class="free-pack-confetti" id="free-pack-confetti" aria-hidden="true"></div>
                     </div>
-                    <div id="drop-queue" class="drop-queue" role="list"></div>
+                    <div class="free-pack-copy">
+                        <h2 class="free-pack-title">Free mystery pack when you join</h2>
+                        <p class="free-pack-sub">Tap charge to light it up, then reveal your welcome bonus. No hoops — just sign up and claim.</p>
+                        <div class="free-pack-meter" aria-hidden="true">
+                            <div id="free-pack-meter-fill"></div>
+                        </div>
+                        <div class="free-pack-actions">
+                            <button id="free-pack-charge" class="free-pack-button">Charge it up</button>
+                            <button id="free-pack-reveal" class="free-pack-button ghost">Reveal the pack</button>
+                        </div>
+                        <p class="free-pack-status" id="free-pack-status">Charge the bar to wake the free pack.</p>
+                    </div>
                 </div>
             </div>
         </div>

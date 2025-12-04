@@ -1499,264 +1499,211 @@ html {
   pointer-events: none;
 }
 
-  /* Best Drops spotlight shuffle */
+  /* Free pack signup tile */
 
-  .best-drops-layout {
-    gap: 1.25rem;
-  }
-
-  .drop-spotlight-card,
-  .drop-queue-panel {
-    isolation: isolate;
-  }
-
-  .drop-spotlight-orb {
-    background: radial-gradient(circle, rgba(14, 165, 233, 0.24), rgba(99, 102, 241, 0.12));
-    filter: blur(68px);
-    opacity: 0.65;
-    pointer-events: none;
-  }
-
-  .spotlight-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.35rem 0.8rem;
-    border-radius: 999px;
-    color: #e0f2fe;
-    background: rgba(14, 165, 233, 0.12);
-    border: 1px solid rgba(14, 165, 233, 0.35);
-    font-weight: 700;
-    font-size: 0.8rem;
-  }
-
-  .spotlight-visual {
+  .free-pack-card {
     position: relative;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
-    align-items: center;
-  }
-
-  .spotlight-visual-card,
-  .spotlight-visual-pack {
-    position: relative;
-    border-radius: 16px;
-    padding: 0.75rem;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.04), rgba(148, 163, 184, 0.08));
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    display: grid;
-    place-items: center;
     overflow: hidden;
-    min-height: 160px;
+    border-radius: 20px;
+    padding: 1.5rem;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(99, 102, 241, 0.16));
+    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.35);
   }
 
-  .spotlight-visual-card img,
-  .spotlight-visual-pack img {
-    width: 100%;
-    max-width: 160px;
-    object-fit: contain;
-    filter: drop-shadow(0 18px 30px rgba(14, 165, 233, 0.25));
-    transition: transform 0.25s ease;
+  .free-pack-glow {
+    position: absolute;
+    inset: -35%;
+    background: radial-gradient(circle at 30% 30%, rgba(34, 211, 238, 0.28), transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.22), transparent 40%),
+      radial-gradient(circle at 50% 80%, rgba(14, 165, 233, 0.18), transparent 45%);
+    filter: blur(12px);
+    pointer-events: none;
+    z-index: 0;
   }
 
-  .spotlight-visual-card:hover img,
-  .spotlight-visual-pack:hover img {
-    transform: translateY(-4px);
+  .free-pack-header {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1;
+    margin-bottom: 0.75rem;
   }
 
-  .spotlight-meta {
-    display: grid;
-    gap: 0.75rem;
-  }
-
-  .spotlight-chip {
+  .free-pack-pill {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    padding: 0.35rem 0.75rem;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: #0ea5e9;
-    background: rgba(14, 165, 233, 0.1);
-    border: 1px solid rgba(14, 165, 233, 0.28);
-  }
-
-  .spotlight-chip.soft {
-    color: #cbd5e1;
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(148, 163, 184, 0.28);
-  }
-
-  .spotlight-control {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.6rem 0.9rem;
-    border-radius: 12px;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(14, 165, 233, 0.2));
-    color: #e0f2fe;
-    border: 1px solid rgba(59, 130, 246, 0.35);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
     font-weight: 800;
-    font-size: 0.95rem;
-    box-shadow: 0 10px 24px rgba(14, 165, 233, 0.2);
-    transition: transform 0.15s ease, box-shadow 0.2s ease;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.12);
+    color: #e0f2fe;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 12px 24px rgba(14, 165, 233, 0.3);
   }
 
-  .spotlight-control:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 14px 30px rgba(14, 165, 233, 0.24);
+  .free-pack-spark {
+    color: #a5b4fc;
+    font-size: 1.25rem;
+    animation: sparkle 1.8s ease-in-out infinite;
   }
 
-  .spotlight-control.alt {
-    background: linear-gradient(135deg, rgba(248, 113, 113, 0.22), rgba(249, 115, 22, 0.16));
-    border-color: rgba(248, 113, 113, 0.4);
-  }
-
-  .spotlight-control.ghost {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(148, 163, 184, 0.25);
-    color: #cbd5e1;
-  }
-
-  .spotlight-control.active {
-    border-color: rgba(34, 197, 94, 0.6);
-    box-shadow: 0 12px 28px rgba(34, 197, 94, 0.2);
-  }
-
-  .applause-count {
-    padding: 0.2rem 0.55rem;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 999px;
-    font-size: 0.82rem;
-  }
-
-  .applause-meter {
-    flex: 1;
-    min-width: 140px;
-    height: 10px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    overflow: hidden;
-  }
-
-  .applause-meter-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #22d3ee, #8b5cf6);
-    width: 0;
-    transition: width 0.3s ease;
-  }
-
-  .note-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.4rem 0.8rem;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #e2e8f0;
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    font-size: 0.85rem;
-  }
-
-  .spotlight-actions {
-    align-items: center;
-  }
-
-  .auto-progress {
+  .free-pack-body {
     position: relative;
-    flex: 1;
-    min-width: 180px;
-    height: 8px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    overflow: hidden;
-  }
-
-  .auto-progress div {
-    position: absolute;
-    inset: 0;
-    width: 0;
-    background: linear-gradient(90deg, #22d3ee, #6366f1);
-  }
-
-  .drop-queue {
     display: grid;
-    gap: 0.75rem;
-  }
-
-  .queue-card {
-    width: 100%;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    color: #e2e8f0;
-    transition: border-color 0.2s ease, transform 0.15s ease;
-    text-align: left;
+    z-index: 1;
   }
 
-  .queue-card:hover {
-    transform: translateY(-1px);
-    border-color: rgba(34, 211, 238, 0.5);
-  }
-
-  .queue-card.active {
-    border-color: rgba(34, 197, 94, 0.6);
-    box-shadow: 0 12px 28px rgba(34, 197, 94, 0.14);
-  }
-
-  .queue-thumb {
-    width: 54px;
-    height: 54px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.04);
+  .free-pack-art {
+    position: relative;
     display: grid;
     place-items: center;
+    padding: 1.1rem;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(148, 163, 184, 0.28);
     overflow: hidden;
-    border: 1px solid rgba(148, 163, 184, 0.2);
   }
 
-  .queue-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  .free-pack-art img {
+    width: 180px;
+    max-width: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 18px 32px rgba(34, 211, 238, 0.28));
+    transition: transform 0.3s ease;
   }
 
-  .queue-copy {
+  .free-pack-card.is-amped img {
+    transform: translateY(-6px) scale(1.02);
+  }
+
+  .free-pack-pulse {
+    position: absolute;
+    inset: 18%;
+    border-radius: 20px;
+    background: radial-gradient(circle, rgba(34, 211, 238, 0.16), transparent 65%);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+
+  .free-pack-confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle at 20% 30%, rgba(244, 63, 94, 0.6) 0, rgba(244, 63, 94, 0.6) 6px, transparent 8px),
+      radial-gradient(circle at 70% 20%, rgba(59, 130, 246, 0.7) 0, rgba(59, 130, 246, 0.7) 6px, transparent 8px),
+      radial-gradient(circle at 40% 70%, rgba(16, 185, 129, 0.8) 0, rgba(16, 185, 129, 0.8) 6px, transparent 8px);
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .free-pack-card.is-amped .free-pack-confetti {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .free-pack-copy {
     display: grid;
-    gap: 0.2rem;
+    gap: 0.75rem;
   }
 
-  .queue-copy strong {
-    font-size: 0.95rem;
-    color: #e2e8f0;
+  .free-pack-title {
+    color: #fff;
+    font-size: clamp(1.4rem, 2vw, 1.8rem);
+    font-weight: 900;
+    letter-spacing: -0.01em;
   }
 
-  .queue-copy small {
+  .free-pack-sub {
     color: #cbd5e1;
+    font-size: 0.98rem;
+    max-width: 540px;
   }
 
-  .queue-cheers {
-    font-weight: 700;
-    color: #a5b4fc;
-  }
-
-  .queue-dot {
-    width: 10px;
+  .free-pack-meter {
+    width: 100%;
     height: 10px;
     border-radius: 999px;
-    background: #22d3ee;
-    box-shadow: 0 0 0 10px rgba(34, 211, 238, 0.12);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    overflow: hidden;
   }
 
-  .spotlight-control.popped {
-    transform: scale(1.02);
-    box-shadow: 0 14px 32px rgba(248, 113, 113, 0.25);
+  .free-pack-meter div {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #22d3ee, #a855f7, #f59e0b);
+    transition: width 0.25s ease;
+  }
+
+  .free-pack-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .free-pack-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.65rem 1rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.28), rgba(14, 165, 233, 0.26));
+    color: #e0f2fe;
+    font-weight: 800;
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    box-shadow: 0 12px 26px rgba(14, 165, 233, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.25s ease;
+  }
+
+  .free-pack-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 32px rgba(14, 165, 233, 0.28);
+  }
+
+  .free-pack-button.ghost {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(148, 163, 184, 0.3);
+    color: #fff;
+    box-shadow: none;
+  }
+
+  .free-pack-status {
+    color: #c7d2fe;
+    font-weight: 700;
+  }
+
+  @keyframes pulse {
+    0% {
+      opacity: 0.2;
+      transform: scale(0.95);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.05);
+    }
+    100% {
+      opacity: 0.2;
+      transform: scale(0.95);
+    }
+  }
+
+  @keyframes sparkle {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.9;
+    }
+    50% {
+      transform: scale(1.2) rotate(8deg);
+      opacity: 1;
+    }
   }
