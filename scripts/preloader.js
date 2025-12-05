@@ -8,11 +8,19 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background-color: #f8fafc;
-      color: #1f2937;
+      --preloader-bg: #f8fafc;
+      --preloader-text: #1f2937;
+      --preloader-progress: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      background-color: var(--preloader-bg);
+      color: var(--preloader-text);
       font-family: 'Poppins', sans-serif;
       z-index: 9999;
       transition: opacity 0.5s ease;
+    }
+    #preloader[data-theme='dark'] {
+      --preloader-bg: #0b0f1c;
+      --preloader-text: #e5e7eb;
+      --preloader-progress: linear-gradient(90deg, #60a5fa, #a78bfa);
     }
     #preloader.fade-out {
       opacity: 0;
@@ -26,7 +34,7 @@
     #preloader-progress {
       font-size: 1.5rem;
       font-weight: 700;
-      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      background: var(--preloader-progress);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -44,6 +52,12 @@
   `;
   document.head.appendChild(style);
 
+  const getPreferredTheme = () => {
+    const stored = localStorage.getItem('packly-theme');
+    if (stored === 'dark' || stored === 'light') return stored;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+
   const preloader = document.createElement('div');
   preloader.id = 'preloader';
   preloader.innerHTML = `
@@ -51,6 +65,21 @@
     <div id="preloader-progress">0%</div>
   `;
   document.body.appendChild(preloader);
+
+  const applyTheme = (theme) => {
+    preloader.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'light');
+  };
+
+  applyTheme(getPreferredTheme());
+
+  const observer = new MutationObserver(() => {
+    if (!document.body) return;
+    applyTheme(document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+  });
+
+  if (document.body) {
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  }
 
   let current = 0;
   const progressEl = document.getElementById('preloader-progress');
@@ -63,6 +92,9 @@
     clearInterval(interval);
     progressEl.textContent = '100%';
     preloader.classList.add('fade-out');
-    setTimeout(() => preloader.remove(), 500);
+    setTimeout(() => {
+      observer.disconnect();
+      preloader.remove();
+    }, 500);
   });
 })();
