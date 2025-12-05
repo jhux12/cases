@@ -279,6 +279,68 @@
       width: 100%;
     }
 
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, rgba(79,70,229,0.04), rgba(236,72,153,0.04));
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 1rem;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      box-shadow: 0 12px 28px -24px rgba(79, 70, 229, 0.55);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: #475569;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    @media (min-width: 768px) {
+      .filter-grid {
+        grid-template-columns: 1.2fr 1fr 1fr 1fr;
+      }
+    }
+
+    .input-field {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: #ffffff;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.02);
+    }
+
+    .input-field input,
+    .input-field select {
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 0.95rem;
+      color: #0f172a;
+      background: transparent;
+    }
+
     .btn {
       font-weight: 600;
       transition: transform 0.3s ease;
@@ -446,6 +508,71 @@
     </div>
 
     <section class="panel p-6 md:p-8 mb-10 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
+        <div class="space-y-2">
+          <p class="text-sm uppercase tracking-[0.15em] text-indigo-600 font-semibold">Live console</p>
+          <h2 class="text-2xl font-bold text-gray-900">Stay on top of inventory health in real time.</h2>
+          <p class="text-gray-600">Search, filter, and bulk act on cards without digging through tooltips.</p>
+        </div>
+        <div class="text-sm text-gray-500">Selections persist while you change filters and sort order.</div>
+      </div>
+      <div class="stat-grid mb-6" id="inventory-stats">
+        <div class="stat-card">
+          <span class="stat-label">Total items</span>
+          <span class="stat-value" id="stat-total-items">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Ready to ship</span>
+          <span class="stat-value" id="stat-ready">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Voucher-only</span>
+          <span class="stat-value" id="stat-vouchers">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Total gem value</span>
+          <span class="stat-value flex items-center gap-2" id="stat-value">0 <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" width="18" height="18" class="gem-icon" alt="Gems" /></span>
+        </div>
+      </div>
+
+      <div class="filter-grid">
+        <label class="input-field" for="search-input">
+          <i class="fa-solid fa-magnifying-glass text-indigo-500"></i>
+          <input id="search-input" type="search" placeholder="Search by name or set" aria-label="Search inventory" />
+        </label>
+        <label class="input-field" for="rarity-filter">
+          <i class="fa-solid fa-layer-group text-indigo-500"></i>
+          <select id="rarity-filter" aria-label="Filter by rarity">
+            <option value="all">All rarities</option>
+            <option value="common">Common</option>
+            <option value="uncommon">Uncommon</option>
+            <option value="rare">Rare</option>
+            <option value="ultra rare">Ultra</option>
+            <option value="legendary">Legendary</option>
+          </select>
+        </label>
+        <label class="input-field" for="status-filter">
+          <i class="fa-solid fa-traffic-light text-indigo-500"></i>
+          <select id="status-filter" aria-label="Filter by status">
+            <option value="all">All statuses</option>
+            <option value="ready">Ready to act</option>
+            <option value="shipped">Shipped</option>
+            <option value="requested">Shipment requested</option>
+            <option value="voucher">Voucher only</option>
+          </select>
+        </label>
+        <label class="input-field" for="sort-select">
+          <i class="fa-solid fa-arrow-down-wide-short text-indigo-500"></i>
+          <select id="sort-select" aria-label="Sort inventory">
+            <option value="rarity">Rarity</option>
+            <option value="value">Value</option>
+            <option value="name">Name</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="panel p-6 md:p-8 mb-10 shadow-sm">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div class="space-y-2 max-w-2xl">
           <p class="text-sm uppercase tracking-[0.15em] text-indigo-600 font-semibold">Ultimate simple workflow</p>
@@ -492,23 +619,16 @@
 
     <section id="inventory-section">
       <div class="panel flex flex-col md:flex-row justify-between items-center gap-4 p-6 mb-12">
-      <div class="flex flex-wrap items-center gap-4 text-sm">
-        <label class="flex items-center gap-2"><input type="checkbox" id="select-all-checkbox" class="accent-indigo-600">Select All</label>
-        <div class="flex items-center gap-2">
-          <label for="sort-select" class="whitespace-nowrap">Sort by:</label>
-          <select id="sort-select" class="text-black rounded px-3 py-1">
-            <option value="rarity">Rarity</option>
-            <option value="value">Value</option>
-            <option value="name">Name</option>
-          </select>
+        <div class="flex flex-wrap items-center gap-4 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" id="select-all-checkbox" class="accent-indigo-600">Select All</label>
+          <span class="text-gray-500">Selections stay while filtering.</span>
+        </div>
+        <div class="flex flex-col sm:flex-row items-center gap-2">
+          <span id="selected-total" class="text-sm text-gray-700">Total: 0 gems</span>
+          <button onclick="sellSelected()" class="px-4 py-1.5 text-sm rounded-full font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-600 transition btn whitespace-nowrap">Sell Selected</button>
+          <button onclick="shipSelected()" class="px-4 py-1.5 text-sm rounded-full font-semibold text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 transition btn whitespace-nowrap">Ship Selected</button>
         </div>
       </div>
-      <div class="flex flex-col sm:flex-row items-center gap-2">
-        <span id="selected-total" class="text-sm text-gray-700">Total: 0 gems</span>
-        <button onclick="sellSelected()" class="px-4 py-1.5 text-sm rounded-full font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-purple-600 hover:to-indigo-600 transition btn whitespace-nowrap">Sell Selected</button>
-        <button onclick="shipSelected()" class="px-4 py-1.5 text-sm rounded-full font-semibold text-white bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 transition btn whitespace-nowrap">Ship Selected</button>
-      </div>
-    </div>
       <div id="inventory-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 auto-rows-fr"></div>
     </section>
 
