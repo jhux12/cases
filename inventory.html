@@ -48,6 +48,37 @@
     .pill.ultra { background:#f5f3ff; color:#5b21b6; }
     .pill.legendary { background:#fef3c7; color:#92400e; }
 
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .bento-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem;
+      align-items: center;
+      background: linear-gradient(135deg, rgba(99,102,241,0.06), rgba(139,92,246,0.04));
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      border-radius: 1rem;
+      padding: 1rem 1.25rem;
+    }
+
+    .icon-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.05);
+    }
+
+    .bento-label { font-weight: 700; color: #0f172a; }
+    .bento-body { color: #475569; font-size: 0.95rem; }
+
     header {
       position: fixed;
       top: 0;
@@ -175,6 +206,28 @@
       flex-direction: column;
       gap: 0.5rem;
       margin-top: auto;
+    }
+
+    .flow-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 0.9rem;
+      padding: 0.9rem 1rem;
+      box-shadow: 0 18px 40px -28px rgba(79, 70, 229, 0.4);
+    }
+
+    .flow-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.04);
     }
 
     .action-button {
@@ -351,12 +404,37 @@
 
   <!-- Hero -->
   <section class="pt-32 pb-16 px-4 text-center bg-white">
-    <div class="max-w-4xl mx-auto">
-      <h1 class="text-5xl md:text-6xl font-extrabold mb-6 flex items-center justify-center gap-3">
-        <i class="fas fa-box-open text-indigo-600"></i>
-        <span class="gradient-text">Inventory</span>
-      </h1>
-      <p class="mt-2 text-gray-600 text-lg">Ship out your pulls or sell them back for gems — manage your inventory with ease.</p>
+    <div class="max-w-5xl mx-auto space-y-8">
+      <div>
+        <h1 class="text-5xl md:text-6xl font-extrabold mb-4 flex items-center justify-center gap-3">
+          <i class="fas fa-box-open text-indigo-600"></i>
+          <span class="gradient-text">Inventory</span>
+        </h1>
+        <p class="mt-2 text-gray-600 text-lg max-w-3xl mx-auto">A super clean, super friendly workspace for shipping or selling your pulls in seconds.</p>
+      </div>
+      <div class="bento-grid">
+        <article class="bento-card">
+          <div class="icon-circle bg-indigo-50 text-indigo-600"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <div>
+            <p class="bento-label">Guided bulk actions</p>
+            <p class="bento-body">Select once, then sell or ship with inline confirmation and smart defaults.</p>
+          </div>
+        </article>
+        <article class="bento-card">
+          <div class="icon-circle bg-emerald-50 text-emerald-600"><i class="fa-solid fa-layer-group"></i></div>
+          <div>
+            <p class="bento-label">Filters that stay put</p>
+            <p class="bento-body">Sticky controls keep selection, sorting, and totals always in view.</p>
+          </div>
+        </article>
+        <article class="bento-card">
+          <div class="icon-circle bg-amber-50 text-amber-600"><i class="fa-solid fa-face-smile"></i></div>
+          <div>
+            <p class="bento-label">Friendly status cues</p>
+            <p class="bento-body">Clear badges and value chips make every card scannable at a glance.</p>
+          </div>
+        </article>
+      </div>
     </div>
   </section>
 
@@ -366,6 +444,51 @@
       <button id="inventory-tab" class="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600">Inventory</button>
       <button id="orders-tab" class="px-6 py-2 rounded-full font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 transition">Recent Orders</button>
     </div>
+
+    <section class="panel p-6 md:p-8 mb-10 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div class="space-y-2 max-w-2xl">
+          <p class="text-sm uppercase tracking-[0.15em] text-indigo-600 font-semibold">Ultimate simple workflow</p>
+          <h2 class="text-2xl font-bold text-gray-900">All the power in one clean, friendly control bar.</h2>
+          <p class="text-gray-600">Keep selection, totals, sorting, and quick actions in reach, while cards stay focused on the essentials.</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="pill rare">Always-visible selection</span>
+            <span class="pill uncommon">One-tap shipping</span>
+            <span class="pill ultra">Optimized for touch + keyboard</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-md">
+          <div class="flow-card">
+            <div class="flow-icon bg-indigo-100 text-indigo-600"><i class="fa-solid fa-bolt"></i></div>
+            <div>
+              <p class="font-semibold text-gray-900">Fast selection</p>
+              <p class="text-sm text-gray-600">Use Select All or tap cards; totals update instantly.</p>
+            </div>
+          </div>
+          <div class="flow-card">
+            <div class="flow-icon bg-emerald-100 text-emerald-600"><i class="fa-solid fa-box"></i></div>
+            <div>
+              <p class="font-semibold text-gray-900">Clear outcomes</p>
+              <p class="text-sm text-gray-600">Shipping and sell-back paths show value and status.</p>
+            </div>
+          </div>
+          <div class="flow-card">
+            <div class="flow-icon bg-amber-100 text-amber-600"><i class="fa-solid fa-eye"></i></div>
+            <div>
+              <p class="font-semibold text-gray-900">Glanceable cards</p>
+              <p class="text-sm text-gray-600">Badges, value chips, and thumbnails stay clean and consistent.</p>
+            </div>
+          </div>
+          <div class="flow-card">
+            <div class="flow-icon bg-fuchsia-100 text-fuchsia-600"><i class="fa-solid fa-undo"></i></div>
+            <div>
+              <p class="font-semibold text-gray-900">Safe steps</p>
+              <p class="text-sm text-gray-600">Each irreversible action includes confirmation and undo guidance.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <section id="inventory-section">
       <div class="panel flex flex-col md:flex-row justify-between items-center gap-4 p-6 mb-12">
