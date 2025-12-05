@@ -137,11 +137,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const themeButtons = header.querySelectorAll('.theme-toggle');
   const storedTheme = localStorage.getItem('packly-theme');
 
+  const ensureThemeMeta = () => {
+    let meta = document.querySelector('meta[name="theme-color"]');
+
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      document.head.appendChild(meta);
+    }
+
+    return meta;
+  };
+
+  const setThemeColor = (isDark) => {
+    const themeMeta = ensureThemeMeta();
+    themeMeta.setAttribute('content', isDark ? '#0b0f1c' : '#f8fafc');
+  };
+
   const applyTheme = (mode) => {
     const isDark = mode === 'dark';
     document.body.classList.toggle('dark-mode', isDark);
     document.documentElement.classList.toggle('dark-mode', isDark);
     localStorage.setItem('packly-theme', isDark ? 'dark' : 'light');
+
+    setThemeColor(isDark);
 
     themeButtons.forEach((btn) => {
       const icon = btn.querySelector('i');
