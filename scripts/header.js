@@ -138,20 +138,46 @@ document.addEventListener("DOMContentLoaded", () => {
   const storedTheme = localStorage.getItem('packly-theme');
 
   const ensureThemeMeta = () => {
-    let meta = document.querySelector('meta[name="theme-color"]');
+    const ensureSpecificMeta = (selector, attributes) => {
+      let meta = document.querySelector(selector);
 
-    if (!meta) {
-      meta = document.createElement('meta');
-      meta.name = 'theme-color';
-      document.head.appendChild(meta);
-    }
+      if (!meta) {
+        meta = document.createElement('meta');
+        Object.assign(meta, { name: 'theme-color' });
+        Object.entries(attributes).forEach(([key, value]) => meta.setAttribute(key, value));
+        document.head.appendChild(meta);
+      }
 
-    return meta;
+      return meta;
+    };
+
+    const lightMeta = ensureSpecificMeta('meta[name="theme-color"][data-theme="light"]', {
+      'data-theme': 'light',
+      media: '(prefers-color-scheme: light)',
+    });
+
+    const darkMeta = ensureSpecificMeta('meta[name="theme-color"][data-theme="dark"]', {
+      'data-theme': 'dark',
+      media: '(prefers-color-scheme: dark)',
+    });
+
+    const dynamicMeta = ensureSpecificMeta('meta[name="theme-color"][data-dynamic="true"]', {
+      'data-dynamic': 'true',
+    });
+
+    return { lightMeta, darkMeta, dynamicMeta };
   };
 
   const setThemeColor = (isDark) => {
-    const themeMeta = ensureThemeMeta();
-    themeMeta.setAttribute('content', isDark ? '#0b0f1c' : '#f8fafc');
+    const { lightMeta, darkMeta, dynamicMeta } = ensureThemeMeta();
+    const lightColor = '#f8fafc';
+    const darkColor = '#0b0f1c';
+
+    lightMeta.setAttribute('content', lightColor);
+    darkMeta.setAttribute('content', darkColor);
+
+    dynamicMeta.setAttribute('content', isDark ? darkColor : lightColor);
+    document.documentElement.style.setProperty('color-scheme', isDark ? 'dark' : 'light');
   };
 
   const applyTheme = (mode) => {
