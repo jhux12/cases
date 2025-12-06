@@ -256,6 +256,51 @@ body.dark-mode {
   padding-bottom: 0.5rem;
 }
 
+.topup-scroll {
+  display: flex;
+  gap: 1rem;
+  padding: 0.25rem 0.5rem 0.75rem;
+  margin: 0 -0.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.topup-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.topup-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.6);
+  border-radius: 9999px;
+}
+
+.topup-card {
+  flex: 0 0 82%;
+  min-width: 230px;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 640px) {
+  .topup-scroll {
+    margin: 0;
+    justify-content: center;
+  }
+
+  .topup-card {
+    flex: 0 0 46%;
+    max-width: 320px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .topup-card {
+    flex: 0 0 40%;
+    max-width: 340px;
+  }
+}
+
 .case-chip {
   display: flex;
   flex-direction: column;
