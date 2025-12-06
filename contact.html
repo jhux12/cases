@@ -17,6 +17,10 @@
       background-color: #0f0f12;
       color: white;
     }
+    a.chat-link {
+      color: #60a5fa;
+      text-decoration: underline;
+    }
     .terms-box {
       background: linear-gradient(145deg, #1c1f26, #0e0f13);
       border: 1px solid rgba(255, 215, 0, 0.15);
@@ -42,33 +46,45 @@
 
 <!-- Contact Us Section -->
 <section class="pt-32 px-6">
-  <div class="max-w-3xl mx-auto text-center">
-    <h1 class="text-3xl font-bold mb-6">Contact Us</h1>
-<p class="text-sm text-gray-300 mb-4">
-  Please fill out the form or email us support@packly.gg. Typical response time is within 24 hours.
-</p>
-    <div class="terms-box p-6 rounded-xl text-left terms-text">
-      <form id="contact-form" class="space-y-4">
-        <div>
-          <label for="email" class="block text-sm font-semibold mb-1">Email</label>
-          <input type="email" id="email" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required />
-        </div>
-        <div>
-          <label for="subject" class="block text-sm font-semibold mb-1">Subject</label>
-          <input type="text" id="subject" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required />
-        </div>
-        <div>
-          <label for="message" class="block text-sm font-semibold mb-1">Message</label>
-          <textarea id="message" rows="4" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" required></textarea>
-        </div>
-        <button type="submit" class="bg-yellow-400 text-black font-bold px-6 py-2 rounded hover:bg-yellow-300 transition">Submit</button>
-      </form>
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-10">
+      <h1 class="text-3xl font-bold mb-4">Instant Support</h1>
+      <p class="text-sm text-gray-300 max-w-3xl mx-auto">Chat with us any time. You'll see quick answers here, plus a history of every conversation.</p>
+    </div>
 
-      <div class="mt-12">
-        <h2 class="text-2xl font-bold mb-4 text-white">Your Support Conversations</h2>
+    <div class="grid gap-6 lg:grid-cols-2">
+      <div class="terms-box p-6 rounded-xl text-left terms-text space-y-4">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-semibold text-white mb-1">Instant chat</h2>
+            <p class="text-sm text-gray-300">Ask about your account, gems, shipping, or anything else. We'll keep the conversation moving here.</p>
+            <p class="text-xs text-gray-400 mt-1">Order IDs live on your Orders page—share one here to check the status quickly.</p>
+          </div>
+          <span id="chat-status" class="text-xs text-gray-400">Not connected</span>
+        </div>
+
+        <div id="guest-info" class="space-y-2 bg-gray-900/70 border border-gray-800 rounded-lg p-3 hidden">
+          <p class="text-sm text-gray-200 font-semibold">Share details so we can respond</p>
+          <input id="guest-name" type="text" class="w-full p-2 rounded bg-gray-800 text-white border border-gray-700" placeholder="Name (optional)" />
+          <input id="guest-email" type="email" class="w-full p-2 rounded bg-gray-800 text-white border border-gray-700" placeholder="Email for updates" />
+          <input id="guest-subject" type="text" class="w-full p-2 rounded bg-gray-800 text-white border border-gray-700" placeholder="What do you need help with?" />
+          <p class="text-xs text-gray-400">We'll keep these details with your chat so the team can follow up if needed.</p>
+        </div>
+
+        <div id="chat-log" class="mt-1 space-y-3 max-h-80 overflow-y-auto bg-gray-900 border border-gray-700 rounded-lg p-3"></div>
+        <div id="chat-empty" class="mt-1 text-sm text-gray-400">Send a message to start chatting.</div>
+        <div class="mt-2 flex gap-2">
+          <input id="chat-input" type="text" class="flex-1 p-2 rounded bg-gray-700 text-white border border-gray-600" placeholder="Type a message" />
+          <button id="chat-send" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Send</button>
+        </div>
+      </div>
+
+      <div class="terms-box p-6 rounded-xl text-left terms-text">
+        <h2 class="text-2xl font-bold mb-4 text-white">Previous chats</h2>
         <div id="user-cases" class="space-y-6"></div>
       </div>
     </div>
+
   </div>
 </section>
 
@@ -86,35 +102,275 @@
   const auth = firebase.auth();
   const db = firebase.database();
 
-  document.getElementById('contact-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const user = firebase.auth().currentUser;
-    if (!user) return alert('Please sign in to send a message.');
+  const chatLog = document.getElementById('chat-log');
+  const chatInput = document.getElementById('chat-input');
+  const chatSend = document.getElementById('chat-send');
+  const chatStatus = document.getElementById('chat-status');
+  const chatEmpty = document.getElementById('chat-empty');
+  const guestInfoContainer = document.getElementById('guest-info');
+  const guestNameInput = document.getElementById('guest-name');
+  const guestEmailInput = document.getElementById('guest-email');
+  const guestSubjectInput = document.getElementById('guest-subject');
 
-    const formRef = db.ref('supportCases').push();
-    const newMessageKey = db.ref().push().key;
-await formRef.set({
-  uid: user.uid,
-  email: document.getElementById('email').value,
-  subject: document.getElementById('subject').value,
-  status: 'Open',
-  messages: {
-    [newMessageKey]: {
-      sender: 'user',
-      text: document.getElementById('message').value,
-      timestamp: Date.now()
+  let liveChatCaseId = null;
+  let messagesListener = null;
+
+  const aiResponses = [
+    {
+      keywords: ['gem', 'gems', 'top up', 'add funds', 'balance', 'payment'],
+      reply: (message) => {
+        const hasError = message.toLowerCase().includes('error');
+        return hasError
+          ? 'If a gem purchase failed, try a quick refresh and check your payment card. Tell me what error you saw and I will line up the steps to fix it. You can also retry from the <a class="chat-link" href="rewards.html">Gems & Rewards</a> panel.'
+          : 'To add gems, open the top-up panel and choose a pack. I can also verify recent payments—drop the approximate time or amount and I will match it. You can start from the <a class="chat-link" href="rewards.html">Gems & Rewards</a> page.';
+      }
+    },
+    {
+      keywords: ['password', 'login', 'sign in', 'signin', 'log in', 'account'],
+      reply: () => 'If you forgot your password, use the reset option on the sign-in page. Check spam for the email, then sign back in. Tell me where it stalls and I will outline the next step. You can start the reset on the <a class="chat-link" href="auth.html">Sign-in page</a>.'
+    },
+    {
+      keywords: ['shipping', 'ship', 'tracking', 'delivery', 'order'],
+      reply: () => 'Shipping is usually 3-5 business days. You can grab your order ID from the Orders page—share it or the item you shipped and I can confirm the current status for you. Track orders anytime from the <a class="chat-link" href="orders.html">Orders page</a>.'
+    },
+    {
+      keywords: ['how', 'work', 'case', 'pack', 'open', 'site'],
+      reply: () => 'You can open cases or packs from the main page, and rewards land in your inventory. From there you can ship items, sell, or hold them. You can browse options on the <a class="chat-link" href="index.html">Home page</a> or manage wins in your <a class="chat-link" href="inventory.html">Inventory</a>. What part are you looking at right now?'
+    },
+    {
+      keywords: ['reward', 'quest', 'daily', 'streak'],
+      reply: () => 'Rewards and quests refresh daily at midnight UTC. If something didn’t update, tell me which reward and I’ll check your streak and progress. You can review available tasks on the <a class="chat-link" href="rewards.html">Rewards page</a>.'
     }
+  ];
+
+  function generateOrderId() {
+    const stamp = Date.now().toString(36).toUpperCase();
+    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `ORD-${stamp}-${random}`;
   }
-});
-    alert('✅ Message sent successfully!');
-    document.getElementById('contact-form').reset();
+
+  async function createFutureOrderRecord(caseId, note = 'Future order') {
+    const orderId = generateOrderId();
+    const futureOrderRef = db.ref(`supportCases/${caseId}/futureOrders`).push();
+    await futureOrderRef.set({
+      orderId,
+      note,
+      status: 'Preparing',
+      createdAt: Date.now()
+    });
+    return orderId;
+  }
+
+  async function lookupOrderStatus(caseId, orderId) {
+    const futureOrdersRef = db.ref(`supportCases/${caseId}/futureOrders`);
+    const snapshot = await futureOrdersRef.once('value');
+    if (!snapshot.exists()) return null;
+    let result = null;
+    snapshot.forEach(child => {
+      const value = child.val();
+      if (value.orderId?.toLowerCase() === orderId.toLowerCase()) {
+        result = value;
+      }
+    });
+    return result;
+  }
+
+  function setChatStatus(text) {
+    if (chatStatus) chatStatus.textContent = text;
+  }
+
+  function formatSender(sender) {
+    if (sender === 'admin') return 'Admin';
+    if (sender === 'ai') return 'Auto reply';
+    return 'You';
+  }
+
+  function renderChatMessages(messages = []) {
+    if (!chatLog) return;
+    chatLog.innerHTML = '';
+    if (!messages.length) {
+      chatEmpty?.classList.remove('hidden');
+      return;
+    }
+    chatEmpty?.classList.add('hidden');
+    messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+    messages.forEach(msg => {
+      const bubble = document.createElement('div');
+      const isUser = msg.sender === 'user';
+      const isAdmin = msg.sender === 'admin';
+      const isAi = msg.sender === 'ai';
+      const bubbleColor = isAdmin ? 'bg-amber-500/20 border-amber-500/40 text-amber-100' : isAi ? 'bg-blue-500/10 border-blue-500/30 text-blue-100' : 'bg-gray-800 border-gray-700 text-white';
+      bubble.className = `p-3 rounded-lg border ${bubbleColor}`;
+      bubble.innerHTML = `
+        <p class="text-xs uppercase tracking-[0.2em] text-gray-400 mb-1">${formatSender(msg.sender)}</p>
+        <p class="text-sm leading-relaxed">${msg.text}</p>
+        <p class="text-[0.7rem] text-gray-500 mt-1">${new Date(msg.timestamp || Date.now()).toLocaleString()}</p>
+      `;
+      if (isUser) bubble.classList.add('ml-auto', 'bg-gray-700/80');
+      chatLog.appendChild(bubble);
+    });
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  async function ensureLiveChatCase(user, metadata = {}) {
+    const uid = user?.uid || `guest:${metadata.email || 'no-email'}`;
+    const snapshot = await db.ref('supportCases').orderByChild('uid').equalTo(uid).once('value');
+    let existingKey = null;
+    snapshot.forEach(child => {
+      const value = child.val() || {};
+      if (value.channel === 'live-chat' || value.autoResponder) {
+        existingKey = child.key;
+      }
+    });
+
+    if (existingKey) {
+      const updates = {};
+      if (metadata.email) updates.email = metadata.email;
+      if (metadata.subject) updates.subject = metadata.subject;
+      if (metadata.name) updates.name = metadata.name;
+      if (Object.keys(updates).length) await db.ref(`supportCases/${existingKey}`).update(updates);
+      return existingKey;
+    }
+
+    const caseRef = db.ref('supportCases').push();
+    await caseRef.set({
+      uid,
+      email: metadata.email || user?.email || 'No email provided',
+      name: metadata.name || user?.displayName || 'Guest',
+      subject: metadata.subject || 'Live chat support',
+      status: 'Open',
+      channel: 'live-chat',
+      autoResponder: true,
+      needsHuman: false,
+      createdAt: Date.now(),
+      messages: {}
+    });
+    return caseRef.key;
+  }
+
+  async function appendMessage(caseId, sender, text, extra = {}) {
+    const newKey = db.ref().push().key;
+    const updates = {};
+    updates[`supportCases/${caseId}/messages/${newKey}`] = {
+      sender,
+      text,
+      timestamp: Date.now(),
+      ...extra
+    };
+    updates[`supportCases/${caseId}/status`] = extra.status || (sender === 'user' ? 'Open' : 'Replied');
+    if (typeof extra.needsHuman === 'boolean') {
+      updates[`supportCases/${caseId}/needsHuman`] = extra.needsHuman;
+    }
+    await db.ref().update(updates);
+  }
+
+  async function pickAiResponse(message, caseId) {
+    const text = message || '';
+    const lower = text.toLowerCase();
+    const orderIdMatch = text.match(/ord-[0-9a-z]{6,}-[0-9a-z]{3,}/i);
+
+    if (orderIdMatch && caseId) {
+      const orderId = orderIdMatch[0];
+      const order = await lookupOrderStatus(caseId, orderId);
+      if (order) {
+        return {
+          reply: `I found order ${order.orderId}. It is currently marked as ${order.status}. You can also view it any time on your <a class="chat-link" href="orders.html">Orders page</a> for updates.`,
+          matched: true
+        };
+      }
+      return {
+        reply: `I couldn't find order ${orderId} here. Double-check the <a class="chat-link" href="orders.html">Orders page</a> for the full ID, then send it and I'll look again.`,
+        matched: true
+      };
+    }
+
+    if (lower.includes('new order') || lower.includes('future order') || lower.includes('preorder')) {
+      const orderId = caseId ? await createFutureOrderRecord(caseId, message.slice(0, 120)) : generateOrderId();
+      return {
+        reply: `I saved a new order placeholder (${orderId}) so we can track it. You'll also see the confirmed order ID on your <a class="chat-link" href="orders.html">Orders page</a> once it's placed. Share that ID here any time to check the status.`,
+        matched: true
+      };
+    }
+
+    const matched = aiResponses.find(item => item.keywords.some(k => lower.includes(k)));
+    if (matched) {
+      const reply = typeof matched.reply === 'function' ? matched.reply(message) : matched.reply;
+      return { reply, matched: true };
+    }
+    return {
+      reply: "I want to help but don't have a clear answer yet. Can you share more details or <a class='chat-link' href='#' data-escalate='true'>send this to support</a>?",
+      matched: false
+    };
+  }
+
+  async function autoRespond(caseId, userText, needsHuman) {
+    const { reply, matched } = await pickAiResponse(userText, caseId);
+    await appendMessage(caseId, 'ai', reply, { status: needsHuman ? 'Pending' : 'Replied', needsHuman: !!needsHuman });
+  }
+
+  async function requestHuman(caseId) {
+    await appendMessage(caseId, 'ai', 'I sent this chat to support. They will follow up, and you can keep messaging here meanwhile.', { status: 'Pending', needsHuman: true });
+  }
+
+  async function startChat(user, metadata = {}) {
+    setChatStatus('Connecting…');
+    liveChatCaseId = await ensureLiveChatCase(user, metadata);
+    if (messagesListener) messagesListener.off();
+    messagesListener = db.ref(`supportCases/${liveChatCaseId}/messages`);
+    messagesListener.on('value', snapshot => {
+      const messages = snapshot.exists() ? Object.values(snapshot.val()) : [];
+      renderChatMessages(messages);
+      setChatStatus('Live');
+    });
+  }
+
+  function collectGuestMetadata() {
+    const email = guestEmailInput?.value.trim();
+    const subject = guestSubjectInput?.value.trim();
+    const name = guestNameInput?.value.trim();
+    return { email, subject, name };
+  }
+
+  async function handleUserMessage(text) {
+    const user = firebase.auth().currentUser;
+    if (!text.trim()) return;
+    const metadata = collectGuestMetadata();
+    if (!user && !metadata.email) {
+      alert('Please add an email so we can follow up if the team needs to respond.');
+      return;
+    }
+    if (!liveChatCaseId) await startChat(user, metadata);
+    await appendMessage(liveChatCaseId, 'user', text, { status: 'Open' });
+    chatInput.value = '';
+    await autoRespond(liveChatCaseId, text);
+  }
+
+  chatSend?.addEventListener('click', () => handleUserMessage(chatInput.value));
+  chatInput?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleUserMessage(chatInput.value);
+    }
   });
 
-  auth.onAuthStateChanged(user => {
-    if (!user) return;
+  chatLog?.addEventListener('click', (event) => {
+    const target = event.target;
+    if (target instanceof HTMLElement && target.dataset.escalate === 'true') {
+      event.preventDefault();
+      if (!liveChatCaseId) return;
+      requestHuman(liveChatCaseId);
+    }
+  });
+
+  function renderUserCases(user) {
+    const container = document.getElementById('user-cases');
+    if (!user) {
+      container.innerHTML = '<p class="text-gray-400">Sign in to see your past chats and keep everything together.</p>';
+      return;
+    }
+
     const supportCasesRef = db.ref('supportCases');
     supportCasesRef.orderByChild('uid').equalTo(user.uid).on('value', snapshot => {
-      const container = document.getElementById('user-cases');
       container.innerHTML = '';
       if (!snapshot.exists()) {
         container.innerHTML = '<p class="text-gray-400">You have not submitted any support cases yet.</p>';
@@ -122,26 +378,32 @@ await formRef.set({
       }
       snapshot.forEach(child => {
         const data = child.val();
-const messagesHtml = Object.values(data.messages || {}).map(msg => {
-          const color = msg.sender === 'admin' ? 'text-yellow-300' : 'text-white';
-          return `<p class="text-sm ${color}"><strong>${msg.sender}:</strong> ${msg.text}</p>`;
+        const messagesHtml = Object.values(data.messages || {}).map(msg => {
+          const sender = formatSender(msg.sender);
+          const color = msg.sender === 'admin' ? 'text-yellow-300' : msg.sender === 'ai' ? 'text-blue-300' : 'text-white';
+          return `<p class="text-sm ${color}"><strong>${sender}:</strong> ${msg.text}</p>`;
         }).join('');
 
         container.innerHTML += `
           <div class="p-4 bg-gray-800 border border-gray-700 rounded-lg">
-            <h3 class="font-semibold text-yellow-300 mb-2">${data.subject}</h3>
-            ${messagesHtml}
-            <p class="text-sm text-green-400 font-semibold mt-2">Status: ${data.status}</p>
-            <form onsubmit="sendReply(event, '${child.key}')" class="mt-4 space-y-2">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <h3 class="font-semibold text-yellow-300 mb-1">${data.subject}</h3>
+                <p class="text-xs text-gray-400">Status: ${data.status}${data.needsHuman ? ' • Waiting for a person' : ''}</p>
+              </div>
+              ${data.channel === 'live-chat' ? '<span class="text-[0.65rem] uppercase tracking-[0.25em] text-blue-200">Live chat</span>' : ''}
+            </div>
+            <div class="mt-2 space-y-1">${messagesHtml}</div>
+            <form onsubmit="sendReply(event, '${child.key}')" class="mt-3 space-y-2">
               <textarea placeholder="Reply..." rows="2" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 reply-message"></textarea>
               <button type="submit" class="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600">Send Reply</button>
             </form>
           </div>`;
       });
     });
-  });
+  }
 
-  function sendReply(event, caseId) {
+  window.sendReply = async function sendReply(event, caseId) {
     event.preventDefault();
     const form = event.target;
     const textarea = form.querySelector('.reply-message');
@@ -149,20 +411,22 @@ const messagesHtml = Object.values(data.messages || {}).map(msg => {
     if (!replyText) return;
     const user = firebase.auth().currentUser;
     if (!user) return alert('Please sign in.');
+    await appendMessage(caseId, 'user', replyText, { status: 'Open' });
+    textarea.value = '';
+    await autoRespond(caseId, replyText);
+  };
 
-    const caseRef = db.ref('supportCases/' + caseId + '/messages');
-    caseRef.once('value').then(snapshot => {
-      const newReplyKey = db.ref().push().key;
-const updates = {};
-updates[`supportCases/${caseId}/messages/${newReplyKey}`] = {
-  sender: 'user',
-  text: replyText,
-  timestamp: Date.now()
-};
-db.ref().update(updates);
-      textarea.value = '';
-    });
-  }
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      setChatStatus('Not connected');
+      guestInfoContainer?.classList.remove('hidden');
+      renderUserCases(null);
+      return;
+    }
+    guestInfoContainer?.classList.add('hidden');
+    startChat(user);
+    renderUserCases(user);
+  });
 </script>
 
 <script src="scripts/header.js"></script>
