@@ -2,6 +2,12 @@
 
 const selectedItems = new Set();
 let currentItems = [];
+let currentSort = 'rarity';
+const filters = {
+  search: '',
+  rarity: 'all',
+  status: 'all'
+};
 
 const VOUCHER_NAME_PATTERN = /voucher/i;
 
@@ -153,11 +159,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const item = child.val();
         item.key = child.key;
         item.id = child.key;
-        if (!item.requested) currentItems.push(item);
+        currentItems.push(item);
       });
 
       sortItems('rarity');
-      renderItems(currentItems);
     });
 
     const ordersRef = db.ref('shipments').orderByChild('userId').equalTo(user.uid);
@@ -189,22 +194,97 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedItems.clear();
       }
       updateTotalValue();
-      renderItems(currentItems);
+      refreshInventoryView();
     });
 
     document.getElementById('sort-select')?.addEventListener('change', function () {
       sortItems(this.value);
     });
+
+    document.getElementById('search-input')?.addEventListener('input', function () {
+      filters.search = this.value;
+      refreshInventoryView();
+    });
+
+    document.getElementById('rarity-filter')?.addEventListener('change', function () {
+      filters.rarity = this.value;
+      refreshInventoryView();
+    });
+
+    document.getElementById('status-filter')?.addEventListener('change', function () {
+      filters.status = this.value;
+      refreshInventoryView();
+    });
   });
 });
 
+function normalizeRarity(rarity = '') {
+  return rarity.toLowerCase();
+}
+
 function sortItems(by) {
+  currentSort = by;
+  refreshInventoryView();
+}
+
+function sortList(items) {
   const order = ['common', 'uncommon', 'rare', 'ultra rare', 'legendary'];
-  const sorted = [...currentItems];
-  if (by === 'value') sorted.sort((a, b) => (b.value || 0) - (a.value || 0));
-  else if (by === 'name') sorted.sort((a, b) => a.name.localeCompare(b.name));
-  else sorted.sort((a, b) => order.indexOf(a.rarity) - order.indexOf(b.rarity));
+  const sorted = [...items];
+  if (currentSort === 'value') sorted.sort((a, b) => (getEffectiveValue(b) || 0) - (getEffectiveValue(a) || 0));
+  else if (currentSort === 'name') sorted.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  else sorted.sort((a, b) => {
+    const rankA = order.indexOf(normalizeRarity(a.rarity));
+    const rankB = order.indexOf(normalizeRarity(b.rarity));
+    const safeA = rankA === -1 ? order.length : rankA;
+    const safeB = rankB === -1 ? order.length : rankB;
+    return safeA - safeB;
+  });
+  return sorted;
+}
+
+function filterItems(items) {
+  const search = filters.search.trim().toLowerCase();
+  return items.filter(item => {
+    if (search) {
+      const haystack = `${item.name || ''} ${item.set || ''} ${item.collection || ''}`.toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
+
+    if (filters.rarity !== 'all' && normalizeRarity(item.rarity) !== filters.rarity) return false;
+
+    const isVoucher = isVoucherItem(item);
+    if (filters.status === 'ready' && (item.shipped || item.requested || isVoucher)) return false;
+    if (filters.status === 'shipped' && !item.shipped) return false;
+    if (filters.status === 'requested' && !item.requested) return false;
+    if (filters.status === 'voucher' && !isVoucher) return false;
+
+    return true;
+  });
+}
+
+function refreshInventoryView() {
+  const filtered = filterItems(currentItems);
+  const sorted = sortList(filtered);
   renderItems(sorted);
+  updateInventoryStats();
+}
+
+function updateInventoryStats() {
+  const total = currentItems.length;
+  const ready = currentItems.filter(item => !item.shipped && !item.requested && !isVoucherItem(item)).length;
+  const vouchers = currentItems.filter(isVoucherItem).length;
+  const totalValue = currentItems.reduce((sum, item) => sum + getEffectiveValue(item), 0);
+
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  };
+
+  setText('stat-total-items', total);
+  setText('stat-ready', ready);
+  setText('stat-vouchers', vouchers);
+  const valueEl = document.getElementById('stat-value');
+  if (valueEl) valueEl.firstChild.nodeValue = `${totalValue} `;
 }
 
 function updateTotalValue() {
@@ -432,7 +512,7 @@ function shipSelected() {
         if (item && isVoucherItem(item)) selectedItems.delete(key);
       });
       updateTotalValue();
-      renderItems(currentItems);
+      refreshInventoryView();
     }
     return;
   }
@@ -444,7 +524,7 @@ function shipSelected() {
       if (item && isVoucherItem(item)) selectedItems.delete(key);
     });
     updateTotalValue();
-    renderItems(currentItems);
+    refreshInventoryView();
   }
 
   localStorage.setItem('shipItems', JSON.stringify(shipmentSelection));
