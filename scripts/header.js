@@ -136,6 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const themeButtons = header.querySelectorAll('.theme-toggle');
   const storedTheme = localStorage.getItem('packly-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
 
   const ensureThemeMeta = () => {
     const ensureSpecificMeta = (selector, attributes) => {
@@ -198,7 +199,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  applyTheme(storedTheme || 'light');
+  const initialTheme = storedTheme || (prefersDark.matches ? 'dark' : 'light');
+  applyTheme(initialTheme);
+
+  prefersDark.addEventListener('change', (event) => {
+    if (!localStorage.getItem('packly-theme')) {
+      applyTheme(event.matches ? 'dark' : 'light');
+    }
+  });
+
+  const syncThemeMeta = () => {
+    setThemeColor(document.body.classList.contains('dark-mode'));
+  };
+
+  const bodyObserver = new MutationObserver(syncThemeMeta);
+  bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
   themeButtons.forEach((btn) =>
     btn.addEventListener('click', () => {
