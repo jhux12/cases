@@ -256,6 +256,132 @@ body.dark-mode {
   padding-bottom: 0.5rem;
 }
 
+.topup-scroll-wrap {
+  position: relative;
+  padding-top: 0.5rem;
+}
+
+.topup-scroll {
+  display: flex;
+  gap: 1rem;
+  padding: 0.4rem 0.5rem 0.85rem;
+  margin: 0 -0.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.topup-scroll-wrap::before,
+.topup-scroll-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0.5rem;
+  width: 2.5rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.topup-scroll-wrap::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+}
+
+.topup-scroll-wrap::after {
+  right: 0;
+  background: linear-gradient(270deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+}
+
+.topup-scroll-hint {
+  position: absolute;
+  top: 0;
+  right: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  color: #475569;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(6px);
+  z-index: 2;
+}
+
+.hint-dots {
+  display: inline-block;
+  width: 24px;
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #94a3b8, #cbd5e1, #94a3b8);
+  animation: pulse-dots 1.6s ease-in-out infinite;
+}
+
+.hint-arrows {
+  display: inline-block;
+  font-size: 0.9rem;
+  animation: nudge-right 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse-dots {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scaleX(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1.05);
+  }
+}
+
+@keyframes nudge-right {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+}
+
+.topup-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.topup-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.6);
+  border-radius: 9999px;
+}
+
+.topup-card {
+  flex: 0 0 82%;
+  min-width: 230px;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 640px) {
+  .topup-scroll {
+    margin: 0;
+    justify-content: center;
+  }
+
+  .topup-card {
+    flex: 0 0 46%;
+    max-width: 320px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .topup-card {
+    flex: 0 0 40%;
+    max-width: 340px;
+  }
+}
+
 .case-chip {
   display: flex;
   flex-direction: column;
