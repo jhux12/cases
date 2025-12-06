@@ -14,6 +14,9 @@ async function loadTopupPopup() {
   const topupDesktop = document.getElementById("topup-button");
   const topupMobileHeader = document.getElementById("topup-button-mobile-header");
   const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
+  const topupScroll = popup?.querySelector(".topup-scroll");
+  const topupCards = popup?.querySelectorAll(".topup-card") ?? [];
+  const indicatorsHost = popup?.querySelector(".topup-indicators");
 
   if (popup && closeBtn) {
     closeBtn.onclick = () => popup.classList.add("hidden");
@@ -33,6 +36,46 @@ async function loadTopupPopup() {
   if (topupDesktop) topupDesktop.onclick = openPopup;
   if (topupMobileHeader) topupMobileHeader.onclick = openPopup;
   if (topupMobileDrawer) topupMobileDrawer.onclick = openPopup;
+
+  // Build and sync a position indicator for the horizontal scroller
+  if (topupScroll && indicatorsHost && topupCards.length) {
+    indicatorsHost.innerHTML = "";
+    const dots = Array.from(topupCards).map((card, index) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = `topup-indicator${index === 0 ? " active" : ""}`;
+      dot.setAttribute("aria-label", `View package ${index + 1}`);
+      dot.onclick = () => {
+        const offset = card.offsetLeft - (topupScroll.clientWidth - card.clientWidth) / 2;
+        topupScroll.scrollTo({ left: offset, behavior: "smooth" });
+      };
+      indicatorsHost.appendChild(dot);
+      return dot;
+    });
+
+    const updateActiveDot = () => {
+      let activeIndex = 0;
+      let minDistance = Infinity;
+      const viewportCenter = topupScroll.scrollLeft + topupScroll.clientWidth / 2;
+
+      topupCards.forEach((card, index) => {
+        const cardCenter = card.offsetLeft + card.clientWidth / 2;
+        const distance = Math.abs(cardCenter - viewportCenter);
+        if (distance < minDistance) {
+          minDistance = distance;
+          activeIndex = index;
+        }
+      });
+
+      dots.forEach((dot, index) => {
+        dot.classList.toggle("active", index === activeIndex);
+      });
+    };
+
+    topupScroll.addEventListener("scroll", () => requestAnimationFrame(updateActiveDot));
+    window.addEventListener("resize", updateActiveDot);
+    updateActiveDot();
+  }
 
   // Attach loading feedback to all buy buttons
   document.querySelectorAll("#topup-popup form").forEach(form => {

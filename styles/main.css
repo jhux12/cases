@@ -256,6 +256,74 @@ body.dark-mode {
   padding-bottom: 0.5rem;
 }
 
+.topup-scroll {
+  display: flex;
+  gap: 1rem;
+  padding: 0.25rem 0.5rem 0.75rem;
+  margin: 0 -0.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.topup-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.topup-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.6);
+  border-radius: 9999px;
+}
+
+.topup-card {
+  flex: 0 0 82%;
+  min-width: 230px;
+  scroll-snap-align: start;
+}
+
+.topup-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.topup-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: rgba(148, 163, 184, 0.55);
+  transition: all 0.2s ease;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.topup-indicator.active {
+  width: 22px;
+  background: linear-gradient(120deg, #60a5fa, #a78bfa);
+  border-color: rgba(79, 70, 229, 0.2);
+  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.25);
+}
+
+@media (min-width: 640px) {
+  .topup-scroll {
+    margin: 0;
+    justify-content: center;
+  }
+
+  .topup-card {
+    flex: 0 0 46%;
+    max-width: 320px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .topup-card {
+    flex: 0 0 40%;
+    max-width: 340px;
+  }
+}
+
 .case-chip {
   display: flex;
   flex-direction: column;
