@@ -6,6 +6,81 @@ function sendCorsHeaders(res) {
   res.set('Access-Control-Allow-Headers', 'Content-Type');
 }
 
+function coerceNumber(value, { preferDecimal = false } = {}) {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0;
+  }
+  if (typeof value !== 'string') {
+    return 0;
+  }
+
+  const cleaned = value
+    .replace(/\s+/g, '')
+    .replace(/[^0-9,\.\-]/g, '');
+
+  if (!cleaned || cleaned === '-' || cleaned === '+') {
+    return 0;
+  }
+
+  const separators = cleaned.match(/[.,]/g) || [];
+  const lastComma = cleaned.lastIndexOf(',');
+  const lastDot = cleaned.lastIndexOf('.');
+  const separatorIndex = Math.max(lastComma, lastDot);
+  const fractionalLength = separatorIndex === -1 ? 0 : cleaned.length - separatorIndex - 1;
+  const integerPartRaw = separatorIndex === -1 ? cleaned : cleaned.slice(0, separatorIndex);
+  const integerDigitsStr = integerPartRaw.replace(/[^0-9\-]/g, '');
+  const integerDigitsAbs = integerDigitsStr.replace(/^-/, '');
+  const isZeroInteger = integerDigitsAbs.length === 0 || /^0+$/.test(integerDigitsAbs);
+
+  let effectivePreferDecimal = preferDecimal;
+  if (!effectivePreferDecimal) {
+    if (value.includes('%') || separators.length > 1) {
+      effectivePreferDecimal = true;
+    } else if (separators.length === 1 && fractionalLength > 0) {
+      if (fractionalLength <= 2 || isZeroInteger) {
+        effectivePreferDecimal = true;
+      }
+    }
+  }
+
+  const parseWithDecimalSeparator = () => {
+    if (separatorIndex === -1) {
+      return Number.parseFloat(cleaned);
+    }
+
+    const integerPart = cleaned.slice(0, separatorIndex).replace(/[.,]/g, '');
+    const fractionalPart = cleaned.slice(separatorIndex + 1).replace(/[.,]/g, '');
+    const normalized = fractionalPart ? `${integerPart}.${fractionalPart}` : integerPart;
+    return Number.parseFloat(normalized);
+  };
+
+  const parseAsInteger = () => Number.parseFloat(cleaned.replace(/[.,]/g, ''));
+
+  const decimalCandidate = parseWithDecimalSeparator();
+  const integerCandidate = parseAsInteger();
+
+  const primary = effectivePreferDecimal ? decimalCandidate : integerCandidate;
+  const secondary = effectivePreferDecimal ? integerCandidate : decimalCandidate;
+
+  if (Number.isFinite(primary)) {
+    return primary;
+  }
+  if (Number.isFinite(secondary)) {
+    return secondary;
+  }
+
+  return 0;
+}
+
+function resolveOdds(prize) {
+  const parsedOdds = coerceNumber(prize?.odds, { preferDecimal: true });
+  if (parsedOdds > 0) {
+    return parsedOdds;
+  }
+  const weight = coerceNumber(prize?.weight, { preferDecimal: true });
+  return weight > 0 ? weight : 0;
+}
+
 module.exports = (req, res) => {
   sendCorsHeaders(res);
 
@@ -38,15 +113,18 @@ module.exports = (req, res) => {
     return;
   }
 
-  const numericPrizes = prizes.map(prize => ({
+  let numericPrizes = prizes.map(prize => ({
     ...prize,
-    odds: Number(prize.odds) || 0
+    odds: resolveOdds(prize)
   }));
 
-  const totalOdds = numericPrizes.reduce((sum, prize) => sum + prize.odds, 0);
+  let totalOdds = numericPrizes.reduce((sum, prize) => sum + prize.odds, 0);
   if (!totalOdds) {
-    res.status(400).json({ error: 'Invalid prize odds' });
-    return;
+    numericPrizes = prizes.map(prize => ({
+      ...prize,
+      odds: 1
+    }));
+    totalOdds = numericPrizes.length;
   }
 
   const randFraction = (() => {
