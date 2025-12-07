@@ -31,9 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
           <div class="hidden md:ml-6 md:flex md:items-center md:space-x-6">
-            <button class="theme-toggle" type="button" aria-label="Toggle dark mode">
-              <i class="fas fa-moon"></i>
-            </button>
             <div id="auth-buttons" class="flex items-center space-x-4">
               <a id="signin-desktop" href="auth.html" class="text-sm font-medium text-gray-700 hover:text-gray-900">Sign In</a>
               <a id="register-desktop" href="auth.html#register" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
@@ -50,9 +47,14 @@ document.addEventListener("DOMContentLoaded", () => {
                   </div>
                   <button id="topup-button" class="topup-chip ml-2 hidden">+</button>
                 </div>
-                <button id="notification-bell" class="notification-button hidden" aria-label="Notifications">
-                  <i class="fas fa-bell"></i>
-                </button>
+                <div class="toolbar-actions">
+                  <button id="notification-bell" class="notification-button toolbar-icon hidden" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                  </button>
+                  <button class="theme-toggle toolbar-icon" type="button" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                  </button>
+                </div>
               </div>
               <div class="ml-2 relative flex-shrink-0">
                 <button id="dropdown-toggle" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-50 focus:outline-none">
@@ -73,9 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
           <div class="-mr-2 flex items-center md:hidden">
-            <button class="theme-toggle mr-3" type="button" aria-label="Toggle dark mode">
-              <i class="fas fa-moon"></i>
-            </button>
             <div id="user-toolbar-mobile" class="user-toolbar hidden mr-3">
               <div id="user-balance-mobile-header" class="hidden balance-chip items-center gap-2 px-2.5 py-1 text-white">
                 <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
@@ -87,9 +86,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
                 <button id="topup-button-mobile-header" class="topup-chip hidden">+</button>
               </div>
-              <button id="notification-bell-mobile" class="notification-button hidden" aria-label="Notifications">
-                <i class="fas fa-bell"></i>
-              </button>
+              <div class="toolbar-actions">
+                <button id="notification-bell-mobile" class="notification-button toolbar-icon hidden" aria-label="Notifications">
+                  <i class="fas fa-bell"></i>
+                </button>
+                <button class="theme-toggle toolbar-icon" type="button" aria-label="Toggle dark mode">
+                  <i class="fas fa-moon"></i>
+                </button>
+              </div>
             </div>
             <button id="menu-toggle" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none" aria-expanded="false">
               <span class="sr-only">Open main menu</span>

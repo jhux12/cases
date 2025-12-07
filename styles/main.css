@@ -372,8 +372,8 @@ body.dark-mode {
 .user-toolbar {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.4rem 0.55rem;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
   border-radius: 999px;
   border: 1px solid var(--card-border);
   background: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.12), transparent 45%),
@@ -393,6 +393,12 @@ body.dark-mode .user-toolbar {
 .user-toolbar:hover {
   border-color: rgba(99, 102, 241, 0.35);
   box-shadow: 0 16px 40px rgba(59, 130, 246, 0.12);
+}
+
+.toolbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .navbar .gradient-text {
@@ -447,7 +453,8 @@ body.dark-mode .balance-chip {
   color: #ecfdf5;
 }
 
-.notification-button {
+.notification-button,
+.theme-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -461,18 +468,21 @@ body.dark-mode .balance-chip {
   transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, background-color 0.2s ease;
 }
 
-.notification-button i {
+.notification-button i,
+.theme-toggle i {
   font-size: 1rem;
 }
 
-.notification-button:hover {
+.notification-button:hover,
+.theme-toggle:hover {
   transform: translateY(-2px);
   box-shadow: 0 16px 32px rgba(59, 130, 246, 0.2);
   color: var(--accent-strong);
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(59, 130, 246, 0.18));
 }
 
-.notification-button:focus-visible {
+.notification-button:focus-visible,
+.theme-toggle:focus-visible {
   outline: 2px solid var(--accent-strong);
   outline-offset: 2px;
 }
@@ -524,30 +534,6 @@ body:not(.dark-mode) .bg-slate-900\/70 {
 body:not(.dark-mode) .border-slate-800,
 body:not(.dark-mode) .border-slate-700 {
   border-color: var(--card-border) !important;
-}
-
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 2.5rem;
-  width: 2.5rem;
-  border-radius: 9999px;
-  border: 1px solid var(--card-border);
-  background: var(--control-surface);
-  color: var(--text-primary);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.theme-toggle:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-}
-
-.theme-toggle:focus-visible {
-  outline: 2px solid var(--accent-strong);
-  outline-offset: 2px;
 }
 
 .fade {
