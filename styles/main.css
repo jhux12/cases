@@ -408,6 +408,35 @@ body.dark-mode #mobile-dropdown {
   color: #ecfdf5;
 }
 
+.notification-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 9999px;
+  border: 1px solid var(--card-border);
+  background: var(--card-surface);
+  color: var(--text-primary);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.notification-button i {
+  font-size: 1rem;
+}
+
+.notification-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(37, 99, 235, 0.18);
+  color: var(--accent-strong);
+}
+
+.notification-button:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
 body.dark-mode .text-gray-500,
 body.dark-mode .text-gray-600,
 body.dark-mode .text-gray-700,
