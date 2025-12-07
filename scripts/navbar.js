@@ -282,10 +282,10 @@ document.addEventListener("DOMContentLoaded", () => {
           userArea.classList.add("md:flex");
         }
         if (balanceContainer) balanceContainer.classList.remove("hidden");
-        if (balanceMobileHeader) balanceMobileHeader.classList.remove("hidden");
+        if (balanceMobileHeader) balanceMobileHeader.classList.add("hidden");
         if (balanceMobileDrawer) balanceMobileDrawer.classList.remove("hidden");
         if (topupBtn) topupBtn.classList.remove("hidden");
-        if (topupMobileHeader) topupMobileHeader.classList.remove("hidden");
+        if (topupMobileHeader) topupMobileHeader.classList.add("hidden");
         if (topupMobileDrawer) topupMobileDrawer.classList.remove("hidden");
         if (mobileRegisterBtn) mobileRegisterBtn.classList.add("hidden");
         [inventoryLink, mobileInventoryLink, mobileProfileLink].forEach((el) => {
