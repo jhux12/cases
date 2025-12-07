@@ -408,6 +408,70 @@ body.dark-mode #mobile-dropdown {
   color: #ecfdf5;
 }
 
+.notification-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 9999px;
+  border: 1px solid var(--card-border);
+  background: var(--card-surface);
+  color: var(--text-primary);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.notification-button i {
+  font-size: 1rem;
+}
+
+.notification-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(37, 99, 235, 0.18);
+  color: var(--accent-strong);
+}
+
+.notification-button:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  #user-balance-mobile-header,
+  #user-balance-mobile-drawer {
+    padding: 0.35rem 0.7rem;
+    gap: 0.45rem;
+  }
+
+  #user-balance-mobile-header .balance-icon,
+  #user-balance-mobile-drawer .balance-icon {
+    width: 1.65rem;
+    height: 1.65rem;
+  }
+
+  #user-balance-mobile-header .balance-amount,
+  #user-balance-mobile-drawer .balance-amount {
+    font-size: 0.85rem;
+  }
+
+  #user-balance-mobile-header .balance-label,
+  #user-balance-mobile-drawer .balance-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.14em;
+  }
+
+  #notification-bell-mobile.notification-button {
+    width: 2.2rem;
+    height: 2.2rem;
+    box-shadow: 0 6px 12px rgba(37, 99, 235, 0.14);
+  }
+
+  #mobile-dropdown a {
+    font-size: 0.95rem;
+  }
+}
+
 body.dark-mode .text-gray-500,
 body.dark-mode .text-gray-600,
 body.dark-mode .text-gray-700,
