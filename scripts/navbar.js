@@ -30,6 +30,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const topupBtn = document.getElementById("topup-button");
     const topupMobileHeader = document.getElementById("topup-button-mobile-header");
     const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
+    const toolbarDesktop = document.getElementById("user-toolbar-desktop");
+    const toolbarMobile = document.getElementById("user-toolbar-mobile");
+    const notificationBell = document.getElementById("notification-bell");
+    const notificationBellMobile = document.getElementById("notification-bell-mobile");
     const mobileInventoryLink = document.getElementById("mobile-inventory-link");
     const mobileProfileLink = document.getElementById("mobile-profile-link");
     const inventoryLink = document.getElementById("inventory-link");
@@ -82,12 +86,16 @@ document.addEventListener("DOMContentLoaded", () => {
           userArea.classList.remove("hidden", "md:hidden");
           userArea.classList.add("md:flex");
         }
+        if (toolbarDesktop) toolbarDesktop.classList.remove("hidden");
         if (balanceContainer) balanceContainer.classList.remove("hidden");
         if (balanceMobileHeader) balanceMobileHeader.classList.remove("hidden");
+        if (toolbarMobile) toolbarMobile.classList.remove("hidden");
         if (balanceMobileDrawer) balanceMobileDrawer.classList.remove("hidden");
         if (topupBtn) topupBtn.classList.remove("hidden");
         if (topupMobileHeader) topupMobileHeader.classList.remove("hidden");
         if (topupMobileDrawer) topupMobileDrawer.classList.remove("hidden");
+        if (notificationBell) notificationBell.classList.remove("hidden");
+        if (notificationBellMobile) notificationBellMobile.classList.remove("hidden");
         if (mobileRegisterBtn) mobileRegisterBtn.classList.add("hidden");
         [inventoryLink, mobileInventoryLink, mobileProfileLink].forEach((el) => {
           if (el) el.classList.remove("hidden");
@@ -128,12 +136,16 @@ document.addEventListener("DOMContentLoaded", () => {
           userArea.classList.add("hidden", "md:hidden");
           userArea.classList.remove("md:flex");
         }
+        if (toolbarDesktop) toolbarDesktop.classList.add("hidden");
         if (balanceContainer) balanceContainer.classList.add("hidden");
         if (balanceMobileHeader) balanceMobileHeader.classList.add("hidden");
+        // keep the mobile toolbar visible for menu access even when logged out
         if (balanceMobileDrawer) balanceMobileDrawer.classList.add("hidden");
         if (topupBtn) topupBtn.classList.add("hidden");
         if (topupMobileHeader) topupMobileHeader.classList.add("hidden");
         if (topupMobileDrawer) topupMobileDrawer.classList.add("hidden");
+        if (notificationBell) notificationBell.classList.add("hidden");
+        if (notificationBellMobile) notificationBellMobile.classList.add("hidden");
         if (mobileRegisterBtn) mobileRegisterBtn.classList.remove("hidden");
         [inventoryLink, mobileInventoryLink, mobileProfileLink].forEach((el) => {
           if (el) el.classList.add("hidden");

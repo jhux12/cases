@@ -369,6 +369,37 @@ body.dark-mode {
   color: var(--nav-link-hover) !important;
 }
 
+.user-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--card-border);
+  background: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.12), transparent 45%),
+    radial-gradient(circle at 80% 10%, rgba(59, 130, 246, 0.08), transparent 40%),
+    rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.nav-toolbar {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+body.dark-mode .user-toolbar {
+  background: radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.15), transparent 45%),
+    radial-gradient(circle at 70% 10%, rgba(56, 189, 248, 0.15), transparent 40%),
+    rgba(30, 41, 59, 0.85);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+}
+
+.user-toolbar:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 16px 40px rgba(59, 130, 246, 0.12);
+}
+
 .navbar .gradient-text {
   background: linear-gradient(90deg, var(--accent-strong), var(--accent-soft));
   -webkit-background-clip: text;
@@ -403,9 +434,82 @@ body.dark-mode #mobile-dropdown {
   color: var(--text-muted);
 }
 
+.balance-chip {
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(99, 102, 241, 0.12));
+}
+
+body.dark-mode .balance-chip {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(56, 189, 248, 0.12));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
 .topup-chip {
   background: linear-gradient(135deg, #34d399, #10b981);
   color: #ecfdf5;
+}
+
+.notification-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--card-border);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(59, 130, 246, 0.12));
+  color: var(--text-primary);
+  box-shadow: 0 10px 24px rgba(59, 130, 246, 0.14);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.menu-toggle-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 9999px;
+  border: 1px solid var(--card-border);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(56, 189, 248, 0.12));
+  color: var(--text-primary);
+  box-shadow: 0 10px 24px rgba(59, 130, 246, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.menu-toggle-chip i {
+  font-size: 1rem;
+}
+
+.menu-toggle-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(59, 130, 246, 0.18);
+  color: var(--accent-strong);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(56, 189, 248, 0.18));
+}
+
+.menu-toggle-chip:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+.notification-button i {
+  font-size: 1rem;
+}
+
+.notification-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(59, 130, 246, 0.2);
+  color: var(--accent-strong);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(59, 130, 246, 0.18));
+}
+
+.notification-button:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
 }
 
 body.dark-mode .text-gray-500,
@@ -599,8 +703,8 @@ body:not(.dark-mode) .border-slate-700 {
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   z-index: 0;
-  padding: 0.4rem 0.85rem;
-  gap: 0.55rem;
+  padding: 0.3rem 0.6rem;
+  gap: 0.45rem;
 }
 
 .balance-chip::before {
@@ -624,13 +728,13 @@ body:not(.dark-mode) .border-slate-700 {
 .balance-icon {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.6), rgba(129, 140, 248, 0.6));
   box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
-  width: 1.9rem;
-  height: 1.9rem;
+  width: 1.6rem;
+  height: 1.6rem;
 }
 
 .balance-icon img {
-  width: 1.1rem;
-  height: 1.1rem;
+  width: 0.9rem;
+  height: 0.9rem;
 }
 
 .balance-amount {
@@ -638,11 +742,11 @@ body:not(.dark-mode) .border-slate-700 {
   color: var(--text-primary);
   text-shadow: 0 0 10px rgba(191, 219, 254, 0.2);
   letter-spacing: 0.015em;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .balance-label {
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   text-transform: uppercase;
   letter-spacing: 0.18em;
   color: var(--text-muted);
