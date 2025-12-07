@@ -39,17 +39,22 @@ document.addEventListener("DOMContentLoaded", () => {
               <a id="register-desktop" href="auth.html#register" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
             </div>
             <div id="user-area" class="hidden md:hidden md:items-center md:space-x-4">
-              <div id="user-balance" class="hidden balance-chip items-center gap-3 px-3 py-1.5 text-white">
-                <div class="balance-icon flex items-center justify-center w-8 h-8 rounded-full">
-                  <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5 object-contain" alt="Gems" />
+              <div id="user-toolbar-desktop" class="user-toolbar hidden">
+                <div id="user-balance" class="hidden balance-chip items-center gap-2 px-2.5 py-1 text-white">
+                  <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 object-contain" alt="Gems" />
+                  </div>
+                  <div class="flex flex-col leading-tight">
+                    <span id="balance-amount" class="balance-amount text-sm">0</span>
+                    <span class="balance-label">gems</span>
+                  </div>
+                  <button id="topup-button" class="topup-chip ml-2 hidden">+</button>
                 </div>
-                <div class="flex flex-col leading-tight">
-                  <span id="balance-amount" class="balance-amount text-base">0</span>
-                  <span class="balance-label">gems</span>
-                </div>
-                <button id="topup-button" class="topup-chip ml-2 hidden">+</button>
+                <button id="notification-bell" class="notification-button hidden" aria-label="Notifications">
+                  <i class="fas fa-bell"></i>
+                </button>
               </div>
-              <div class="ml-4 relative flex-shrink-0">
+              <div class="ml-2 relative flex-shrink-0">
                 <button id="dropdown-toggle" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-50 focus:outline-none">
                   <span id="username-display">User</span>
                   <svg class="w-5 h-5 ml-2 -mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -71,22 +76,25 @@ document.addEventListener("DOMContentLoaded", () => {
             <button class="theme-toggle mr-3" type="button" aria-label="Toggle dark mode">
               <i class="fas fa-moon"></i>
             </button>
-            <div id="user-balance-mobile-header" class="hidden balance-chip items-center gap-3 px-3 py-1.5 text-white mr-3">
-              <div class="balance-icon flex items-center justify-center w-8 h-8 rounded-full">
-                <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5 object-contain" alt="Gems" />
+            <div id="user-toolbar-mobile" class="user-toolbar nav-toolbar mr-3">
+              <button id="menu-toggle" type="button" class="menu-toggle-chip" aria-expanded="false">
+                <span class="sr-only">Open main menu</span>
+                <i class="fas fa-bars"></i>
+              </button>
+              <div id="user-balance-mobile-header" class="hidden balance-chip items-center gap-2 px-2.5 py-1 text-white">
+                <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
+                  <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 object-contain" alt="Gems" />
+                </div>
+                <div class="flex flex-col leading-tight">
+                  <span id="balance-amount-mobile" class="balance-amount text-sm">0</span>
+                  <span class="balance-label">gems</span>
+                </div>
+                <button id="topup-button-mobile-header" class="topup-chip hidden">+</button>
               </div>
-              <div class="flex flex-col leading-tight">
-                <span id="balance-amount-mobile" class="balance-amount text-base">0</span>
-                <span class="balance-label">gems</span>
-              </div>
-              <button id="topup-button-mobile-header" class="topup-chip hidden">+</button>
+              <button id="notification-bell-mobile" class="notification-button hidden" aria-label="Notifications">
+                <i class="fas fa-bell"></i>
+              </button>
             </div>
-            <button id="menu-toggle" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none" aria-expanded="false">
-              <span class="sr-only">Open main menu</span>
-              <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
           </div>
         </div>
       </div>
@@ -97,13 +105,13 @@ document.addEventListener("DOMContentLoaded", () => {
           <a data-nav="rewards.html" href="rewards.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-gift mr-2"></i>Rewards</a>
         </div>
         <div class="pt-4 pb-3 border-t border-gray-200">
-          <div id="user-balance-mobile-drawer" class="hidden balance-chip items-center justify-between px-4 py-2 text-sm text-white mx-4 mb-3">
+          <div id="user-balance-mobile-drawer" class="hidden balance-chip items-center justify-between px-3.5 py-1.5 text-sm text-white mx-4 mb-3">
             <div class="flex items-center gap-3">
-              <div class="balance-icon flex items-center justify-center w-8 h-8 rounded-full">
-                <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5 object-contain" alt="Gems" />
+              <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
+                <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 object-contain" alt="Gems" />
               </div>
               <div class="flex flex-col leading-tight">
-                <span id="balance-amount-mobile-dropdown" class="balance-amount text-sm">0</span>
+                <span id="balance-amount-mobile-dropdown" class="balance-amount text-xs">0</span>
                 <span class="balance-label">gems</span>
               </div>
             </div>
