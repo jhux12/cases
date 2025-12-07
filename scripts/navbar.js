@@ -34,6 +34,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const mobileProfileLink = document.getElementById("mobile-profile-link");
     const inventoryLink = document.getElementById("inventory-link");
     const userLinks = document.querySelectorAll(".user-nav-link");
+    const notificationContainer = document.getElementById("notification-container");
+    const notificationButton = document.getElementById("notification-button");
+    const notificationBadge = document.getElementById("notification-badge");
+    const notificationDropdown = document.getElementById("notification-dropdown");
+    const notificationList = document.getElementById("notification-list");
+    const notificationContainerMobile = document.getElementById("notification-container-mobile");
+    const notificationButtonMobile = document.getElementById("notification-button-mobile");
+    const notificationBadgeMobile = document.getElementById("notification-badge-mobile");
+    const notificationDropdownMobile = document.getElementById("notification-dropdown-mobile");
+    const notificationListMobile = document.getElementById("notification-list-mobile");
 
       if (!usernameEl || !balanceEl) return;
 
@@ -59,6 +69,195 @@ document.addEventListener("DOMContentLoaded", () => {
 
       let userRef;
       let handler;
+      let notificationsRef;
+      let shipmentsQuery;
+      let shipmentHandlers = [];
+      let notificationsData = {};
+      let notificationTogglesAttached = false;
+
+      const formatTimestamp = (timestamp) => {
+        if (!timestamp) return "Just now";
+        try {
+          const date = new Date(timestamp);
+          return date.toLocaleString(undefined, {
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+          });
+        } catch (e) {
+          return "Just now";
+        }
+      };
+
+      const setBadgeCount = (badgeEl, count) => {
+        if (!badgeEl) return;
+        if (count > 0) {
+          badgeEl.textContent = count > 9 ? "9+" : count;
+          badgeEl.classList.remove("hidden");
+        } else {
+          badgeEl.classList.add("hidden");
+        }
+      };
+
+      const renderNotificationList = (listEl, entries) => {
+        if (!listEl) return;
+        if (!entries.length) {
+          listEl.innerHTML = '<p class="px-4 py-3 text-sm text-gray-500">No recent notifications.</p>';
+          return;
+        }
+
+        listEl.innerHTML = entries
+          .map(([id, notif]) => {
+            const title = notif.title || "Notification";
+            const body = notif.body || "";
+            const chip = notif.type === "shipment" ? '<span class="text-[11px] px-2 py-1 rounded-full bg-indigo-100 text-indigo-700">Shipment</span>' : "";
+
+            return `
+              <div class="px-4 py-3 bg-white hover:bg-gray-50">
+                <div class="flex items-start gap-3">
+                  <div class="flex-1 space-y-1">
+                    <p class="text-sm font-semibold text-gray-800">${title}</p>
+                    <p class="text-xs text-gray-600 leading-snug">${body}</p>
+                    <p class="text-[11px] text-gray-400">${formatTimestamp(notif.timestamp)}</p>
+                    ${chip}
+                  </div>
+                  <div class="flex flex-col items-end gap-1">
+                    <button class="text-[11px] text-gray-400 hover:text-gray-600" data-notification-id="${id}" aria-label="Dismiss notification">×</button>
+                    ${notif.read ? '<span class="text-[11px] text-gray-400">Read</span>' : '<span class="text-[11px] text-indigo-600 font-semibold">New</span>'}
+                  </div>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+
+        listEl.querySelectorAll("[data-notification-id]").forEach((button) => {
+          button.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const id = button.getAttribute("data-notification-id");
+            if (id && notificationsRef) {
+              notificationsRef.child(id).remove();
+            }
+          });
+        });
+      };
+
+      const renderNotifications = () => {
+        const entries = Object.entries(notificationsData || {}).sort(([, a], [, b]) => (b.timestamp || 0) - (a.timestamp || 0));
+        const unreadCount = entries.filter(([, notif]) => !notif.read).length;
+
+        setBadgeCount(notificationBadge, unreadCount);
+        setBadgeCount(notificationBadgeMobile, unreadCount);
+        renderNotificationList(notificationList, entries);
+        renderNotificationList(notificationListMobile, entries);
+      };
+
+      const markNotificationsRead = () => {
+        if (!notificationsRef || !notificationsData) return;
+        const updates = {};
+        Object.entries(notificationsData).forEach(([id, notif]) => {
+          if (!notif.read) updates[`${id}/read`] = true;
+        });
+        if (Object.keys(updates).length) notificationsRef.update(updates);
+      };
+
+      const closeNotificationMenus = () => {
+        [notificationDropdown, notificationDropdownMobile].forEach((menu) => {
+          if (menu) menu.classList.add("hidden");
+        });
+      };
+
+      const attachNotificationToggles = () => {
+        if (notificationTogglesAttached) return;
+        const attachToggle = (button, dropdown) => {
+          if (!button || !dropdown) return;
+          button.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const opening = dropdown.classList.contains("hidden");
+            closeNotificationMenus();
+            dropdown.classList.toggle("hidden");
+            if (opening) markNotificationsRead();
+          });
+        };
+
+        attachToggle(notificationButton, notificationDropdown);
+        attachToggle(notificationButtonMobile, notificationDropdownMobile);
+
+        document.addEventListener("click", (event) => {
+          [
+            [notificationButton, notificationDropdown],
+            [notificationButtonMobile, notificationDropdownMobile],
+          ].forEach(([button, dropdown]) => {
+            if (
+              button &&
+              dropdown &&
+              !dropdown.classList.contains("hidden") &&
+              !dropdown.contains(event.target) &&
+              !button.contains(event.target)
+            ) {
+              dropdown.classList.add("hidden");
+            }
+          });
+        });
+
+        notificationTogglesAttached = true;
+      };
+
+      const ensureNotificationListeners = (user) => {
+        if (!user) return;
+        notificationsRef = firebase.database().ref("notifications/" + user.uid);
+        notificationsRef.on("value", (snap) => {
+          notificationsData = snap.val() || {};
+          renderNotifications();
+        });
+
+        shipmentsQuery = firebase.database().ref("shipments").orderByChild("userId").equalTo(user.uid);
+        const handleShipmentUpdate = (snap) => {
+          const shipment = snap.val() || {};
+          if (shipment.status !== "Shipped") return;
+          const notifId = `shipment-${snap.key}`;
+          const payload = {
+            title: "Item shipped",
+            body: `${shipment.name || "Your item"} has shipped and is on the way!`,
+            type: "shipment",
+            timestamp: shipment.timestamp || Date.now(),
+            relatedId: snap.key,
+            read: false,
+          };
+
+          notificationsRef.child(notifId).transaction((current) => {
+            if (current && current.read) return current;
+            if (current) return { ...current, ...payload, read: current.read };
+            return payload;
+          });
+        };
+
+        shipmentHandlers = [
+          ["child_added", handleShipmentUpdate],
+          ["child_changed", handleShipmentUpdate],
+        ];
+
+        shipmentHandlers.forEach(([event, handler]) => shipmentsQuery.on(event, handler));
+      };
+
+      const detachNotificationListeners = () => {
+        if (notificationsRef) {
+          notificationsRef.off();
+          notificationsRef = null;
+        }
+        if (shipmentsQuery) {
+          shipmentHandlers.forEach(([event, handler]) => shipmentsQuery.off(event, handler));
+          shipmentsQuery = null;
+          shipmentHandlers = [];
+        }
+        notificationsData = {};
+        renderNotifications();
+        closeNotificationMenus();
+      };
+
+      attachNotificationToggles();
+      renderNotifications();
 
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -93,6 +292,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (el) el.classList.remove("hidden");
         });
         userLinks.forEach((link) => link.classList.remove("hidden"));
+        ensureNotificationListeners(user);
 
         if (logoutBtn) {
           logoutBtn.style.display = "block";
@@ -139,6 +339,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (el) el.classList.add("hidden");
         });
         userLinks.forEach((link) => link.classList.add("hidden"));
+        detachNotificationListeners();
 
         if (logoutBtn) logoutBtn.style.display = "none";
 
