@@ -30,6 +30,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const topupBtn = document.getElementById("topup-button");
     const topupMobileHeader = document.getElementById("topup-button-mobile-header");
     const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
+    const notificationBell = document.getElementById("notification-bell");
+    const notificationBellMobile = document.getElementById("notification-bell-mobile");
     const mobileInventoryLink = document.getElementById("mobile-inventory-link");
     const mobileProfileLink = document.getElementById("mobile-profile-link");
     const inventoryLink = document.getElementById("inventory-link");
@@ -88,6 +90,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (topupBtn) topupBtn.classList.remove("hidden");
         if (topupMobileHeader) topupMobileHeader.classList.remove("hidden");
         if (topupMobileDrawer) topupMobileDrawer.classList.remove("hidden");
+        if (notificationBell) notificationBell.classList.remove("hidden");
+        if (notificationBellMobile) notificationBellMobile.classList.remove("hidden");
         if (mobileRegisterBtn) mobileRegisterBtn.classList.add("hidden");
         [inventoryLink, mobileInventoryLink, mobileProfileLink].forEach((el) => {
           if (el) el.classList.remove("hidden");
@@ -134,6 +138,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (topupBtn) topupBtn.classList.add("hidden");
         if (topupMobileHeader) topupMobileHeader.classList.add("hidden");
         if (topupMobileDrawer) topupMobileDrawer.classList.add("hidden");
+        if (notificationBell) notificationBell.classList.add("hidden");
+        if (notificationBellMobile) notificationBellMobile.classList.add("hidden");
         if (mobileRegisterBtn) mobileRegisterBtn.classList.remove("hidden");
         [inventoryLink, mobileInventoryLink, mobileProfileLink].forEach((el) => {
           if (el) el.classList.add("hidden");
