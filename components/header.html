@@ -1,12 +1,12 @@
 <!-- header.html -->
 <nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200 backdrop-blur bg-white/80">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between h-16">
-      <div class="flex items-center">
+    <div class="flex justify-between items-center h-16 gap-4">
+      <div class="flex items-center min-w-0 gap-4">
         <a href="index.html" class="flex-shrink-0 flex items-center">
           <span class="text-2xl font-bold gradient-text">Packly.gg</span>
         </a>
-        <div class="hidden md:ml-6 md:flex md:space-x-8">
+        <div class="hidden md:flex md:space-x-6">
             <a href="index.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700">
               <i class="fas fa-box-open mr-1"></i>Open Packs
             </a>
@@ -18,12 +18,25 @@
             </a>
         </div>
       </div>
-      <div class="hidden md:ml-6 md:flex md:items-center md:space-x-6">
+      <div class="hidden md:flex md:items-center md:space-x-4 flex-shrink-0">
         <div id="auth-buttons" class="flex items-center space-x-4">
           <a id="signin-desktop" href="auth.html" class="text-sm font-medium text-gray-700 hover:text-gray-900">Sign In</a>
           <a id="register-desktop" href="auth.html#register" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
         </div>
-        <div id="user-area" class="hidden md:hidden md:items-center md:space-x-4">
+        <div id="notification-container" class="relative">
+          <button id="notification-button" class="relative inline-flex items-center justify-center w-10 h-10 text-gray-600 hover:text-indigo-600 transition">
+            <i class="fas fa-bell text-lg"></i>
+            <span id="notification-badge" class="hidden absolute -top-0.5 -right-0.5 min-w-[1.25rem] h-5 px-1 inline-flex items-center justify-center rounded-full bg-red-500 text-white text-[11px] font-semibold leading-none"></span>
+          </button>
+          <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-80 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden max-h-96">
+            <div class="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
+              <span class="text-sm font-semibold text-gray-800">Notifications</span>
+              <span class="text-xs text-gray-500">Live</span>
+            </div>
+            <div id="notification-list" class="max-h-80 overflow-y-auto divide-y divide-gray-100"></div>
+          </div>
+        </div>
+        <div id="user-area" class="hidden md:flex md:items-center md:space-x-4">
           <div id="user-balance" class="hidden balance-chip items-center gap-3 px-3 py-1.5 text-white">
             <div class="balance-icon flex items-center justify-center w-8 h-8 rounded-full">
               <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5 object-contain" alt="Gems" />
@@ -53,20 +66,33 @@
         </div>
       </div>
       <div class="-mr-2 flex items-center md:hidden">
-        <div id="user-balance-mobile-header" class="hidden balance-chip items-center gap-3 px-3 py-1.5 text-white mr-3">
-          <div class="balance-icon flex items-center justify-center w-8 h-8 rounded-full">
-            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5 object-contain" alt="Gems" />
-          </div>
-          <div class="flex flex-col leading-tight">
-            <span id="balance-amount-mobile" class="balance-amount text-base">0</span>
-            <span class="balance-label">gems</span>
-          </div>
-          <button id="topup-button-mobile-header" class="topup-chip hidden">+</button>
+      <div id="user-balance-mobile-header" class="hidden balance-chip items-center gap-3 px-3 py-1.5 text-white mr-3">
+        <div class="balance-icon flex items-center justify-center w-8 h-8 rounded-full">
+          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5 object-contain" alt="Gems" />
         </div>
-        <button id="menu-toggle" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none" aria-expanded="false">
-          <span class="sr-only">Open main menu</span>
-          <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        <div class="flex flex-col leading-tight">
+          <span id="balance-amount-mobile" class="balance-amount text-base">0</span>
+          <span class="balance-label">gems</span>
+        </div>
+        <button id="topup-button-mobile-header" class="topup-chip hidden">+</button>
+      </div>
+      <div id="notification-container-mobile" class="relative mr-3">
+        <button id="notification-button-mobile" class="relative inline-flex items-center justify-center w-10 h-10 text-gray-600 hover:text-indigo-600 transition">
+          <i class="fas fa-bell text-lg"></i>
+          <span id="notification-badge-mobile" class="hidden absolute -top-0.5 -right-0.5 min-w-[1.25rem] h-5 px-1 inline-flex items-center justify-center rounded-full bg-red-500 text-white text-[11px] font-semibold leading-none"></span>
+        </button>
+        <div id="notification-dropdown-mobile" class="hidden absolute right-0 mt-2 w-80 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden max-h-96">
+          <div class="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
+            <span class="text-sm font-semibold text-gray-800">Notifications</span>
+            <span class="text-xs text-gray-500">Live</span>
+          </div>
+          <div id="notification-list-mobile" class="max-h-80 overflow-y-auto divide-y divide-gray-100"></div>
+        </div>
+      </div>
+      <button id="menu-toggle" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none" aria-expanded="false">
+        <span class="sr-only">Open main menu</span>
+        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
       </div>
