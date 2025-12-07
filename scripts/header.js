@@ -38,6 +38,19 @@ document.addEventListener("DOMContentLoaded", () => {
               <a id="signin-desktop" href="auth.html" class="text-sm font-medium text-gray-700 hover:text-gray-900">Sign In</a>
               <a id="register-desktop" href="auth.html#register" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
             </div>
+            <div id="notification-container" class="relative">
+              <button id="notification-button" class="relative inline-flex items-center justify-center w-10 h-10 text-gray-600 hover:text-indigo-600 transition" aria-label="Open notifications">
+                <i class="fas fa-bell text-lg"></i>
+                <span id="notification-badge" class="hidden absolute -top-0.5 -right-0.5 min-w-[1.25rem] h-5 px-1 inline-flex items-center justify-center rounded-full bg-red-500 text-white text-[11px] font-semibold leading-none"></span>
+              </button>
+              <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-80 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden max-h-96">
+                <div class="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
+                  <span class="text-sm font-semibold text-gray-800">Notifications</span>
+                  <span class="text-xs text-gray-500">Live</span>
+                </div>
+                <div id="notification-list" class="max-h-80 overflow-y-auto divide-y divide-gray-100"></div>
+              </div>
+            </div>
             <div id="user-area" class="hidden md:hidden md:items-center md:space-x-4">
               <div id="user-balance" class="hidden balance-chip items-center gap-3 px-3 py-1.5 text-white">
                 <div class="balance-icon flex items-center justify-center w-8 h-8 rounded-full">
@@ -80,6 +93,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 <span class="balance-label">gems</span>
               </div>
               <button id="topup-button-mobile-header" class="topup-chip hidden">+</button>
+            </div>
+            <div id="notification-container-mobile" class="relative mr-3">
+              <button id="notification-button-mobile" class="relative inline-flex items-center justify-center w-10 h-10 text-gray-600 hover:text-indigo-600 transition" aria-label="Open notifications">
+                <i class="fas fa-bell text-lg"></i>
+                <span id="notification-badge-mobile" class="hidden absolute -top-0.5 -right-0.5 min-w-[1.25rem] h-5 px-1 inline-flex items-center justify-center rounded-full bg-red-500 text-white text-[11px] font-semibold leading-none"></span>
+              </button>
+              <div id="notification-dropdown-mobile" class="hidden absolute right-0 mt-2 w-80 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden max-h-96">
+                <div class="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
+                  <span class="text-sm font-semibold text-gray-800">Notifications</span>
+                  <span class="text-xs text-gray-500">Live</span>
+                </div>
+                <div id="notification-list-mobile" class="max-h-80 overflow-y-auto divide-y divide-gray-100"></div>
+              </div>
             </div>
             <button id="menu-toggle" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none" aria-expanded="false">
               <span class="sr-only">Open main menu</span>
