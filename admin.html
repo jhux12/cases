@@ -356,6 +356,65 @@
               </form>
             </div>
 
+            <div class="glass-card space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-lg font-semibold text-white">Site-wide notification</h3>
+                  <p class="text-xs text-slate-400">Broadcast a banner to all users. Leave message blank to clear.</p>
+                </div>
+                <span id="site-notification-status" class="text-xs uppercase tracking-[0.3em] text-slate-400">Idle</span>
+              </div>
+              <form id="site-notification-form" class="space-y-4">
+                <div class="grid gap-4 md:grid-cols-2">
+                  <label class="space-y-2 text-sm text-slate-200">Message
+                    <textarea id="site-notification-message" class="form-textarea" placeholder="Maintenance will begin at 9pm UTC"></textarea>
+                  </label>
+                  <div class="space-y-3">
+                    <label class="space-y-2 text-sm text-slate-200">Banner style
+                      <select id="site-notification-style" class="form-select">
+                        <option value="info">Info</option>
+                        <option value="success">Success</option>
+                        <option value="warning">Warning</option>
+                        <option value="danger">Alert</option>
+                      </select>
+                    </label>
+                    <label class="space-y-2 text-sm text-slate-200">CTA text (optional)
+                      <input id="site-notification-cta-text" type="text" class="form-input" placeholder="View updates" />
+                    </label>
+                    <label class="space-y-2 text-sm text-slate-200">CTA link (optional)
+                      <input id="site-notification-cta-url" type="url" class="form-input" placeholder="https://status.example.com" />
+                    </label>
+                    <label class="flex items-center gap-2 text-sm text-slate-200">
+                      <input id="site-notification-active" type="checkbox" class="h-4 w-4 rounded border-slate-600 bg-slate-900"> Active
+                    </label>
+                  </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                  <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 px-5 py-2 text-sm font-semibold">
+                    <i class="fa-solid fa-bullhorn"></i> Save notification
+                  </button>
+                  <button id="site-notification-clear" type="button" class="inline-flex items-center gap-2 rounded-xl border border-slate-700/80 px-4 py-2 text-sm text-slate-200 hover:border-rose-400/60 hover:text-rose-200">
+                    <i class="fa-solid fa-xmark"></i> Clear banner
+                  </button>
+                  <span id="site-notification-updated" class="text-xs text-slate-500">No notification set.</span>
+                </div>
+                <div id="site-notification-preview" class="hidden rounded-xl border border-slate-700/60 bg-slate-900/60 p-4 text-sm text-slate-200">
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="space-y-1">
+                      <p class="font-semibold">Preview</p>
+                      <p id="site-notification-preview-message" class="text-slate-300">Your message will appear here.</p>
+                      <a id="site-notification-preview-cta" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1 text-indigo-300 hover:text-indigo-200 text-xs font-semibold">
+                        <span>CTA</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                      </a>
+                    </div>
+                    <span id="site-notification-preview-pill" class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold bg-slate-800/70 text-slate-200">
+                      <i class="fa-solid fa-circle-info"></i> Info
+                    </span>
+                  </div>
+                </div>
+              </form>
+            </div>
+
             <div class="grid gap-6 lg:grid-cols-2">
               <div class="glass-card space-y-4">
                 <div class="flex items-center justify-between">
@@ -1065,6 +1124,19 @@
     const supportUnrepliedCount = document.getElementById('support-unreplied-count');
     const supportActiveCount = document.getElementById('support-active-count');
     const supportLastSync = document.getElementById('support-last-sync');
+    const siteNotificationForm = document.getElementById('site-notification-form');
+    const siteNotificationMessage = document.getElementById('site-notification-message');
+    const siteNotificationStyle = document.getElementById('site-notification-style');
+    const siteNotificationCtaText = document.getElementById('site-notification-cta-text');
+    const siteNotificationCtaUrl = document.getElementById('site-notification-cta-url');
+    const siteNotificationActive = document.getElementById('site-notification-active');
+    const siteNotificationStatus = document.getElementById('site-notification-status');
+    const siteNotificationUpdated = document.getElementById('site-notification-updated');
+    const siteNotificationPreview = document.getElementById('site-notification-preview');
+    const siteNotificationPreviewMessage = document.getElementById('site-notification-preview-message');
+    const siteNotificationPreviewCta = document.getElementById('site-notification-preview-cta');
+    const siteNotificationPreviewPill = document.getElementById('site-notification-preview-pill');
+    const siteNotificationClear = document.getElementById('site-notification-clear');
     const statElements = {
       totalCases: document.getElementById('stat-total-cases'),
       pickemCases: document.getElementById('stat-pickem-cases'),
@@ -1091,6 +1163,7 @@
     let vaultsData = [];
     let homeSpinnerConfig = {};
     let supportCasesCache = [];
+    let siteNotificationData = null;
     const supportFilters = {
       search: '',
       status: 'all',
@@ -1181,6 +1254,38 @@
       return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1e293b&color=f8fafc&rounded=true`;
     }
 
+    function renderSiteNotificationPreview(data) {
+      if (!siteNotificationPreview || !siteNotificationPreviewMessage || !siteNotificationPreviewPill) return;
+
+      const styleMap = {
+        info: { label: 'Info', icon: 'fa-circle-info', classes: 'bg-indigo-500/20 text-indigo-100' },
+        success: { label: 'Success', icon: 'fa-circle-check', classes: 'bg-emerald-500/20 text-emerald-100' },
+        warning: { label: 'Warning', icon: 'fa-triangle-exclamation', classes: 'bg-amber-500/20 text-amber-100' },
+        danger: { label: 'Alert', icon: 'fa-circle-exclamation', classes: 'bg-rose-500/20 text-rose-100' }
+      };
+
+      const payload = data || {};
+      const style = styleMap[payload.style] || styleMap.info;
+      siteNotificationPreviewPill.className = `inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${style.classes}`;
+      siteNotificationPreviewPill.innerHTML = `<i class="fa-solid ${style.icon}"></i> ${style.label}`;
+
+      if (payload.message) {
+        siteNotificationPreviewMessage.textContent = payload.message;
+        siteNotificationPreview.classList.remove('hidden');
+      } else {
+        siteNotificationPreviewMessage.textContent = 'Your message will appear here.';
+        siteNotificationPreview.classList.add('hidden');
+      }
+
+      if (payload.ctaText && payload.ctaUrl) {
+        siteNotificationPreviewCta.textContent = payload.ctaText;
+        siteNotificationPreviewCta.href = payload.ctaUrl;
+        siteNotificationPreviewCta.classList.remove('hidden');
+      } else {
+        siteNotificationPreviewCta.classList.add('hidden');
+      }
+    }
+
     function updateHomeSpinnerPreview(data) {
       if (!homeSpinnerImage || !homeSpinnerTitle || !homeSpinnerSubtitle) return;
       if (!data) {
@@ -1251,6 +1356,31 @@
           }
         }
         updateHomeSpinnerPreviewFromConfig();
+      });
+    }
+
+    function loadSiteNotification() {
+      db.ref('siteNotification').on('value', snapshot => {
+        siteNotificationData = snapshot.val() || {};
+        const { message = '', style = 'info', ctaText = '', ctaUrl = '', active = false, updatedAt } = siteNotificationData;
+
+        if (siteNotificationMessage) siteNotificationMessage.value = message;
+        if (siteNotificationStyle) siteNotificationStyle.value = style;
+        if (siteNotificationCtaText) siteNotificationCtaText.value = ctaText;
+        if (siteNotificationCtaUrl) siteNotificationCtaUrl.value = ctaUrl;
+        if (siteNotificationActive) siteNotificationActive.checked = !!active;
+
+        renderSiteNotificationPreview(siteNotificationData);
+
+        if (siteNotificationStatus) {
+          siteNotificationStatus.textContent = active && message ? 'Live' : 'Idle';
+          siteNotificationStatus.className = `text-xs uppercase tracking-[0.3em] ${active && message ? 'text-emerald-300' : 'text-slate-400'}`;
+        }
+
+        if (siteNotificationUpdated) {
+          const stamp = updatedAt ? new Date(updatedAt).toLocaleString() : 'No notification set.';
+          siteNotificationUpdated.textContent = message ? `Last updated ${stamp}` : 'No notification set.';
+        }
       });
     }
 
@@ -2745,6 +2875,7 @@
       loadQuestConfig();
       loadWheelRewards();
       loadUserCount();
+      loadSiteNotification();
       searchUsers();
     });
 
@@ -2789,6 +2920,82 @@
         updateHomeSpinnerPreview(selected);
         showToast('✅ Homepage spinner updated');
       }).catch(() => showToast('⚠️ Failed to update spinner'));
+    });
+
+    ['input', 'change'].forEach(evt => {
+      siteNotificationMessage?.addEventListener(evt, () => renderSiteNotificationPreview({
+        message: siteNotificationMessage.value,
+        style: siteNotificationStyle?.value,
+        ctaText: siteNotificationCtaText?.value,
+        ctaUrl: siteNotificationCtaUrl?.value
+      }));
+      siteNotificationStyle?.addEventListener(evt, () => renderSiteNotificationPreview({
+        message: siteNotificationMessage?.value,
+        style: siteNotificationStyle.value,
+        ctaText: siteNotificationCtaText?.value,
+        ctaUrl: siteNotificationCtaUrl?.value
+      }));
+      siteNotificationCtaText?.addEventListener(evt, () => renderSiteNotificationPreview({
+        message: siteNotificationMessage?.value,
+        style: siteNotificationStyle?.value,
+        ctaText: siteNotificationCtaText.value,
+        ctaUrl: siteNotificationCtaUrl?.value
+      }));
+      siteNotificationCtaUrl?.addEventListener(evt, () => renderSiteNotificationPreview({
+        message: siteNotificationMessage?.value,
+        style: siteNotificationStyle?.value,
+        ctaText: siteNotificationCtaText?.value,
+        ctaUrl: siteNotificationCtaUrl.value
+      }));
+    });
+
+    siteNotificationForm?.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!siteNotificationMessage) return;
+
+      const message = siteNotificationMessage.value.trim();
+      const style = siteNotificationStyle?.value || 'info';
+      const ctaText = siteNotificationCtaText?.value.trim();
+      const ctaUrl = siteNotificationCtaUrl?.value.trim();
+      const active = !!siteNotificationActive?.checked;
+
+      if (!message) {
+        db.ref('siteNotification').remove().then(() => {
+          siteNotificationData = null;
+          renderSiteNotificationPreview(null);
+          if (siteNotificationStatus) siteNotificationStatus.textContent = 'Idle';
+          showToast('✅ Notification cleared');
+        }).catch(() => showToast('⚠️ Failed to clear notification'));
+        return;
+      }
+
+      const payload = {
+        message,
+        style,
+        ctaText,
+        ctaUrl,
+        active,
+        createdAt: siteNotificationData?.message === message && siteNotificationData.createdAt ? siteNotificationData.createdAt : Date.now(),
+        updatedAt: Date.now()
+      };
+
+      db.ref('siteNotification').set(payload).then(() => {
+        siteNotificationData = payload;
+        showToast('✅ Notification saved');
+      }).catch(() => showToast('⚠️ Failed to save notification'));
+    });
+
+    siteNotificationClear?.addEventListener('click', () => {
+      db.ref('siteNotification').remove().then(() => {
+        siteNotificationData = null;
+        if (siteNotificationMessage) siteNotificationMessage.value = '';
+        if (siteNotificationCtaText) siteNotificationCtaText.value = '';
+        if (siteNotificationCtaUrl) siteNotificationCtaUrl.value = '';
+        if (siteNotificationActive) siteNotificationActive.checked = false;
+        renderSiteNotificationPreview(null);
+        if (siteNotificationStatus) siteNotificationStatus.textContent = 'Idle';
+        showToast('✅ Notification cleared');
+      }).catch(() => showToast('⚠️ Failed to clear notification'));
     });
 
     document.getElementById('marketplace-form').addEventListener('submit', async (e) => {
