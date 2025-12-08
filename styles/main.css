@@ -627,6 +627,11 @@ body:not(.dark-mode) .border-slate-700 {
   background: var(--control-surface);
   border: 1px solid var(--card-border);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+  color: #0b0f1c;
+}
+
+body.dark-mode .theme-toggle.menu-entry .theme-state-label {
+  color: #e2e8f0;
 }
 
 .fade {
@@ -783,7 +788,7 @@ body:not(.dark-mode) .border-slate-700 {
 
 .balance-amount {
   font-weight: 700;
-  color: var(--text-primary);
+  color: #ffffff;
   text-shadow: 0 0 10px rgba(191, 219, 254, 0.2);
   letter-spacing: 0.015em;
   font-size: 0.9rem;
@@ -793,7 +798,7 @@ body:not(.dark-mode) .border-slate-700 {
   font-size: 0.55rem;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .active-nav-link {
