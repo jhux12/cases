@@ -148,7 +148,6 @@ document.addEventListener("DOMContentLoaded", () => {
           <p class="notification-center__eyebrow">Sitewide updates</p>
           <p class="notification-center__title">Notifications</p>
         </div>
-        <button id="dismiss-notifications" class="notification-center__dismiss" type="button">Clear badge</button>
       </div>
       <div id="notification-list" class="notification-list">
         <p class="notification-empty">No notifications yet.</p>
