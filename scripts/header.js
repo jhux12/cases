@@ -53,7 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 <button id="theme-toggle-desktop-chip" class="theme-toggle chip-toggle hidden" type="button" aria-label="Toggle dark mode">
                   <i class="fas fa-moon"></i>
                 </button>
-                <button id="notification-bell" class="notification-button hidden" aria-label="Notifications">
+                <button id="notification-bell" class="notification-button hidden relative" aria-label="Notifications">
+                  <span id="notification-indicator" class="notification-indicator hidden"></span>
                   <i class="fas fa-bell"></i>
                 </button>
               </div>
@@ -87,7 +88,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
                 <button id="topup-button-mobile-header" class="topup-chip hidden">+</button>
               </div>
-              <button id="notification-bell-mobile" class="notification-button hidden" aria-label="Notifications">
+              <button id="notification-bell-mobile" class="notification-button hidden relative" aria-label="Notifications">
+                <span id="notification-indicator-mobile" class="notification-indicator hidden"></span>
                 <i class="fas fa-bell"></i>
               </button>
               <button id="menu-toggle" type="button" class="menu-toggle-button" aria-expanded="false" aria-label="Open main menu">
@@ -140,6 +142,18 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
     </nav>
+    <div id="notification-center" class="notification-center hidden" role="dialog" aria-label="Notifications">
+      <div class="notification-center__header">
+        <div>
+          <p class="notification-center__eyebrow">Sitewide updates</p>
+          <p class="notification-center__title">Notifications</p>
+        </div>
+        <button id="dismiss-notifications" class="notification-center__dismiss" type="button">Clear badge</button>
+      </div>
+      <div id="notification-list" class="notification-list">
+        <p class="notification-empty">No notifications yet.</p>
+      </div>
+    </div>
   `;
 
   const current = window.location.pathname.split('/').pop() || 'index.html';
