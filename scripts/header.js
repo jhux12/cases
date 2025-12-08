@@ -17,7 +17,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   header.innerHTML = `
-    <nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200 backdrop-blur bg-white/80">
+    <div id="site-notice-container" class="hidden fixed top-16 inset-x-0 z-50 px-4">
+      <div id="site-notice-bar" class="rounded-xl border px-4 py-3 shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="space-y-1">
+            <p id="site-notice-message" class="font-semibold text-sm"></p>
+            <a id="site-notice-cta" href="#" target="_blank" rel="noopener" class="hidden text-xs font-semibold underline decoration-2 underline-offset-4">Learn more</a>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="site-notice-pill" class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"></span>
+            <button id="site-notice-close" type="button" class="rounded-full p-2 hover:bg-black/10 focus:outline-none" aria-label="Dismiss notification">
+              <i class="fas fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <nav class="navbar fixed top-0 left-0 right-0 z-40 border-b border-gray-200 backdrop-blur bg-white/80">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
@@ -53,9 +69,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 <button id="theme-toggle-desktop-chip" class="theme-toggle chip-toggle hidden" type="button" aria-label="Toggle dark mode">
                   <i class="fas fa-moon"></i>
                 </button>
-                <button id="notification-bell" class="notification-button hidden" aria-label="Notifications">
-                  <i class="fas fa-bell"></i>
-                </button>
+                <div class="relative">
+                  <button id="notification-bell" class="notification-button hidden" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span id="notification-badge" class="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-rose-500 border-2 border-white dark:border-slate-900 hidden"></span>
+                  </button>
+                  <div id="notification-menu" class="hidden absolute right-0 mt-3 w-80 rounded-xl border border-gray-200/80 bg-white text-gray-900 shadow-lg ring-1 ring-black/5 dark:border-slate-700/80 dark:bg-slate-900 dark:text-slate-100">
+                    <div class="p-3 border-b border-gray-100/80 dark:border-slate-800">
+                      <div class="flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-slate-100">
+                        <i class="fas fa-bell text-indigo-500"></i>
+                        Notifications
+                      </div>
+                      <p class="mt-1 text-xs text-gray-600 dark:text-slate-300">Stay up to date with the latest announcements.</p>
+                    </div>
+                    <div id="notification-list" class="max-h-80 overflow-y-auto p-3 space-y-3 text-sm text-gray-800 dark:text-slate-100">
+                      <div class="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-3 text-xs font-medium text-gray-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200">No notifications yet.</div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="ml-2 relative flex-shrink-0">
                 <button id="dropdown-toggle" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-50 focus:outline-none">
@@ -87,9 +118,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
                 <button id="topup-button-mobile-header" class="topup-chip hidden">+</button>
               </div>
-              <button id="notification-bell-mobile" class="notification-button hidden" aria-label="Notifications">
-                <i class="fas fa-bell"></i>
-              </button>
+              <div class="relative">
+                <button id="notification-bell-mobile" class="notification-button hidden" aria-label="Notifications">
+                  <i class="fas fa-bell"></i>
+                  <span id="notification-badge-mobile" class="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-rose-500 border-2 border-white dark:border-slate-900 hidden"></span>
+                </button>
+                <div id="notification-menu-mobile" class="hidden absolute right-0 mt-3 w-[18rem] rounded-xl border border-gray-200/80 bg-white text-gray-900 shadow-lg ring-1 ring-black/5 dark:border-slate-700/80 dark:bg-slate-900 dark:text-slate-100">
+                  <div class="p-3 border-b border-gray-100/80 dark:border-slate-800">
+                    <div class="flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-slate-100">
+                      <i class="fas fa-bell text-indigo-500"></i>
+                      Notifications
+                    </div>
+                    <p class="mt-1 text-xs text-gray-600 dark:text-slate-300">Stay up to date with the latest announcements.</p>
+                  </div>
+                  <div id="notification-list-mobile" class="max-h-80 overflow-y-auto p-3 space-y-3 text-sm text-gray-800 dark:text-slate-100">
+                    <div class="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-3 text-xs font-medium text-gray-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200">No notifications yet.</div>
+                  </div>
+                </div>
+              </div>
               <button id="menu-toggle" type="button" class="menu-toggle-button" aria-expanded="false" aria-label="Open main menu">
                 <i class="fas fa-bars"></i>
               </button>
@@ -142,6 +188,21 @@ document.addEventListener("DOMContentLoaded", () => {
     </nav>
   `;
 
+  const siteNoticeContainer = document.getElementById("site-notice-container");
+  const siteNoticeBar = document.getElementById("site-notice-bar");
+  const siteNoticeMessage = document.getElementById("site-notice-message");
+  const siteNoticeCta = document.getElementById("site-notice-cta");
+  const siteNoticePill = document.getElementById("site-notice-pill");
+  const siteNoticeClose = document.getElementById("site-notice-close");
+  const notificationBadge = document.getElementById("notification-badge");
+  const notificationBadgeMobile = document.getElementById("notification-badge-mobile");
+  const notificationMenu = document.getElementById("notification-menu");
+  const notificationMenuMobile = document.getElementById("notification-menu-mobile");
+  const notificationList = document.getElementById("notification-list");
+  const notificationListMobile = document.getElementById("notification-list-mobile");
+  const notificationBell = document.getElementById("notification-bell");
+  const notificationBellMobile = document.getElementById("notification-bell-mobile");
+
   const current = window.location.pathname.split('/').pop() || 'index.html';
   header.querySelectorAll('a[data-nav]').forEach(link => {
     if (link.getAttribute('data-nav') === current) {
@@ -191,6 +252,189 @@ document.addEventListener("DOMContentLoaded", () => {
     return { lightMeta, darkMeta, dynamicMeta };
   };
 
+  const noticeStyles = {
+    info: {
+      label: 'Info',
+      icon: 'fa-circle-info',
+      bar: 'bg-indigo-50/90 border-indigo-200 text-indigo-900',
+      pill: 'bg-indigo-100 text-indigo-900',
+      cta: 'text-indigo-800'
+    },
+    success: {
+      label: 'Success',
+      icon: 'fa-circle-check',
+      bar: 'bg-emerald-50/90 border-emerald-200 text-emerald-900',
+      pill: 'bg-emerald-100 text-emerald-900',
+      cta: 'text-emerald-800'
+    },
+    warning: {
+      label: 'Warning',
+      icon: 'fa-triangle-exclamation',
+      bar: 'bg-amber-50/90 border-amber-200 text-amber-900',
+      pill: 'bg-amber-100 text-amber-900',
+      cta: 'text-amber-800'
+    },
+    danger: {
+      label: 'Alert',
+      icon: 'fa-circle-exclamation',
+      bar: 'bg-rose-50/90 border-rose-200 text-rose-900',
+      pill: 'bg-rose-100 text-rose-900',
+      cta: 'text-rose-800'
+    }
+  };
+
+  let siteNoticeState = null;
+  const noticeDismissKey = 'site-notice-dismissed-at';
+
+  const closeNotificationMenus = () => {
+    [notificationMenu, notificationMenuMobile].forEach((menu) => menu?.classList.add('hidden'));
+  };
+
+  const toggleNotificationMenu = (menu) => {
+    if (!menu) return;
+    const shouldOpen = menu.classList.contains('hidden');
+    closeNotificationMenus();
+    if (shouldOpen) menu.classList.remove('hidden');
+  };
+
+  [notificationBell, notificationBellMobile].forEach((btn) => {
+    const targetMenu = btn?.id === 'notification-bell' ? notificationMenu : notificationMenuMobile;
+    btn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleNotificationMenu(targetMenu);
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    if (
+      !notificationMenu?.contains(event.target) &&
+      !notificationBell?.contains(event.target) &&
+      !notificationMenuMobile?.contains(event.target) &&
+      !notificationBellMobile?.contains(event.target)
+    ) {
+      closeNotificationMenus();
+    }
+  });
+
+  const hideSiteNotice = () => {
+    siteNoticeContainer?.classList.add('hidden');
+    siteNoticeState = null;
+  };
+
+  const isNoticeDismissed = (notice) => {
+    if (!notice?.createdAt) return false;
+    const dismissedAt = Number(localStorage.getItem(noticeDismissKey) || 0);
+    return dismissedAt >= Number(notice.createdAt);
+  };
+
+  const showSiteNotice = (notice) => {
+    if (!siteNoticeBar || !siteNoticeMessage || !siteNoticePill) return;
+    const style = noticeStyles[notice.style] || noticeStyles.info;
+
+    siteNoticeBar.className = `rounded-xl border px-4 py-3 shadow-lg ${style.bar}`;
+    siteNoticeMessage.textContent = notice.message;
+    siteNoticePill.className = `inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${style.pill}`;
+    siteNoticePill.innerHTML = `<i class="fas ${style.icon}"></i> ${style.label}`;
+
+    if (notice.ctaText && notice.ctaUrl) {
+      siteNoticeCta.textContent = notice.ctaText;
+      siteNoticeCta.href = notice.ctaUrl;
+      siteNoticeCta.className = `text-xs font-semibold underline decoration-2 underline-offset-4 ${style.cta}`;
+      siteNoticeCta.classList.remove('hidden');
+    } else if (siteNoticeCta) {
+      siteNoticeCta.classList.add('hidden');
+    }
+
+    siteNoticeContainer?.classList.remove('hidden');
+    siteNoticeState = notice;
+  };
+
+  const renderNotificationCards = (container, notice) => {
+    if (!container) return;
+    container.innerHTML = '';
+
+    const hasNotice = notice && notice.active && notice.message && !isNoticeDismissed(notice);
+
+    if (!hasNotice) {
+      const empty = document.createElement('div');
+      empty.className = 'rounded-lg border border-dashed border-gray-200 bg-gray-50 p-3 text-xs font-medium text-gray-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200';
+      empty.textContent = 'No notifications yet.';
+      container.appendChild(empty);
+      return;
+    }
+
+    const style = noticeStyles[notice.style] || noticeStyles.info;
+
+    const card = document.createElement('div');
+    card.className = 'space-y-2 rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-sm dark:border-slate-700 dark:bg-slate-800/70';
+
+    const headerRow = document.createElement('div');
+    headerRow.className = 'flex items-center justify-between gap-3';
+
+    const label = document.createElement('span');
+    label.className = `inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold ${style.pill}`;
+    label.innerHTML = `<i class="fas ${style.icon}"></i> ${style.label}`;
+
+    const created = document.createElement('span');
+    created.className = 'text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-300';
+    created.textContent = 'Announcement';
+
+    headerRow.append(label, created);
+
+    const message = document.createElement('p');
+    message.className = 'text-sm font-medium leading-relaxed text-gray-900 dark:text-slate-100';
+    message.textContent = notice.message;
+
+    card.append(headerRow, message);
+
+    if (notice.ctaText && notice.ctaUrl) {
+      const cta = document.createElement('a');
+      cta.className = 'inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 underline decoration-2 underline-offset-4 hover:text-indigo-700 dark:text-indigo-200 dark:hover:text-indigo-100';
+      cta.href = notice.ctaUrl;
+      cta.target = '_blank';
+      cta.rel = 'noopener';
+      cta.textContent = notice.ctaText;
+      cta.insertAdjacentHTML('beforeend', '<i class="fas fa-arrow-up-right-from-square text-[11px]"></i>');
+      card.appendChild(cta);
+    }
+
+    container.appendChild(card);
+  };
+
+  const renderSiteNotice = (notice) => {
+    if (!notice || !notice.active || !notice.message || isNoticeDismissed(notice)) {
+      hideSiteNotice();
+      renderNotificationCards(notificationList, null);
+      renderNotificationCards(notificationListMobile, null);
+      notificationBadge?.classList.add('hidden');
+      notificationBadgeMobile?.classList.add('hidden');
+      return;
+    }
+    showSiteNotice(notice);
+    renderNotificationCards(notificationList, notice);
+    renderNotificationCards(notificationListMobile, notice);
+    notificationBadge?.classList.remove('hidden');
+    notificationBadgeMobile?.classList.remove('hidden');
+  };
+
+  siteNoticeClose?.addEventListener('click', () => {
+    if (siteNoticeState?.createdAt) {
+      localStorage.setItem(noticeDismissKey, String(siteNoticeState.createdAt));
+    }
+    hideSiteNotice();
+    renderNotificationCards(notificationList, null);
+    renderNotificationCards(notificationListMobile, null);
+    notificationBadge?.classList.add('hidden');
+    notificationBadgeMobile?.classList.add('hidden');
+  });
+
+  const initSiteNotice = () => {
+    if (!window.firebase?.database) return;
+    firebase.database().ref('siteNotification').on('value', (snap) => {
+      renderSiteNotice(snap.val());
+    });
+  };
+
   const setThemeColor = (isDark) => {
     const { lightMeta, darkMeta, dynamicMeta } = ensureThemeMeta();
     const lightColor = '#f8fafc';
@@ -226,6 +470,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const initialTheme = storedTheme || (prefersDark.matches ? 'dark' : 'light');
+  initSiteNotice();
   applyTheme(initialTheme);
 
   prefersDark.addEventListener('change', (event) => {
