@@ -17,7 +17,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   header.innerHTML = `
-    <nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200 backdrop-blur bg-white/80">
+    <div id="notification-drawer" class="notification-drawer hidden">
+      <div class="notification-drawer-header">
+        <div class="flex items-center gap-2">
+          <span class="notification-dot" aria-hidden="true"></span>
+          <p class="text-sm font-semibold">Notifications</p>
+        </div>
+        <button id="notification-close" type="button" class="notification-dismiss" aria-label="Close notifications">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+      <div id="notification-items" class="notification-items hidden"></div>
+      <p id="notification-empty" class="notification-empty">No notifications right now.</p>
+    </div>
+    <nav class="navbar fixed top-0 left-0 right-0 z-40 border-b border-gray-200 backdrop-blur bg-white/80">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
@@ -142,6 +155,11 @@ document.addEventListener("DOMContentLoaded", () => {
     </nav>
   `;
 
+  const notificationDrawer = document.getElementById("notification-drawer");
+  const notificationItems = document.getElementById("notification-items");
+  const notificationEmpty = document.getElementById("notification-empty");
+  const notificationClose = document.getElementById("notification-close");
+
   const current = window.location.pathname.split('/').pop() || 'index.html';
   header.querySelectorAll('a[data-nav]').forEach(link => {
     if (link.getAttribute('data-nav') === current) {
@@ -191,6 +209,138 @@ document.addEventListener("DOMContentLoaded", () => {
     return { lightMeta, darkMeta, dynamicMeta };
   };
 
+  const noticeStyles = {
+    info: {
+      label: 'Info',
+      icon: 'fa-circle-info',
+      bar: 'bg-indigo-50/90 border-indigo-200 text-indigo-900',
+      pill: 'bg-indigo-100 text-indigo-900',
+      cta: 'text-indigo-800'
+    },
+    success: {
+      label: 'Success',
+      icon: 'fa-circle-check',
+      bar: 'bg-emerald-50/90 border-emerald-200 text-emerald-900',
+      pill: 'bg-emerald-100 text-emerald-900',
+      cta: 'text-emerald-800'
+    },
+    warning: {
+      label: 'Warning',
+      icon: 'fa-triangle-exclamation',
+      bar: 'bg-amber-50/90 border-amber-200 text-amber-900',
+      pill: 'bg-amber-100 text-amber-900',
+      cta: 'text-amber-800'
+    },
+    danger: {
+      label: 'Alert',
+      icon: 'fa-circle-exclamation',
+      bar: 'bg-rose-50/90 border-rose-200 text-rose-900',
+      pill: 'bg-rose-100 text-rose-900',
+      cta: 'text-rose-800'
+    }
+  };
+
+  let siteNoticeState = null;
+  const noticeDismissKey = 'site-notice-dismissed-at';
+
+  const isNoticeDismissed = (notice) => {
+    if (!notice?.createdAt) return false;
+    const dismissedAt = Number(localStorage.getItem(noticeDismissKey) || 0);
+    return dismissedAt >= Number(notice.createdAt);
+  };
+
+  const setBellUnread = (hasUnread) => {
+    [notificationBell, notificationBellMobile].forEach((btn) => {
+      if (!btn) return;
+      btn.classList.toggle('has-unread', !!hasUnread);
+      btn.setAttribute('aria-label', hasUnread ? 'Notifications (new)' : 'Notifications');
+    });
+  };
+
+  const renderNotificationDrawer = (notice) => {
+    siteNoticeState = notice;
+    const shouldShowNotice = notice && notice.active && notice.message && !isNoticeDismissed(notice);
+    setBellUnread(shouldShowNotice);
+
+    if (!notificationDrawer || !notificationItems || !notificationEmpty) return;
+
+    notificationItems.innerHTML = '';
+    notificationItems.classList.toggle('hidden', !shouldShowNotice);
+    notificationEmpty.classList.toggle('hidden', shouldShowNotice);
+
+    if (!shouldShowNotice) return;
+
+    const style = noticeStyles[notice.style] || noticeStyles.info;
+    const item = document.createElement('div');
+    item.className = 'notification-item';
+    item.innerHTML = `
+      <div class="notification-item-header">
+        <span class="notification-pill ${style.pill}"><i class="fas ${style.icon}"></i> ${style.label}</span>
+        <button class="notification-dismiss" type="button" aria-label="Dismiss notification">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+      <p class="notification-message">${notice.message}</p>
+      ${notice.ctaText && notice.ctaUrl ? `<a class="notification-cta ${style.cta}" href="${notice.ctaUrl}" target="_blank" rel="noopener">${notice.ctaText}</a>` : ''}
+    `;
+
+    const dismissBtn = item.querySelector('.notification-dismiss');
+    dismissBtn?.addEventListener('click', () => {
+      if (notice.createdAt) {
+        localStorage.setItem(noticeDismissKey, String(notice.createdAt));
+      }
+      setBellUnread(false);
+      notificationItems.classList.add('hidden');
+      notificationEmpty.classList.remove('hidden');
+      siteNoticeState = { ...notice, active: false };
+    });
+
+    const ctaLink = item.querySelector('.notification-cta');
+    ctaLink?.addEventListener('click', () => {
+      notificationDrawer.classList.add('hidden');
+    });
+
+    notificationItems.appendChild(item);
+  };
+
+  const toggleNotificationDrawer = () => {
+    if (!notificationDrawer) return;
+    const isHidden = notificationDrawer.classList.contains('hidden');
+    if (isHidden) {
+      renderNotificationDrawer(siteNoticeState);
+      notificationDrawer.classList.remove('hidden');
+    } else {
+      notificationDrawer.classList.add('hidden');
+    }
+  };
+
+  notificationClose?.addEventListener('click', () => {
+    notificationDrawer?.classList.add('hidden');
+  });
+
+  const initSiteNotice = () => {
+    if (!window.firebase?.database) return;
+    firebase.database().ref('siteNotification').on('value', (snap) => {
+      renderNotificationDrawer(snap.val());
+    });
+  };
+
+  [notificationBell, notificationBellMobile].forEach((btn) =>
+    btn?.addEventListener('click', (event) => {
+      event.preventDefault();
+      toggleNotificationDrawer();
+    })
+  );
+
+  document.addEventListener('click', (event) => {
+    if (!notificationDrawer || notificationDrawer.classList.contains('hidden')) return;
+    const target = event.target;
+    const isBell = [notificationBell, notificationBellMobile].some((btn) => btn && btn.contains(target));
+    if (!notificationDrawer.contains(target) && !isBell) {
+      notificationDrawer.classList.add('hidden');
+    }
+  });
+
   const setThemeColor = (isDark) => {
     const { lightMeta, darkMeta, dynamicMeta } = ensureThemeMeta();
     const lightColor = '#f8fafc';
@@ -226,6 +376,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const initialTheme = storedTheme || (prefersDark.matches ? 'dark' : 'light');
+  initSiteNotice();
   applyTheme(initialTheme);
 
   prefersDark.addEventListener('change', (event) => {
