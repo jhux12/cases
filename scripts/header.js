@@ -17,7 +17,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   header.innerHTML = `
-    <nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200 backdrop-blur bg-white/80">
+    <div id="site-notice-container" class="hidden fixed top-16 inset-x-0 z-50 px-4">
+      <div id="site-notice-bar" class="rounded-xl border px-4 py-3 shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="space-y-1">
+            <p id="site-notice-message" class="font-semibold text-sm"></p>
+            <a id="site-notice-cta" href="#" target="_blank" rel="noopener" class="hidden text-xs font-semibold underline decoration-2 underline-offset-4">Learn more</a>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="site-notice-pill" class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"></span>
+            <button id="site-notice-close" type="button" class="rounded-full p-2 hover:bg-black/10 focus:outline-none" aria-label="Dismiss notification">
+              <i class="fas fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <nav class="navbar fixed top-0 left-0 right-0 z-40 border-b border-gray-200 backdrop-blur bg-white/80">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
@@ -142,6 +158,13 @@ document.addEventListener("DOMContentLoaded", () => {
     </nav>
   `;
 
+  const siteNoticeContainer = document.getElementById("site-notice-container");
+  const siteNoticeBar = document.getElementById("site-notice-bar");
+  const siteNoticeMessage = document.getElementById("site-notice-message");
+  const siteNoticeCta = document.getElementById("site-notice-cta");
+  const siteNoticePill = document.getElementById("site-notice-pill");
+  const siteNoticeClose = document.getElementById("site-notice-close");
+
   const current = window.location.pathname.split('/').pop() || 'index.html';
   header.querySelectorAll('a[data-nav]').forEach(link => {
     if (link.getAttribute('data-nav') === current) {
@@ -191,6 +214,95 @@ document.addEventListener("DOMContentLoaded", () => {
     return { lightMeta, darkMeta, dynamicMeta };
   };
 
+  const noticeStyles = {
+    info: {
+      label: 'Info',
+      icon: 'fa-circle-info',
+      bar: 'bg-indigo-50/90 border-indigo-200 text-indigo-900',
+      pill: 'bg-indigo-100 text-indigo-900',
+      cta: 'text-indigo-800'
+    },
+    success: {
+      label: 'Success',
+      icon: 'fa-circle-check',
+      bar: 'bg-emerald-50/90 border-emerald-200 text-emerald-900',
+      pill: 'bg-emerald-100 text-emerald-900',
+      cta: 'text-emerald-800'
+    },
+    warning: {
+      label: 'Warning',
+      icon: 'fa-triangle-exclamation',
+      bar: 'bg-amber-50/90 border-amber-200 text-amber-900',
+      pill: 'bg-amber-100 text-amber-900',
+      cta: 'text-amber-800'
+    },
+    danger: {
+      label: 'Alert',
+      icon: 'fa-circle-exclamation',
+      bar: 'bg-rose-50/90 border-rose-200 text-rose-900',
+      pill: 'bg-rose-100 text-rose-900',
+      cta: 'text-rose-800'
+    }
+  };
+
+  let siteNoticeState = null;
+  const noticeDismissKey = 'site-notice-dismissed-at';
+
+  const hideSiteNotice = () => {
+    siteNoticeContainer?.classList.add('hidden');
+    siteNoticeState = null;
+  };
+
+  const isNoticeDismissed = (notice) => {
+    if (!notice?.createdAt) return false;
+    const dismissedAt = Number(localStorage.getItem(noticeDismissKey) || 0);
+    return dismissedAt >= Number(notice.createdAt);
+  };
+
+  const showSiteNotice = (notice) => {
+    if (!siteNoticeBar || !siteNoticeMessage || !siteNoticePill) return;
+    const style = noticeStyles[notice.style] || noticeStyles.info;
+
+    siteNoticeBar.className = `rounded-xl border px-4 py-3 shadow-lg ${style.bar}`;
+    siteNoticeMessage.textContent = notice.message;
+    siteNoticePill.className = `inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${style.pill}`;
+    siteNoticePill.innerHTML = `<i class="fas ${style.icon}"></i> ${style.label}`;
+
+    if (notice.ctaText && notice.ctaUrl) {
+      siteNoticeCta.textContent = notice.ctaText;
+      siteNoticeCta.href = notice.ctaUrl;
+      siteNoticeCta.className = `text-xs font-semibold underline decoration-2 underline-offset-4 ${style.cta}`;
+      siteNoticeCta.classList.remove('hidden');
+    } else if (siteNoticeCta) {
+      siteNoticeCta.classList.add('hidden');
+    }
+
+    siteNoticeContainer?.classList.remove('hidden');
+    siteNoticeState = notice;
+  };
+
+  const renderSiteNotice = (notice) => {
+    if (!notice || !notice.active || !notice.message || isNoticeDismissed(notice)) {
+      hideSiteNotice();
+      return;
+    }
+    showSiteNotice(notice);
+  };
+
+  siteNoticeClose?.addEventListener('click', () => {
+    if (siteNoticeState?.createdAt) {
+      localStorage.setItem(noticeDismissKey, String(siteNoticeState.createdAt));
+    }
+    hideSiteNotice();
+  });
+
+  const initSiteNotice = () => {
+    if (!window.firebase?.database) return;
+    firebase.database().ref('siteNotification').on('value', (snap) => {
+      renderSiteNotice(snap.val());
+    });
+  };
+
   const setThemeColor = (isDark) => {
     const { lightMeta, darkMeta, dynamicMeta } = ensureThemeMeta();
     const lightColor = '#f8fafc';
@@ -226,6 +338,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const initialTheme = storedTheme || (prefersDark.matches ? 'dark' : 'light');
+  initSiteNotice();
   applyTheme(initialTheme);
 
   prefersDark.addEventListener('change', (event) => {
