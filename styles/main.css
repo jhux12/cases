@@ -448,6 +448,7 @@ body.dark-mode .balance-chip {
 }
 
 .notification-button {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -475,6 +476,18 @@ body.dark-mode .balance-chip {
 .notification-button:focus-visible {
   outline: 2px solid var(--accent-strong);
   outline-offset: 2px;
+}
+
+.notification-button.has-unread::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--accent-strong);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
 }
 
 .menu-toggle-button {

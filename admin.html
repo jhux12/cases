@@ -2520,6 +2520,29 @@
                   </div>
                 </div>
               </div>
+              <div class="glass-subcard space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Direct notification</p>
+                    <h4 class="text-sm font-semibold text-white">Message this user</h4>
+                  </div>
+                  <span class="text-[11px] text-slate-400">Appears in their bell dropdown</span>
+                </div>
+                <div class="grid gap-3 md:grid-cols-2">
+                  <label class="space-y-1 text-sm text-slate-300">Title
+                    <input type="text" id="notify-title-${uid}" class="form-input" placeholder="Heads up" />
+                  </label>
+                  <label class="space-y-1 text-sm text-slate-300">Message
+                    <textarea id="notify-message-${uid}" class="form-textarea" placeholder="Custom notification message" rows="3"></textarea>
+                  </label>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <p id="notify-status-${uid}" class="text-xs text-slate-500"></p>
+                  <button onclick="sendNotification('${uid}')" class="inline-flex items-center gap-2 rounded-xl bg-indigo-500/20 px-3 py-2 text-xs font-semibold text-indigo-100 hover:bg-indigo-500/30">
+                    <i class="fa-solid fa-bell"></i> Send notification
+                  </button>
+                </div>
+              </div>
             </div>
           `;
           resultsDiv.appendChild(div);
@@ -2687,6 +2710,46 @@
       firebase.database().ref(`users/${uid}`).remove().then(() => {
         showToast('🗑️ User deleted');
         searchUsers();
+      });
+    }
+
+    function sendNotification(uid) {
+      const titleEl = document.getElementById(`notify-title-${uid}`);
+      const messageEl = document.getElementById(`notify-message-${uid}`);
+      const statusEl = document.getElementById(`notify-status-${uid}`);
+
+      if (!messageEl) return;
+      const message = (messageEl.value || '').trim();
+      const title = (titleEl?.value || '').trim() || 'Update';
+
+      if (!message) {
+        if (statusEl) {
+          statusEl.textContent = 'Please enter a message.';
+          statusEl.classList.remove('text-emerald-400');
+          statusEl.classList.add('text-rose-400');
+        }
+        return;
+      }
+
+      const notifRef = firebase.database().ref(`notifications/${uid}`).push();
+      notifRef.set({
+        title,
+        message,
+        createdAt: firebase.database.ServerValue.TIMESTAMP,
+        read: false
+      }).then(() => {
+        if (statusEl) {
+          statusEl.textContent = 'Notification sent ✅';
+          statusEl.classList.remove('text-rose-400');
+          statusEl.classList.add('text-emerald-400');
+        }
+        messageEl.value = '';
+      }).catch((error) => {
+        if (statusEl) {
+          statusEl.textContent = `Failed to send: ${error.message}`;
+          statusEl.classList.remove('text-emerald-400');
+          statusEl.classList.add('text-rose-400');
+        }
       });
     }
 
