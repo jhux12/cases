@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (toolbarDesktop) toolbarDesktop.classList.add("hidden");
         if (balanceContainer) balanceContainer.classList.add("hidden");
         if (balanceMobileHeader) balanceMobileHeader.classList.add("hidden");
-        if (toolbarMobile) toolbarMobile.classList.add("hidden");
+        if (toolbarMobile) toolbarMobile.classList.remove("hidden");
         if (balanceMobileDrawer) balanceMobileDrawer.classList.add("hidden");
         if (topupBtn) topupBtn.classList.add("hidden");
         if (topupMobileHeader) topupMobileHeader.classList.add("hidden");

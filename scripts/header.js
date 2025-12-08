@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <button id="theme-toggle-mobile-standalone" class="theme-toggle mr-3" type="button" aria-label="Toggle dark mode">
               <i class="fas fa-moon"></i>
             </button>
-            <div id="user-toolbar-mobile" class="user-toolbar hidden mr-3">
+            <div id="user-toolbar-mobile" class="user-toolbar mr-3">
               <div id="user-balance-mobile-header" class="hidden balance-chip items-center gap-2 px-2.5 py-1 text-white">
                 <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
                   <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 object-contain" alt="Gems" />
@@ -96,13 +96,10 @@ document.addEventListener("DOMContentLoaded", () => {
               <button id="notification-bell-mobile" class="notification-button hidden" aria-label="Notifications">
                 <i class="fas fa-bell"></i>
               </button>
+              <button id="menu-toggle" type="button" class="menu-toggle-button" aria-expanded="false" aria-label="Open main menu">
+                <i class="fas fa-bars"></i>
+              </button>
             </div>
-            <button id="menu-toggle" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none" aria-expanded="false">
-              <span class="sr-only">Open main menu</span>
-              <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
           </div>
         </div>
       </div>
