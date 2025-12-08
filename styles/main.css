@@ -1831,6 +1831,12 @@ html {
   -webkit-text-fill-color: transparent;
 }
 
+.gradient-text.logo-animate {
+  background-image: linear-gradient(120deg, var(--accent-strong), var(--accent-soft), #22d3ee);
+  background-size: 260% 260%;
+  animation: logo-flow 5.5s ease-in-out infinite;
+}
+
 .crazy-bottom-nav {
   background: rgba(17, 17, 23, 0.8);
   backdrop-filter: blur(10px);
