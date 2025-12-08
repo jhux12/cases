@@ -53,9 +53,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 <button id="theme-toggle-desktop-chip" class="theme-toggle chip-toggle hidden" type="button" aria-label="Toggle dark mode">
                   <i class="fas fa-moon"></i>
                 </button>
-                <button id="notification-bell" class="notification-button hidden" aria-label="Notifications">
-                  <i class="fas fa-bell"></i>
-                </button>
+            <button id="notification-bell" class="notification-button hidden" aria-label="Notifications">
+              <i class="fas fa-bell"></i>
+              <span class="notification-indicator hidden" aria-hidden="true"></span>
+            </button>
               </div>
               <div class="ml-2 relative flex-shrink-0">
                 <button id="dropdown-toggle" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-50 focus:outline-none">
@@ -87,9 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
                 <button id="topup-button-mobile-header" class="topup-chip hidden">+</button>
               </div>
-              <button id="notification-bell-mobile" class="notification-button hidden" aria-label="Notifications">
-                <i class="fas fa-bell"></i>
-              </button>
+          <button id="notification-bell-mobile" class="notification-button hidden" aria-label="Notifications">
+            <i class="fas fa-bell"></i>
+            <span class="notification-indicator hidden" aria-hidden="true"></span>
+          </button>
               <button id="menu-toggle" type="button" class="menu-toggle-button" aria-expanded="false" aria-label="Open main menu">
                 <i class="fas fa-bars"></i>
               </button>
@@ -138,6 +140,22 @@ document.addEventListener("DOMContentLoaded", () => {
             <a id="mobile-register-button" href="auth.html#register" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Register</a>
           </div>
         </div>
+      </div>
+      <div id="notification-panel" class="notification-panel hidden" role="region" aria-label="Notifications">
+        <div class="notification-panel__header">
+          <div>
+            <p class="notification-panel__title">Notifications</p>
+            <p class="notification-panel__subtitle">Stay up to date with site-wide announcements</p>
+          </div>
+          <div class="notification-panel__actions">
+            <button id="notification-clear" class="notification-clear" type="button">Clear all</button>
+            <button id="notification-close" class="notification-close" aria-label="Close notifications">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div id="notification-list" class="notification-list" role="list"></div>
+        <div id="notification-empty" class="notification-empty">You're all caught up! We'll post updates here.</div>
       </div>
     </nav>
   `;

@@ -356,6 +356,52 @@
               </form>
             </div>
 
+            <div class="glass-card space-y-5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-lg font-semibold text-white">Site-wide notifications</h3>
+                  <p class="text-xs text-slate-400">Post announcements that appear under the bell icon for all users.</p>
+                </div>
+                <span class="text-xs uppercase tracking-[0.3em] text-pink-200">Comms</span>
+              </div>
+              <form id="notification-form" class="grid gap-4 md:grid-cols-2">
+                <label class="space-y-1 text-sm text-slate-300 md:col-span-2">
+                  <span>Title</span>
+                  <input id="notification-title" type="text" class="form-input" placeholder="Scheduled maintenance" required />
+                </label>
+                <label class="space-y-1 text-sm text-slate-300 md:col-span-2">
+                  <span>Message</span>
+                  <textarea id="notification-message" class="form-textarea" placeholder="We will be upgrading servers at 2 AM UTC." required></textarea>
+                </label>
+                <label class="space-y-1 text-sm text-slate-300">
+                  <span>Level</span>
+                  <select id="notification-level" class="form-select">
+                    <option value="info">Info</option>
+                    <option value="success">Success</option>
+                    <option value="alert">Alert</option>
+                  </select>
+                </label>
+                <label class="space-y-1 text-sm text-slate-300">
+                  <span>Action label (optional)</span>
+                  <input id="notification-action-label" type="text" class="form-input" placeholder="View details" />
+                </label>
+                <label class="space-y-1 text-sm text-slate-300">
+                  <span>Action link (optional)</span>
+                  <input id="notification-action-link" type="url" class="form-input" placeholder="https://status.primepull.gg" />
+                  <p class="text-xs text-slate-500">Include a full URL if you want to point users to more info.</p>
+                </label>
+                <label class="inline-flex items-center gap-3 rounded-xl border border-slate-800/80 bg-slate-900/60 px-4 py-3 text-xs uppercase tracking-wide text-slate-300">
+                  <input id="notification-open-new-tab" type="checkbox" class="h-4 w-4 rounded border-slate-600 bg-slate-900 text-purple-500 focus:ring-purple-400" />
+                  Open link in new tab
+                </label>
+                <div class="md:col-span-2 flex justify-end">
+                  <button id="notification-submit" type="submit" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 px-5 py-2 text-sm font-semibold">
+                    <i class="fa-solid fa-bell"></i> Post notification
+                  </button>
+                </div>
+              </form>
+            </div>
+
             <div class="grid gap-6 lg:grid-cols-2">
               <div class="glass-card space-y-4">
                 <div class="flex items-center justify-between">
@@ -1035,6 +1081,7 @@
 
   <script>
     const db = firebase.database();
+    const notificationPath = 'notifications/siteWide';
     const caseList = document.getElementById('case-list');
     const vaultList = document.getElementById('vault-list');
     const caseForm = document.getElementById('case-form');
@@ -1065,6 +1112,14 @@
     const supportUnrepliedCount = document.getElementById('support-unreplied-count');
     const supportActiveCount = document.getElementById('support-active-count');
     const supportLastSync = document.getElementById('support-last-sync');
+    const notificationForm = document.getElementById('notification-form');
+    const notificationTitle = document.getElementById('notification-title');
+    const notificationMessage = document.getElementById('notification-message');
+    const notificationLevel = document.getElementById('notification-level');
+    const notificationActionLabel = document.getElementById('notification-action-label');
+    const notificationActionLink = document.getElementById('notification-action-link');
+    const notificationOpenNewTab = document.getElementById('notification-open-new-tab');
+    const notificationSubmit = document.getElementById('notification-submit');
     const statElements = {
       totalCases: document.getElementById('stat-total-cases'),
       pickemCases: document.getElementById('stat-pickem-cases'),
@@ -1165,6 +1220,7 @@
     }
 
     resetPrizesSection();
+    attachNotificationHandler();
 
     function showToast(message) {
       toast.textContent = message;
@@ -1172,6 +1228,73 @@
       setTimeout(() => {
         toast.style.display = 'none';
       }, 3200);
+    }
+
+    function resetNotificationForm() {
+      if (!notificationForm) return;
+      notificationForm.reset();
+      if (notificationLevel) notificationLevel.value = 'info';
+    }
+
+    function attachNotificationHandler() {
+      if (!notificationForm || !notificationSubmit) return;
+
+      notificationForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!notificationTitle || !notificationMessage) return;
+
+        const title = notificationTitle.value.trim();
+        const message = notificationMessage.value.trim();
+        const level = notificationLevel?.value || 'info';
+        const levelLabel = notificationLevel?.selectedOptions?.[0]?.textContent || level;
+        const actionLabel = notificationActionLabel?.value.trim();
+        const actionLink = notificationActionLink?.value.trim();
+        const openInNewTab = Boolean(notificationOpenNewTab?.checked);
+
+        if (!title || !message) {
+          showToast('⚠️ Title and message are required.');
+          return;
+        }
+
+        const hasActionLabel = Boolean(actionLabel);
+        const hasActionLink = Boolean(actionLink);
+        if (hasActionLabel !== hasActionLink) {
+          showToast('⚠️ Add both an action label and link to include a call-to-action.');
+          return;
+        }
+
+        notificationSubmit.disabled = true;
+        notificationSubmit.classList.add('opacity-60');
+        notificationSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Posting…';
+
+        const payload = {
+          title,
+          message,
+          level,
+          levelLabel,
+          createdAt: Date.now(),
+          createdBy: firebase.auth().currentUser?.email || 'admin',
+        };
+
+        if (hasActionLabel && hasActionLink) {
+          payload.actionLabel = actionLabel;
+          payload.actionLink = actionLink;
+          payload.openInNewTab = openInNewTab;
+        }
+
+        try {
+          await firebase.database().ref(notificationPath).push(payload);
+          showToast('✅ Notification posted');
+          resetNotificationForm();
+        } catch (error) {
+          console.error('Failed to post notification', error);
+          alert('Failed to post notification. Please try again.');
+        } finally {
+          notificationSubmit.disabled = false;
+          notificationSubmit.classList.remove('opacity-60');
+          notificationSubmit.innerHTML = '<i class="fa-solid fa-bell"></i> Post notification';
+        }
+      });
     }
 
     function getCaseImage(data) {
