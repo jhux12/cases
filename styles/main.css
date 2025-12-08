@@ -461,6 +461,13 @@ body.dark-mode .balance-chip {
   transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, background-color 0.2s ease;
 }
 
+body.dark-mode .notification-button {
+  border-color: rgba(99, 102, 241, 0.45);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(56, 189, 248, 0.18));
+  box-shadow: 0 14px 28px rgba(59, 130, 246, 0.28);
+  color: #e2e8f0;
+}
+
 .notification-button i {
   font-size: 1rem;
 }
@@ -470,6 +477,11 @@ body.dark-mode .balance-chip {
   box-shadow: 0 16px 32px rgba(59, 130, 246, 0.2);
   color: var(--accent-strong);
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(59, 130, 246, 0.18));
+}
+
+body.dark-mode .notification-button:hover {
+  box-shadow: 0 18px 36px rgba(59, 130, 246, 0.35);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(56, 189, 248, 0.22));
 }
 
 .notification-button:focus-visible {
@@ -501,6 +513,12 @@ body.dark-mode .balance-chip {
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
   padding: 1rem;
   backdrop-filter: blur(12px);
+}
+
+body.dark-mode .notification-center {
+  background: linear-gradient(165deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.88));
+  border-color: rgba(148, 163, 184, 0.28);
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.6);
 }
 
 .notification-center__header {
@@ -551,12 +569,26 @@ body.dark-mode .balance-chip {
   gap: 0.3rem;
 }
 
+body.dark-mode .notification-card {
+  border-color: rgba(148, 163, 184, 0.32);
+  background: linear-gradient(145deg, rgba(99, 102, 241, 0.18), rgba(59, 130, 246, 0.12));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
 .notification-card[data-severity="warning"] {
   background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(239, 68, 68, 0.08));
 }
 
 .notification-card[data-severity="success"] {
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(52, 211, 153, 0.08));
+}
+
+body.dark-mode .notification-card[data-severity="warning"] {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.22), rgba(239, 68, 68, 0.18));
+}
+
+body.dark-mode .notification-card[data-severity="success"] {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(52, 211, 153, 0.18));
 }
 
 .notification-card__title {
@@ -578,6 +610,10 @@ body.dark-mode .balance-chip {
   font-size: 0.85rem;
   color: var(--accent-strong, #7c3aed);
   word-break: break-word;
+}
+
+body.dark-mode .notification-card__link {
+  color: #a5b4fc;
 }
 
 .notification-card__link:hover {
