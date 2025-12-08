@@ -459,6 +459,7 @@ body.dark-mode .balance-chip {
   color: var(--text-primary);
   box-shadow: 0 10px 24px rgba(59, 130, 246, 0.14);
   transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+  position: relative;
 }
 
   .notification-button i {
@@ -467,8 +468,8 @@ body.dark-mode .balance-chip {
 
   .notification-indicator {
     position: absolute;
-    top: -0.1rem;
-    right: -0.35rem;
+    top: -0.4rem;
+    right: -0.4rem;
     min-width: 1.35rem;
     height: 1.35rem;
     padding: 0 0.35rem;
@@ -481,7 +482,8 @@ body.dark-mode .balance-chip {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transform: translate(25%, -25%);
+    z-index: 1;
+    transform: translate(0, 0);
   }
 
   .notification-button:hover {
@@ -503,8 +505,9 @@ body.dark-mode .balance-chip {
     width: min(440px, calc(100% - 1.5rem));
     max-height: calc(100vh - 7rem);
     overflow: hidden;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
+    background: linear-gradient(165deg, #0f172a, #0b1220);
+    color: #e2e8f0;
+    border: 1px solid rgba(148, 163, 184, 0.25);
     border-radius: 18px;
     box-shadow: 0 28px 60px rgba(0, 0, 0, 0.16), 0 12px 24px rgba(59, 130, 246, 0.18);
     backdrop-filter: blur(12px);
@@ -516,7 +519,7 @@ body.dark-mode .balance-chip {
     align-items: center;
     justify-content: space-between;
     padding: 16px 16px 12px;
-    border-bottom: 1px solid var(--card-border);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.22);
     gap: 12px;
   }
 
@@ -528,21 +531,21 @@ body.dark-mode .balance-chip {
 
   .notification-panel__title {
     font-weight: 700;
-    color: var(--text-primary);
+    color: #e2e8f0;
     font-size: 1rem;
     margin: 0;
   }
 
   .notification-panel__subtitle {
     font-size: 0.85rem;
-    color: var(--text-muted);
+    color: #cbd5e1;
     margin: 2px 0 0;
   }
 
   .notification-clear {
-    border: 1px solid var(--card-border);
-    background: var(--surface-hover);
-    color: var(--text-secondary);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
     border-radius: 999px;
     padding: 8px 12px;
     font-weight: 700;
@@ -552,17 +555,17 @@ body.dark-mode .balance-chip {
 
   .notification-clear:hover {
     color: var(--accent-strong);
-    border-color: rgba(59, 130, 246, 0.45);
-    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(99, 102, 241, 0.4);
+    background: rgba(59, 130, 246, 0.14);
   }
 
   .notification-close {
     width: 2.25rem;
     height: 2.25rem;
     border-radius: 999px;
-    border: 1px solid var(--card-border);
-    background: var(--surface-hover);
-    color: var(--text-primary);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -585,9 +588,9 @@ body.dark-mode .balance-chip {
     position: relative;
     padding: 12px 14px;
     border-radius: 14px;
-    border: 1px solid var(--card-border);
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.06), rgba(59, 130, 246, 0.04));
-    color: var(--text-primary);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.14), rgba(79, 70, 229, 0.12));
+    color: #e2e8f0;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
     transition: border-color 0.2s ease, transform 0.2s ease;
   }
@@ -606,7 +609,7 @@ body.dark-mode .balance-chip {
     align-items: center;
     gap: 8px;
     font-size: 0.8rem;
-    color: var(--text-muted);
+    color: #cbd5e1;
     margin-bottom: 6px;
   }
 
@@ -619,7 +622,7 @@ body.dark-mode .balance-chip {
   .notification-message {
     font-size: 0.9rem;
     margin: 0;
-    color: var(--text-secondary);
+    color: #cbd5e1;
   }
 
   .notification-actions {
@@ -631,9 +634,9 @@ body.dark-mode .balance-chip {
 
   .notification-dismiss,
   .notification-remove {
-    border: 1px solid var(--card-border);
-    background: var(--surface-hover);
-    color: var(--text-secondary);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(255, 255, 255, 0.06);
+    color: #e2e8f0;
     border-radius: 10px;
     padding: 8px 12px;
     font-weight: 700;
@@ -648,8 +651,8 @@ body.dark-mode .balance-chip {
   .notification-dismiss:hover,
   .notification-remove:hover {
     color: var(--accent-strong);
-    border-color: rgba(59, 130, 246, 0.45);
-    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(99, 102, 241, 0.45);
+    background: rgba(59, 130, 246, 0.12);
   }
 
   .notification-link {
@@ -658,9 +661,9 @@ body.dark-mode .balance-chip {
     gap: 6px;
     padding: 8px 12px;
     border-radius: 10px;
-    border: 1px solid var(--card-border);
-    color: var(--accent-strong);
-    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.45);
+    color: #bfdbfe;
+    background: rgba(59, 130, 246, 0.16);
     font-weight: 600;
     transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   }
@@ -668,7 +671,7 @@ body.dark-mode .balance-chip {
   .notification-link:hover {
     transform: translateY(-1px);
     box-shadow: 0 10px 20px rgba(59, 130, 246, 0.16);
-    border-color: rgba(59, 130, 246, 0.5);
+    border-color: rgba(99, 102, 241, 0.55);
   }
 
   .notification-badge {
@@ -689,9 +692,9 @@ body.dark-mode .balance-chip {
   .notification-empty {
     padding: 16px;
     text-align: center;
-    color: var(--text-muted);
+    color: #cbd5e1;
     font-size: 0.9rem;
-    border-top: 1px dashed var(--card-border);
+    border-top: 1px dashed rgba(148, 163, 184, 0.35);
   }
 
   @media (max-width: 768px) {
