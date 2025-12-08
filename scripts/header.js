@@ -69,9 +69,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 <button id="theme-toggle-desktop-chip" class="theme-toggle chip-toggle hidden" type="button" aria-label="Toggle dark mode">
                   <i class="fas fa-moon"></i>
                 </button>
-                <button id="notification-bell" class="notification-button hidden" aria-label="Notifications">
-                  <i class="fas fa-bell"></i>
-                </button>
+                <div class="relative">
+                  <button id="notification-bell" class="notification-button hidden" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span id="notification-badge" class="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-rose-500 border-2 border-white dark:border-slate-900 hidden"></span>
+                  </button>
+                  <div id="notification-menu" class="hidden absolute right-0 mt-3 w-80 rounded-xl border border-gray-200/80 bg-white text-gray-900 shadow-lg ring-1 ring-black/5 dark:border-slate-700/80 dark:bg-slate-900 dark:text-slate-100">
+                    <div class="p-3 border-b border-gray-100/80 dark:border-slate-800">
+                      <div class="flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-slate-100">
+                        <i class="fas fa-bell text-indigo-500"></i>
+                        Notifications
+                      </div>
+                      <p class="mt-1 text-xs text-gray-600 dark:text-slate-300">Stay up to date with the latest announcements.</p>
+                    </div>
+                    <div id="notification-list" class="max-h-80 overflow-y-auto p-3 space-y-3 text-sm text-gray-800 dark:text-slate-100">
+                      <div class="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-3 text-xs font-medium text-gray-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200">No notifications yet.</div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="ml-2 relative flex-shrink-0">
                 <button id="dropdown-toggle" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-50 focus:outline-none">
@@ -103,9 +118,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
                 <button id="topup-button-mobile-header" class="topup-chip hidden">+</button>
               </div>
-              <button id="notification-bell-mobile" class="notification-button hidden" aria-label="Notifications">
-                <i class="fas fa-bell"></i>
-              </button>
+              <div class="relative">
+                <button id="notification-bell-mobile" class="notification-button hidden" aria-label="Notifications">
+                  <i class="fas fa-bell"></i>
+                  <span id="notification-badge-mobile" class="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-rose-500 border-2 border-white dark:border-slate-900 hidden"></span>
+                </button>
+                <div id="notification-menu-mobile" class="hidden absolute right-0 mt-3 w-[18rem] rounded-xl border border-gray-200/80 bg-white text-gray-900 shadow-lg ring-1 ring-black/5 dark:border-slate-700/80 dark:bg-slate-900 dark:text-slate-100">
+                  <div class="p-3 border-b border-gray-100/80 dark:border-slate-800">
+                    <div class="flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-slate-100">
+                      <i class="fas fa-bell text-indigo-500"></i>
+                      Notifications
+                    </div>
+                    <p class="mt-1 text-xs text-gray-600 dark:text-slate-300">Stay up to date with the latest announcements.</p>
+                  </div>
+                  <div id="notification-list-mobile" class="max-h-80 overflow-y-auto p-3 space-y-3 text-sm text-gray-800 dark:text-slate-100">
+                    <div class="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-3 text-xs font-medium text-gray-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200">No notifications yet.</div>
+                  </div>
+                </div>
+              </div>
               <button id="menu-toggle" type="button" class="menu-toggle-button" aria-expanded="false" aria-label="Open main menu">
                 <i class="fas fa-bars"></i>
               </button>
@@ -164,6 +194,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const siteNoticeCta = document.getElementById("site-notice-cta");
   const siteNoticePill = document.getElementById("site-notice-pill");
   const siteNoticeClose = document.getElementById("site-notice-close");
+  const notificationBadge = document.getElementById("notification-badge");
+  const notificationBadgeMobile = document.getElementById("notification-badge-mobile");
+  const notificationMenu = document.getElementById("notification-menu");
+  const notificationMenuMobile = document.getElementById("notification-menu-mobile");
+  const notificationList = document.getElementById("notification-list");
+  const notificationListMobile = document.getElementById("notification-list-mobile");
+  const notificationBell = document.getElementById("notification-bell");
+  const notificationBellMobile = document.getElementById("notification-bell-mobile");
 
   const current = window.location.pathname.split('/').pop() || 'index.html';
   header.querySelectorAll('a[data-nav]').forEach(link => {
@@ -248,6 +286,36 @@ document.addEventListener("DOMContentLoaded", () => {
   let siteNoticeState = null;
   const noticeDismissKey = 'site-notice-dismissed-at';
 
+  const closeNotificationMenus = () => {
+    [notificationMenu, notificationMenuMobile].forEach((menu) => menu?.classList.add('hidden'));
+  };
+
+  const toggleNotificationMenu = (menu) => {
+    if (!menu) return;
+    const shouldOpen = menu.classList.contains('hidden');
+    closeNotificationMenus();
+    if (shouldOpen) menu.classList.remove('hidden');
+  };
+
+  [notificationBell, notificationBellMobile].forEach((btn) => {
+    const targetMenu = btn?.id === 'notification-bell' ? notificationMenu : notificationMenuMobile;
+    btn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleNotificationMenu(targetMenu);
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    if (
+      !notificationMenu?.contains(event.target) &&
+      !notificationBell?.contains(event.target) &&
+      !notificationMenuMobile?.contains(event.target) &&
+      !notificationBellMobile?.contains(event.target)
+    ) {
+      closeNotificationMenus();
+    }
+  });
+
   const hideSiteNotice = () => {
     siteNoticeContainer?.classList.add('hidden');
     siteNoticeState = null;
@@ -281,12 +349,72 @@ document.addEventListener("DOMContentLoaded", () => {
     siteNoticeState = notice;
   };
 
+  const renderNotificationCards = (container, notice) => {
+    if (!container) return;
+    container.innerHTML = '';
+
+    const hasNotice = notice && notice.active && notice.message && !isNoticeDismissed(notice);
+
+    if (!hasNotice) {
+      const empty = document.createElement('div');
+      empty.className = 'rounded-lg border border-dashed border-gray-200 bg-gray-50 p-3 text-xs font-medium text-gray-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200';
+      empty.textContent = 'No notifications yet.';
+      container.appendChild(empty);
+      return;
+    }
+
+    const style = noticeStyles[notice.style] || noticeStyles.info;
+
+    const card = document.createElement('div');
+    card.className = 'space-y-2 rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-sm dark:border-slate-700 dark:bg-slate-800/70';
+
+    const headerRow = document.createElement('div');
+    headerRow.className = 'flex items-center justify-between gap-3';
+
+    const label = document.createElement('span');
+    label.className = `inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold ${style.pill}`;
+    label.innerHTML = `<i class="fas ${style.icon}"></i> ${style.label}`;
+
+    const created = document.createElement('span');
+    created.className = 'text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-300';
+    created.textContent = 'Announcement';
+
+    headerRow.append(label, created);
+
+    const message = document.createElement('p');
+    message.className = 'text-sm font-medium leading-relaxed text-gray-900 dark:text-slate-100';
+    message.textContent = notice.message;
+
+    card.append(headerRow, message);
+
+    if (notice.ctaText && notice.ctaUrl) {
+      const cta = document.createElement('a');
+      cta.className = 'inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 underline decoration-2 underline-offset-4 hover:text-indigo-700 dark:text-indigo-200 dark:hover:text-indigo-100';
+      cta.href = notice.ctaUrl;
+      cta.target = '_blank';
+      cta.rel = 'noopener';
+      cta.textContent = notice.ctaText;
+      cta.insertAdjacentHTML('beforeend', '<i class="fas fa-arrow-up-right-from-square text-[11px]"></i>');
+      card.appendChild(cta);
+    }
+
+    container.appendChild(card);
+  };
+
   const renderSiteNotice = (notice) => {
     if (!notice || !notice.active || !notice.message || isNoticeDismissed(notice)) {
       hideSiteNotice();
+      renderNotificationCards(notificationList, null);
+      renderNotificationCards(notificationListMobile, null);
+      notificationBadge?.classList.add('hidden');
+      notificationBadgeMobile?.classList.add('hidden');
       return;
     }
     showSiteNotice(notice);
+    renderNotificationCards(notificationList, notice);
+    renderNotificationCards(notificationListMobile, notice);
+    notificationBadge?.classList.remove('hidden');
+    notificationBadgeMobile?.classList.remove('hidden');
   };
 
   siteNoticeClose?.addEventListener('click', () => {
@@ -294,6 +422,10 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem(noticeDismissKey, String(siteNoticeState.createdAt));
     }
     hideSiteNotice();
+    renderNotificationCards(notificationList, null);
+    renderNotificationCards(notificationListMobile, null);
+    notificationBadge?.classList.add('hidden');
+    notificationBadgeMobile?.classList.add('hidden');
   });
 
   const initSiteNotice = () => {
