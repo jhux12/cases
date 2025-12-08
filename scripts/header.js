@@ -106,18 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
           <a data-nav="rewards.html" href="rewards.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-gift mr-2"></i>Rewards</a>
         </div>
         <div class="pt-4 pb-3 border-t border-gray-200">
-          <div id="user-balance-mobile-drawer" class="hidden balance-chip items-center justify-between px-3.5 py-1.5 text-sm text-white mx-4 mb-3">
-            <div class="flex items-center gap-3">
-              <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
-                <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 object-contain" alt="Gems" />
-              </div>
-              <div class="flex flex-col leading-tight">
-                <span id="balance-amount-mobile-dropdown" class="balance-amount text-xs">0</span>
-                <span class="balance-label">gems</span>
-              </div>
-            </div>
-            <button id="topup-button-mobile-drawer" class="topup-chip hidden">+</button>
-          </div>
           <div class="px-4 mb-3">
             <button id="theme-toggle-mobile-menu" class="theme-toggle menu-entry w-full" type="button" aria-label="Toggle dark mode">
               <div class="flex items-center gap-3">
