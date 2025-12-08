@@ -34,6 +34,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const toolbarMobile = document.getElementById("user-toolbar-mobile");
     const notificationBell = document.getElementById("notification-bell");
     const notificationBellMobile = document.getElementById("notification-bell-mobile");
+    const notificationPanel = document.getElementById("notification-center");
+    const notificationList = document.getElementById("notification-list");
+    const notificationIndicator = document.getElementById("notification-indicator");
+    const notificationIndicatorMobile = document.getElementById("notification-indicator-mobile");
+    const dismissNotifications = document.getElementById("dismiss-notifications");
     const themeToggleStandaloneDesktop = document.getElementById("theme-toggle-desktop-standalone");
     const themeToggleChipDesktop = document.getElementById("theme-toggle-desktop-chip");
     const mobileInventoryLink = document.getElementById("mobile-inventory-link");
@@ -65,6 +70,132 @@ document.addEventListener("DOMContentLoaded", () => {
 
       let userRef;
       let handler;
+      let unsubscribeNotifications;
+      let latestNotificationTimestamp = 0;
+      let lastSeenTimestamp = Number(localStorage.getItem("packly-last-notification") || 0);
+      let notificationCache = [];
+
+      const updateNotificationBadge = (items = []) => {
+        const unread = items.filter((item) => (item.createdAt || 0) > lastSeenTimestamp).length;
+        const toggle = (el) => {
+          if (!el) return;
+          el.classList.toggle("hidden", unread === 0);
+        };
+        toggle(notificationIndicator);
+        toggle(notificationIndicatorMobile);
+      };
+
+      const renderNotifications = (items = []) => {
+        if (!notificationList) return;
+        notificationList.innerHTML = "";
+
+        if (!items.length) {
+          notificationCache = [];
+          notificationList.innerHTML = '<p class="notification-empty">No notifications yet.</p>';
+          updateNotificationBadge([]);
+          return;
+        }
+
+        notificationCache = items;
+        items.forEach((item) => {
+          const card = document.createElement("article");
+          card.className = "notification-card";
+          card.dataset.severity = item.severity || "info";
+
+          const header = document.createElement("div");
+          header.className = "flex items-center justify-between gap-3";
+          const title = document.createElement("p");
+          title.className = "notification-card__title";
+          title.textContent = item.title || "Update";
+          const meta = document.createElement("span");
+          meta.className = "notification-card__meta";
+          meta.textContent = item.createdAt ? new Date(item.createdAt).toLocaleString() : "";
+          header.appendChild(title);
+          header.appendChild(meta);
+
+          const body = document.createElement("p");
+          body.className = "notification-card__body";
+          body.textContent = item.body || "";
+
+          card.appendChild(header);
+          card.appendChild(body);
+
+          if (item.link) {
+            const link = document.createElement("a");
+            link.className = "notification-card__link";
+            link.href = item.link;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = item.link;
+            card.appendChild(link);
+          }
+
+          notificationList.appendChild(card);
+        });
+
+        updateNotificationBadge(items);
+      };
+
+      const attachNotificationStream = () => {
+        if (unsubscribeNotifications || !notificationList) return;
+        const ref = firebase.database().ref("notifications").orderByChild("createdAt").limitToLast(25);
+        const listener = ref.on("value", (snap) => {
+          const notifications = [];
+          snap.forEach((child) => {
+            notifications.push({ id: child.key, ...(child.val() || {}) });
+          });
+          notifications.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          latestNotificationTimestamp = notifications[0]?.createdAt || 0;
+          renderNotifications(notifications);
+        });
+        unsubscribeNotifications = () => ref.off("value", listener);
+      };
+
+      const hideNotificationPanel = () => {
+        if (notificationPanel) notificationPanel.classList.add("hidden");
+      };
+
+      const openNotificationPanel = () => {
+        if (!notificationPanel) return;
+        notificationPanel.classList.remove("hidden");
+        lastSeenTimestamp = latestNotificationTimestamp || Date.now();
+        localStorage.setItem("packly-last-notification", String(lastSeenTimestamp));
+        updateNotificationBadge(notificationCache);
+      };
+
+      const toggleNotificationPanel = (event) => {
+        event?.stopPropagation();
+        if (!notificationPanel) return;
+        if (notificationPanel.classList.contains("hidden")) {
+          openNotificationPanel();
+        } else {
+          hideNotificationPanel();
+        }
+      };
+
+      [notificationBell, notificationBellMobile].forEach((btn) => {
+        if (!btn) return;
+        btn.addEventListener("click", toggleNotificationPanel);
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!notificationPanel || notificationPanel.classList.contains("hidden")) return;
+        if (
+          !notificationPanel.contains(event.target) &&
+          !notificationBell?.contains(event.target) &&
+          !notificationBellMobile?.contains(event.target)
+        ) {
+          hideNotificationPanel();
+        }
+      });
+
+      if (dismissNotifications) {
+        dismissNotifications.addEventListener("click", () => {
+          lastSeenTimestamp = latestNotificationTimestamp || Date.now();
+          localStorage.setItem("packly-last-notification", String(lastSeenTimestamp));
+          updateNotificationBadge(notificationCache);
+        });
+      }
 
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -98,6 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (topupMobileDrawer) topupMobileDrawer.classList.remove("hidden");
         if (notificationBell) notificationBell.classList.remove("hidden");
         if (notificationBellMobile) notificationBellMobile.classList.remove("hidden");
+        attachNotificationStream();
         if (themeToggleStandaloneDesktop) themeToggleStandaloneDesktop.classList.add("hidden");
         if (themeToggleChipDesktop) themeToggleChipDesktop.classList.remove("hidden");
         if (mobileRegisterBtn) mobileRegisterBtn.classList.add("hidden");
@@ -150,6 +282,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (topupMobileDrawer) topupMobileDrawer.classList.add("hidden");
         if (notificationBell) notificationBell.classList.add("hidden");
         if (notificationBellMobile) notificationBellMobile.classList.add("hidden");
+        hideNotificationPanel();
+        if (unsubscribeNotifications) {
+          unsubscribeNotifications();
+          unsubscribeNotifications = null;
+        }
         if (themeToggleStandaloneDesktop) themeToggleStandaloneDesktop.classList.remove("hidden");
         if (themeToggleChipDesktop) themeToggleChipDesktop.classList.add("hidden");
         if (mobileRegisterBtn) mobileRegisterBtn.classList.remove("hidden");

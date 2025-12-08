@@ -158,6 +158,7 @@
         <button type="button" data-section="shipments" class="admin-nav-link"><i class="fa-solid fa-truck"></i>Shipments</button>
         <button type="button" data-section="support" class="admin-nav-link"><i class="fa-solid fa-inbox"></i>Support Inbox</button>
         <button type="button" data-section="users" class="admin-nav-link"><i class="fa-solid fa-users"></i>User Directory</button>
+        <button type="button" data-section="notifications" class="admin-nav-link"><i class="fa-solid fa-bell"></i>Notifications</button>
         <button type="button" data-section="marketplace" class="admin-nav-link"><i class="fa-solid fa-store"></i>Marketplace</button>
         <button type="button" data-section="quests" class="admin-nav-link"><i class="fa-solid fa-list-check"></i>Weekly Quests</button>
         <button type="button" data-section="rewards" class="admin-nav-link"><i class="fa-solid fa-circle-notch"></i>Rewards Wheel</button>
@@ -192,6 +193,7 @@
             <button type="button" data-section="shipments" class="admin-nav-link"><i class="fa-solid fa-truck"></i>Shipments</button>
             <button type="button" data-section="support" class="admin-nav-link"><i class="fa-solid fa-inbox"></i>Support</button>
             <button type="button" data-section="users" class="admin-nav-link"><i class="fa-solid fa-users"></i>Users</button>
+            <button type="button" data-section="notifications" class="admin-nav-link"><i class="fa-solid fa-bell"></i>Notifications</button>
           </div>
         </div>
       </header>
@@ -373,6 +375,66 @@
                 </div>
                 <div id="recent-support" class="space-y-3 text-sm text-slate-300">
                   <p class="text-slate-500">No support requests yet.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="notifications-section" class="hidden space-y-8">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div>
+                <h2 class="text-3xl font-semibold text-white">Sitewide notifications</h2>
+                <p class="text-slate-400 text-sm max-w-2xl">Broadcast important updates to every signed-in user and manage the live message feed.</p>
+              </div>
+              <div class="glass-card max-w-sm w-full space-y-1">
+                <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Last broadcast</p>
+                <p id="notification-last-sent" class="text-lg font-semibold text-white">--</p>
+                <p class="text-xs text-slate-500">Newest notification timestamp</p>
+              </div>
+            </div>
+
+            <div class="grid gap-6 lg:grid-cols-2">
+              <div class="glass-card space-y-4">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-lg font-semibold text-white">Send notification</h3>
+                  <span class="text-xs uppercase tracking-[0.3em] text-indigo-300">Sitewide</span>
+                </div>
+                <form id="notification-form" class="space-y-4">
+                  <div class="space-y-1">
+                    <label class="text-xs uppercase tracking-wide text-slate-400" for="notification-title">Title</label>
+                    <input id="notification-title" type="text" class="form-input" placeholder="Maintenance window" required>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs uppercase tracking-wide text-slate-400" for="notification-body">Message</label>
+                    <textarea id="notification-body" class="form-textarea" placeholder="We're shipping an update tonight at 9PM UTC." required></textarea>
+                  </div>
+                  <div class="grid gap-3 md:grid-cols-2">
+                    <div class="space-y-1">
+                      <label class="text-xs uppercase tracking-wide text-slate-400" for="notification-severity">Tone</label>
+                      <select id="notification-severity" class="form-select">
+                        <option value="info">Info</option>
+                        <option value="success">Success</option>
+                        <option value="warning">Warning</option>
+                      </select>
+                    </div>
+                    <div class="space-y-1">
+                      <label class="text-xs uppercase tracking-wide text-slate-400" for="notification-link">Optional link</label>
+                      <input id="notification-link" type="url" class="form-input" placeholder="https://status.packly.gg">
+                    </div>
+                  </div>
+                  <div class="flex justify-end">
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-pink-500 px-5 py-2 text-sm font-semibold">
+                      <i class="fa-solid fa-paper-plane"></i> Send notification
+                    </button>
+                  </div>
+                </form>
+              </div>
+              <div class="glass-card space-y-4">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-lg font-semibold text-white">Recent notifications</h3>
+                  <span id="notifications-last-sync" class="text-xs uppercase tracking-[0.3em] text-slate-500">Waiting…</span>
+                </div>
+                <div id="notification-admin-list" class="space-y-3 text-sm">
+                  <p class="text-slate-500">No notifications published yet.</p>
                 </div>
               </div>
             </div>
@@ -1065,6 +1127,10 @@
     const supportUnrepliedCount = document.getElementById('support-unreplied-count');
     const supportActiveCount = document.getElementById('support-active-count');
     const supportLastSync = document.getElementById('support-last-sync');
+    const notificationForm = document.getElementById('notification-form');
+    const notificationAdminList = document.getElementById('notification-admin-list');
+    const notificationLastSent = document.getElementById('notification-last-sent');
+    const notificationsLastSync = document.getElementById('notifications-last-sync');
     const statElements = {
       totalCases: document.getElementById('stat-total-cases'),
       pickemCases: document.getElementById('stat-pickem-cases'),
@@ -1085,7 +1151,7 @@
       Shipped: document.getElementById('shipments-shipped')
     };
 
-    const sectionIds = ['overview', 'cases', 'shipments', 'support', 'users', 'marketplace', 'quests', 'rewards'];
+    const sectionIds = ['overview', 'cases', 'shipments', 'support', 'users', 'notifications', 'marketplace', 'quests', 'rewards'];
 
     let casesData = [];
     let vaultsData = [];
@@ -1254,6 +1320,33 @@
       });
     }
 
+    notificationForm?.addEventListener('submit', e => {
+      e.preventDefault();
+      const title = document.getElementById('notification-title')?.value.trim();
+      const body = document.getElementById('notification-body')?.value.trim();
+      const severity = document.getElementById('notification-severity')?.value || 'info';
+      const link = document.getElementById('notification-link')?.value.trim();
+
+      if (!title || !body) return alert('Please add a title and message.');
+
+      const payload = {
+        title,
+        body,
+        severity,
+        createdAt: Date.now(),
+        createdBy: firebase.auth().currentUser?.email || 'admin'
+      };
+
+      if (link) payload.link = link;
+
+      firebase.database().ref('notifications').push(payload).then(() => {
+        showToast('✅ Notification sent');
+        notificationForm.reset();
+        const severitySelect = document.getElementById('notification-severity');
+        if (severitySelect) severitySelect.value = 'info';
+      });
+    });
+
     function updateSyncStamp(key) {
       if (syncLabels[key]) {
         syncLabels[key].textContent = new Date().toLocaleTimeString();
@@ -1264,6 +1357,94 @@
       if (statElements[key]) {
         statElements[key].textContent = value;
       }
+    }
+
+    function renderAdminNotifications(items) {
+      if (!notificationAdminList) return;
+      notificationAdminList.innerHTML = '';
+
+      if (!items.length) {
+        notificationAdminList.innerHTML = '<p class="text-slate-500">No notifications published yet.</p>';
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'glass-subcard space-y-2';
+
+        const header = document.createElement('div');
+        header.className = 'flex items-start justify-between gap-3';
+
+        const titleBlock = document.createElement('div');
+        const title = document.createElement('p');
+        title.className = 'text-sm font-semibold text-white';
+        title.textContent = item.title || 'Notification';
+        const meta = document.createElement('p');
+        meta.className = 'text-xs text-slate-400';
+        const metaParts = [];
+        if (item.createdAt) metaParts.push(new Date(item.createdAt).toLocaleString());
+        if (item.createdBy) metaParts.push(item.createdBy);
+        meta.textContent = metaParts.join(' • ');
+        titleBlock.appendChild(title);
+        titleBlock.appendChild(meta);
+
+        const actions = document.createElement('div');
+        actions.className = 'flex items-center gap-2';
+        const severity = document.createElement('span');
+        severity.className = 'text-xs px-2 py-1 rounded-full bg-slate-800/70 text-slate-200 capitalize';
+        severity.textContent = item.severity || 'info';
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'text-xs text-rose-300 hover:text-rose-200';
+        removeBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+        removeBtn.addEventListener('click', () => {
+          if (confirm('Delete this notification for everyone?')) {
+            firebase.database().ref('notifications/' + item.key).remove().then(() => showToast('🗑️ Notification deleted'));
+          }
+        });
+        actions.appendChild(severity);
+        actions.appendChild(removeBtn);
+
+        header.appendChild(titleBlock);
+        header.appendChild(actions);
+
+        const body = document.createElement('p');
+        body.className = 'text-sm text-slate-200';
+        body.textContent = item.body || '';
+
+        card.appendChild(header);
+        card.appendChild(body);
+
+        if (item.link) {
+          const link = document.createElement('a');
+          link.href = item.link;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.className = 'text-xs text-indigo-300 hover:text-indigo-200 break-all';
+          link.textContent = item.link;
+          card.appendChild(link);
+        }
+
+        notificationAdminList.appendChild(card);
+      });
+    }
+
+    function loadNotificationsAdmin() {
+      if (!notificationAdminList) return;
+      const ref = firebase.database().ref('notifications').orderByChild('createdAt').limitToLast(50);
+      ref.on('value', snap => {
+        const items = [];
+        snap.forEach(child => {
+          items.push({ key: child.key, ...(child.val() || {}) });
+        });
+        items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        if (notificationLastSent) {
+          const latest = items[0]?.createdAt;
+          notificationLastSent.textContent = latest ? new Date(latest).toLocaleString() : '--';
+        }
+        if (notificationsLastSync) notificationsLastSync.textContent = new Date().toLocaleTimeString();
+        renderAdminNotifications(items);
+      });
     }
 
     function showSection(id) {
@@ -2741,6 +2922,7 @@
       loadCases();
       loadShipments();
       loadSupportForms();
+      loadNotificationsAdmin();
       loadMarketplaceItems();
       loadQuestConfig();
       loadWheelRewards();
