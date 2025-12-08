@@ -174,6 +174,23 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
+    [notificationBell, notificationBellMobile].forEach((btn) => {
+      if (!btn) return;
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleNotificationDropdown();
+      });
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!notificationDropdown) return;
+      const clickedBell =
+        notificationBell?.contains(e.target) || notificationBellMobile?.contains(e.target);
+      if (!notificationDropdown.contains(e.target) && !clickedBell) {
+        closeNotificationDropdown();
+      }
+    });
+
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         userRef = firebase.database().ref("users/" + user.uid);
@@ -282,39 +299,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
- // Top-up popup toggle
+  // Top-up popup toggle
   waitForElement("#topup-button", () => {
     waitForElement("#topup-popup", () => {
       const topupPopup = document.getElementById("topup-popup");
-    const topupDesktop = document.getElementById("topup-button");
-    const topupMobileHeader = document.getElementById("topup-button-mobile-header");
-    const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
+      const topupDesktop = document.getElementById("topup-button");
+      const topupMobileHeader = document.getElementById("topup-button-mobile-header");
+      const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
 
-    const openTopup = () => {
-      topupPopup.classList.remove("hidden");
-    };
+      const openTopup = () => {
+        topupPopup.classList.remove("hidden");
+      };
 
-    if (topupDesktop) topupDesktop.addEventListener("click", openTopup);
-    if (topupMobileHeader) topupMobileHeader.addEventListener("click", openTopup);
-    if (topupMobileDrawer) topupMobileDrawer.addEventListener("click", openTopup);
-  });
-});
-
-  [notificationBell, notificationBellMobile].forEach((btn) => {
-    if (!btn) return;
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleNotificationDropdown();
+      if (topupDesktop) topupDesktop.addEventListener("click", openTopup);
+      if (topupMobileHeader) topupMobileHeader.addEventListener("click", openTopup);
+      if (topupMobileDrawer) topupMobileDrawer.addEventListener("click", openTopup);
     });
   });
 
-  document.addEventListener("click", (e) => {
-    if (!notificationDropdown) return;
-    const clickedBell = notificationBell?.contains(e.target) || notificationBellMobile?.contains(e.target);
-    if (!notificationDropdown.contains(e.target) && !clickedBell) {
-      closeNotificationDropdown();
-    }
-  });
   // Dropdown toggle
   waitForElement("#dropdown-toggle", () => {
     const dropdownToggle = document.getElementById("dropdown-toggle");
