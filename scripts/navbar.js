@@ -12,6 +12,304 @@ document.addEventListener("DOMContentLoaded", () => {
     observer.observe(document.body, { childList: true, subtree: true });
   };
 
+  const NOTIFICATION_STORAGE_KEY = "packly-seen-notifications";
+  const NOTIFICATION_DISMISS_KEY = "packly-dismissed-notifications";
+  const NOTIFICATION_PATH = "notifications/siteWide";
+  const seenNotificationIds = (() => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(NOTIFICATION_STORAGE_KEY) || "[]"));
+    } catch (e) {
+      console.warn("Unable to read stored notifications", e);
+      return new Set();
+    }
+  })();
+
+  const dismissedNotificationIds = (() => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(NOTIFICATION_DISMISS_KEY) || "[]"));
+    } catch (e) {
+      console.warn("Unable to read dismissed notifications", e);
+      return new Set();
+    }
+  })();
+
+  let notificationPanel;
+  let notificationList;
+  let notificationEmpty;
+  let notificationClose;
+  let notificationClear;
+  let notificationIndicators = [];
+  let notificationBells = [];
+  let notificationRef;
+  let notificationHandler;
+  let notificationInitialized = false;
+  let currentNotifications = [];
+  let latestNotifications = [];
+  let isAdminUser = false;
+
+  const persistSeenNotifications = () => {
+    localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify([...seenNotificationIds]));
+  };
+
+  const persistDismissedNotifications = () => {
+    localStorage.setItem(NOTIFICATION_DISMISS_KEY, JSON.stringify([...dismissedNotificationIds]));
+  };
+
+  const setNotificationIndicator = (unreadCount) => {
+    notificationIndicators.forEach((el) => {
+      const shouldShow = unreadCount > 0;
+      el.classList.toggle("hidden", !shouldShow);
+      el.textContent = shouldShow ? (unreadCount > 99 ? "99+" : unreadCount) : "";
+    });
+  };
+
+  const markNotificationsAsSeen = (notifications) => {
+    let updated = false;
+    notifications.forEach(({ id }) => {
+      if (!seenNotificationIds.has(id)) {
+        seenNotificationIds.add(id);
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      persistSeenNotifications();
+      const unreadCount = latestNotifications.filter(
+        (notification) => !seenNotificationIds.has(notification.id) && !dismissedNotificationIds.has(notification.id)
+      ).length;
+      setNotificationIndicator(unreadCount);
+    }
+  };
+
+  const formatNotificationTimestamp = (timestamp) => {
+    if (!timestamp) return "Just now";
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return "Just now";
+    return date.toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  };
+
+  const renderNotifications = (notifications) => {
+    currentNotifications = notifications;
+    if (!notificationList || !notificationEmpty) return;
+
+    notificationList.innerHTML = "";
+
+    if (!notifications.length) {
+      notificationEmpty.classList.remove("hidden");
+      return;
+    }
+
+    notificationEmpty.classList.add("hidden");
+
+    notifications.forEach((notification) => {
+      const item = document.createElement("div");
+      item.className = "notification-item";
+
+      const meta = document.createElement("div");
+      meta.className = "notification-meta";
+
+      const badge = document.createElement("span");
+      const level = notification.level || "info";
+      badge.className = `notification-badge ${level}`;
+      badge.textContent = notification.levelLabel || level.charAt(0).toUpperCase() + level.slice(1);
+
+      const time = document.createElement("span");
+      time.textContent = formatNotificationTimestamp(notification.createdAt);
+
+      meta.appendChild(badge);
+      meta.appendChild(time);
+
+      const title = document.createElement("p");
+      title.className = "notification-title";
+      title.textContent = notification.title || "Announcement";
+
+      const message = document.createElement("p");
+      message.className = "notification-message";
+      message.textContent = notification.message || "";
+
+      item.appendChild(meta);
+      item.appendChild(title);
+      item.appendChild(message);
+
+      const actions = document.createElement("div");
+      actions.className = "notification-actions";
+
+      if (notification.actionLabel && notification.actionLink) {
+        const link = document.createElement("a");
+        link.className = "notification-link";
+        link.href = notification.actionLink;
+        link.target = notification.openInNewTab ? "_blank" : "_self";
+        link.rel = "noopener noreferrer";
+        link.textContent = notification.actionLabel;
+
+        const icon = document.createElement("i");
+        icon.className = "fas fa-arrow-up-right-from-square text-xs";
+        link.appendChild(icon);
+
+        actions.appendChild(link);
+      }
+
+      const dismissButton = document.createElement("button");
+      dismissButton.className = "notification-dismiss";
+      dismissButton.type = "button";
+      dismissButton.textContent = "Clear";
+      dismissButton.addEventListener("click", () => dismissNotification(notification.id));
+      actions.appendChild(dismissButton);
+
+      if (isAdminUser) {
+        const removeButton = document.createElement("button");
+        removeButton.className = "notification-remove";
+        removeButton.type = "button";
+        removeButton.textContent = "Remove";
+        removeButton.addEventListener("click", () => removeNotification(notification.id));
+        actions.appendChild(removeButton);
+      }
+
+      if (actions.children.length) {
+        item.appendChild(actions);
+      }
+
+      notificationList.appendChild(item);
+    });
+  };
+
+  const closeNotificationPanel = () => {
+    if (notificationPanel) notificationPanel.classList.add("hidden");
+  };
+
+  const openNotificationPanel = () => {
+    if (!notificationPanel) return;
+    notificationPanel.classList.remove("hidden");
+    markNotificationsAsSeen(currentNotifications);
+  };
+
+  const toggleNotificationPanel = () => {
+    if (!notificationPanel) return;
+    if (notificationPanel.classList.contains("hidden")) {
+      openNotificationPanel();
+    } else {
+      closeNotificationPanel();
+    }
+  };
+
+  const getVisibleNotifications = () =>
+    latestNotifications.filter((notification) => !dismissedNotificationIds.has(notification.id));
+
+  const updateNotificationView = () => {
+    const visibleNotifications = getVisibleNotifications();
+    renderNotifications(visibleNotifications);
+
+    const unreadCount = latestNotifications.filter(
+      (notification) => !seenNotificationIds.has(notification.id) && !dismissedNotificationIds.has(notification.id)
+    ).length;
+
+    setNotificationIndicator(unreadCount);
+  };
+
+  const dismissNotification = (id) => {
+    if (!id) return;
+    dismissedNotificationIds.add(id);
+    persistDismissedNotifications();
+    markNotificationsAsSeen([{ id }]);
+    updateNotificationView();
+  };
+
+  const clearAllNotifications = () => {
+    if (!latestNotifications.length) return;
+
+    latestNotifications.forEach(({ id }) => dismissedNotificationIds.add(id));
+    persistDismissedNotifications();
+    markNotificationsAsSeen(latestNotifications);
+    updateNotificationView();
+  };
+
+  const removeNotification = (id) => {
+    if (!id || !isAdminUser) return;
+    firebase
+      .database()
+      .ref(`${NOTIFICATION_PATH}/${id}`)
+      .remove()
+      .catch((error) => console.error("Failed to remove notification", error));
+  };
+
+  const setupNotificationUi = () => {
+    if (notificationInitialized) return true;
+
+    notificationPanel = document.getElementById("notification-panel");
+    notificationList = document.getElementById("notification-list");
+    notificationEmpty = document.getElementById("notification-empty");
+    notificationClose = document.getElementById("notification-close");
+    notificationClear = document.getElementById("notification-clear");
+    notificationIndicators = Array.from(document.querySelectorAll(".notification-indicator"));
+    notificationBells = [
+      document.getElementById("notification-bell"),
+      document.getElementById("notification-bell-mobile"),
+    ].filter(Boolean);
+
+    if (!notificationPanel || !notificationList || !notificationEmpty || !notificationClose) return false;
+
+    notificationBells.forEach((btn) =>
+      btn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        toggleNotificationPanel();
+      })
+    );
+
+    notificationClose.addEventListener("click", closeNotificationPanel);
+    if (notificationClear) notificationClear.addEventListener("click", clearAllNotifications);
+
+    document.addEventListener("click", (event) => {
+      const isClickInsidePanel = notificationPanel.contains(event.target);
+      const clickedBell = notificationBells.some((btn) => btn.contains(event.target));
+      if (!notificationPanel.classList.contains("hidden") && !isClickInsidePanel && !clickedBell) {
+        closeNotificationPanel();
+      }
+    });
+
+    notificationInitialized = true;
+    return true;
+  };
+
+  const stopNotificationSubscription = () => {
+    if (notificationRef && notificationHandler) {
+      notificationRef.off("value", notificationHandler);
+    }
+    notificationRef = null;
+    notificationHandler = null;
+    currentNotifications = [];
+    latestNotifications = [];
+    if (notificationList) notificationList.innerHTML = "";
+    if (notificationEmpty) notificationEmpty.classList.remove("hidden");
+    setNotificationIndicator(0);
+    closeNotificationPanel();
+  };
+
+  const startNotificationSubscription = () => {
+    if (!setupNotificationUi()) return;
+
+    if (notificationRef && notificationHandler) return;
+
+    notificationRef = firebase.database().ref(NOTIFICATION_PATH);
+    notificationHandler = (snap) => {
+      const data = snap.val() || {};
+      const notifications = Object.entries(data).map(([id, value]) => ({
+        id,
+        ...value,
+      }));
+
+      notifications.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      latestNotifications = notifications;
+      updateNotificationView();
+    };
+
+    notificationRef.on("value", notificationHandler);
+  };
+
   // Firebase user info injection AFTER header is rendered
   waitForElement("#username-display", () => {
     const usernameEl = document.getElementById("username-display");
@@ -75,6 +373,8 @@ document.addEventListener("DOMContentLoaded", () => {
           const username = user.displayName || data.username || user.email;
           const balanceFormatted = Number(balance).toLocaleString();
 
+          isAdminUser = Boolean(data?.isAdmin || data?.admin === true || data?.role === "admin");
+
           usernameEl.innerText = username;
           balanceEl.innerText = balanceFormatted;
           if (balanceMobile) balanceMobile.innerText = balanceFormatted;
@@ -106,6 +406,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         userLinks.forEach((link) => link.classList.remove("hidden"));
 
+        startNotificationSubscription();
+
         if (logoutBtn) {
           logoutBtn.style.display = "block";
           logoutBtn.onclick = (e) => {
@@ -123,6 +425,8 @@ document.addEventListener("DOMContentLoaded", () => {
           };
         }
       } else {
+        isAdminUser = false;
+
         if (userRef && handler) {
           userRef.off("value", handler);
           userRef = null;
@@ -157,6 +461,8 @@ document.addEventListener("DOMContentLoaded", () => {
           if (el) el.classList.add("hidden");
         });
         userLinks.forEach((link) => link.classList.add("hidden"));
+
+        stopNotificationSubscription();
 
         if (logoutBtn) logoutBtn.style.display = "none";
 
