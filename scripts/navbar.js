@@ -35,9 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const notificationBell = document.getElementById("notification-bell");
     const notificationBellMobile = document.getElementById("notification-bell-mobile");
     const themeToggleStandaloneDesktop = document.getElementById("theme-toggle-desktop-standalone");
-    const themeToggleStandaloneMobile = document.getElementById("theme-toggle-mobile-standalone");
     const themeToggleChipDesktop = document.getElementById("theme-toggle-desktop-chip");
-    const themeToggleChipMobile = document.getElementById("theme-toggle-mobile-chip");
     const mobileInventoryLink = document.getElementById("mobile-inventory-link");
     const mobileProfileLink = document.getElementById("mobile-profile-link");
     const inventoryLink = document.getElementById("inventory-link");
@@ -100,12 +98,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (topupMobileDrawer) topupMobileDrawer.classList.remove("hidden");
         if (notificationBell) notificationBell.classList.remove("hidden");
         if (notificationBellMobile) notificationBellMobile.classList.remove("hidden");
-        [themeToggleStandaloneDesktop, themeToggleStandaloneMobile].forEach((btn) => {
-          if (btn) btn.classList.add("hidden");
-        });
-        [themeToggleChipDesktop, themeToggleChipMobile].forEach((btn) => {
-          if (btn) btn.classList.remove("hidden");
-        });
+        if (themeToggleStandaloneDesktop) themeToggleStandaloneDesktop.classList.add("hidden");
+        if (themeToggleChipDesktop) themeToggleChipDesktop.classList.remove("hidden");
         if (mobileRegisterBtn) mobileRegisterBtn.classList.add("hidden");
         [inventoryLink, mobileInventoryLink, mobileProfileLink].forEach((el) => {
           if (el) el.classList.remove("hidden");
@@ -156,12 +150,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (topupMobileDrawer) topupMobileDrawer.classList.add("hidden");
         if (notificationBell) notificationBell.classList.add("hidden");
         if (notificationBellMobile) notificationBellMobile.classList.add("hidden");
-        [themeToggleStandaloneDesktop, themeToggleStandaloneMobile].forEach((btn) => {
-          if (btn) btn.classList.remove("hidden");
-        });
-        [themeToggleChipDesktop, themeToggleChipMobile].forEach((btn) => {
-          if (btn) btn.classList.add("hidden");
-        });
+        if (themeToggleStandaloneDesktop) themeToggleStandaloneDesktop.classList.remove("hidden");
+        if (themeToggleChipDesktop) themeToggleChipDesktop.classList.add("hidden");
         if (mobileRegisterBtn) mobileRegisterBtn.classList.remove("hidden");
         [inventoryLink, mobileInventoryLink, mobileProfileLink].forEach((el) => {
           if (el) el.classList.add("hidden");
