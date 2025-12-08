@@ -64,9 +64,6 @@
         </div>
       </div>
       <div class="-mr-2 flex items-center md:hidden">
-        <button id="theme-toggle-mobile-standalone" class="theme-toggle mr-3" type="button" aria-label="Toggle dark mode">
-          <i class="fas fa-moon"></i>
-        </button>
         <div id="user-toolbar-mobile" class="user-toolbar mr-3">
           <div id="user-balance-mobile-header" class="hidden balance-chip items-center gap-2 px-2.5 py-1 text-white">
             <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
@@ -78,9 +75,6 @@
             </div>
             <button id="topup-button-mobile-header" class="topup-chip hidden">+</button>
           </div>
-          <button id="theme-toggle-mobile-chip" class="theme-toggle chip-toggle hidden" type="button" aria-label="Toggle dark mode">
-            <i class="fas fa-moon"></i>
-          </button>
           <button id="notification-bell-mobile" class="notification-button hidden" aria-label="Notifications">
             <i class="fas fa-bell"></i>
           </button>
@@ -91,28 +85,42 @@
       </div>
     </div>
   </div>
-  <div id="mobile-dropdown" class="md:hidden hidden">
+      <div id="mobile-dropdown" class="md:hidden hidden">
       <div class="pt-2 pb-3 space-y-1">
         <a href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-box-open mr-2"></i>Open Packs</a>
         <a href="marketplace.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-store mr-2"></i>Marketplace</a>
         <a href="rewards.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-gift mr-2"></i>Rewards</a>
       </div>
-    <div class="pt-4 pb-3 border-t border-gray-200">
-      <div id="user-balance-mobile-drawer" class="hidden balance-chip items-center justify-between px-3.5 py-1.5 text-sm text-white mx-4 mb-3">
-        <div class="flex items-center gap-3">
-          <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
-            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 object-contain" alt="Gems" />
+      <div class="pt-4 pb-3 border-t border-gray-200">
+        <div id="user-balance-mobile-drawer" class="hidden balance-chip items-center justify-between px-3.5 py-1.5 text-sm text-white mx-4 mb-3">
+          <div class="flex items-center gap-3">
+            <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
+              <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 object-contain" alt="Gems" />
+            </div>
+            <div class="flex flex-col leading-tight">
+              <span id="balance-amount-mobile-dropdown" class="balance-amount text-xs">0</span>
+              <span class="balance-label">gems</span>
+            </div>
           </div>
-          <div class="flex flex-col leading-tight">
-            <span id="balance-amount-mobile-dropdown" class="balance-amount text-xs">0</span>
-            <span class="balance-label">gems</span>
-          </div>
+          <button id="topup-button-mobile-drawer" class="topup-chip hidden">+</button>
         </div>
-        <button id="topup-button-mobile-drawer" class="topup-chip hidden">+</button>
-      </div>
-      <div class="space-y-1">
-        <a id="mobile-inventory-link" href="inventory.html" class="hidden block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Inventory</a>
-        <a id="mobile-profile-link" href="profile.html" class="hidden block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Profile</a>
+        <div class="px-4 mb-3">
+          <button id="theme-toggle-mobile-menu" class="theme-toggle menu-entry w-full" type="button" aria-label="Toggle dark mode">
+            <div class="flex items-center gap-3">
+              <span class="menu-entry-icon">
+                <i class="fas fa-moon"></i>
+              </span>
+              <div class="text-left leading-tight">
+                <div class="text-sm font-semibold text-gray-800 dark:text-slate-100">Theme</div>
+                <div class="text-xs text-gray-500 dark:text-slate-300">Light / Dark</div>
+              </div>
+            </div>
+            <span class="theme-state-label text-xs font-semibold px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-100">Light</span>
+          </button>
+        </div>
+        <div class="space-y-1">
+          <a id="mobile-inventory-link" href="inventory.html" class="hidden block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Inventory</a>
+          <a id="mobile-profile-link" href="profile.html" class="hidden block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Profile</a>
         <a href="how-it-works.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">How It Works</a>
         <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Sign In</a>
         <a id="mobile-register-button" href="auth.html#register" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Register</a>
