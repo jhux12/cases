@@ -355,6 +355,240 @@ body.dark-mode {
   transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.brand-spinner {
+  position: relative;
+  padding: 0.35rem 0;
+  margin-right: 1rem;
+}
+
+.brand-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 240px;
+  height: 52px;
+  padding: 0 14px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(14, 165, 233, 0.14));
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  box-shadow: 0 8px 30px rgba(79, 70, 229, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  isolation: isolate;
+}
+
+.brand-logo-runner {
+  position: relative;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+  transform: translateX(0);
+}
+
+body.dark-mode .brand-logo-runner {
+  background: rgba(15, 23, 42, 0.82);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+}
+
+.brand-logo-text {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  background: linear-gradient(120deg, #a855f7, #60a5fa, #22d3ee);
+  -webkit-background-clip: text;
+  color: transparent;
+  text-shadow: 0 4px 16px rgba(96, 165, 250, 0.35);
+}
+
+.brand-target {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 96px;
+  height: 96px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.18) 0%, rgba(124, 58, 237, 0.05) 65%, transparent 70%);
+  box-shadow: 0 0 40px rgba(124, 58, 237, 0.2);
+  z-index: 1;
+  opacity: 0;
+}
+
+.brand-target::after {
+  content: '';
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
+}
+
+.brand-streaks {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.brand-streak {
+  position: absolute;
+  top: 50%;
+  height: 44px;
+  width: 88px;
+  border-radius: 14px;
+  filter: blur(3px);
+  opacity: 0;
+  transform: translate(140%, -50%) skewX(-14deg) scale(0.85);
+  background: linear-gradient(120deg, rgba(96, 165, 250, 0.95), rgba(168, 85, 247, 0.7));
+  box-shadow: 0 0 22px rgba(168, 85, 247, 0.55);
+}
+
+.brand-streak.streak-two {
+  height: 52px;
+  width: 110px;
+  background: linear-gradient(120deg, rgba(14, 165, 233, 0.9), rgba(96, 165, 250, 0.72));
+  box-shadow: 0 0 26px rgba(34, 211, 238, 0.5);
+}
+
+.brand-streak.streak-three {
+  height: 36px;
+  width: 78px;
+  background: linear-gradient(120deg, rgba(236, 72, 153, 0.9), rgba(99, 102, 241, 0.7));
+  box-shadow: 0 0 24px rgba(236, 72, 153, 0.55);
+}
+
+.brand-rare-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 60px;
+  width: 120px;
+  border-radius: 18px;
+  transform: translate(-50%, -50%) translateX(160%) skewX(-10deg) scale(0.9);
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.8), rgba(168, 85, 247, 0.75), rgba(59, 130, 246, 0.8));
+  box-shadow: 0 12px 30px rgba(59, 130, 246, 0.35), 0 0 36px rgba(234, 179, 8, 0.55);
+  filter: drop-shadow(0 10px 24px rgba(59, 130, 246, 0.26));
+  opacity: 0;
+  z-index: 2;
+}
+
+.brand-spinner.is-animating .brand-logo-runner {
+  animation: brandLogoSlide 2.6s ease forwards;
+}
+
+.brand-spinner.is-animating .brand-target {
+  animation: brandTargetPulse 2.4s ease forwards;
+}
+
+.brand-spinner.is-animating .brand-rare-card {
+  animation: brandRareCard 2.2s cubic-bezier(0.4, 0.1, 0.22, 1) 0.15s forwards;
+}
+
+.brand-spinner.is-animating .brand-streak.streak-one {
+  animation: brandStreak 1.2s cubic-bezier(0.4, 0.1, 0.22, 1) 0.05s forwards;
+}
+
+.brand-spinner.is-animating .brand-streak.streak-two {
+  animation: brandStreak 1.25s cubic-bezier(0.4, 0.1, 0.22, 1) 0.1s forwards;
+}
+
+.brand-spinner.is-animating .brand-streak.streak-three {
+  animation: brandStreak 1.3s cubic-bezier(0.4, 0.1, 0.22, 1) 0.14s forwards;
+}
+
+@keyframes brandLogoSlide {
+  0% {
+    transform: translateX(150%);
+    opacity: 0.7;
+  }
+  40% {
+    transform: translateX(-16%);
+    opacity: 1;
+  }
+  55% {
+    transform: translateX(0%);
+  }
+  70% {
+    transform: translateX(-4%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes brandStreak {
+  0% {
+    opacity: 0;
+    transform: translate(170%, -50%) skewX(-16deg) scale(0.85);
+  }
+  15% {
+    opacity: 0.9;
+  }
+  55% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-180%, -50%) skewX(-12deg) scale(0.96);
+  }
+}
+
+@keyframes brandRareCard {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateX(170%) skewX(-8deg) scale(0.92);
+    filter: blur(4px);
+  }
+  38% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateX(12%) skewX(-6deg) scale(1.02);
+    filter: blur(1px);
+  }
+  52% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateX(0%) skewX(-4deg) scale(1.08);
+    filter: blur(0.35px);
+    box-shadow: 0 16px 40px rgba(59, 130, 246, 0.45), 0 0 46px rgba(234, 179, 8, 0.7);
+  }
+  64% {
+    opacity: 0.95;
+    transform: translate(-50%, -50%) translateX(-14%) skewX(-5deg) scale(1.04);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateX(-180%) skewX(-6deg) scale(0.96);
+    filter: blur(2px);
+  }
+}
+
+@keyframes brandTargetPulse {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.85);
+  }
+  30% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  52% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  90% {
+    opacity: 0.65;
+    transform: translate(-50%, -50%) scale(1.12);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+
 .navbar a {
   color: var(--nav-link) !important;
   transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;

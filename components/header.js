@@ -17,5 +17,26 @@ function loadHeader() {
       if (menuToggle && mobileDropdown) {
         menuToggle.onclick = () => mobileDropdown.classList.toggle("hidden");
       }
+
+      const brandSpinner = document.querySelector('[data-brand-spinner]');
+      const animationDuration = 2600;
+
+      const triggerBrandAnimation = () => {
+        if (!brandSpinner) return;
+        brandSpinner.classList.remove('is-animating');
+        // force reflow so animation can restart
+        void brandSpinner.offsetWidth;
+        brandSpinner.classList.add('is-animating');
+
+        clearTimeout(brandSpinner.animationTimeout);
+        brandSpinner.animationTimeout = setTimeout(() => {
+          brandSpinner.classList.remove('is-animating');
+        }, animationDuration);
+      };
+
+      if (brandSpinner) {
+        triggerBrandAnimation();
+        brandSpinner.addEventListener('mouseenter', triggerBrandAnimation);
+      }
     });
 }
