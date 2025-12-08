@@ -34,6 +34,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const toolbarMobile = document.getElementById("user-toolbar-mobile");
     const notificationBell = document.getElementById("notification-bell");
     const notificationBellMobile = document.getElementById("notification-bell-mobile");
+    const notificationDropdown = document.getElementById("notification-dropdown");
+    const notificationList = document.getElementById("notification-list");
+    const notificationEmpty = document.getElementById("notification-empty");
+    const notificationCount = document.getElementById("notification-count");
     const themeToggleStandaloneDesktop = document.getElementById("theme-toggle-desktop-standalone");
     const themeToggleChipDesktop = document.getElementById("theme-toggle-desktop-chip");
     const mobileInventoryLink = document.getElementById("mobile-inventory-link");
@@ -65,6 +69,127 @@ document.addEventListener("DOMContentLoaded", () => {
 
       let userRef;
       let handler;
+      let notificationsRef;
+      let notificationsHandler;
+
+    const closeNotificationDropdown = () => {
+      notificationDropdown?.classList.add("hidden");
+    };
+
+    const formatTimestamp = (timestamp) => {
+      if (!timestamp) return "Just now";
+      try {
+        return new Date(timestamp).toLocaleString();
+      } catch (e) {
+        return "Just now";
+      }
+    };
+
+    const renderNotifications = (notifications = {}) => {
+      if (!notificationList || !notificationEmpty || !notificationCount) return;
+      notificationList.innerHTML = "";
+      const entries = Object.entries(notifications)
+        .map(([key, value]) => ({ key, ...value }))
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      if (!entries.length) {
+        notificationEmpty.classList.remove("hidden");
+        notificationCount.textContent = "0 new";
+        [notificationBell, notificationBellMobile].forEach((btn) => btn?.classList.remove("has-unread"));
+        return;
+      }
+
+      notificationEmpty.classList.add("hidden");
+      const unread = entries.filter((item) => !item.read).length;
+      notificationCount.textContent = `${unread} new`;
+      [notificationBell, notificationBellMobile].forEach((btn) => {
+        if (!btn) return;
+        btn.classList.toggle("has-unread", unread > 0);
+      });
+
+      entries.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-800/70";
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "flex items-start justify-between gap-3";
+
+        const textWrap = document.createElement("div");
+        textWrap.className = "flex-1";
+
+        const titleEl = document.createElement("p");
+        titleEl.className = "text-sm font-semibold text-gray-800 dark:text-slate-100";
+        titleEl.textContent = item.title || "Update";
+
+        const messageEl = document.createElement("p");
+        messageEl.className = "text-sm text-gray-600 dark:text-slate-300";
+        messageEl.textContent = item.message || "";
+
+        const timeEl = document.createElement("span");
+        timeEl.className = "text-[11px] text-gray-500 dark:text-slate-400";
+        timeEl.textContent = formatTimestamp(item.createdAt);
+
+        textWrap.appendChild(titleEl);
+        textWrap.appendChild(messageEl);
+        wrapper.appendChild(textWrap);
+        wrapper.appendChild(timeEl);
+        row.appendChild(wrapper);
+        notificationList.appendChild(row);
+      });
+    };
+
+    const detachNotifications = () => {
+      if (notificationsRef && notificationsHandler) {
+        notificationsRef.off("value", notificationsHandler);
+      }
+      notificationsRef = null;
+      notificationsHandler = null;
+      if (notificationList) notificationList.innerHTML = "";
+      if (notificationEmpty) notificationEmpty.classList.remove("hidden");
+      if (notificationCount) notificationCount.textContent = "0 new";
+      [notificationBell, notificationBellMobile].forEach((btn) => btn?.classList.remove("has-unread"));
+      closeNotificationDropdown();
+    };
+
+    const markNotificationsRead = () => {
+      if (!notificationsRef) return;
+      notificationsRef.once("value").then((snapshot) => {
+        const updates = {};
+        snapshot.forEach((child) => {
+          const val = child.val() || {};
+          if (!val.read) updates[`${child.key}/read`] = true;
+        });
+        if (Object.keys(updates).length) {
+          notificationsRef.update(updates);
+        }
+      });
+    };
+
+    const toggleNotificationDropdown = () => {
+      if (!notificationDropdown) return;
+      const isHidden = notificationDropdown.classList.contains("hidden");
+      notificationDropdown.classList.toggle("hidden", !isHidden);
+      if (isHidden) {
+        markNotificationsRead();
+      }
+    };
+
+    [notificationBell, notificationBellMobile].forEach((btn) => {
+      if (!btn) return;
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleNotificationDropdown();
+      });
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!notificationDropdown) return;
+      const clickedBell =
+        notificationBell?.contains(e.target) || notificationBellMobile?.contains(e.target);
+      if (!notificationDropdown.contains(e.target) && !clickedBell) {
+        closeNotificationDropdown();
+      }
+    });
 
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -82,6 +207,10 @@ document.addEventListener("DOMContentLoaded", () => {
           if (popupBalance) popupBalance.innerText = `${balanceFormatted} gems`;
         };
         userRef.on("value", handler);
+
+        notificationsRef = firebase.database().ref(`notifications/${user.uid}`);
+        notificationsHandler = (snap) => renderNotifications(snap.val() || {});
+        notificationsRef.on("value", notificationsHandler);
 
         if (authButtons) authButtons.classList.add("hidden");
         if (userArea) {
@@ -128,6 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
           userRef = null;
           handler = null;
         }
+        detachNotifications();
 
         usernameEl.innerText = "User";
         balanceEl.innerText = "0";
@@ -169,23 +299,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
- // Top-up popup toggle
-waitForElement("#topup-button", () => {
-  waitForElement("#topup-popup", () => {
-    const topupPopup = document.getElementById("topup-popup");
-    const topupDesktop = document.getElementById("topup-button");
-    const topupMobileHeader = document.getElementById("topup-button-mobile-header");
-    const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
+  // Top-up popup toggle
+  waitForElement("#topup-button", () => {
+    waitForElement("#topup-popup", () => {
+      const topupPopup = document.getElementById("topup-popup");
+      const topupDesktop = document.getElementById("topup-button");
+      const topupMobileHeader = document.getElementById("topup-button-mobile-header");
+      const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
 
-    const openTopup = () => {
-      topupPopup.classList.remove("hidden");
-    };
+      const openTopup = () => {
+        topupPopup.classList.remove("hidden");
+      };
 
-    if (topupDesktop) topupDesktop.addEventListener("click", openTopup);
-    if (topupMobileHeader) topupMobileHeader.addEventListener("click", openTopup);
-    if (topupMobileDrawer) topupMobileDrawer.addEventListener("click", openTopup);
+      if (topupDesktop) topupDesktop.addEventListener("click", openTopup);
+      if (topupMobileHeader) topupMobileHeader.addEventListener("click", openTopup);
+      if (topupMobileDrawer) topupMobileDrawer.addEventListener("click", openTopup);
+    });
   });
-});
+
   // Dropdown toggle
   waitForElement("#dropdown-toggle", () => {
     const dropdownToggle = document.getElementById("dropdown-toggle");

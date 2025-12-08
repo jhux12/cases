@@ -140,6 +140,14 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
     </nav>
+    <div id="notification-dropdown" class="hidden fixed right-4 top-16 z-50 w-80 max-w-[90vw] rounded-2xl border border-gray-200 bg-white/95 shadow-2xl backdrop-blur dark:border-slate-700 dark:bg-slate-900/95">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200/70 text-sm font-semibold text-gray-800 dark:border-slate-700/80 dark:text-slate-100">
+        <span>Notifications</span>
+        <span id="notification-count" class="text-xs font-medium text-gray-500 dark:text-slate-400">0 new</span>
+      </div>
+      <div id="notification-list" class="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-800"></div>
+      <div id="notification-empty" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-slate-400">No recent notifications</div>
+    </div>
   `;
 
   const current = window.location.pathname.split('/').pop() || 'index.html';
