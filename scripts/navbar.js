@@ -12,6 +12,220 @@ document.addEventListener("DOMContentLoaded", () => {
     observer.observe(document.body, { childList: true, subtree: true });
   };
 
+  const NOTIFICATION_STORAGE_KEY = "packly-seen-notifications";
+  const NOTIFICATION_PATH = "notifications/siteWide";
+  const seenNotificationIds = (() => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(NOTIFICATION_STORAGE_KEY) || "[]"));
+    } catch (e) {
+      console.warn("Unable to read stored notifications", e);
+      return new Set();
+    }
+  })();
+
+  let notificationPanel;
+  let notificationList;
+  let notificationEmpty;
+  let notificationClose;
+  let notificationIndicators = [];
+  let notificationBells = [];
+  let notificationRef;
+  let notificationHandler;
+  let notificationInitialized = false;
+  let currentNotifications = [];
+
+  const persistSeenNotifications = () => {
+    localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify([...seenNotificationIds]));
+  };
+
+  const setNotificationIndicator = (hasUnread) => {
+    notificationIndicators.forEach((el) => el.classList.toggle("hidden", !hasUnread));
+  };
+
+  const markNotificationsAsSeen = (notifications) => {
+    let updated = false;
+    notifications.forEach(({ id }) => {
+      if (!seenNotificationIds.has(id)) {
+        seenNotificationIds.add(id);
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      persistSeenNotifications();
+      setNotificationIndicator(false);
+    }
+  };
+
+  const formatNotificationTimestamp = (timestamp) => {
+    if (!timestamp) return "Just now";
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return "Just now";
+    return date.toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  };
+
+  const renderNotifications = (notifications) => {
+    currentNotifications = notifications;
+    if (!notificationList || !notificationEmpty) return;
+
+    notificationList.innerHTML = "";
+
+    if (!notifications.length) {
+      notificationEmpty.classList.remove("hidden");
+      return;
+    }
+
+    notificationEmpty.classList.add("hidden");
+
+    notifications.forEach((notification) => {
+      const item = document.createElement("div");
+      item.className = "notification-item";
+
+      const meta = document.createElement("div");
+      meta.className = "notification-meta";
+
+      const badge = document.createElement("span");
+      const level = notification.level || "info";
+      badge.className = `notification-badge ${level}`;
+      badge.textContent = notification.levelLabel || level.charAt(0).toUpperCase() + level.slice(1);
+
+      const time = document.createElement("span");
+      time.textContent = formatNotificationTimestamp(notification.createdAt);
+
+      meta.appendChild(badge);
+      meta.appendChild(time);
+
+      const title = document.createElement("p");
+      title.className = "notification-title";
+      title.textContent = notification.title || "Announcement";
+
+      const message = document.createElement("p");
+      message.className = "notification-message";
+      message.textContent = notification.message || "";
+
+      item.appendChild(meta);
+      item.appendChild(title);
+      item.appendChild(message);
+
+      if (notification.actionLabel && notification.actionLink) {
+        const actions = document.createElement("div");
+        actions.className = "notification-actions";
+
+        const link = document.createElement("a");
+        link.className = "notification-link";
+        link.href = notification.actionLink;
+        link.target = notification.openInNewTab ? "_blank" : "_self";
+        link.rel = "noopener noreferrer";
+        link.textContent = notification.actionLabel;
+
+        const icon = document.createElement("i");
+        icon.className = "fas fa-arrow-up-right-from-square text-xs";
+        link.appendChild(icon);
+
+        actions.appendChild(link);
+        item.appendChild(actions);
+      }
+
+      notificationList.appendChild(item);
+    });
+  };
+
+  const closeNotificationPanel = () => {
+    if (notificationPanel) notificationPanel.classList.add("hidden");
+  };
+
+  const openNotificationPanel = () => {
+    if (!notificationPanel) return;
+    notificationPanel.classList.remove("hidden");
+    markNotificationsAsSeen(currentNotifications);
+  };
+
+  const toggleNotificationPanel = () => {
+    if (!notificationPanel) return;
+    if (notificationPanel.classList.contains("hidden")) {
+      openNotificationPanel();
+    } else {
+      closeNotificationPanel();
+    }
+  };
+
+  const setupNotificationUi = () => {
+    if (notificationInitialized) return true;
+
+    notificationPanel = document.getElementById("notification-panel");
+    notificationList = document.getElementById("notification-list");
+    notificationEmpty = document.getElementById("notification-empty");
+    notificationClose = document.getElementById("notification-close");
+    notificationIndicators = Array.from(document.querySelectorAll(".notification-dot"));
+    notificationBells = [
+      document.getElementById("notification-bell"),
+      document.getElementById("notification-bell-mobile"),
+    ].filter(Boolean);
+
+    if (!notificationPanel || !notificationList || !notificationEmpty || !notificationClose) return false;
+
+    notificationBells.forEach((btn) =>
+      btn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        toggleNotificationPanel();
+      })
+    );
+
+    notificationClose.addEventListener("click", closeNotificationPanel);
+
+    document.addEventListener("click", (event) => {
+      const isClickInsidePanel = notificationPanel.contains(event.target);
+      const clickedBell = notificationBells.some((btn) => btn.contains(event.target));
+      if (!notificationPanel.classList.contains("hidden") && !isClickInsidePanel && !clickedBell) {
+        closeNotificationPanel();
+      }
+    });
+
+    notificationInitialized = true;
+    return true;
+  };
+
+  const stopNotificationSubscription = () => {
+    if (notificationRef && notificationHandler) {
+      notificationRef.off("value", notificationHandler);
+    }
+    notificationRef = null;
+    notificationHandler = null;
+    currentNotifications = [];
+    if (notificationList) notificationList.innerHTML = "";
+    if (notificationEmpty) notificationEmpty.classList.remove("hidden");
+    setNotificationIndicator(false);
+    closeNotificationPanel();
+  };
+
+  const startNotificationSubscription = () => {
+    if (!setupNotificationUi()) return;
+
+    if (notificationRef && notificationHandler) return;
+
+    notificationRef = firebase.database().ref(NOTIFICATION_PATH);
+    notificationHandler = (snap) => {
+      const data = snap.val() || {};
+      const notifications = Object.entries(data).map(([id, value]) => ({
+        id,
+        ...value,
+      }));
+
+      notifications.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      renderNotifications(notifications);
+
+      const hasUnread = notifications.some((notification) => !seenNotificationIds.has(notification.id));
+      setNotificationIndicator(hasUnread);
+    };
+
+    notificationRef.on("value", notificationHandler);
+  };
+
   // Firebase user info injection AFTER header is rendered
   waitForElement("#username-display", () => {
     const usernameEl = document.getElementById("username-display");
@@ -106,6 +320,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         userLinks.forEach((link) => link.classList.remove("hidden"));
 
+        startNotificationSubscription();
+
         if (logoutBtn) {
           logoutBtn.style.display = "block";
           logoutBtn.onclick = (e) => {
@@ -157,6 +373,8 @@ document.addEventListener("DOMContentLoaded", () => {
           if (el) el.classList.add("hidden");
         });
         userLinks.forEach((link) => link.classList.add("hidden"));
+
+        stopNotificationSubscription();
 
         if (logoutBtn) logoutBtn.style.display = "none";
 

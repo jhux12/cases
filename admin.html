@@ -376,6 +376,56 @@
                 </div>
               </div>
             </div>
+
+            <div class="glass-card space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-lg font-semibold text-white">Site-wide notifications</h3>
+                  <p class="text-xs text-slate-400">Publish announcements that appear in the header bell for all users.</p>
+                </div>
+                <span class="text-xs uppercase tracking-[0.3em] text-amber-300">Broadcast</span>
+              </div>
+              <form id="notification-form" class="grid gap-4 md:grid-cols-2">
+                <div class="space-y-2 md:col-span-2">
+                  <label class="text-sm font-medium text-slate-300">Title</label>
+                  <input id="notification-title" type="text" class="form-input" placeholder="System maintenance" required />
+                </div>
+                <div class="space-y-2 md:col-span-2">
+                  <label class="text-sm font-medium text-slate-300">Message</label>
+                  <textarea id="notification-message" class="form-textarea" placeholder="We're shipping an update tonight at 11pm UTC." required></textarea>
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-slate-300">Severity</label>
+                  <select id="notification-level" class="form-select">
+                    <option value="info">Info</option>
+                    <option value="success">Success</option>
+                    <option value="alert">Alert</option>
+                  </select>
+                  <p class="text-xs text-slate-500">Controls the badge color inside the drawer.</p>
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-slate-300">Badge label (optional)</label>
+                  <input id="notification-level-label" type="text" class="form-input" placeholder="Maintenance" />
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-slate-300">Action label (optional)</label>
+                  <input id="notification-action-label" type="text" class="form-input" placeholder="View status" />
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-slate-300">Action link (optional)</label>
+                  <input id="notification-action-link" type="url" class="form-input" placeholder="https://status.example.com" />
+                  <label class="inline-flex items-center gap-3 text-xs uppercase tracking-wide text-slate-400">
+                    <input id="notification-open-tab" type="checkbox" class="h-4 w-4 rounded border-slate-600 bg-slate-900 text-purple-500 focus:ring-purple-400" />
+                    Open in new tab
+                  </label>
+                </div>
+                <div class="md:col-span-2 flex justify-end">
+                  <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 px-5 py-3 text-sm font-semibold shadow-lg shadow-amber-900/40">
+                    <i class="fa-solid fa-bullhorn"></i> Send notification
+                  </button>
+                </div>
+              </form>
+            </div>
           </section>
           <section id="cases-section" class="hidden space-y-8">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -1065,6 +1115,14 @@
     const supportUnrepliedCount = document.getElementById('support-unreplied-count');
     const supportActiveCount = document.getElementById('support-active-count');
     const supportLastSync = document.getElementById('support-last-sync');
+    const notificationForm = document.getElementById('notification-form');
+    const notificationTitleInput = document.getElementById('notification-title');
+    const notificationMessageInput = document.getElementById('notification-message');
+    const notificationLevelSelect = document.getElementById('notification-level');
+    const notificationLevelLabel = document.getElementById('notification-level-label');
+    const notificationActionLabel = document.getElementById('notification-action-label');
+    const notificationActionLink = document.getElementById('notification-action-link');
+    const notificationOpenTabCheckbox = document.getElementById('notification-open-tab');
     const statElements = {
       totalCases: document.getElementById('stat-total-cases'),
       pickemCases: document.getElementById('stat-pickem-cases'),
@@ -1172,6 +1230,45 @@
       setTimeout(() => {
         toast.style.display = 'none';
       }, 3200);
+    }
+
+    function submitNotification(event) {
+      event.preventDefault();
+      if (!notificationTitleInput || !notificationMessageInput) return;
+
+      const title = notificationTitleInput.value.trim();
+      const message = notificationMessageInput.value.trim();
+
+      if (!title || !message) {
+        showToast('⚠️ Title and message are required');
+        return;
+      }
+
+      const level = notificationLevelSelect?.value || 'info';
+      const levelLabel = (notificationLevelLabel?.value || '').trim() || (notificationLevelSelect?.selectedOptions?.[0]?.textContent?.trim() || '');
+      const actionLabel = (notificationActionLabel?.value || '').trim();
+      const actionLink = (notificationActionLink?.value || '').trim();
+      const openInNewTab = !!notificationOpenTabCheckbox?.checked;
+
+      const payload = {
+        title,
+        message,
+        level,
+        createdAt: Date.now()
+      };
+
+      if (levelLabel) payload.levelLabel = levelLabel;
+      if (actionLabel && actionLink) {
+        payload.actionLabel = actionLabel;
+        payload.actionLink = actionLink;
+        payload.openInNewTab = openInNewTab;
+      }
+
+      db.ref('notifications/siteWide').push(payload).then(() => {
+        notificationForm?.reset();
+        if (notificationLevelSelect) notificationLevelSelect.value = 'info';
+        showToast('✅ Notification sent');
+      }).catch(() => showToast('⚠️ Failed to send notification'));
     }
 
     function getCaseImage(data) {
@@ -2719,6 +2816,8 @@
       supportFilters.onlyUnreplied = event.target.checked;
       renderSupportList();
     });
+
+    notificationForm?.addEventListener('submit', submitNotification);
 
     resetWizard();
 
