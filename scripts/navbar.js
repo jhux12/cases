@@ -38,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const notificationList = document.getElementById("notification-list");
     const notificationIndicator = document.getElementById("notification-indicator");
     const notificationIndicatorMobile = document.getElementById("notification-indicator-mobile");
-    const dismissNotifications = document.getElementById("dismiss-notifications");
     const themeToggleStandaloneDesktop = document.getElementById("theme-toggle-desktop-standalone");
     const themeToggleChipDesktop = document.getElementById("theme-toggle-desktop-chip");
     const mobileInventoryLink = document.getElementById("mobile-inventory-link");
@@ -74,6 +73,14 @@ document.addEventListener("DOMContentLoaded", () => {
       let latestNotificationTimestamp = 0;
       let lastSeenTimestamp = Number(localStorage.getItem("packly-last-notification") || 0);
       let notificationCache = [];
+      const dismissedNotifications = new Set(
+        JSON.parse(localStorage.getItem("packly-dismissed-notifications") || "[]").filter(Boolean)
+      );
+
+      const persistDismissed = () => {
+        const entries = Array.from(dismissedNotifications).slice(-200);
+        localStorage.setItem("packly-dismissed-notifications", JSON.stringify(entries));
+      };
 
       const updateNotificationBadge = (items = []) => {
         const unread = items.filter((item) => (item.createdAt || 0) > lastSeenTimestamp).length;
@@ -89,29 +96,55 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!notificationList) return;
         notificationList.innerHTML = "";
 
-        if (!items.length) {
+        const visibleItems = items.filter((item) => !dismissedNotifications.has(item.id));
+
+        if (!visibleItems.length) {
           notificationCache = [];
           notificationList.innerHTML = '<p class="notification-empty">No notifications yet.</p>';
           updateNotificationBadge([]);
           return;
         }
 
-        notificationCache = items;
-        items.forEach((item) => {
+        notificationCache = visibleItems;
+        visibleItems.forEach((item) => {
           const card = document.createElement("article");
           card.className = "notification-card";
           card.dataset.severity = item.severity || "info";
 
           const header = document.createElement("div");
-          header.className = "flex items-center justify-between gap-3";
+          header.className = "notification-card__header";
+          const heading = document.createElement("div");
+          heading.className = "notification-card__heading";
           const title = document.createElement("p");
           title.className = "notification-card__title";
           title.textContent = item.title || "Update";
           const meta = document.createElement("span");
           meta.className = "notification-card__meta";
           meta.textContent = item.createdAt ? new Date(item.createdAt).toLocaleString() : "";
-          header.appendChild(title);
-          header.appendChild(meta);
+          heading.appendChild(title);
+          heading.appendChild(meta);
+
+          const dismissButton = document.createElement("button");
+          dismissButton.className = "notification-card__close";
+          dismissButton.type = "button";
+          dismissButton.setAttribute("aria-label", "Dismiss notification");
+          dismissButton.textContent = "×";
+          dismissButton.addEventListener("click", (event) => {
+            event.stopPropagation();
+            dismissedNotifications.add(item.id);
+            persistDismissed();
+            notificationCache = notificationCache.filter((n) => n.id !== item.id);
+            card.remove();
+
+            if (notificationCache.length === 0) {
+              notificationList.innerHTML = '<p class="notification-empty">No notifications yet.</p>';
+            }
+
+            updateNotificationBadge(notificationCache);
+          });
+
+          header.appendChild(heading);
+          header.appendChild(dismissButton);
 
           const body = document.createElement("p");
           body.className = "notification-card__body";
@@ -133,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
           notificationList.appendChild(card);
         });
 
-        updateNotificationBadge(items);
+        updateNotificationBadge(visibleItems);
       };
 
       const attachNotificationStream = () => {
@@ -188,14 +221,6 @@ document.addEventListener("DOMContentLoaded", () => {
           hideNotificationPanel();
         }
       });
-
-      if (dismissNotifications) {
-        dismissNotifications.addEventListener("click", () => {
-          lastSeenTimestamp = latestNotificationTimestamp || Date.now();
-          localStorage.setItem("packly-last-notification", String(lastSeenTimestamp));
-          updateNotificationBadge(notificationCache);
-        });
-      }
 
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
