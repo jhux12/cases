@@ -76,9 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
           <div class="-mr-2 flex items-center md:hidden">
-            <button id="theme-toggle-mobile-standalone" class="theme-toggle mr-3" type="button" aria-label="Toggle dark mode">
-              <i class="fas fa-moon"></i>
-            </button>
             <div id="user-toolbar-mobile" class="user-toolbar mr-3">
               <div id="user-balance-mobile-header" class="hidden balance-chip items-center gap-2 px-2.5 py-1 text-white">
                 <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
@@ -90,9 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
                 <button id="topup-button-mobile-header" class="topup-chip hidden">+</button>
               </div>
-              <button id="theme-toggle-mobile-chip" class="theme-toggle chip-toggle hidden" type="button" aria-label="Toggle dark mode">
-                <i class="fas fa-moon"></i>
-              </button>
               <button id="notification-bell-mobile" class="notification-button hidden" aria-label="Notifications">
                 <i class="fas fa-bell"></i>
               </button>
@@ -122,6 +116,20 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <button id="topup-button-mobile-drawer" class="topup-chip hidden">+</button>
           </div>
+          <div class="px-4 mb-3">
+            <button id="theme-toggle-mobile-menu" class="theme-toggle menu-entry w-full" type="button" aria-label="Toggle dark mode">
+              <div class="flex items-center gap-3">
+                <span class="menu-entry-icon">
+                  <i class="fas fa-moon"></i>
+                </span>
+                <div class="text-left leading-tight">
+                  <div class="text-sm font-semibold text-gray-800 dark:text-slate-100">Theme</div>
+                  <div class="text-xs text-gray-500 dark:text-slate-300">Light / Dark</div>
+                </div>
+              </div>
+              <span class="theme-state-label text-xs font-semibold px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-100">Light</span>
+            </button>
+          </div>
           <div class="space-y-1">
             <a id="mobile-inventory-link" href="inventory.html" class="hidden block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Inventory</a>
             <a id="mobile-profile-link" href="profile.html" class="hidden block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Profile</a>
@@ -148,6 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const themeButtons = header.querySelectorAll('.theme-toggle');
+  const themeStateLabels = header.querySelectorAll('.theme-state-label');
   const storedTheme = localStorage.getItem('packly-theme');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
 
@@ -209,6 +218,10 @@ document.addEventListener("DOMContentLoaded", () => {
         icon.classList.toggle('fa-moon', !isDark);
         icon.classList.toggle('fa-sun', isDark);
       }
+    });
+
+    themeStateLabels.forEach((label) => {
+      label.textContent = isDark ? 'Dark' : 'Light';
     });
   };
 
