@@ -839,23 +839,39 @@ if (openBtn) openBtn.addEventListener("click", async () => {
     const winIndex = openerItems.findIndex(p => p.name === winningPrize.name);
     await transitionToReel();
     const goldSpin = isUltraOrAbove(winningPrize.rarity);
-    setGoldSpinEffect(goldSpin);
+    setGoldSpinEffect(false);
+
     await new Promise(resolve => {
+      PackOpener.setItems(openerItems);
       PackOpener.spinToIndex(winIndex, {
         durationMs: 2400,
         nearMiss: true,
-        specialLandingImage: goldSpin ? GOLDEN_PULL_IMAGE : undefined,
-        specialLandingLabel: winningPrize.name,
-        onReveal: () => {
-          resolve();
-          if (goldSpin) {
-            setTimeout(() => setGoldSpinEffect(false), 500);
-          }
-        }
+        onReveal: () => resolve()
       });
     });
-    if (!goldSpin) {
-      setGoldSpinEffect(false);
+
+    if (goldSpin) {
+      const eliteItems = openerItems.filter(it => isUltraOrAbove(it.rarity));
+      const eliteIndex = eliteItems.findIndex(it => it.name === winningPrize.name);
+      if (eliteIndex !== -1) {
+        setGoldSpinEffect(true);
+        await new Promise(resolve => {
+          PackOpener.setItems(eliteItems);
+          PackOpener.spinToIndex(eliteIndex, {
+            durationMs: 2400,
+            nearMiss: false,
+            specialLandingImage: GOLDEN_PULL_IMAGE,
+            specialLandingLabel: winningPrize.name,
+            onReveal: () => {
+              resolve();
+              setTimeout(() => setGoldSpinEffect(false), 500);
+            }
+          });
+        });
+        PackOpener.setItems(openerItems);
+      } else {
+        setGoldSpinEffect(false);
+      }
     }
 
   }
@@ -925,24 +941,47 @@ if (openBtn) openBtn.addEventListener("click", async () => {
           const prize = demoPrizes[index];
           const winIdx = openerItems.findIndex(p => p.name === prize.name);
           const goldSpin = isUltraOrAbove(prize.rarity);
-          setGoldSpinEffect(goldSpin);
-          PackOpener.spinToIndex(winIdx, { durationMs: 2400, nearMiss: true, specialLandingImage: goldSpin ? GOLDEN_PULL_IMAGE : undefined, specialLandingLabel: prize.name, onReveal: () => {
-            results.push(prize);
-            setGoldSpinEffect(false);
-            index++;
-            if (index < demoPrizes.length) {
-              spinDemo();
-            } else {
-              btn.disabled = false;
-              btn.classList.remove("cursor-not-allowed", "opacity-60");
-              btn.innerHTML = '<span class="relative z-10 cta-on-gradient">Try for Free</span>';
-              const names = results.map(p => p.name).join(', ');
-              showToast(`You would have won ${names}!`, "bg-blue-600");
+          setGoldSpinEffect(false);
+          PackOpener.setItems(openerItems);
+          PackOpener.spinToIndex(winIdx, { durationMs: 2400, nearMiss: true, onReveal: () => {
+            if (!goldSpin) {
+              finalizeDemoSpin(prize);
+              return;
             }
+
+            const eliteItems = openerItems.filter(it => isUltraOrAbove(it.rarity));
+            const eliteIndex = eliteItems.findIndex(it => it.name === prize.name);
+            if (eliteIndex === -1) {
+              finalizeDemoSpin(prize);
+              return;
+            }
+
+            setGoldSpinEffect(true);
+            PackOpener.setItems(eliteItems);
+            PackOpener.spinToIndex(eliteIndex, { durationMs: 2400, nearMiss: false, specialLandingImage: GOLDEN_PULL_IMAGE, specialLandingLabel: prize.name, onReveal: () => {
+              setTimeout(() => setGoldSpinEffect(false), 500);
+              finalizeDemoSpin(prize);
+              PackOpener.setItems(openerItems);
+            }});
           }});
         }
         spinDemo();
       });
+
+      function finalizeDemoSpin(prize) {
+        results.push(prize);
+        setGoldSpinEffect(false);
+        index++;
+        if (index < demoPrizes.length) {
+          spinDemo();
+        } else {
+          btn.disabled = false;
+          btn.classList.remove("cursor-not-allowed", "opacity-60");
+          btn.innerHTML = '<span class="relative z-10 cta-on-gradient">Try for Free</span>';
+          const names = results.map(p => p.name).join(', ');
+          showToast(`You would have won ${names}!`, "bg-blue-600");
+        }
+      }
 
   document.getElementById("pf-info").addEventListener("click", async () => {
     const user = firebase.auth().currentUser;
