@@ -178,7 +178,7 @@
     state.root.style.transform = "translate3d(0,0,0)";
 
     const startX = 0;
-    const duration = opts.durationMs || 2400;
+    const duration = opts.durationMs || 4500;
     state.isSpinning = true;
 
     const tiles = state.root.children;
@@ -219,7 +219,12 @@
       applySpecialLanding(targetIndex, winningItem, opts);
     }
 
-    const velocity = distance / duration;
+    const cruisePortion = 0.8;
+    const cruiseDuration = duration * cruisePortion;
+    const decelDuration = duration - cruiseDuration;
+    const cruiseDistance = distance * cruisePortion;
+    const decelDistance = distance - cruiseDistance;
+    const velocity = cruiseDistance / cruiseDuration;
     let start = null;
     let lastCenterPass = null;
     emit("start");
@@ -228,9 +233,18 @@
       if (start === null) start = timestamp;
       const elapsed = timestamp - start;
       const clampedElapsed = Math.min(elapsed, duration);
-      const delta = velocity * clampedElapsed;
 
-      const pos = startX + delta;
+      let pos;
+      if (clampedElapsed <= cruiseDuration) {
+        const delta = velocity * clampedElapsed;
+        pos = startX + delta;
+      } else {
+        const decelElapsed = clampedElapsed - cruiseDuration;
+        const t = Math.min(Math.max(decelElapsed / decelDuration, 0), 1);
+        const easeOutQuint = 1 - Math.pow(1 - t, 5);
+        const decelDelta = decelDistance * easeOutQuint;
+        pos = startX + cruiseDistance + decelDelta;
+      }
       state.root.style.transform = `translate3d(${pos}px,0,0)`;
 
       const containerWidth = container.getBoundingClientRect().width;
