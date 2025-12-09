@@ -168,6 +168,15 @@
     }
     .best-drop-card img { width:100%; height:100%; object-fit:contain; }
     .reel-wrapper .tile { flex: 0 0 180px; }
+    #prize-popup { backdrop-filter: blur(6px); }
+    #prize-popup-card {
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.6), 0 0 0 1px rgba(129, 140, 248, 0.2);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    #prize-popup-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 28px 60px rgba(15, 23, 42, 0.65), 0 0 0 1px rgba(129, 140, 248, 0.32);
+    }
     #prizes-grid .prize-card {
       display: flex;
       flex-direction: column;
@@ -665,8 +674,10 @@ if (repeatedBestDrops.length) {
             .toLowerCase()
             .replace(/\s+/g, '');
           const color = rarityColors[rarity] || "#a1a1aa";
+          const displayValue = formatGems(getEffectiveValue(prize));
+          const displayOdds = `${formatOdds(prize.odds)}%`;
           return `
-  <div class="prize-card rounded-xl overflow-hidden bg-white border-2 text-gray-900 text-center shadow-sm cursor-pointer transition-transform duration-200 hover:scale-105" data-rarity="${rarity}" style="border-color:${color}">
+  <div class="prize-card rounded-xl overflow-hidden bg-white border-2 text-gray-900 text-center shadow-sm cursor-pointer transition-transform duration-200 hover:scale-105" data-rarity="${rarity}" data-name="${prize.name}" data-image="${prize.image}" data-value="${displayValue}" data-odds="${displayOdds}" style="border-color:${color}">
     <div class="p-4">
       <img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-gray-50 rounded-lg" />
       <div class="prize-name font-semibold text-sm clamp-2">${prize.name}</div>
@@ -674,9 +685,9 @@ if (repeatedBestDrops.length) {
     <div class="flex items-center justify-between px-2 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-medium cta-on-gradient">
       <div class="flex items-center gap-1 cta-on-gradient">
         <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4" />
-        <span class="cta-on-gradient">${formatGems(getEffectiveValue(prize))}</span>
+        <span class="cta-on-gradient prize-card-value">${displayValue}</span>
       </div>
-      <span class="cta-on-gradient">${formatOdds(prize.odds)}%</span>
+      <span class="cta-on-gradient prize-card-odds">${displayOdds}</span>
     </div>
   </div>`;
         })
@@ -897,28 +908,34 @@ if (openBtn) openBtn.addEventListener("click", async () => {
 });
 function enablePrizePopups() {
   const cards = document.querySelectorAll(".prize-card");
-    cards.forEach(card => {
-      card.addEventListener("click", () => {
-        const image = card.querySelector("img")?.src;
-        const name = card.querySelector(".prize-name")?.textContent.trim();
-        const value = card.querySelector(".text-yellow-300")?.textContent.trim();
-        const odds = card.querySelector(".bg-gray-100")?.textContent.trim();
+  const overlay = document.getElementById("prize-popup");
+  if (!overlay) return;
 
-        document.getElementById("prize-popup-image").src = image;
-        document.getElementById("prize-popup-name").textContent = name;
-        document.getElementById("prize-popup-value").textContent = value;
-        document.getElementById("prize-popup-odds").textContent = odds;
+  cards.forEach(card => {
+    card.addEventListener("click", () => {
+      const { image, name, value, odds, rarity = "common" } = card.dataset;
+      const popupImage = document.getElementById("prize-popup-image");
+      const popupName = document.getElementById("prize-popup-name");
+      const popupValue = document.getElementById("prize-popup-value");
+      const popupOdds = document.getElementById("prize-popup-odds");
+      const popupCard = document.getElementById("prize-popup-card");
 
-        const rarity = card.dataset.rarity || "common";
-        const overlay = document.getElementById("prize-popup");
-        const popupCard = document.getElementById("prize-popup-card");
-        overlay.classList.remove("hidden");
-        popupCard.classList.remove(
-          "glow-common", "glow-uncommon", "glow-rare", "glow-ultrarare", "glow-legendary", "glow-animated"
-        );
-        popupCard.classList.add(`glow-${rarity}`, "glow-animated");
-      });
+      if (popupImage && image) popupImage.src = image;
+      if (popupName) popupName.textContent = name || "";
+      if (popupValue) popupValue.textContent = value || "0";
+      if (popupOdds) popupOdds.textContent = odds || "0%";
+
+      overlay.classList.remove("hidden");
+      popupCard?.classList.remove(
+        "glow-common", "glow-uncommon", "glow-rare", "glow-ultrarare", "glow-legendary", "glow-animated"
+      );
+      popupCard?.classList.add(`glow-${rarity}`, "glow-animated");
     });
+  });
+
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) overlay.classList.add("hidden");
+  });
 }
 
 function generateRandomString(length) {
@@ -1008,18 +1025,25 @@ document.addEventListener("DOMContentLoaded", () => {
   </div>
 </div>
 <!-- Prize Detail Popup -->
-<div id="prize-popup" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
-  <div id="prize-popup-card" class="bg-white p-6 rounded-xl w-full max-w-sm text-center relative text-gray-900">
-    <button id="close-prize-popup" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
-    <img id="prize-popup-image" src="" alt="Prize" class="w-48 h-48 object-contain mx-auto mb-4" />
-    <h3 id="prize-popup-name" class="text-lg font-semibold mb-4"></h3>
-    <div class="flex items-center justify-center gap-6 text-sm">
-      <div class="flex items-center gap-1 text-yellow-300">
-        <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 gem-icon" />
-        <span id="prize-popup-value">0</span>
-      </div>
-      <div class="text-gray-600">
-        <span id="prize-popup-odds">0%</span> chance
+<div id="prize-popup" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center px-4">
+  <div id="prize-popup-card" class="relative w-full max-w-md overflow-hidden rounded-3xl bg-white text-gray-900 shadow-2xl border border-gray-200">
+    <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400"></div>
+    <button id="close-prize-popup" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+    <div class="px-6 py-8 flex flex-col items-center gap-5">
+      <div class="w-full rounded-2xl bg-gray-50 border border-gray-200 p-5 shadow-inner flex flex-col items-center gap-4">
+        <img id="prize-popup-image" src="" alt="Prize" class="w-40 h-40 object-contain drop-shadow-xl" />
+        <h3 id="prize-popup-name" class="text-xl font-semibold text-center text-gray-900"></h3>
+        <div class="flex flex-wrap items-center justify-center gap-3 text-sm">
+          <div class="flex items-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r from-indigo-50 to-blue-50 border border-blue-200 text-blue-700 shadow-sm">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 gem-icon" alt="Gem" />
+            <span id="prize-popup-value" class="font-semibold"></span>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-2 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 shadow-sm">
+            <i class="fa-solid fa-sparkles text-indigo-500"></i>
+            <span id="prize-popup-odds" class="font-semibold"></span>
+            <span class="text-xs text-indigo-500/80">chance</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
