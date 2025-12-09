@@ -219,7 +219,23 @@
       applySpecialLanding(targetIndex, winningItem, opts);
     }
 
-    const velocity = distance / duration;
+    const totalDistance = distance;
+    const absDistance = Math.abs(totalDistance);
+    const decelTiles = opts.decelTiles || 3.5;
+    const decelDistance = Math.min(absDistance, state.tileWidth * decelTiles);
+    const cruiseDistance = Math.max(0, absDistance - decelDistance);
+    const distanceSign = totalDistance < 0 ? -1 : 1;
+
+    const computedCruisePortion = absDistance
+      ? cruiseDistance / absDistance
+      : 0;
+    const cruisePortion = Math.min(0.8, Math.max(0.4, computedCruisePortion));
+
+    function easeOutCubic(t) {
+      const inv = 1 - t;
+      return 1 - inv * inv * inv;
+    }
+
     let start = null;
     let lastCenterPass = null;
     emit("start");
@@ -227,10 +243,19 @@
     function step(timestamp) {
       if (start === null) start = timestamp;
       const elapsed = timestamp - start;
-      const clampedElapsed = Math.min(elapsed, duration);
-      const delta = velocity * clampedElapsed;
+      const progress = Math.min(elapsed / duration, 1);
 
-      const pos = startX + delta;
+      let traveled;
+      if (progress <= cruisePortion || cruisePortion === 0) {
+        const cruiseProgress = cruisePortion === 0 ? 1 : progress / cruisePortion;
+        traveled = cruiseDistance * cruiseProgress;
+      } else {
+        const remainingProgress = (progress - cruisePortion) / (1 - cruisePortion);
+        traveled =
+          cruiseDistance + easeOutCubic(remainingProgress) * decelDistance;
+      }
+
+      const pos = startX + traveled * distanceSign;
       state.root.style.transform = `translate3d(${pos}px,0,0)`;
 
       const containerWidth = container.getBoundingClientRect().width;
