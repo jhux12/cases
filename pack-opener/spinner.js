@@ -219,7 +219,7 @@
       applySpecialLanding(targetIndex, winningItem, opts);
     }
 
-    const cruisePortion = 0.8;
+    const cruisePortion = 0.6;
     const cruiseDuration = duration * cruisePortion;
     const decelDuration = duration - cruiseDuration;
     const cruiseDistance = distance * cruisePortion;
@@ -241,8 +241,8 @@
       } else {
         const decelElapsed = clampedElapsed - cruiseDuration;
         const t = Math.min(Math.max(decelElapsed / decelDuration, 0), 1);
-        const easeOutQuint = 1 - Math.pow(1 - t, 5);
-        const decelDelta = decelDistance * easeOutQuint;
+        const easeOutExpo = t >= 1 ? 1 : 1 - Math.pow(2, -12 * t);
+        const decelDelta = decelDistance * easeOutExpo;
         pos = startX + cruiseDistance + decelDelta;
       }
       state.root.style.transform = `translate3d(${pos}px,0,0)`;
