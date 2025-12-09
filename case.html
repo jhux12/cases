@@ -852,6 +852,7 @@ if (openBtn) openBtn.addEventListener("click", async () => {
         nearMiss: true,
         specialLandingImage: goldSpin ? GOLDEN_PULL_IMAGE : undefined,
         specialLandingLabel: goldSpin ? winningPrize.name : undefined,
+        specialLandingHideInfo: goldSpin,
         onReveal: () => resolve()
       });
     });
@@ -908,88 +909,98 @@ if (openBtn) openBtn.addEventListener("click", async () => {
     showMultiWinPopup(winnings);
   }
 });
-      document.getElementById("try-free-button").addEventListener("click", async () => {
-        const btn = document.getElementById("try-free-button");
-        btn.disabled = true;
-        btn.classList.add("cursor-not-allowed", "opacity-60");
-        btn.innerHTML = `
+        document.getElementById("try-free-button").addEventListener("click", async () => {
+          const btn = document.getElementById("try-free-button");
+          btn.disabled = true;
+          btn.classList.add("cursor-not-allowed", "opacity-60");
+          btn.innerHTML = `
           <span class="relative z-10 flex items-center gap-2 animate-pulse cta-on-gradient">
             <svg class="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
             </svg>
-            Spinning...
-          </span>
-        `;
-        await transitionToReel();
-        const prizes = [...prizeList].sort((a, b) => a.odds - b.odds);
-        const totalOdds = prizes.reduce((sum, p) => sum + p.odds, 0);
+              Spinning...
+            </span>
+          `;
+          const resetDemoButton = () => {
+            btn.disabled = false;
+            btn.classList.remove("cursor-not-allowed", "opacity-60");
+            btn.innerHTML = '<span class="relative z-10 cta-on-gradient">Try for Free</span>';
+          };
 
-        const spinCountDemo = 1;
-        const demoPrizes = [];
-        for (let s = 0; s < spinCountDemo; s++) {
-          const rand = Math.random() * totalOdds;
-          let cumulative = 0;
-          let demoPrize = prizes[prizes.length - 1];
-          for (let p of prizes) {
-            cumulative += p.odds || 0;
-            if (rand < cumulative) {
-              demoPrize = p;
-              break;
-            }
-          }
-          demoPrizes.push(demoPrize);
-        }
+          try {
+            await transitionToReel();
+            const prizes = [...prizeList].sort((a, b) => a.odds - b.odds);
+            const totalOdds = prizes.reduce((sum, p) => sum + p.odds, 0);
 
-        let index = 0;
-        const results = [];
-        function spinDemo() {
-          const prize = demoPrizes[index];
-          const winIdx = openerItems.findIndex(p => p.name === prize.name);
-          const goldSpin = isUltraOrAbove(prize.rarity);
-          setGoldSpinEffect(false);
-          PackOpener.setItems(openerItems);
-          PackOpener.spinToIndex(winIdx, { durationMs: 2400, nearMiss: true, specialLandingImage: goldSpin ? GOLDEN_PULL_IMAGE : undefined, specialLandingLabel: goldSpin ? prize.name : undefined, onReveal: async () => {
-            if (!goldSpin) {
-              finalizeDemoSpin(prize);
-              return;
+            const spinCountDemo = 1;
+            const demoPrizes = [];
+            for (let s = 0; s < spinCountDemo; s++) {
+              const rand = Math.random() * totalOdds;
+              let cumulative = 0;
+              let demoPrize = prizes[prizes.length - 1];
+              for (let p of prizes) {
+                cumulative += p.odds || 0;
+                if (rand < cumulative) {
+                  demoPrize = p;
+                  break;
+                }
+              }
+              demoPrizes.push(demoPrize);
             }
 
-            const eliteItems = openerItems.filter(it => isUltraOrAbove(it.rarity));
-            const eliteIndex = eliteItems.findIndex(it => it.name === prize.name);
-            if (eliteIndex === -1) {
-              finalizeDemoSpin(prize);
-              return;
-            }
+            let index = 0;
+            const results = [];
 
-            await wait(800);
-            setGoldSpinEffect(true);
-            await wait(550);
-            PackOpener.setItems(eliteItems);
-            PackOpener.spinToIndex(eliteIndex, { durationMs: 3200, nearMiss: false, onReveal: () => {
-              setTimeout(() => setGoldSpinEffect(false), 500);
-              finalizeDemoSpin(prize);
+            const finalizeDemoSpin = (prize) => {
+              results.push(prize);
+              setGoldSpinEffect(false);
+              index++;
+              if (index < demoPrizes.length) {
+                spinDemo();
+              } else {
+                resetDemoButton();
+                const names = results.map(p => p.name).join(', ');
+                showToast(`You would have won ${names}!`, "bg-blue-600");
+              }
+            };
+
+            function spinDemo() {
+              const prize = demoPrizes[index];
+              const winIdx = openerItems.findIndex(p => p.name === prize.name);
+              const goldSpin = isUltraOrAbove(prize.rarity);
+              setGoldSpinEffect(false);
               PackOpener.setItems(openerItems);
-            }});
-          }});
-        }
-        spinDemo();
-      });
+              PackOpener.spinToIndex(winIdx, { durationMs: 2400, nearMiss: true, specialLandingImage: goldSpin ? GOLDEN_PULL_IMAGE : undefined, specialLandingLabel: goldSpin ? prize.name : undefined, specialLandingHideInfo: goldSpin, onReveal: async () => {
+                if (!goldSpin) {
+                  finalizeDemoSpin(prize);
+                  return;
+                }
 
-      function finalizeDemoSpin(prize) {
-        results.push(prize);
-        setGoldSpinEffect(false);
-        index++;
-        if (index < demoPrizes.length) {
-          spinDemo();
-        } else {
-          btn.disabled = false;
-          btn.classList.remove("cursor-not-allowed", "opacity-60");
-          btn.innerHTML = '<span class="relative z-10 cta-on-gradient">Try for Free</span>';
-          const names = results.map(p => p.name).join(', ');
-          showToast(`You would have won ${names}!`, "bg-blue-600");
-        }
-      }
+                const eliteItems = openerItems.filter(it => isUltraOrAbove(it.rarity));
+                const eliteIndex = eliteItems.findIndex(it => it.name === prize.name);
+                if (eliteIndex === -1) {
+                  finalizeDemoSpin(prize);
+                  return;
+                }
+
+                await wait(800);
+                setGoldSpinEffect(true);
+                await wait(550);
+                PackOpener.setItems(eliteItems);
+                PackOpener.spinToIndex(eliteIndex, { durationMs: 3200, nearMiss: false, onReveal: () => {
+                  setTimeout(() => setGoldSpinEffect(false), 500);
+                  finalizeDemoSpin(prize);
+                  PackOpener.setItems(openerItems);
+                }});
+              }});
+            }
+            spinDemo();
+          } catch (err) {
+            console.error(err);
+            resetDemoButton();
+          }
+        });
 
   document.getElementById("pf-info").addEventListener("click", async () => {
     const user = firebase.auth().currentUser;

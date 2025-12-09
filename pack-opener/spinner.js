@@ -152,15 +152,20 @@
         : "";
 
     const label = opts.specialLandingLabel || item.name;
+    const showInfo = !opts.specialLandingHideInfo;
 
     landingTile.classList.add("special-landing");
     landingTile.innerHTML = `
       <div class="special-landing__glow"></div>
-      <img src="${opts.specialLandingImage}" alt="${label}"/>
-      <div class="tile-info special-landing__info">
-        <div class="name">${label}</div>
-        ${priceHtml}
-      </div>
+      <img src="${opts.specialLandingImage}" alt="${label || "Special prize"}"/>
+      ${
+        showInfo
+          ? `<div class="tile-info special-landing__info">
+               <div class="name">${label}</div>
+               ${priceHtml}
+             </div>`
+          : ""
+      }
     `;
   }
 
