@@ -179,6 +179,7 @@
 
     const startX = 0;
     const duration = opts.durationMs || 2400;
+    const cruiseRatio = 0.7; // portion of the spin that stays at steady speed
     state.isSpinning = true;
 
     const tiles = state.root.children;
@@ -220,6 +221,10 @@
     }
 
     const velocity = distance / duration;
+    const cruiseDistance = distance * cruiseRatio;
+    const cruiseDuration = duration * cruiseRatio;
+    const decelDistance = distance - cruiseDistance;
+    const decelDuration = duration - cruiseDuration;
     let start = null;
     let lastCenterPass = null;
     emit("start");
@@ -228,9 +233,17 @@
       if (start === null) start = timestamp;
       const elapsed = timestamp - start;
       const clampedElapsed = Math.min(elapsed, duration);
-      const delta = velocity * clampedElapsed;
+      let pos;
 
-      const pos = startX + delta;
+      if (clampedElapsed <= cruiseDuration) {
+        const delta = velocity * clampedElapsed;
+        pos = startX + delta;
+      } else {
+        const decelProgress = (clampedElapsed - cruiseDuration) / decelDuration;
+        const eased = 1 - Math.pow(1 - decelProgress, 3); // ease-out cubic for a pronounced slow down
+        const delta = cruiseDistance + decelDistance * eased;
+        pos = startX + delta;
+      }
       state.root.style.transform = `translate3d(${pos}px,0,0)`;
 
       const containerWidth = container.getBoundingClientRect().width;
