@@ -178,7 +178,7 @@
     state.root.style.transform = "translate3d(0,0,0)";
 
     const startX = 0;
-    const duration = opts.durationMs || 2400;
+    const duration = opts.durationMs || 4200;
     state.isSpinning = true;
 
     const tiles = state.root.children;
@@ -219,51 +219,29 @@
       applySpecialLanding(targetIndex, winningItem, opts);
     }
 
-    // heavier deceleration for slower end spin
-    const accDur = duration * 0.25,
-      decelDur = duration * 0.45,
-      cruiseDur = duration - accDur - decelDur;
-    const accDist = distance * (accDur / duration),
-      decelDist = distance * (decelDur / duration),
-      cruiseDist = distance - accDist - decelDist;
-
-    let lastTick = 0,
-      start = null;
+    const velocity = distance / duration;
+    let start = null;
+    let lastCenterPass = null;
     emit("start");
-
-    function easeInCubic(t) {
-      return t * t * t;
-    }
-    function easeOutQuart(t) {
-      return 1 - Math.pow(1 - t, 4);
-    }
 
     function step(timestamp) {
       if (start === null) start = timestamp;
       const elapsed = timestamp - start;
-      let delta = 0;
-
-      if (elapsed < accDur) {
-        delta = easeInCubic(elapsed / accDur) * accDist;
-      } else if (elapsed < accDur + cruiseDur) {
-        const t = (elapsed - accDur) / cruiseDur;
-        delta = accDist + t * cruiseDist;
-        if (!state.cruiseEmitted) {
-          emit("cruise");
-          state.cruiseEmitted = true;
-        }
-      } else if (elapsed < duration) {
-        const t = (elapsed - accDur - cruiseDur) / decelDur;
-        delta = accDist + cruiseDist + easeOutQuart(t) * decelDist;
-      } else {
-        delta = distance;
-      }
+      const clampedElapsed = Math.min(elapsed, duration);
+      const delta = velocity * clampedElapsed;
 
       const pos = startX + delta;
       state.root.style.transform = `translate3d(${pos}px,0,0)`;
-      if (timestamp - lastTick > 120) {
+
+      const containerWidth = container.getBoundingClientRect().width;
+      const centerLine = containerWidth / 2;
+      const currentCenterPass = Math.floor(
+        (centerLine - pos - state.tileWidth / 2) / state.tileWidth
+      );
+
+      if (currentCenterPass !== lastCenterPass) {
         playTick();
-        lastTick = timestamp;
+        lastCenterPass = currentCenterPass;
       }
 
       if (elapsed < duration) {
