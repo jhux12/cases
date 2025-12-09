@@ -557,6 +557,10 @@ function setGoldSpinEffect(enabled) {
   wrapper.classList.toggle('gold-spin', Boolean(enabled));
 }
 
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function showToast(message, color = 'bg-red-600') {
   const toast = document.getElementById("toast");
   toast.textContent = message;
@@ -846,6 +850,8 @@ if (openBtn) openBtn.addEventListener("click", async () => {
       PackOpener.spinToIndex(winIndex, {
         durationMs: 2400,
         nearMiss: true,
+        specialLandingImage: goldSpin ? GOLDEN_PULL_IMAGE : undefined,
+        specialLandingLabel: goldSpin ? winningPrize.name : undefined,
         onReveal: () => resolve()
       });
     });
@@ -854,14 +860,14 @@ if (openBtn) openBtn.addEventListener("click", async () => {
       const eliteItems = openerItems.filter(it => isUltraOrAbove(it.rarity));
       const eliteIndex = eliteItems.findIndex(it => it.name === winningPrize.name);
       if (eliteIndex !== -1) {
+        await wait(450);
         setGoldSpinEffect(true);
+        await wait(350);
         await new Promise(resolve => {
           PackOpener.setItems(eliteItems);
           PackOpener.spinToIndex(eliteIndex, {
             durationMs: 2400,
             nearMiss: false,
-            specialLandingImage: GOLDEN_PULL_IMAGE,
-            specialLandingLabel: winningPrize.name,
             onReveal: () => {
               resolve();
               setTimeout(() => setGoldSpinEffect(false), 500);
@@ -943,7 +949,7 @@ if (openBtn) openBtn.addEventListener("click", async () => {
           const goldSpin = isUltraOrAbove(prize.rarity);
           setGoldSpinEffect(false);
           PackOpener.setItems(openerItems);
-          PackOpener.spinToIndex(winIdx, { durationMs: 2400, nearMiss: true, onReveal: () => {
+          PackOpener.spinToIndex(winIdx, { durationMs: 2400, nearMiss: true, specialLandingImage: goldSpin ? GOLDEN_PULL_IMAGE : undefined, specialLandingLabel: goldSpin ? prize.name : undefined, onReveal: async () => {
             if (!goldSpin) {
               finalizeDemoSpin(prize);
               return;
@@ -956,9 +962,11 @@ if (openBtn) openBtn.addEventListener("click", async () => {
               return;
             }
 
+            await wait(450);
             setGoldSpinEffect(true);
+            await wait(350);
             PackOpener.setItems(eliteItems);
-            PackOpener.spinToIndex(eliteIndex, { durationMs: 2400, nearMiss: false, specialLandingImage: GOLDEN_PULL_IMAGE, specialLandingLabel: prize.name, onReveal: () => {
+            PackOpener.spinToIndex(eliteIndex, { durationMs: 2400, nearMiss: false, onReveal: () => {
               setTimeout(() => setGoldSpinEffect(false), 500);
               finalizeDemoSpin(prize);
               PackOpener.setItems(openerItems);
