@@ -219,51 +219,29 @@
       applySpecialLanding(targetIndex, winningItem, opts);
     }
 
-    // heavier deceleration for slower end spin
-    const accDur = duration * 0.25,
-      decelDur = duration * 0.45,
-      cruiseDur = duration - accDur - decelDur;
-    const accDist = distance * (accDur / duration),
-      decelDist = distance * (decelDur / duration),
-      cruiseDist = distance - accDist - decelDist;
-
-    let lastTick = 0,
-      start = null;
+    const velocity = distance / duration;
+    let start = null;
+    let lastCenterPass = null;
     emit("start");
-
-    function easeInCubic(t) {
-      return t * t * t;
-    }
-    function easeOutQuart(t) {
-      return 1 - Math.pow(1 - t, 4);
-    }
 
     function step(timestamp) {
       if (start === null) start = timestamp;
       const elapsed = timestamp - start;
-      let delta = 0;
-
-      if (elapsed < accDur) {
-        delta = easeInCubic(elapsed / accDur) * accDist;
-      } else if (elapsed < accDur + cruiseDur) {
-        const t = (elapsed - accDur) / cruiseDur;
-        delta = accDist + t * cruiseDist;
-        if (!state.cruiseEmitted) {
-          emit("cruise");
-          state.cruiseEmitted = true;
-        }
-      } else if (elapsed < duration) {
-        const t = (elapsed - accDur - cruiseDur) / decelDur;
-        delta = accDist + cruiseDist + easeOutQuart(t) * decelDist;
-      } else {
-        delta = distance;
-      }
+      const clampedElapsed = Math.min(elapsed, duration);
+      const delta = velocity * clampedElapsed;
 
       const pos = startX + delta;
       state.root.style.transform = `translate3d(${pos}px,0,0)`;
-      if (timestamp - lastTick > 120) {
+
+      const containerWidth = container.getBoundingClientRect().width;
+      const centerLine = containerWidth / 2;
+      const currentCenterPass = Math.floor(
+        (centerLine - pos - state.tileWidth / 2) / state.tileWidth
+      );
+
+      if (currentCenterPass !== lastCenterPass) {
         playTick();
-        lastTick = timestamp;
+        lastCenterPass = currentCenterPass;
       }
 
       if (elapsed < duration) {
@@ -302,10 +280,25 @@
     state.animationId = requestAnimationFrame(step);
   }
 
+  function getMatrix(transform) {
+    const MatrixCtor =
+      window.DOMMatrixReadOnly || window.DOMMatrix || window.WebKitCSSMatrix;
+
+    if (!MatrixCtor) return { m41: 0 };
+
+    try {
+      return new MatrixCtor(transform);
+    } catch (err) {
+      return new MatrixCtor();
+    }
+  }
+
   function getCurrentX() {
+    if (!state.root) return 0;
+
     const style = getComputedStyle(state.root);
-    const matrix = new DOMMatrixReadOnly(style.transform);
-    return matrix.m41;
+    const matrix = getMatrix(style.transform);
+    return matrix.m41 || 0;
   }
 
   function snapToIndex(index, opts = {}) {
