@@ -118,11 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const title = document.createElement("p");
           title.className = "notification-card__title";
           title.textContent = item.title || "Update";
-          const meta = document.createElement("span");
-          meta.className = "notification-card__meta";
-          meta.textContent = item.createdAt ? new Date(item.createdAt).toLocaleString() : "";
           heading.appendChild(title);
-          heading.appendChild(meta);
 
           const dismissButton = document.createElement("button");
           dismissButton.className = "notification-card__close";
@@ -162,6 +158,11 @@ document.addEventListener("DOMContentLoaded", () => {
             link.textContent = item.link;
             card.appendChild(link);
           }
+
+          const meta = document.createElement("span");
+          meta.className = "notification-card__meta";
+          meta.textContent = item.createdAt ? new Date(item.createdAt).toLocaleString() : "";
+          card.appendChild(meta);
 
           notificationList.appendChild(card);
         });
