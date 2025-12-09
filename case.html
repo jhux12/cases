@@ -848,7 +848,7 @@ if (openBtn) openBtn.addEventListener("click", async () => {
     await new Promise(resolve => {
       PackOpener.setItems(openerItems);
       PackOpener.spinToIndex(winIndex, {
-        durationMs: 2400,
+        durationMs: 5200,
         nearMiss: true,
         specialLandingImage: goldSpin ? GOLDEN_PULL_IMAGE : undefined,
         specialLandingLabel: goldSpin ? winningPrize.name : undefined,
@@ -867,7 +867,7 @@ if (openBtn) openBtn.addEventListener("click", async () => {
         await new Promise(resolve => {
           PackOpener.setItems(eliteItems);
           PackOpener.spinToIndex(eliteIndex, {
-            durationMs: 4200,
+            durationMs: 7600,
             nearMiss: false,
             onReveal: () => {
               resolve();
@@ -972,7 +972,7 @@ if (openBtn) openBtn.addEventListener("click", async () => {
               const goldSpin = isUltraOrAbove(prize.rarity);
               setGoldSpinEffect(false);
               PackOpener.setItems(openerItems);
-              PackOpener.spinToIndex(winIdx, { durationMs: 2400, nearMiss: true, specialLandingImage: goldSpin ? GOLDEN_PULL_IMAGE : undefined, specialLandingLabel: goldSpin ? prize.name : undefined, specialLandingHideInfo: goldSpin, onReveal: async () => {
+              PackOpener.spinToIndex(winIdx, { durationMs: 5200, nearMiss: true, specialLandingImage: goldSpin ? GOLDEN_PULL_IMAGE : undefined, specialLandingLabel: goldSpin ? prize.name : undefined, specialLandingHideInfo: goldSpin, onReveal: async () => {
                 if (!goldSpin) {
                   finalizeDemoSpin(prize);
                   return;
@@ -989,7 +989,7 @@ if (openBtn) openBtn.addEventListener("click", async () => {
                 setGoldSpinEffect(true);
                 await wait(900);
                 PackOpener.setItems(eliteItems);
-                PackOpener.spinToIndex(eliteIndex, { durationMs: 4200, nearMiss: false, onReveal: () => {
+                PackOpener.spinToIndex(eliteIndex, { durationMs: 7600, nearMiss: false, onReveal: () => {
                   setTimeout(() => setGoldSpinEffect(false), 500);
                   finalizeDemoSpin(prize);
                   PackOpener.setItems(openerItems);

@@ -88,13 +88,34 @@
     if (state.muted) return;
     const ctx = getCtx();
     const osc = ctx.createOscillator();
-    osc.type = "triangle";
-    osc.frequency.value = 800;
+    osc.type = "sawtooth";
+
+    const base = 520 + Math.random() * 140;
+    const now = ctx.currentTime;
+    osc.frequency.setValueAtTime(base, now);
+    osc.frequency.exponentialRampToValueAtTime(base * 0.7, now + 0.12);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(base * 2.1, now);
+    filter.Q.value = 14;
+
     const gain = ctx.createGain();
-    gain.gain.value = 0.02;
-    osc.connect(gain).connect(ctx.destination);
+    gain.gain.setValueAtTime(0.0008, now);
+    gain.gain.exponentialRampToValueAtTime(0.08, now + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+
+    const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+    if (pan) {
+      const swing = (Math.random() * 1.4 - 0.7) * 0.6;
+      pan.pan.setValueAtTime(swing, now);
+      osc.connect(filter).connect(gain).connect(pan).connect(ctx.destination);
+    } else {
+      osc.connect(filter).connect(gain).connect(ctx.destination);
+    }
+
     osc.start();
-    osc.stop(ctx.currentTime + 0.05);
+    osc.stop(now + 0.25);
   }
 
   let audioCtx;
@@ -227,8 +248,10 @@
       decelDist = distance * (decelDur / duration),
       cruiseDist = distance - accDist - decelDist;
 
-    let lastTick = 0,
-      start = null;
+    let lastCenteredIndex = Math.round(
+      (centerOffset - startX) / state.tileWidth
+    );
+    let start = null;
     emit("start");
 
     function easeInCubic(t) {
@@ -261,9 +284,12 @@
 
       const pos = startX + delta;
       state.root.style.transform = `translate3d(${pos}px,0,0)`;
-      if (timestamp - lastTick > 120) {
+      const currentCenteredIndex = Math.round(
+        (centerOffset - pos) / state.tileWidth
+      );
+      if (currentCenteredIndex !== lastCenteredIndex) {
         playTick();
-        lastTick = timestamp;
+        lastCenteredIndex = currentCenteredIndex;
       }
 
       if (elapsed < duration) {
