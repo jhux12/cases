@@ -12,6 +12,44 @@ document.addEventListener("DOMContentLoaded", () => {
     observer.observe(document.body, { childList: true, subtree: true });
   };
 
+  const setupSlotLogos = () => {
+    const logos = document.querySelectorAll(".slot-logo");
+    if (!logos.length) return;
+
+    logos.forEach((logo) => {
+      if (logo.dataset.slotReady === "true") return;
+
+      const label = (logo.dataset.text || logo.textContent || "").trim();
+      if (!label) return;
+
+      const lettersWrapper = document.createElement("span");
+      lettersWrapper.className = "slot-logo__letters";
+
+      label.split("").forEach((char, index) => {
+        const letter = document.createElement("span");
+        letter.className = "slot-logo__letter";
+        letter.textContent = char === " " ? "\u00a0" : char;
+        letter.style.setProperty("--slot-delay", `${index * 70}ms`);
+        lettersWrapper.appendChild(letter);
+      });
+
+      logo.textContent = "";
+      logo.appendChild(lettersWrapper);
+      logo.dataset.slotReady = "true";
+
+      const triggerAnimation = () => {
+        lettersWrapper.classList.remove("is-rolling");
+        void lettersWrapper.offsetWidth;
+        lettersWrapper.classList.add("is-rolling");
+      };
+
+      triggerAnimation();
+      setInterval(triggerAnimation, 10000);
+    });
+  };
+
+  waitForElement(".slot-logo", setupSlotLogos);
+
   // Firebase user info injection AFTER header is rendered
   waitForElement("#username-display", () => {
     const usernameEl = document.getElementById("username-display");
