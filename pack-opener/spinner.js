@@ -178,7 +178,7 @@
     state.root.style.transform = "translate3d(0,0,0)";
 
     const startX = 0;
-    const duration = opts.durationMs || 2400;
+    const duration = opts.durationMs || 4200;
     state.isSpinning = true;
 
     const tiles = state.root.children;
@@ -219,51 +219,54 @@
       applySpecialLanding(targetIndex, winningItem, opts);
     }
 
-    // heavier deceleration for slower end spin
-    const accDur = duration * 0.25,
-      decelDur = duration * 0.45,
-      cruiseDur = duration - accDur - decelDur;
-    const accDist = distance * (accDur / duration),
-      decelDist = distance * (decelDur / duration),
-      cruiseDist = distance - accDist - decelDist;
+    const totalDistance = distance;
+    const absDistance = Math.abs(totalDistance);
+    const decelTiles = opts.decelTiles || 3.5;
+    const decelDistance = Math.min(absDistance, state.tileWidth * decelTiles);
+    const cruiseDistance = Math.max(0, absDistance - decelDistance);
+    const distanceSign = totalDistance < 0 ? -1 : 1;
 
-    let lastTick = 0,
-      start = null;
+    const computedCruisePortion = absDistance
+      ? cruiseDistance / absDistance
+      : 0;
+    const cruisePortion = Math.min(0.8, Math.max(0.4, computedCruisePortion));
+
+    function easeOutCubic(t) {
+      const inv = 1 - t;
+      return 1 - inv * inv * inv;
+    }
+
+    let start = null;
+    let lastCenterPass = null;
     emit("start");
-
-    function easeInCubic(t) {
-      return t * t * t;
-    }
-    function easeOutQuart(t) {
-      return 1 - Math.pow(1 - t, 4);
-    }
 
     function step(timestamp) {
       if (start === null) start = timestamp;
       const elapsed = timestamp - start;
-      let delta = 0;
+      const progress = Math.min(elapsed / duration, 1);
 
-      if (elapsed < accDur) {
-        delta = easeInCubic(elapsed / accDur) * accDist;
-      } else if (elapsed < accDur + cruiseDur) {
-        const t = (elapsed - accDur) / cruiseDur;
-        delta = accDist + t * cruiseDist;
-        if (!state.cruiseEmitted) {
-          emit("cruise");
-          state.cruiseEmitted = true;
-        }
-      } else if (elapsed < duration) {
-        const t = (elapsed - accDur - cruiseDur) / decelDur;
-        delta = accDist + cruiseDist + easeOutQuart(t) * decelDist;
+      let traveled;
+      if (progress <= cruisePortion || cruisePortion === 0) {
+        const cruiseProgress = cruisePortion === 0 ? 1 : progress / cruisePortion;
+        traveled = cruiseDistance * cruiseProgress;
       } else {
-        delta = distance;
+        const remainingProgress = (progress - cruisePortion) / (1 - cruisePortion);
+        traveled =
+          cruiseDistance + easeOutCubic(remainingProgress) * decelDistance;
       }
 
-      const pos = startX + delta;
+      const pos = startX + traveled * distanceSign;
       state.root.style.transform = `translate3d(${pos}px,0,0)`;
-      if (timestamp - lastTick > 120) {
+
+      const containerWidth = container.getBoundingClientRect().width;
+      const centerLine = containerWidth / 2;
+      const currentCenterPass = Math.floor(
+        (centerLine - pos - state.tileWidth / 2) / state.tileWidth
+      );
+
+      if (currentCenterPass !== lastCenterPass) {
         playTick();
-        lastTick = timestamp;
+        lastCenterPass = currentCenterPass;
       }
 
       if (elapsed < duration) {
