@@ -43,6 +43,33 @@
       vertical-align: middle;
       object-fit: contain;
     }
+    #open-case-button {
+      position: relative;
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.35), 0 0 0 2px rgba(124, 58, 237, 0.25);
+      animation: paidSpinPulse 2.6s ease-in-out infinite, paidSpinShimmer 8s linear infinite;
+    }
+    #open-case-button::after {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: inherit;
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0.22), transparent 40%, rgba(255, 255, 255, 0.16));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    #open-case-button:hover::after {
+      opacity: 1;
+    }
+    @keyframes paidSpinPulse {
+      0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.35), 0 0 0 2px rgba(124, 58, 237, 0.25); }
+      50% { transform: translateY(-2px) scale(1.02); box-shadow: 0 14px 34px rgba(124, 58, 237, 0.42), 0 0 0 3px rgba(124, 58, 237, 0.32); }
+    }
+    @keyframes paidSpinShimmer {
+      0% { filter: hue-rotate(0deg); }
+      50% { filter: hue-rotate(12deg); }
+      100% { filter: hue-rotate(0deg); }
+    }
     .reel-wrapper {
       position: relative;
       overflow: hidden;
