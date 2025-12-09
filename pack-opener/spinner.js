@@ -220,11 +220,13 @@
       applySpecialLanding(targetIndex, winningItem, opts);
     }
 
-    const velocity = distance / duration;
-    const cruiseDistance = distance * cruiseRatio;
     const cruiseDuration = duration * cruiseRatio;
-    const decelDistance = distance - cruiseDistance;
     const decelDuration = duration - cruiseDuration;
+    const cruiseSpeed = distance / (cruiseDuration + 0.5 * decelDuration);
+    const cruiseDistance = cruiseSpeed * cruiseDuration;
+    // Apply a constant deceleration from the cruise speed down to 0 so velocity
+    // never increases once the slowdown starts.
+    const decel = cruiseSpeed / decelDuration;
     let start = null;
     let lastCenterPass = null;
     emit("start");
@@ -236,12 +238,15 @@
       let pos;
 
       if (clampedElapsed <= cruiseDuration) {
-        const delta = velocity * clampedElapsed;
+        const delta = cruiseSpeed * clampedElapsed;
         pos = startX + delta;
       } else {
-        const decelProgress = (clampedElapsed - cruiseDuration) / decelDuration;
-        const eased = 1 - Math.pow(1 - decelProgress, 3); // ease-out cubic for a pronounced slow down
-        const delta = cruiseDistance + decelDistance * eased;
+        const decelElapsed = Math.min(clampedElapsed - cruiseDuration, decelDuration);
+        // Constant deceleration from the cruise speed until the spinner stops.
+        const delta =
+          cruiseDistance +
+          cruiseSpeed * decelElapsed -
+          0.5 * decel * decelElapsed * decelElapsed;
         pos = startX + delta;
       }
       state.root.style.transform = `translate3d(${pos}px,0,0)`;
