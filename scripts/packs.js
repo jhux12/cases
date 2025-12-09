@@ -22,18 +22,29 @@ function getTopPrizes(prizes, limit = 2) {
 
 function buildShowcaseGallery(prizes, fallbackImg) {
   if (!prizes.length) return "";
-  const swatches = prizes
+
+  const featureRows = prizes
     .map(
-      (prize, idx) => `
-        <div class="relative h-16 w-16 rounded-full ring-2 ring-white/80 shadow-lg overflow-hidden bg-white ${idx !== 0 ? '-ml-3' : ''}">
-          <img src="${prize.image || fallbackImg}" alt="${prize.name || "Pack prize"}" class="h-full w-full object-cover">
+      prize => `
+        <div class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 shadow-sm backdrop-blur-sm">
+          <div class="h-12 w-12 rounded-full overflow-hidden ring-2 ring-white/70 ring-offset-2 ring-offset-slate-900/60">
+            <img src="${prize.image || fallbackImg}" alt="${prize.name || "Pack prize"}" class="h-full w-full object-cover">
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-white truncate">${prize.name || "Top prize"}</p>
+            <p class="text-xs text-slate-300 truncate">${prize.value || ""}</p>
+          </div>
         </div>`
     )
     .join("");
 
   return `
-    <div class="mt-3 flex items-center justify-center">
-      <div class="flex items-center -space-x-4">${swatches}</div>
+    <div class="pack-top-prizes space-y-3">
+      <div class="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-slate-300">
+        <span class="inline-flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>Top prizes</span>
+        <span class="text-slate-400">${prizes.length} featured</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${featureRows}</div>
     </div>`;
 }
 function getPepperHTML(spiceLevel) {
@@ -52,19 +63,70 @@ function getPepperHTML(spiceLevel) {
 function getTagHTML(tag) {
   if (!tag) return "";
   const lower = tag.toLowerCase();
-  let cls = "bg-indigo-100 text-indigo-800";
+  let cls = "bg-indigo-500/15 text-indigo-100 border border-indigo-300/30";
   if (lower.includes('hot')) {
-    cls = "bg-red-100 text-red-800";
+    cls = "bg-red-500/15 text-red-100 border border-red-300/30";
   } else if (lower.includes('new')) {
-    cls = "bg-blue-100 text-blue-800";
+    cls = "bg-blue-500/15 text-blue-100 border border-blue-300/30";
   }
-  return `<span class="absolute top-2 left-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cls} z-30">${tag}</span>`;
+  return `<span class="absolute top-3 left-3 inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold backdrop-blur ${cls} z-30 shadow-sm">${tag}</span>`;
 }
 function calculateCasesPerPage() {
   const container = document.getElementById("cases-container");
   if (!container) return ROW_LIMIT * 5;
   const columns = getComputedStyle(container).gridTemplateColumns.split(" ").filter(Boolean).length;
   return columns * ROW_LIMIT;
+}
+
+function buildPackCard({
+  c,
+  tagHTML,
+  pepperHTML,
+  showcaseGallery,
+  priceMarkup,
+  packImg,
+  openLink,
+  imgId,
+  isCarousel
+}) {
+  const containerClasses = [
+    "pack-card relative overflow-hidden rounded-2xl border border-white/10",
+    "bg-slate-900/70 shadow-[0_25px_65px_rgba(15,23,42,0.45)]",
+    isCarousel ? "w-72 flex-shrink-0" : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const imageHeight = isCarousel ? "h-56" : "h-64";
+
+  return `
+    <article class="${containerClasses}">
+      <div class="absolute inset-0 bg-gradient-to-b from-white/5 via-white/0 to-white/10"></div>
+      <div class="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_20%_15%,rgba(79,70,229,0.25),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(14,165,233,0.28),transparent_35%)]"></div>
+      ${tagHTML}
+      <div class="relative flex flex-col gap-5 p-5">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Pack</p>
+            <h3 class="mt-1 text-xl font-semibold text-white">${c.name}</h3>
+          </div>
+          <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-sm font-semibold text-white shadow-inner ring-1 ring-white/20 backdrop-blur">
+            ${c.isFree ? '<i class="fa-solid fa-gift text-emerald-300"></i>' : ''}
+            ${c.isFree ? '<span>Free</span>' : priceMarkup}
+          </div>
+        </div>
+        <div class="relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-slate-800/80 via-slate-900/60 to-slate-950/80 shadow-inner">
+          <div class="absolute -inset-10 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.3),transparent_45%),radial-gradient(circle_at_80%_40%,rgba(16,185,129,0.25),transparent_40%)]"></div>
+          <img src="${packImg}" id="${imgId}" alt="${c.name} pack" class="case-card-img relative z-10 w-full ${imageHeight} object-contain drop-shadow-2xl">
+          ${pepperHTML}
+        </div>
+        ${showcaseGallery}
+        <a href="${openLink}" class="open-button glow-button text-sm whitespace-nowrap">
+          <span>Open for</span>
+          <span class="inline-flex items-center gap-2">${priceMarkup}</span>
+        </a>
+      </div>
+    </article>`;
 }
 
 function renderCases(caseList, reset = true) {
@@ -98,7 +160,10 @@ function renderCases(caseList, reset = true) {
     const priceLabel = c.isFree ? "Free" : price.toLocaleString();
     const priceIcon = c.isFree
       ? ""
-      : '<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gems" class="h-4 w-4 ml-1 gem-icon">';
+      : '<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gems" class="h-4 w-4 gem-icon">';
+    const priceMarkup = c.isFree
+      ? '<span class="text-white">Free</span>'
+      : `<span>${priceLabel}</span>${priceIcon}`;
 
     const prizes = Object.values(c.prizes || {});
     const topPrizes = getTopPrizes(prizes, 2);
@@ -112,43 +177,31 @@ function renderCases(caseList, reset = true) {
 
     const openLink = `case.html?id=${c.id}`;
 
-    casesContainer.innerHTML += `
-      <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card">
-        <div class="relative flex items-center justify-center pt-12 pb-6 bg-gradient-to-b from-slate-900/5 to-white">
-          <div class="absolute inset-0 bg-gradient-to-br from-indigo-200/30 via-transparent to-purple-200/30 pointer-events-none"></div>
-          <img src="${packImg}" id="${imgIdDesktop}" class="case-card-img relative z-20 w-full h-64 object-contain p-6 transition-all duration-300">
-          ${tagHTML}
-          ${pepperHTML}
-        </div>
-        <div class="p-4">
-          <h3 class="text-lg font-medium text-gray-900">${c.name}</h3>
-          ${showcaseGallery}
-          <div class="mt-4">
-            <a href="${openLink}" class="open-button glow-button text-sm whitespace-nowrap">
-              Open for ${priceLabel} ${priceIcon}
-            </a>
-          </div>
-        </div>
-      </div>`;
+    const gridCard = buildPackCard({
+      c,
+      tagHTML,
+      pepperHTML,
+      showcaseGallery,
+      priceMarkup,
+      packImg,
+      openLink,
+      imgId: imgIdDesktop,
+      isCarousel: false
+    });
+    casesContainer.innerHTML += gridCard;
     if (casesCarousel && isMobile) {
-      casesCarousel.innerHTML += `
-        <div class="bg-white rounded-xl overflow-hidden shadow-md pack-card w-64 flex-shrink-0">
-          <div class="relative flex items-center justify-center pt-12 pb-6 bg-gradient-to-b from-slate-900/5 to-white">
-            <div class="absolute inset-0 bg-gradient-to-br from-indigo-200/30 via-transparent to-purple-200/30 pointer-events-none"></div>
-            <img src="${packImg}" id="${imgIdMobile}" class="case-card-img relative z-20 w-full h-64 object-contain p-6 transition-all duration-300">
-            ${tagHTML}
-            ${pepperHTML}
-          </div>
-          <div class="p-4">
-            <h3 class="text-lg font-medium text-gray-900">${c.name}</h3>
-            ${showcaseGallery}
-            <div class="mt-4">
-              <a href="${openLink}" class="open-button glow-button text-sm whitespace-nowrap">
-                Open for ${priceLabel} ${priceIcon}
-              </a>
-            </div>
-          </div>
-        </div>`;
+      const carouselCard = buildPackCard({
+        c,
+        tagHTML,
+        pepperHTML,
+        showcaseGallery,
+        priceMarkup,
+        packImg,
+        openLink,
+        imgId: imgIdMobile,
+        isCarousel: true
+      });
+      casesCarousel.innerHTML += carouselCard;
     }
 
     // Add hover effect after rendering
