@@ -861,13 +861,13 @@ if (openBtn) openBtn.addEventListener("click", async () => {
       const eliteItems = openerItems.filter(it => isUltraOrAbove(it.rarity));
       const eliteIndex = eliteItems.findIndex(it => it.name === winningPrize.name);
       if (eliteIndex !== -1) {
-        await wait(800);
+        await wait(1400);
         setGoldSpinEffect(true);
-        await wait(550);
+        await wait(900);
         await new Promise(resolve => {
           PackOpener.setItems(eliteItems);
           PackOpener.spinToIndex(eliteIndex, {
-            durationMs: 3200,
+            durationMs: 4200,
             nearMiss: false,
             onReveal: () => {
               resolve();
@@ -985,11 +985,11 @@ if (openBtn) openBtn.addEventListener("click", async () => {
                   return;
                 }
 
-                await wait(800);
+                await wait(1400);
                 setGoldSpinEffect(true);
-                await wait(550);
+                await wait(900);
                 PackOpener.setItems(eliteItems);
-                PackOpener.spinToIndex(eliteIndex, { durationMs: 3200, nearMiss: false, onReveal: () => {
+                PackOpener.spinToIndex(eliteIndex, { durationMs: 4200, nearMiss: false, onReveal: () => {
                   setTimeout(() => setGoldSpinEffect(false), 500);
                   finalizeDemoSpin(prize);
                   PackOpener.setItems(openerItems);
