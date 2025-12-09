@@ -552,11 +552,12 @@ body.dark-mode .notification-center {
 
 .notification-card {
   border-radius: 14px;
-  padding: 0.9rem;
+  padding: 0.9rem 0.9rem 1.5rem;
   border: 1px solid var(--card-border);
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.06), rgba(56, 189, 248, 0.06));
   display: grid;
   gap: 0.3rem;
+  position: relative;
 }
 
 .notification-card__header {
@@ -601,8 +602,14 @@ body.dark-mode .notification-card[data-severity="success"] {
 }
 
 .notification-card__meta {
-  font-size: 0.8rem;
+  position: absolute;
+  right: 0.85rem;
+  bottom: 0.65rem;
+  font-size: 0.55rem;
+  letter-spacing: 0.02em;
   color: var(--text-muted);
+  text-align: right;
+  opacity: 0.85;
 }
 
 .notification-card__close {
