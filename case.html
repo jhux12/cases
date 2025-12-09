@@ -362,6 +362,14 @@ const formatOdds = (odds) => {
 
 const VOUCHER_NAME_PATTERN = /voucher/i;
 
+const rarityColors = {
+  common: "#a1a1aa",
+  uncommon: "#4ade80",
+  rare: "#60a5fa",
+  ultrarare: "#c084fc",
+  legendary: "#facc15"
+};
+
 const getVoucherAmount = (prize = {}) => {
   const candidates = [prize.voucherAmount, prize.redeemValue, prize.redeemAmount];
   for (const value of candidates) {
@@ -399,19 +407,24 @@ function initBestDropsCarousel(items) {
   const track = document.getElementById('best-drops-track');
   if (!track || !items.length) return;
   track.innerHTML = '';
-  const frag = document.createDocumentFragment();
-  items.forEach((it) => {
+  const createCard = (it) => {
+    const rarity = normalizeRarity(it.rarity);
+    const color = getRarityColor(rarity);
     const card = document.createElement('div');
     card.className = 'best-drop-card';
+    card.dataset.rarity = rarity;
+    card.style.border = `2px solid ${color}`;
+    card.style.boxShadow = `0 0 12px ${color}33`;
     card.innerHTML = `<img src="${it.image}" alt="${it.name}"/>`;
-    frag.appendChild(card);
+    return card;
+  };
+  const frag = document.createDocumentFragment();
+  items.forEach((it) => {
+    frag.appendChild(createCard(it));
   });
   // duplicate for seamless loop
   items.forEach((it) => {
-    const card = document.createElement('div');
-    card.className = 'best-drop-card';
-    card.innerHTML = `<img src="${it.image}" alt="${it.name}"/>`;
-    frag.appendChild(card);
+    frag.appendChild(createCard(it));
   });
   track.appendChild(frag);
   const first = track.querySelector('.best-drop-card');
@@ -544,6 +557,10 @@ const GOLDEN_PULL_IMAGE = "https://firebasestorage.googleapis.com/v0/b/cases-e5b
 
 function normalizeRarity(rarity) {
   return (rarity || "").toLowerCase().replace(/\s+/g, "");
+}
+
+function getRarityColor(rarity) {
+  return rarityColors[normalizeRarity(rarity)] || "#a1a1aa";
 }
 
 function isUltraOrAbove(rarity) {
@@ -726,23 +743,16 @@ if (repeatedBestDrops.length) {
   const wrapper = document.getElementById('best-drops-wrapper');
   if (wrapper) wrapper.style.display = 'none';
 }
-      const rarityColors = {
-        common: "#a1a1aa",
-        uncommon: "#4ade80",
-        rare: "#60a5fa",
-        ultrarare: "#c084fc",
-        legendary: "#facc15"
-      };
       document.getElementById("prizes-grid").innerHTML = prizeList
         .map(prize => {
           const rarity = (prize.rarity || "common")
             .toLowerCase()
             .replace(/\s+/g, '');
-          const color = rarityColors[rarity] || "#a1a1aa";
+          const color = getRarityColor(rarity);
           const displayValue = formatGems(getEffectiveValue(prize));
           const displayOdds = `${formatOdds(prize.odds)}%`;
           return `
-  <div class="prize-card rounded-xl overflow-hidden bg-white border-2 text-gray-900 text-center shadow-sm cursor-pointer transition-transform duration-200 hover:scale-105" data-rarity="${rarity}" data-name="${prize.name}" data-image="${prize.image}" data-value="${displayValue}" data-odds="${displayOdds}" style="border-color:${color}">
+  <div class="prize-card rounded-xl overflow-hidden bg-white border border-2 text-gray-900 text-center shadow-sm cursor-pointer transition-transform duration-200 hover:scale-105" data-rarity="${rarity}" data-name="${prize.name}" data-image="${prize.image}" data-value="${displayValue}" data-odds="${displayOdds}" style="border:2px solid ${color}">
     <div class="p-4">
       <img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-gray-50 rounded-lg" />
       <div class="prize-name font-semibold text-sm clamp-2">${prize.name}</div>
