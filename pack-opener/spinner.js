@@ -140,6 +140,30 @@
     setTimeout(() => container.remove(), 700);
   }
 
+  function applySpecialLanding(targetIndex, item, opts) {
+    if (!opts.specialLandingImage || !state.root) return;
+    const tiles = state.root.children;
+    const landingTile = tiles[targetIndex];
+    if (!landingTile) return;
+
+    const priceHtml =
+      item.value !== undefined
+        ? `<div class="price">${Number(item.value).toLocaleString()}<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gem"/></div>`
+        : "";
+
+    const label = opts.specialLandingLabel || item.name;
+
+    landingTile.classList.add("special-landing");
+    landingTile.innerHTML = `
+      <div class="special-landing__glow"></div>
+      <img src="${opts.specialLandingImage}" alt="${label}"/>
+      <div class="tile-info special-landing__info">
+        <div class="name">${label}</div>
+        ${priceHtml}
+      </div>
+    `;
+  }
+
   function spinToIndex(index, opts = {}) {
     if (state.isSpinning || !state.root) return;
     if (state.animationId) cancelAnimationFrame(state.animationId);
@@ -181,9 +205,14 @@
     const centerOffset = containerWidth / 2 - state.tileWidth / 2;
 
     const targetIndex = state.items.length * 2 + index;
+    const winningItem = state.items[index];
     const perfectX = -(targetIndex * state.tileWidth - centerOffset);
     const finalX = perfectX + offset;
     const distance = finalX - startX;
+
+    if (opts.specialLandingImage && winningItem) {
+      applySpecialLanding(targetIndex, winningItem, opts);
+    }
 
     // heavier deceleration for slower end spin
     const accDur = duration * 0.25,

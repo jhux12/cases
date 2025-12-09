@@ -55,6 +55,25 @@
       padding: 1rem 0;
       min-height: 260px;
     }
+    .reel-wrapper.gold-spin {
+      border-color: #fbbf24;
+      box-shadow: 0 0 25px rgba(250, 204, 21, 0.35), inset 0 0 18px rgba(250, 204, 21, 0.18);
+      background: radial-gradient(circle at 20% 20%, rgba(250, 204, 21, 0.18), transparent 45%),
+        radial-gradient(circle at 80% 30%, rgba(251, 191, 36, 0.18), transparent 42%),
+        linear-gradient(180deg, #1f1c2c 0%, #302b63 50%, #2c2250 100%);
+    }
+    .reel-wrapper.gold-spin::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 10%, rgba(255, 255, 255, 0.15) 40%, transparent 70%);
+      animation: goldSweep 1.6s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes goldSweep {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
     .reel { display: flex; will-change: transform; padding: 1rem 0; }
     .tile {
       flex: 0 0 180px;
@@ -80,6 +99,31 @@
       object-fit: contain;
       border-radius: 8px;
     }
+    .tile.special-landing {
+      position: relative;
+      overflow: hidden;
+      border-color: #fbbf24 !important;
+      box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.65), 0 0 25px rgba(250, 204, 21, 0.35);
+      background: radial-gradient(circle at 30% 30%, rgba(250, 204, 21, 0.14), transparent 55%), #2a2f3a;
+    }
+    .tile.special-landing img {
+      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.45));
+      transform: scale(1.02);
+    }
+    .special-landing__glow {
+      position: absolute;
+      inset: -20%;
+      background: radial-gradient(circle, rgba(250, 204, 21, 0.35), transparent 65%);
+      animation: pulseGlow 1.2s ease-in-out infinite;
+      z-index: 0;
+    }
+    .special-landing__info {
+      background: rgba(0, 0, 0, 0.65);
+      border-top: 1px solid rgba(250, 204, 21, 0.6);
+      position: relative;
+      z-index: 1;
+    }
+    @keyframes pulseGlow { 0%,100%{ opacity:0.55;} 50%{opacity:0.9;} }
     .tile:hover { transform: translateY(-4px); box-shadow: 0 4px 8px rgba(0,0,0,0.6); }
     .tile.win { box-shadow: 0 0 0 3px var(--win-color,#FFD36E); border-color: var(--win-color,#FFD36E); animation: flash 0.6s; }
     @keyframes flash {0%,100%{filter:brightness(1);}50%{filter:brightness(1.8);}}
@@ -494,7 +538,24 @@ function showMultiWinPopup(prizes) {
   render(current);
 }
 
-    const rarityOrder = { legendary: 5, ultrarare: 4, rare: 3, uncommon: 2, common: 1 };
+const rarityOrder = { legendary: 5, ultrarare: 4, rare: 3, uncommon: 2, common: 1 };
+
+const GOLDEN_PULL_IMAGE = "https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/Untitled%20design%20(5).png?alt=media&token=61ddcbcb-4fea-4b24-9259-705207e3ce98";
+
+function normalizeRarity(rarity) {
+  return (rarity || "").toLowerCase().replace(/\s+/g, "");
+}
+
+function isUltraOrAbove(rarity) {
+  const r = normalizeRarity(rarity);
+  return r === "legendary" || r === "ultrarare" || r === "ultra";
+}
+
+function setGoldSpinEffect(enabled) {
+  const wrapper = document.querySelector('.reel-wrapper');
+  if (!wrapper) return;
+  wrapper.classList.toggle('gold-spin', Boolean(enabled));
+}
 
 function showToast(message, color = 'bg-red-600') {
   const toast = document.getElementById("toast");
@@ -777,9 +838,25 @@ if (openBtn) openBtn.addEventListener("click", async () => {
 
     const winIndex = openerItems.findIndex(p => p.name === winningPrize.name);
     await transitionToReel();
+    const goldSpin = isUltraOrAbove(winningPrize.rarity);
+    setGoldSpinEffect(goldSpin);
     await new Promise(resolve => {
-      PackOpener.spinToIndex(winIndex, { durationMs: 2400, nearMiss: true, onReveal: () => resolve() });
+      PackOpener.spinToIndex(winIndex, {
+        durationMs: 2400,
+        nearMiss: true,
+        specialLandingImage: goldSpin ? GOLDEN_PULL_IMAGE : undefined,
+        specialLandingLabel: winningPrize.name,
+        onReveal: () => {
+          resolve();
+          if (goldSpin) {
+            setTimeout(() => setGoldSpinEffect(false), 500);
+          }
+        }
+      });
     });
+    if (!goldSpin) {
+      setGoldSpinEffect(false);
+    }
 
   }
 
@@ -847,8 +924,11 @@ if (openBtn) openBtn.addEventListener("click", async () => {
         function spinDemo() {
           const prize = demoPrizes[index];
           const winIdx = openerItems.findIndex(p => p.name === prize.name);
-          PackOpener.spinToIndex(winIdx, { durationMs: 2400, nearMiss: true, onReveal: () => {
+          const goldSpin = isUltraOrAbove(prize.rarity);
+          setGoldSpinEffect(goldSpin);
+          PackOpener.spinToIndex(winIdx, { durationMs: 2400, nearMiss: true, specialLandingImage: goldSpin ? GOLDEN_PULL_IMAGE : undefined, specialLandingLabel: prize.name, onReveal: () => {
             results.push(prize);
+            setGoldSpinEffect(false);
             index++;
             if (index < demoPrizes.length) {
               spinDemo();
