@@ -219,12 +219,23 @@
       applySpecialLanding(targetIndex, winningItem, opts);
     }
 
-    const cruisePortion = 0.6;
+    const totalDistance = distance;
+    const totalDistanceAbs = Math.abs(totalDistance);
+    const decelTiles = opts.decelTiles || 2.5; // begin easing a couple prizes early
+    const decelDistanceAbs = Math.min(
+      totalDistanceAbs * 0.5,
+      state.tileWidth * decelTiles
+    );
+    const cruiseDistanceAbs = Math.max(totalDistanceAbs - decelDistanceAbs, 0);
+    const cruisePortion = totalDistanceAbs
+      ? cruiseDistanceAbs / totalDistanceAbs
+      : 0.6;
     const cruiseDuration = duration * cruisePortion;
-    const decelDuration = duration - cruiseDuration;
-    const cruiseDistance = distance * cruisePortion;
-    const decelDistance = distance - cruiseDistance;
-    const velocity = cruiseDistance / cruiseDuration;
+    const decelDuration = Math.max(duration - cruiseDuration, 300);
+    const direction = totalDistance >= 0 ? 1 : -1;
+    const cruiseDistance = cruiseDistanceAbs * direction;
+    const decelDistance = decelDistanceAbs * direction;
+    const velocity = cruiseDuration > 0 ? cruiseDistance / cruiseDuration : 0;
     let start = null;
     let lastCenterPass = null;
     emit("start");
