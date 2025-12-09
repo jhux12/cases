@@ -248,8 +248,10 @@
       decelDist = distance * (decelDur / duration),
       cruiseDist = distance - accDist - decelDist;
 
-    let lastTick = 0,
-      start = null;
+    let lastCenteredIndex = Math.round(
+      (centerOffset - startX) / state.tileWidth
+    );
+    let start = null;
     emit("start");
 
     function easeInCubic(t) {
@@ -282,9 +284,12 @@
 
       const pos = startX + delta;
       state.root.style.transform = `translate3d(${pos}px,0,0)`;
-      if (timestamp - lastTick > 120) {
+      const currentCenteredIndex = Math.round(
+        (centerOffset - pos) / state.tileWidth
+      );
+      if (currentCenteredIndex !== lastCenteredIndex) {
         playTick();
-        lastTick = timestamp;
+        lastCenteredIndex = currentCenteredIndex;
       }
 
       if (elapsed < duration) {
