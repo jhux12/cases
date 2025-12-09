@@ -89,12 +89,61 @@
     const ctx = getCtx();
     const osc = ctx.createOscillator();
     osc.type = "triangle";
-    osc.frequency.value = 800;
-    const gain = ctx.createGain();
-    gain.gain.value = 0.02;
-    osc.connect(gain).connect(ctx.destination);
+
+    const base = 420 + Math.random() * 180;
+    const now = ctx.currentTime;
+    osc.frequency.setValueAtTime(base, now);
+    osc.frequency.exponentialRampToValueAtTime(base * 1.8, now + 0.04);
+    osc.frequency.exponentialRampToValueAtTime(base * 0.72, now + 0.2);
+
+    const drive = ctx.createWaveShaper();
+    drive.curve = makeSaturationCurve();
+    drive.oversample = "4x";
+
+    const tone = ctx.createBiquadFilter();
+    tone.type = "bandpass";
+    tone.frequency.setValueAtTime(base * 1.6, now);
+    tone.Q.value = 11;
+
+    const toneGain = ctx.createGain();
+    toneGain.gain.setValueAtTime(0.0008, now);
+    toneGain.gain.exponentialRampToValueAtTime(0.14, now + 0.025);
+    toneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
+
+    const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.25, ctx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) {
+      data[i] = (Math.random() * 2 - 1) * 0.4;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuffer;
+
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = "highpass";
+    noiseFilter.frequency.setValueAtTime(base * 1.1, now);
+    noiseFilter.Q.value = 0.9;
+
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.0001, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.08, now + 0.01);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+
+    const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+    if (pan) {
+      const swing = (Math.random() * 1.4 - 0.7) * 0.8;
+      pan.pan.setValueAtTime(swing, now);
+      osc.connect(drive).connect(tone).connect(toneGain).connect(pan);
+      noise.connect(noiseFilter).connect(noiseGain).connect(pan);
+      pan.connect(ctx.destination);
+    } else {
+      osc.connect(drive).connect(tone).connect(toneGain).connect(ctx.destination);
+      noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
+    }
+
     osc.start();
-    osc.stop(ctx.currentTime + 0.05);
+    osc.stop(now + 0.26);
+    noise.start(now);
+    noise.stop(now + 0.18);
   }
 
   let audioCtx;
@@ -102,6 +151,16 @@
     return (
       audioCtx || (audioCtx = new (window.AudioContext || window.webkitAudioContext)())
     );
+  }
+
+  function makeSaturationCurve() {
+    const samples = 22050;
+    const curve = new Float32Array(samples);
+    for (let i = 0; i < samples; i++) {
+      const x = (i * 2) / samples - 1;
+      curve[i] = ((1 + 60) * x) / (1 + 60 * Math.abs(x));
+    }
+    return curve;
   }
 
   function stinger(rarity) {
