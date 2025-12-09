@@ -397,6 +397,14 @@ const rarityColors = {
   legendary: "#facc15"
 };
 
+const rarityGradients = {
+  common: "linear-gradient(135deg, #f4f4f5 0%, #e5e7eb 100%)",
+  uncommon: "linear-gradient(135deg, #ecfdf3 0%, #d1fae5 100%)",
+  rare: "linear-gradient(135deg, #eef2ff 0%, #dbeafe 100%)",
+  ultrarare: "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)",
+  legendary: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)"
+};
+
 const getVoucherAmount = (prize = {}) => {
   const candidates = [prize.voucherAmount, prize.redeemValue, prize.redeemAmount];
   for (const value of candidates) {
@@ -590,6 +598,10 @@ function getRarityColor(rarity) {
   return rarityColors[normalizeRarity(rarity)] || "#a1a1aa";
 }
 
+function getRarityGradient(rarity) {
+  return rarityGradients[normalizeRarity(rarity)] || rarityGradients.common;
+}
+
 function isUltraOrAbove(rarity) {
   const r = normalizeRarity(rarity);
   return r === "legendary" || r === "ultrarare" || r === "ultra";
@@ -776,10 +788,11 @@ if (repeatedBestDrops.length) {
             .toLowerCase()
             .replace(/\s+/g, '');
           const color = getRarityColor(rarity);
+          const gradient = getRarityGradient(rarity);
           const displayValue = formatGems(getEffectiveValue(prize));
           const displayOdds = `${formatOdds(prize.odds)}%`;
           return `
-  <div class="prize-card rounded-xl overflow-hidden bg-white border border-2 text-gray-900 text-center shadow-sm cursor-pointer transition-transform duration-200 hover:scale-105" data-rarity="${rarity}" data-name="${prize.name}" data-image="${prize.image}" data-value="${displayValue}" data-odds="${displayOdds}" style="border:2px solid ${color}">
+  <div class="prize-card rounded-xl overflow-hidden border border-2 text-gray-900 text-center shadow-sm cursor-pointer transition-transform duration-200 hover:scale-105" data-rarity="${rarity}" data-name="${prize.name}" data-image="${prize.image}" data-value="${displayValue}" data-odds="${displayOdds}" style="border:2px solid ${color};background:${gradient};">
     <div class="p-4">
       <img src="${prize.image}" class="w-full h-[120px] object-contain mx-auto mb-3 bg-gray-50 rounded-lg" />
       <div class="prize-name font-semibold text-sm clamp-2">${prize.name}</div>
