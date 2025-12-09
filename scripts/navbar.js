@@ -73,13 +73,32 @@ document.addEventListener("DOMContentLoaded", () => {
       let latestNotificationTimestamp = 0;
       let lastSeenTimestamp = Number(localStorage.getItem("packly-last-notification") || 0);
       let notificationCache = [];
-      const dismissedNotifications = new Set(
+      let notificationSource = [];
+      let dismissedNotifications = new Set(
         JSON.parse(localStorage.getItem("packly-dismissed-notifications") || "[]").filter(Boolean)
       );
 
-      const persistDismissed = () => {
+      const persistDismissed = (syncProfile = true) => {
         const entries = Array.from(dismissedNotifications).slice(-200);
         localStorage.setItem("packly-dismissed-notifications", JSON.stringify(entries));
+        if (syncProfile && userRef) {
+          userRef.child("dismissedNotifications").set(entries);
+        }
+      };
+
+      const applyDismissedFromProfile = (entries = []) => {
+        const safeEntries = Array.isArray(entries) ? entries.filter(Boolean) : [];
+        const changed =
+          safeEntries.length !== dismissedNotifications.size ||
+          safeEntries.some((id) => !dismissedNotifications.has(id));
+
+        if (!changed) return;
+
+        dismissedNotifications = new Set(safeEntries);
+        persistDismissed(false);
+        if (notificationSource.length) {
+          renderNotifications(notificationSource);
+        }
       };
 
       const updateNotificationBadge = (items = []) => {
@@ -105,6 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
+        notificationSource = items;
         notificationCache = visibleItems;
         visibleItems.forEach((item) => {
           const card = document.createElement("article");
@@ -222,113 +242,121 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        userRef = firebase.database().ref("users/" + user.uid);
-        handler = (snap) => {
-          const data = snap.val() || {};
-          const balance = data.balance || 0;
-          const username = user.displayName || data.username || user.email;
-          const balanceFormatted = Number(balance).toLocaleString();
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          dismissedNotifications = new Set();
+          notificationSource = [];
+          persistDismissed(false);
+          userRef = firebase.database().ref("users/" + user.uid);
+          handler = (snap) => {
+            const data = snap.val() || {};
+            const balance = data.balance || 0;
+            const username = user.displayName || data.username || user.email;
+            const balanceFormatted = Number(balance).toLocaleString();
 
-          usernameEl.innerText = username;
-          balanceEl.innerText = balanceFormatted;
-          if (balanceMobile) balanceMobile.innerText = balanceFormatted;
-          if (balanceDropdown) balanceDropdown.innerText = balanceFormatted;
-          if (popupBalance) popupBalance.innerText = `${balanceFormatted} gems`;
-        };
-        userRef.on("value", handler);
+            usernameEl.innerText = username;
+            balanceEl.innerText = balanceFormatted;
+            if (balanceMobile) balanceMobile.innerText = balanceFormatted;
+            if (balanceDropdown) balanceDropdown.innerText = balanceFormatted;
+            if (popupBalance) popupBalance.innerText = `${balanceFormatted} gems`;
 
-        if (authButtons) authButtons.classList.add("hidden");
-        if (userArea) {
-          userArea.classList.remove("hidden", "md:hidden");
-          userArea.classList.add("md:flex");
-        }
-        if (toolbarDesktop) toolbarDesktop.classList.remove("hidden");
-        if (balanceContainer) balanceContainer.classList.remove("hidden");
-        if (balanceMobileHeader) balanceMobileHeader.classList.remove("hidden");
-        if (toolbarMobile) toolbarMobile.classList.remove("hidden");
-        if (balanceMobileDrawer) balanceMobileDrawer.classList.remove("hidden");
-        if (topupBtn) topupBtn.classList.remove("hidden");
-        if (topupMobileHeader) topupMobileHeader.classList.remove("hidden");
-        if (topupMobileDrawer) topupMobileDrawer.classList.remove("hidden");
-        if (notificationBell) notificationBell.classList.remove("hidden");
-        if (notificationBellMobile) notificationBellMobile.classList.remove("hidden");
-        attachNotificationStream();
-        if (themeToggleStandaloneDesktop) themeToggleStandaloneDesktop.classList.add("hidden");
-        if (themeToggleChipDesktop) themeToggleChipDesktop.classList.remove("hidden");
-        if (mobileRegisterBtn) mobileRegisterBtn.classList.add("hidden");
-        [inventoryLink, mobileInventoryLink, mobileProfileLink].forEach((el) => {
-          if (el) el.classList.remove("hidden");
-        });
-        userLinks.forEach((link) => link.classList.remove("hidden"));
-
-        if (logoutBtn) {
-          logoutBtn.style.display = "block";
-          logoutBtn.onclick = (e) => {
-            e.preventDefault();
-            firebase.auth().signOut().then(() => location.reload());
+            applyDismissedFromProfile(data.dismissedNotifications || []);
           };
-        }
+          userRef.on("value", handler);
 
-        if (mobileAuthBtn) {
-          mobileAuthBtn.innerText = "Logout";
-          mobileAuthBtn.href = "#";
-          mobileAuthBtn.onclick = (e) => {
-            e.preventDefault();
-            firebase.auth().signOut().then(() => location.reload());
-          };
-        }
-      } else {
-        if (userRef && handler) {
-          userRef.off("value", handler);
-          userRef = null;
-          handler = null;
-        }
+          if (authButtons) authButtons.classList.add("hidden");
+          if (userArea) {
+            userArea.classList.remove("hidden", "md:hidden");
+            userArea.classList.add("md:flex");
+          }
+          if (toolbarDesktop) toolbarDesktop.classList.remove("hidden");
+          if (balanceContainer) balanceContainer.classList.remove("hidden");
+          if (balanceMobileHeader) balanceMobileHeader.classList.remove("hidden");
+          if (toolbarMobile) toolbarMobile.classList.remove("hidden");
+          if (balanceMobileDrawer) balanceMobileDrawer.classList.remove("hidden");
+          if (topupBtn) topupBtn.classList.remove("hidden");
+          if (topupMobileHeader) topupMobileHeader.classList.remove("hidden");
+          if (topupMobileDrawer) topupMobileDrawer.classList.remove("hidden");
+          if (notificationBell) notificationBell.classList.remove("hidden");
+          if (notificationBellMobile) notificationBellMobile.classList.remove("hidden");
+          attachNotificationStream();
+          if (themeToggleStandaloneDesktop) themeToggleStandaloneDesktop.classList.add("hidden");
+          if (themeToggleChipDesktop) themeToggleChipDesktop.classList.remove("hidden");
+          if (mobileRegisterBtn) mobileRegisterBtn.classList.add("hidden");
+          [inventoryLink, mobileInventoryLink, mobileProfileLink].forEach((el) => {
+            if (el) el.classList.remove("hidden");
+          });
+          userLinks.forEach((link) => link.classList.remove("hidden"));
 
-        usernameEl.innerText = "User";
-        balanceEl.innerText = "0";
-        if (balanceMobile) balanceMobile.innerText = "0";
-        if (balanceDropdown) balanceDropdown.innerText = "0";
-        if (popupBalance) popupBalance.innerText = "0 gems";
+          if (logoutBtn) {
+            logoutBtn.style.display = "block";
+            logoutBtn.onclick = (e) => {
+              e.preventDefault();
+              firebase.auth().signOut().then(() => location.reload());
+            };
+          }
 
-        if (authButtons) authButtons.classList.remove("hidden");
-        if (userArea) {
-          userArea.classList.add("hidden", "md:hidden");
-          userArea.classList.remove("md:flex");
-        }
-        if (toolbarDesktop) toolbarDesktop.classList.add("hidden");
-        if (balanceContainer) balanceContainer.classList.add("hidden");
-        if (balanceMobileHeader) balanceMobileHeader.classList.add("hidden");
-        if (toolbarMobile) toolbarMobile.classList.remove("hidden");
-        if (balanceMobileDrawer) balanceMobileDrawer.classList.add("hidden");
-        if (topupBtn) topupBtn.classList.add("hidden");
-        if (topupMobileHeader) topupMobileHeader.classList.add("hidden");
-        if (topupMobileDrawer) topupMobileDrawer.classList.add("hidden");
-        if (notificationBell) notificationBell.classList.add("hidden");
-        if (notificationBellMobile) notificationBellMobile.classList.add("hidden");
-        hideNotificationPanel();
-        if (unsubscribeNotifications) {
-          unsubscribeNotifications();
-          unsubscribeNotifications = null;
-        }
-        if (themeToggleStandaloneDesktop) themeToggleStandaloneDesktop.classList.remove("hidden");
-        if (themeToggleChipDesktop) themeToggleChipDesktop.classList.add("hidden");
-        if (mobileRegisterBtn) mobileRegisterBtn.classList.remove("hidden");
-        [inventoryLink, mobileInventoryLink, mobileProfileLink].forEach((el) => {
-          if (el) el.classList.add("hidden");
-        });
-        userLinks.forEach((link) => link.classList.add("hidden"));
+          if (mobileAuthBtn) {
+            mobileAuthBtn.innerText = "Logout";
+            mobileAuthBtn.href = "#";
+            mobileAuthBtn.onclick = (e) => {
+              e.preventDefault();
+              firebase.auth().signOut().then(() => location.reload());
+            };
+          }
+        } else {
+          dismissedNotifications = new Set();
+          notificationSource = [];
+          notificationCache = [];
+          if (userRef && handler) {
+            userRef.off("value", handler);
+            userRef = null;
+            handler = null;
+          }
 
-        if (logoutBtn) logoutBtn.style.display = "none";
+          usernameEl.innerText = "User";
+          balanceEl.innerText = "0";
+          if (balanceMobile) balanceMobile.innerText = "0";
+          if (balanceDropdown) balanceDropdown.innerText = "0";
+          if (popupBalance) popupBalance.innerText = "0 gems";
 
-        if (mobileAuthBtn) {
-          mobileAuthBtn.innerText = "Sign In";
-          mobileAuthBtn.href = "auth.html";
-          mobileAuthBtn.onclick = null;
+          if (authButtons) authButtons.classList.remove("hidden");
+          if (userArea) {
+            userArea.classList.add("hidden", "md:hidden");
+            userArea.classList.remove("md:flex");
+          }
+          if (toolbarDesktop) toolbarDesktop.classList.add("hidden");
+          if (balanceContainer) balanceContainer.classList.add("hidden");
+          if (balanceMobileHeader) balanceMobileHeader.classList.add("hidden");
+          if (toolbarMobile) toolbarMobile.classList.remove("hidden");
+          if (balanceMobileDrawer) balanceMobileDrawer.classList.add("hidden");
+          if (topupBtn) topupBtn.classList.add("hidden");
+          if (topupMobileHeader) topupMobileHeader.classList.add("hidden");
+          if (topupMobileDrawer) topupMobileDrawer.classList.add("hidden");
+          if (notificationBell) notificationBell.classList.add("hidden");
+          if (notificationBellMobile) notificationBellMobile.classList.add("hidden");
+          hideNotificationPanel();
+          if (unsubscribeNotifications) {
+            unsubscribeNotifications();
+            unsubscribeNotifications = null;
+          }
+          if (themeToggleStandaloneDesktop) themeToggleStandaloneDesktop.classList.remove("hidden");
+          if (themeToggleChipDesktop) themeToggleChipDesktop.classList.add("hidden");
+          if (mobileRegisterBtn) mobileRegisterBtn.classList.remove("hidden");
+          [inventoryLink, mobileInventoryLink, mobileProfileLink].forEach((el) => {
+            if (el) el.classList.add("hidden");
+          });
+          userLinks.forEach((link) => link.classList.add("hidden"));
+
+          if (logoutBtn) logoutBtn.style.display = "none";
+
+          if (mobileAuthBtn) {
+            mobileAuthBtn.innerText = "Sign In";
+            mobileAuthBtn.href = "auth.html";
+            mobileAuthBtn.onclick = null;
+          }
         }
-      }
-    });
+      });
   });
 
  // Top-up popup toggle
