@@ -221,17 +221,15 @@
 
     const totalDistance = distance;
     const totalDistanceAbs = Math.abs(totalDistance);
-    const decelTiles = opts.decelTiles || 2.5; // begin easing a couple prizes early
+    const decelTiles = opts.decelTiles || 3.5; // begin easing a couple prizes early
     const decelDistanceAbs = Math.min(
-      totalDistanceAbs * 0.5,
+      totalDistanceAbs,
       state.tileWidth * decelTiles
     );
     const cruiseDistanceAbs = Math.max(totalDistanceAbs - decelDistanceAbs, 0);
-    const cruisePortion = totalDistanceAbs
-      ? cruiseDistanceAbs / totalDistanceAbs
-      : 0.6;
-    const cruiseDuration = duration * cruisePortion;
-    const decelDuration = Math.max(duration - cruiseDuration, 300);
+    const decelDurationRaw = Math.max(duration * 0.55, 1800);
+    const cruiseDuration = Math.max(duration - decelDurationRaw, 600);
+    const decelDuration = duration - cruiseDuration;
     const direction = totalDistance >= 0 ? 1 : -1;
     const cruiseDistance = cruiseDistanceAbs * direction;
     const decelDistance = decelDistanceAbs * direction;
