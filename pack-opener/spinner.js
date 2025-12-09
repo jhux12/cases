@@ -178,7 +178,7 @@
     state.root.style.transform = "translate3d(0,0,0)";
 
     const startX = 0;
-    const duration = opts.durationMs || 4200;
+    const duration = opts.durationMs || 5200;
     state.isSpinning = true;
 
     const tiles = state.root.children;
@@ -221,7 +221,7 @@
 
     const totalDistance = distance;
     const absDistance = Math.abs(totalDistance);
-    const decelTiles = opts.decelTiles || 3.5;
+    const decelTiles = Math.max(3, Math.min(4, opts.decelTiles ?? 3.75));
     const decelDistance = Math.min(absDistance, state.tileWidth * decelTiles);
     const cruiseDistance = Math.max(0, absDistance - decelDistance);
     const distanceSign = totalDistance < 0 ? -1 : 1;
