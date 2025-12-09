@@ -876,6 +876,7 @@ if (openBtn) openBtn.addEventListener("click", async () => {
           });
         });
         PackOpener.setItems(openerItems);
+        PackOpener.snapToIndex(winIndex, { markWin: true });
       } else {
         setGoldSpinEffect(false);
       }
@@ -992,6 +993,7 @@ if (openBtn) openBtn.addEventListener("click", async () => {
                   setTimeout(() => setGoldSpinEffect(false), 500);
                   finalizeDemoSpin(prize);
                   PackOpener.setItems(openerItems);
+                  PackOpener.snapToIndex(winIdx, { markWin: true });
                 }});
               }});
             }

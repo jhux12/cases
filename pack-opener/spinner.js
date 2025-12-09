@@ -308,11 +308,50 @@
     return matrix.m41;
   }
 
+  function snapToIndex(index, opts = {}) {
+    if (!state.root || state.isSpinning || index < 0 || index >= state.items.length)
+      return;
+
+    if (state.animationId) {
+      cancelAnimationFrame(state.animationId);
+      state.animationId = null;
+    }
+
+    if (opts.refresh) {
+      render();
+    }
+
+    const tiles = state.root.children;
+    if (!tiles.length) return;
+
+    const container = state.root.parentElement;
+    const containerWidth = container.getBoundingClientRect().width;
+    const centerOffset = containerWidth / 2 - state.tileWidth / 2;
+    const targetIndex = state.items.length * 2 + index;
+    const perfectX = -(targetIndex * state.tileWidth - centerOffset);
+
+    state.root.style.transition = "none";
+    state.root.style.transform = `translate3d(${perfectX}px,0,0)`;
+
+    Array.from(tiles).forEach((t) => t.classList.remove("win"));
+
+    const winningItem = state.items[index];
+    const winTile = tiles[targetIndex];
+    if (opts.markWin && winningItem && winTile) {
+      winTile.style.setProperty(
+        "--win-color",
+        rarityColors[winningItem.rarity] || "#FFD36E"
+      );
+      winTile.classList.add("win");
+    }
+  }
+
   global.PackOpener = {
     init,
     setItems,
     isSpinning,
     spinToIndex,
+    snapToIndex,
     on,
     setMuted,
     _state: state,
