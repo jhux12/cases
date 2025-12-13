@@ -539,37 +539,62 @@
 
         <!-- Filter Panel -->
 
-<div id="filter-panel" class="hidden flex-col sm:flex sm:flex-wrap gap-4 mb-6 frosted-panel p-4 rounded-lg">
-  <input id="search-box" type="text" placeholder="Search packs" class="w-full sm:w-48 px-3 py-2 rounded-md border border-slate-700 text-white placeholder-slate-400 bg-slate-900/70" />
-  <input id="min-price" type="number" placeholder="Min" class="w-full sm:w-24 px-3 py-2 rounded-md border border-slate-700 text-white placeholder-slate-400 bg-slate-900/70" />
-  <input id="max-price" type="number" placeholder="Max" class="w-full sm:w-24 px-3 py-2 rounded-md border border-slate-700 text-white placeholder-slate-400 bg-slate-900/70" />
-  <div class="flex items-center gap-3 px-3 py-2 rounded-md border border-slate-700 bg-slate-900/70 w-full sm:w-auto">
-    <label class="text-sm text-slate-200">Rarity:</label>
-    <select id="rarity-filter" class="bg-transparent text-white">
-      <option value="all">All</option>
-      <option value="common">Common</option>
-      <option value="uncommon">Uncommon</option>
-      <option value="rare">Rare</option>
-      <option value="ultrarare">Ultra Rare</option>
-      <option value="legendary">Legendary</option>
-    </select>
+<div id="filter-panel" class="hidden filter-panel frosted-panel rounded-2xl p-5 mb-6 shadow-2xl">
+  <div class="filter-panel__header">
+    <div>
+      <p class="filter-kicker">Refine results</p>
+      <h3 class="filter-title">Find the right pack faster</h3>
+    </div>
   </div>
-  <div class="flex items-center gap-3 px-3 py-2 rounded-md border border-slate-700 bg-slate-900/70 w-full sm:w-auto">
-    <label for="affordable-only" class="flex items-center cursor-pointer select-none text-slate-200">
-      <div class="relative">
-        <input type="checkbox" id="affordable-only" class="sr-only peer">
-        <div class="w-11 h-6 bg-slate-700 rounded-full peer-checked:bg-indigo-600 transition-all duration-300"></div>
-        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-full transform transition-transform duration-300"></div>
+
+  <div class="filter-grid">
+    <div class="filter-control">
+      <label class="filter-label" for="search-box"><i class="fa-solid fa-magnifying-glass"></i> Search</label>
+      <div class="filter-input-wrap">
+        <input id="search-box" type="text" placeholder="Search packs" class="filter-input" />
       </div>
-      <span class="ml-3 text-sm">Enough gems to buy</span>
-    </label>
+    </div>
+
+    <div class="filter-control">
+      <label class="filter-label" for="min-price"><i class="fa-solid fa-tags"></i> Price range</label>
+      <div class="flex gap-3">
+        <div class="filter-input-wrap">
+          <span class="filter-prefix">Min</span>
+          <input id="min-price" type="number" placeholder="0" class="filter-input" />
+        </div>
+        <div class="filter-input-wrap">
+          <span class="filter-prefix">Max</span>
+          <input id="max-price" type="number" placeholder="250" class="filter-input" />
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-control">
+      <label class="filter-label" for="affordable-only"><i class="fa-solid fa-wallet"></i> Budget</label>
+      <label for="affordable-only" class="filter-toggle">
+        <div class="filter-toggle__track">
+          <input type="checkbox" id="affordable-only" class="sr-only peer">
+          <span class="filter-toggle__thumb"></span>
+        </div>
+        <div class="filter-toggle__copy">
+          <span class="filter-toggle__title">Show only what I can afford</span>
+          <span class="filter-toggle__subtitle">Hide packs that exceed my gems</span>
+        </div>
+      </label>
+    </div>
+
+    <div class="filter-control">
+      <label class="filter-label" for="sort-select"><i class="fa-solid fa-arrow-down-short-wide"></i> Sorting</label>
+      <div class="filter-input-wrap">
+        <select id="sort-select" class="filter-select">
+          <option value="default">Recommended</option>
+          <option value="asc">Price: Low to High</option>
+          <option value="desc">Price: High to Low</option>
+        </select>
+        <i class="fa-solid fa-chevron-down filter-select-icon" aria-hidden="true"></i>
+      </div>
+    </div>
   </div>
-  <select id="sort-select" class="w-full sm:w-auto px-3 py-2 rounded-md border border-slate-700 text-white bg-slate-900/70">
-    <option value="default">Sorting</option>
-    <option value="asc">Ascending</option>
-    <option value="desc">Descending</option>
-    <option value="rarity">Rarity</option>
-  </select>
 </div>
 
         <!-- Category Tabs -->

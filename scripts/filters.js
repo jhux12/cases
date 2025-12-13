@@ -45,17 +45,6 @@ export function setupFilters(cases, renderFn, getUserBalanceFn) {
     });
   }
 
-  function getRarityValue(rarity) {
-    const order = {
-      "common": 1,
-      "uncommon": 2,
-      "rare": 3,
-      "ultra rare": 4,
-      "legendary": 5
-    };
-    return order[rarity?.toLowerCase()] || 0;
-  }
-
   function applyFilters() {
     let filtered = [...currentCases];
 
@@ -75,7 +64,6 @@ export function setupFilters(cases, renderFn, getUserBalanceFn) {
 
     if (sort === "asc") filtered.sort((a, b) => a.price - b.price);
     if (sort === "desc") filtered.sort((a, b) => b.price - a.price);
-    if (sort === "rarity") filtered.sort((a, b) => getRarityValue(b.rarity) - getRarityValue(a.rarity));
 
     renderFn(filtered);
   }
