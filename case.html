@@ -673,6 +673,7 @@ document.getElementById("case-name").textContent = caseData.name;
 document.getElementById("case-spice").innerHTML = spiceHTML;
 const openBtn = document.getElementById("open-case-button");
 let openButtonDefaultContent = "";
+let lastSpinProof = null;
 
 const getOpenButtonContent = () => {
   if (isFreeCase) {
@@ -833,6 +834,12 @@ if (openBtn) openBtn.addEventListener("click", async () => {
   if (res.ok) {
     const data = await res.json();
     console.log("PROVABLY FAIR DATA:", data.provablyFair);
+
+    lastSpinProof = {
+      provablyFair: data.provablyFair,
+      winningPrize: data.prize,
+      prizePool: prizeList.map(p => ({ ...p })),
+    };
 
     const winningPrize = data.prize;
     const normalizedPrize = {
@@ -1046,6 +1053,53 @@ if (openBtn) openBtn.addEventListener("click", async () => {
   document.getElementById("new-server-seed").addEventListener("click", async () => {
     showToast("Server seeds rotate automatically after each spin.", "bg-blue-600");
   });
+
+  const toRollFraction = (hash) => {
+    if (!hash || hash.length < 13) throw new Error("Invalid roll hash");
+    const rollInt = BigInt("0x" + hash.slice(0, 13));
+    const maxInt = BigInt("0x" + "f".repeat(13));
+    return Number(rollInt) / Number(maxInt);
+  };
+
+  const verifyLastSpin = () => {
+    if (!lastSpinProof || !lastSpinProof.provablyFair || !lastSpinProof.prizePool?.length) {
+      showToast("Spin once to verify your result.", "bg-blue-600");
+      return;
+    }
+
+    const { provablyFair, prizePool, winningPrize } = lastSpinProof;
+    const rollFraction = toRollFraction(provablyFair.rollHash);
+    const totalOdds = prizePool.reduce((sum, prize) => sum + (Number(prize.odds) || 0), 0);
+    const target = rollFraction * totalOdds;
+
+    let cumulative = 0;
+    let computedPrize = prizePool[prizePool.length - 1];
+    for (const prize of prizePool) {
+      cumulative += Number(prize.odds) || 0;
+      if (target < cumulative) {
+        computedPrize = prize;
+        break;
+      }
+    }
+
+    const matches = computedPrize?.name === winningPrize?.name;
+    const resultEl = document.getElementById("pf-verification-result");
+    if (resultEl) {
+      resultEl.classList.remove("hidden");
+      resultEl.textContent = matches
+        ? `Verified: ${computedPrize.name} matches your recorded win (nonce ${provablyFair.nonceUsed}).`
+        : `Mismatch: expected ${computedPrize?.name || "unknown"}, but recorded ${winningPrize?.name || "unknown"}.`;
+    }
+
+    if (!matches) {
+      console.warn("Provably fair verification mismatch", { computedPrize, winningPrize, provablyFair });
+    }
+  };
+
+  const verifyButton = document.getElementById("verify-last-spin");
+  if (verifyButton) {
+    verifyButton.addEventListener("click", verifyLastSpin);
+  }
 });
 function enablePrizePopups() {
   const cards = document.querySelectorAll(".prize-card");
@@ -1114,6 +1168,8 @@ function enablePrizePopups() {
     <div class="mt-4 space-y-2 text-xs">
       <input id="client-seed-input" type="text" placeholder="New client seed" class="w-full px-2 py-1 rounded bg-gray-100 text-gray-900 border border-gray-300" />
       <button id="update-client-seed" class="w-full bg-green-600 hover:bg-green-500 rounded py-2 text-white">Update Client Seed</button>
+      <button id="verify-last-spin" class="w-full bg-blue-600 hover:bg-blue-500 rounded py-2 text-white">Verify Last Spin</button>
+      <div id="pf-verification-result" class="hidden w-full rounded border border-gray-200 bg-gray-50 text-gray-800 p-2"></div>
       <button id="new-server-seed" class="w-full bg-purple-600 hover:bg-purple-500 rounded py-2 text-white">New Server Seed</button>
       <a href="verify.html" class="block text-center text-indigo-600 hover:underline mt-2">Verify a roll</a>
     </div>
