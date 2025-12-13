@@ -30,8 +30,8 @@ function pickPrize(prizes) {
     return buf.readUIntBE(0, 6) / max;
   })();
 
-  const target = randFraction * totalOdds;
   let cumulative = 0;
+  const target = randFraction * totalOdds;
 
   for (const prize of numericPrizes) {
     cumulative += prize.odds;
@@ -76,9 +76,9 @@ module.exports = async (req, res) => {
     body = {};
   }
 
-  const caseId = body.caseId;
-  if (!caseId) {
-    res.status(400).json({ error: 'caseId required' });
+  const packId = body.packId;
+  if (!packId) {
+    res.status(400).json({ error: 'packId required' });
     return;
   }
 
@@ -90,17 +90,17 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const caseSnap = await db.ref(`cases/${caseId}`).once('value');
-  if (!caseSnap.exists()) {
-    res.status(404).json({ error: 'Case not found' });
+  const packSnap = await db.ref(`vaults/${packId}`).once('value');
+  if (!packSnap.exists()) {
+    res.status(404).json({ error: 'Pack not found' });
     return;
   }
 
-  const caseData = caseSnap.val();
-  const price = Number(caseData.price || 0);
-  const prizes = Object.values(caseData.prizes || {});
-  if (!Array.isArray(prizes) || prizes.length === 0) {
-    res.status(400).json({ error: 'Invalid prize configuration' });
+  const pack = packSnap.val();
+  const price = Number(pack.price || 0);
+  const prizes = Object.values(pack.prizes || {});
+  if (!price || !Array.isArray(prizes) || prizes.length === 0) {
+    res.status(400).json({ error: 'Invalid pack configuration' });
     return;
   }
 
@@ -119,11 +119,9 @@ module.exports = async (req, res) => {
     rarity: winningPrize.rarity,
     value: winningPrize.value,
     timestamp: now,
-    sold: false,
-    caseId
+    sold: false
   };
 
-  const isFreeCase = !!caseData.isFree;
   let failureReason = null;
 
   const result = await userRef.transaction(current => {
@@ -133,7 +131,7 @@ module.exports = async (req, res) => {
     }
 
     const balance = Number(current.balance || 0);
-    if (!isFreeCase && balance < price) {
+    if (balance < price) {
       failureReason = 'insufficient-balance';
       return;
     }
@@ -143,26 +141,14 @@ module.exports = async (req, res) => {
       return;
     }
 
-    if (isFreeCase && current.freeCaseOpened) {
-      failureReason = 'free-case-already-opened';
-      return;
-    }
-
     const updated = { ...current };
-    if (!isFreeCase) {
-      updated.balance = balance - price;
-    }
+    updated.balance = balance - price;
     updated.provablyFair = {
       ...current.provablyFair,
       nonce: Number(current.provablyFair.nonce || 0) + 1
     };
     updated.inventory = { ...(current.inventory || {}), [inventoryKey]: unboxData };
     updated.unboxHistory = { ...(current.unboxHistory || {}), [inventoryKey]: unboxData };
-
-    if (isFreeCase) {
-      updated.freeCaseOpened = true;
-    }
-
     return updated;
   }, { applyLocally: false });
 
@@ -175,10 +161,6 @@ module.exports = async (req, res) => {
       res.status(400).json({ error: 'Provably fair data missing' });
       return;
     }
-    if (failureReason === 'free-case-already-opened') {
-      res.status(400).json({ error: 'Free case already opened' });
-      return;
-    }
     res.status(404).json({ error: 'User not found' });
     return;
   }
@@ -189,7 +171,6 @@ module.exports = async (req, res) => {
       odds: Number(winningPrize.odds) || 0
     },
     inventoryKey,
-    balance: Number(result.snapshot.val()?.balance || 0),
-    freeCaseOpened: isFreeCase
+    balance: Number(result.snapshot.val()?.balance || 0)
   });
 };

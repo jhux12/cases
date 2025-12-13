@@ -21,6 +21,10 @@
       {
         "source": "/api/run-battle",
         "function": "runBattle"
+      },
+      {
+        "source": "/api/open-vault",
+        "function": "openVault"
       }
     ]
   }

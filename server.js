@@ -3,6 +3,7 @@ const express = require('express');
 
 const spinHandler = require('./functions/src/spin');
 const runBattleHandler = require('./functions/src/run-battle');
+const openVaultHandler = require('./functions/src/open-vault');
 
 const app = express();
 
@@ -20,6 +21,9 @@ app.post('/api/spin', wrap(spinHandler));
 
 app.options('/api/run-battle', wrap(runBattleHandler));
 app.get('/api/run-battle', wrap(runBattleHandler));
+
+app.options('/api/open-vault', wrap(openVaultHandler));
+app.post('/api/open-vault', wrap(openVaultHandler));
 
 const staticRoot = path.join(__dirname);
 const staticMiddleware = express.static(staticRoot, {
