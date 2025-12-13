@@ -143,6 +143,34 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
   `;
 
+  const enhanceLogoAnimation = () => {
+    document.querySelectorAll('.logo-animate').forEach((logo) => {
+      if (logo.dataset.slotReady === 'true') return;
+
+      const text = logo.textContent.trim();
+      if (!text) return;
+
+      const letters = text.split('');
+      const fragment = document.createDocumentFragment();
+
+      letters.forEach((letter, index) => {
+        const span = document.createElement('span');
+        span.className = 'logo-letter';
+        span.dataset.letter = letter;
+        span.style.setProperty('--logo-letter-index', index);
+        span.textContent = letter;
+        fragment.appendChild(span);
+      });
+
+      logo.setAttribute('aria-label', text);
+      logo.textContent = '';
+      logo.appendChild(fragment);
+      logo.dataset.slotReady = 'true';
+    });
+  };
+
+  enhanceLogoAnimation();
+
   const current = window.location.pathname.split('/').pop() || 'index.html';
   header.querySelectorAll('a[data-nav]').forEach(link => {
     if (link.getAttribute('data-nav') === current) {

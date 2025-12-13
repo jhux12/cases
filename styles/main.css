@@ -591,49 +591,63 @@ body.dark-mode .user-toolbar {
 }
 
 .logo-animate {
-  display: inline-block;
-  background-size: 300% 300%;
-  animation: logoHighlight 10s ease-in-out infinite;
-  filter: drop-shadow(0 0 0 rgba(99, 102, 241, 0));
-  text-shadow: 0 0 0 rgba(99, 102, 241, 0);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.04em;
+  padding: 0.05em 0.06em;
+  background: linear-gradient(90deg, var(--accent-strong), var(--accent-soft));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  perspective: 900px;
 }
 
-@keyframes logoHighlight {
-  0%,
-  55% {
-    background-position: 10% 50%;
-    filter: drop-shadow(0 0 0 rgba(99, 102, 241, 0));
-    text-shadow: 0 0 0 rgba(59, 130, 246, 0);
-    transform: translateY(0) scale(1);
-    letter-spacing: 0px;
+.logo-letter {
+  position: relative;
+  display: inline-block;
+  padding: 0 0.02em;
+  background: linear-gradient(120deg, var(--accent-strong), #60a5fa 40%, var(--accent-soft));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  transform-style: preserve-3d;
+  animation: slotSpin 8s cubic-bezier(0.33, 0.01, 0.16, 1) infinite;
+  animation-delay: calc(var(--logo-letter-index, 0) * 0.12s);
+}
+
+.logo-letter::after {
+  content: attr(data-letter);
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: blur(6px);
+  opacity: 0.35;
+  transform: translateZ(-2px);
+  pointer-events: none;
+}
+
+@keyframes slotSpin {
+  0% {
+    transform: translateY(0) rotateX(0deg) scale(1);
   }
-  62% {
-    background-position: 50% 40%;
-    filter: drop-shadow(0 10px 24px rgba(99, 102, 241, 0.35));
-    text-shadow: 0 0 18px rgba(59, 130, 246, 0.35), 0 0 28px rgba(56, 189, 248, 0.25);
-    transform: translateY(-1px) scale(1.04);
-    letter-spacing: 0.5px;
+  8% {
+    transform: translateY(-10px) rotateX(-120deg) scale(0.96);
   }
-  70% {
-    background-position: 90% 60%;
-    filter: drop-shadow(0 14px 28px rgba(56, 189, 248, 0.32));
-    text-shadow: 0 0 22px rgba(59, 130, 246, 0.45), 0 0 38px rgba(14, 165, 233, 0.35);
-    transform: translateY(-2px) scale(1.06);
-    letter-spacing: 1px;
+  16% {
+    transform: translateY(2px) rotateX(-210deg) scale(1.02);
   }
-  82% {
-    background-position: 40% 30%;
-    filter: drop-shadow(0 12px 24px rgba(99, 102, 241, 0.28));
-    text-shadow: 0 0 16px rgba(59, 130, 246, 0.3);
-    transform: translateY(-0.5px) scale(1.03);
-    letter-spacing: 0.6px;
+  24% {
+    transform: translateY(10px) rotateX(-300deg) scale(0.98);
+  }
+  32% {
+    transform: translateY(0) rotateX(-360deg) scale(1.04);
   }
   100% {
-    background-position: 10% 50%;
-    filter: drop-shadow(0 0 0 rgba(99, 102, 241, 0));
-    text-shadow: 0 0 0 rgba(59, 130, 246, 0);
-    transform: translateY(0) scale(1);
-    letter-spacing: 0px;
+    transform: translateY(0) rotateX(-360deg) scale(1);
   }
 }
 
