@@ -807,7 +807,6 @@ if (openBtn) openBtn.addEventListener("click", async () => {
 
   const userSnap = await firebase.database().ref('users/' + user.uid).once("value");
   const userData = userSnap.val() || {};
-  const balance = parseFloat(userData.balance || 0);
   const price = parseFloat(caseData.price || 0);
   const totalPrice = price;
 
@@ -823,59 +822,29 @@ if (openBtn) openBtn.addEventListener("click", async () => {
     return;
   }
 
-  if (!isFreeCase && balance < totalPrice) {
-    showToast("Not enough gems!", "bg-red-600");
-    resetOpenButton();
-    return;
-  }
-
-  const fairSnap = await firebase.database().ref('users/' + user.uid + '/provablyFair').once("value");
-  const fairData = fairSnap.val();
-  if (!fairData) {
-    resetOpenButton();
-    return alert("Provably fair data missing.");
-  }
-  const { nonce } = fairData;
-
   const winnings = [];
 
-  if (!isFreeCase) {
-    const newBalance = balance - totalPrice;
-    await firebase.database().ref('users/' + user.uid + '/balance').set(newBalance);
-  }
-
-  const res = await fetch('/api/spin', {
+  const res = await fetch('/api/open-case', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ caseId, prizes: prizeList })
+    body: JSON.stringify({ idToken: await user.getIdToken(), caseId })
   });
   if (res.ok) {
-    const { prize: winningPrize } = await res.json();
+    const data = await res.json();
+    console.log("PROVABLY FAIR DATA:", data.provablyFair);
 
-    const voucherAmount = getVoucherAmount(winningPrize);
-    const voucherPrize = isVoucherPrize(winningPrize);
+    const winningPrize = data.prize;
     const normalizedPrize = {
       ...winningPrize,
-      ...(voucherPrize ? { isVoucher: true, voucherAmount } : {}),
+      value: getEffectiveValue(winningPrize),
     };
-    const effectiveValue = getEffectiveValue(normalizedPrize);
-    normalizedPrize.value = effectiveValue;
 
     const unboxData = {
-      name: normalizedPrize.name,
-      image: normalizedPrize.image,
-      rarity: normalizedPrize.rarity,
-      value: effectiveValue,
-      timestamp: Date.now(),
-      sold: false,
-      ...(voucherPrize ? { isVoucher: true, voucherAmount } : {}),
+      ...data.unboxData,
+      value: getEffectiveValue(data.unboxData),
     };
-    const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
-    await invRef.set(unboxData);
-    await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
-    await updateMilestones(user.uid, effectiveValue);
-    winnings[0] = { ...normalizedPrize, key: invRef.key };
+    winnings[0] = { ...normalizedPrize, key: data.unboxData?.key };
 
     const winIndex = openerItems.findIndex(p => p.name === winningPrize.name);
     await transitionToReel();
@@ -921,33 +890,39 @@ if (openBtn) openBtn.addEventListener("click", async () => {
       }
     }
 
+    if (typeof data.balance === 'number') {
+      const balanceAmount = document.getElementById('balance-amount');
+      const balanceMobile = document.getElementById('balance-amount-mobile');
+      const balanceDropdown = document.getElementById('balance-amount-mobile-dropdown');
+      const popupBalance = document.getElementById('popup-balance');
+      const formatted = Number(data.balance).toLocaleString();
+      if (balanceAmount) balanceAmount.innerText = formatted;
+      if (balanceMobile) balanceMobile.innerText = formatted;
+      if (balanceDropdown) balanceDropdown.innerText = formatted;
+      if (popupBalance) popupBalance.innerText = `${formatted} gems`;
+    }
   }
 
   if (!res.ok) {
     showToast('Something went wrong while spinning. Please try again.');
   }
 
-  if (isFreeCase) {
-    await firebase.database().ref('users/' + user.uid + '/freeCaseOpened').set(true);
-  }
-  const questUpdates = {
-    'openPacks/progress': firebase.database.ServerValue.increment(1)
-  };
-  if (!isFreeCase) {
-    questUpdates['spendCoins/progress'] = firebase.database.ServerValue.increment(totalPrice);
-  }
-  const rareHits = winnings.filter(p => ['rare', 'ultra rare', 'legendary'].includes((p.rarity || '').toLowerCase())).length;
-  if (rareHits > 0) {
-    questUpdates['pullRare/progress'] = firebase.database.ServerValue.increment(rareHits);
-  }
-  await firebase.database().ref('users/' + user.uid + '/weeklyQuests').update(questUpdates);
-  await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: nonce + 1 });
-
-  resetOpenButton();
-
   if (winnings.length) {
+    const questUpdates = {
+      'openPacks/progress': firebase.database.ServerValue.increment(1)
+    };
+    if (!isFreeCase) {
+      questUpdates['spendCoins/progress'] = firebase.database.ServerValue.increment(totalPrice);
+    }
+    const rareHits = winnings.filter(p => ['rare', 'ultra rare', 'legendary'].includes((p.rarity || '').toLowerCase())).length;
+    if (rareHits > 0) {
+      questUpdates['pullRare/progress'] = firebase.database.ServerValue.increment(rareHits);
+    }
+    await firebase.database().ref('users/' + user.uid + '/weeklyQuests').update(questUpdates);
     showMultiWinPopup(winnings);
   }
+
+  resetOpenButton();
 });
         document.getElementById("try-free-button").addEventListener("click", async () => {
           const btn = document.getElementById("try-free-button");
@@ -1050,7 +1025,7 @@ if (openBtn) openBtn.addEventListener("click", async () => {
     const fairSnap = await firebase.database().ref(`users/${user.uid}/provablyFair`).once("value");
     const fairData = fairSnap.val();
 
-    document.getElementById("pf-server-seed").textContent = fairData?.serverSeed || "Not found";
+    document.getElementById("pf-server-seed").textContent = fairData?.serverSeedHash || "Hidden (server managed)";
     document.getElementById("pf-client-seed").textContent = fairData?.clientSeed || "Not found";
     document.getElementById("pf-nonce").textContent = fairData?.nonce ?? "Not found";
 
@@ -1069,20 +1044,7 @@ if (openBtn) openBtn.addEventListener("click", async () => {
   });
 
   document.getElementById("new-server-seed").addEventListener("click", async () => {
-    const user = firebase.auth().currentUser;
-    if (!user) return;
-    const serverSeed = generateRandomString(64);
-    const serverSeedHash = await sha256(serverSeed);
-    const clientSeed = document.getElementById("pf-client-seed").textContent || "default";
-    await firebase.database().ref(`users/${user.uid}/provablyFair`).set({
-      serverSeed,
-      serverSeedHash,
-      clientSeed,
-      nonce: 0
-    });
-    document.getElementById("pf-server-seed").textContent = serverSeed;
-    document.getElementById("pf-nonce").textContent = 0;
-    showToast("Server seed regenerated", "bg-green-600");
+    showToast("Server seeds rotate automatically after each spin.", "bg-blue-600");
   });
 });
 function enablePrizePopups() {
@@ -1117,20 +1079,6 @@ function enablePrizePopups() {
   });
 }
 
-function generateRandomString(length) {
-  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += charset.charAt(Math.floor(Math.random() * charset.length));
-  }
-  return result;
-}
-
-async function sha256(message) {
-  const data = new TextEncoder().encode(message);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
-}
   </script>
   <!-- Sign-In Required Modal -->
   <div id="signin-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center">

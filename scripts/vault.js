@@ -309,10 +309,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const user = firebase.auth().currentUser;
       if (!user) return;
 
-      const fairSnap = await firebase.database().ref(`users/${user.uid}/provablyFair`).once('value');
-      const fairData = fairSnap.val();
+    const fairSnap = await firebase.database().ref(`users/${user.uid}/provablyFair`).once('value');
+    const fairData = fairSnap.val();
 
-      document.getElementById('pf-server-seed').textContent = fairData?.serverSeed || 'Not found';
+      document.getElementById('pf-server-seed').textContent = fairData?.serverSeedHash || 'Hidden (server managed)';
       document.getElementById('pf-client-seed').textContent = fairData?.clientSeed || 'Not found';
       document.getElementById('pf-nonce').textContent = fairData?.nonce ?? 'Not found';
 
@@ -330,34 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('new-server-seed').addEventListener('click', async () => {
-      const user = firebase.auth().currentUser;
-      if (!user) return;
-      const serverSeed = generateRandomString(64);
-      const serverSeedHash = await sha256(serverSeed);
-      const clientSeed = document.getElementById('pf-client-seed').textContent || 'default';
-      await firebase.database().ref(`users/${user.uid}/provablyFair`).set({
-        serverSeed,
-        serverSeedHash,
-        clientSeed,
-        nonce: 0
-      });
-      document.getElementById('pf-server-seed').textContent = serverSeed;
-      document.getElementById('pf-nonce').textContent = 0;
+      showToast('Server seeds rotate automatically after each spin.', 'bg-blue-600');
     });
   }
 });
-
-function generateRandomString(length) {
-  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += charset.charAt(Math.floor(Math.random() * charset.length));
-  }
-  return result;
-}
-
-async function sha256(message) {
-  const data = new TextEncoder().encode(message);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
-}
