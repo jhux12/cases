@@ -273,7 +273,12 @@ function initializeTwoFactorSection(userData) {
   };
 
   disableBtn.onclick = async () => {
-    if (!confirm('Disable two-factor authentication?')) return;
+    const confirmed = await showPacklyConfirm('Disable two-factor authentication?', {
+      title: 'Disable 2FA',
+      variant: 'warning',
+      confirmText: 'Disable'
+    });
+    if (!confirmed) return;
     try {
       const activeUser = firebase.auth().currentUser;
       await activeUser.unlink(firebase.auth.PhoneAuthProvider.PROVIDER_ID);
