@@ -143,33 +143,27 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
   `;
 
-  const enhanceLogoAnimation = () => {
-    document.querySelectorAll('.logo-animate').forEach((logo) => {
-      if (logo.dataset.slotReady === 'true') return;
+  const startLogoTransform = () => {
+    const logos = header.querySelectorAll('.logo-animate');
+    if (!logos.length) return;
 
-      const text = logo.textContent.trim();
-      if (!text) return;
+    const transformDuration = 3200;
+    const intervalDuration = 15000;
 
-      const letters = text.split('');
-      const fragment = document.createDocumentFragment();
-
-      letters.forEach((letter, index) => {
-        const span = document.createElement('span');
-        span.className = 'logo-letter';
-        span.dataset.letter = letter;
-        span.style.setProperty('--logo-letter-index', index);
-        span.textContent = letter;
-        fragment.appendChild(span);
+    const triggerTransform = () => {
+      logos.forEach((logo) => {
+        logo.classList.add('logo-transform');
+        setTimeout(() => logo.classList.remove('logo-transform'), transformDuration);
       });
+    };
 
-      logo.setAttribute('aria-label', text);
-      logo.textContent = '';
-      logo.appendChild(fragment);
-      logo.dataset.slotReady = 'true';
-    });
+    setTimeout(() => {
+      triggerTransform();
+      setInterval(triggerTransform, intervalDuration);
+    }, intervalDuration);
   };
 
-  enhanceLogoAnimation();
+  startLogoTransform();
 
   const current = window.location.pathname.split('/').pop() || 'index.html';
   header.querySelectorAll('a[data-nav]').forEach(link => {
