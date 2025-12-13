@@ -85,42 +85,27 @@ async function openPack() {
     return alert('Not enough gems.');
   }
 
-  const fairSnap = await firebase.database().ref('users/' + user.uid + '/provablyFair').once('value');
-  const fairData = fairSnap.val();
-  if (!fairData) {
-    openBtn.disabled = false;
-    return alert('Provably fair data missing.');
-  }
-  const { nonce } = fairData;
-
-  await firebase.database().ref('users/' + user.uid + '/balance').set(balance - price);
+  const idToken = await user.getIdToken();
 
   // Request a secure outcome from the server instead of computing locally
-  const res = await fetch('/api/spin', {
+  const res = await fetch('/api/open-vault', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`
+    },
     credentials: 'include',
-    body: JSON.stringify({ packId: currentPackId, prizes: Object.values(currentPack.prizes || {}) })
+    body: JSON.stringify({ packId: currentPackId })
   });
   if (!res.ok) {
     console.error('Spin request failed');
+    const { error } = await res.json().catch(() => ({}));
+    alert(error || 'Spin request failed');
+    openBtn.disabled = false;
     return;
   }
-  const { prize: winningPrize } = await res.json();
-
-  const unboxData = {
-    name: winningPrize.name,
-    image: winningPrize.image,
-    rarity: winningPrize.rarity,
-    value: winningPrize.value,
-    timestamp: Date.now(),
-    sold: false
-  };
-  const invRef = firebase.database().ref('users/' + user.uid + '/inventory').push();
-  await invRef.set(unboxData);
-  await firebase.database().ref('users/' + user.uid + '/unboxHistory/' + invRef.key).set(unboxData);
-  currentPrize = { ...winningPrize, key: invRef.key };
-  await firebase.database().ref('users/' + user.uid + '/provablyFair').update({ nonce: (nonce || 0) + 1 });
+  const { prize: winningPrize, inventoryKey } = await res.json();
+  currentPrize = { ...winningPrize, key: inventoryKey };
 
   // prepare prizes for the face-down cards and guarantee five entries
   const allPrizes = Object.values(currentPack.prizes || {});
