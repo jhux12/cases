@@ -594,60 +594,52 @@ body.dark-mode .user-toolbar {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.04em;
   padding: 0.05em 0.06em;
   background: linear-gradient(90deg, var(--accent-strong), var(--accent-soft));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  perspective: 900px;
+  overflow: hidden;
 }
 
-.logo-letter {
-  position: relative;
-  display: inline-block;
-  padding: 0 0.02em;
-  background: linear-gradient(120deg, var(--accent-strong), #60a5fa 40%, var(--accent-soft));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  transform-style: preserve-3d;
-  animation: slotSpin 8s cubic-bezier(0.33, 0.01, 0.16, 1) infinite;
-  animation-delay: calc(var(--logo-letter-index, 0) * 0.12s);
-}
-
-.logo-letter::after {
-  content: attr(data-letter);
+.logo-animate::before {
+  content: "";
   position: absolute;
-  inset: 0;
-  background: inherit;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: blur(6px);
-  opacity: 0.35;
-  transform: translateZ(-2px);
+  inset: -25%;
+  background-image: url('https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/download.png?alt=media&token=b5361b55-3d92-466a-9a51-460198da9d27');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: 0;
+  transform: scale(0.82) rotate(-6deg);
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.2));
   pointer-events: none;
 }
 
-@keyframes slotSpin {
+.logo-animate.logo-transform {
+  color: transparent;
+}
+
+.logo-animate.logo-transform::before {
+  animation: logo-emblem 2.6s ease-in-out forwards;
+}
+
+@keyframes logo-emblem {
   0% {
-    transform: translateY(0) rotateX(0deg) scale(1);
+    opacity: 0;
+    transform: scale(0.82) rotate(-6deg);
   }
-  8% {
-    transform: translateY(-10px) rotateX(-120deg) scale(0.96);
+  30% {
+    opacity: 1;
+    transform: scale(1.05) rotate(2deg);
   }
-  16% {
-    transform: translateY(2px) rotateX(-210deg) scale(1.02);
-  }
-  24% {
-    transform: translateY(10px) rotateX(-300deg) scale(0.98);
-  }
-  32% {
-    transform: translateY(0) rotateX(-360deg) scale(1.04);
+  70% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
   }
   100% {
-    transform: translateY(0) rotateX(-360deg) scale(1);
+    opacity: 0;
+    transform: scale(0.9) rotate(6deg);
   }
 }
 
