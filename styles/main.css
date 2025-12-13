@@ -607,13 +607,13 @@ body.dark-mode .user-toolbar {
   position: relative;
   display: inline-block;
   padding: 0 0.02em;
-  background: linear-gradient(120deg, var(--accent-strong), #60a5fa 40%, var(--accent-soft));
+  background: linear-gradient(115deg, var(--accent-strong), #9ccafe 35%, var(--accent-soft));
+  background-size: 220% 220%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  transform-style: preserve-3d;
-  animation: slotSpin 8s cubic-bezier(0.33, 0.01, 0.16, 1) infinite;
-  animation-delay: calc(var(--logo-letter-index, 0) * 0.12s);
+  animation: logo-shimmer 3.6s ease-in-out infinite;
+  animation-delay: calc(var(--logo-letter-index, 0) * 0.08s);
 }
 
 .logo-letter::after {
@@ -624,30 +624,23 @@ body.dark-mode .user-toolbar {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: blur(6px);
-  opacity: 0.35;
-  transform: translateZ(-2px);
+  filter: blur(4px);
+  opacity: 0.2;
   pointer-events: none;
 }
 
-@keyframes slotSpin {
+@keyframes logo-shimmer {
   0% {
-    transform: translateY(0) rotateX(0deg) scale(1);
+    background-position: 0% 50%;
+    text-shadow: 0 0 16px rgba(148, 163, 184, 0.25);
   }
-  8% {
-    transform: translateY(-10px) rotateX(-120deg) scale(0.96);
-  }
-  16% {
-    transform: translateY(2px) rotateX(-210deg) scale(1.02);
-  }
-  24% {
-    transform: translateY(10px) rotateX(-300deg) scale(0.98);
-  }
-  32% {
-    transform: translateY(0) rotateX(-360deg) scale(1.04);
+  50% {
+    background-position: 100% 50%;
+    text-shadow: 0 0 20px rgba(148, 163, 184, 0.35);
   }
   100% {
-    transform: translateY(0) rotateX(-360deg) scale(1);
+    background-position: 0% 50%;
+    text-shadow: 0 0 16px rgba(148, 163, 184, 0.25);
   }
 }
 
