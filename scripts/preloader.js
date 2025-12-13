@@ -52,6 +52,17 @@
   `;
   document.head.appendChild(style);
 
+  // Ensure Packly-styled popup system is available early
+  const loadPacklyPopup = () => {
+    if (window.showPacklyPopup || document.getElementById('packly-popup-loader')) return;
+    const popupScript = document.createElement('script');
+    popupScript.id = 'packly-popup-loader';
+    popupScript.src = 'scripts/packly-popup.js';
+    document.head.appendChild(popupScript);
+  };
+
+  loadPacklyPopup();
+
   const getPreferredTheme = () => {
     const stored = localStorage.getItem('pullz-theme');
     if (stored === 'dark' || stored === 'light') return stored;
