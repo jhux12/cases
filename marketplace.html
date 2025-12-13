@@ -45,15 +45,18 @@
         </label>
       </div>
       <select id="sort-select" class="p-2 rounded bg-gray-100 text-gray-900 border border-gray-300 w-full sm:w-48">
-        <option value="">Sort by</option>
         <option value="low">Price: Low to High</option>
-        <option value="high">Price: High to Low</option>
+        <option value="high" selected>Price: High to Low</option>
       </select>
       <button onclick="applyFilters()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded text-white text-sm">Apply</button>
       <button onclick="resetFilters()" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded text-gray-900 text-sm">Clear</button>
     </div>
 
     <div id="market-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+    <div class="text-center mt-8 space-y-2">
+      <button id="show-more-btn" class="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg text-sm font-semibold hidden">See more items</button>
+      <p id="items-count" class="text-xs text-gray-500"></p>
+    </div>
   </section>
 
   <template id="market-card-template">
@@ -119,8 +122,11 @@
   </div>
   <script>
     let allMarketplaceItems = [];
+    let filteredCards = [];
     let currentUserBalance = 0;
     let pendingPurchaseCard = null;
+    let visibleCount = 0;
+    const itemsPerPage = 20;
 
     function normalizeValue(value) {
       const numeric = Number(value);
@@ -187,7 +193,7 @@
       const min = parseInt(document.getElementById("min-price").value) || 0;
       const max = parseInt(document.getElementById("max-price").value) || Infinity;
       const enough = document.getElementById("enough-gems").checked;
-      const sort = document.getElementById("sort-select").value;
+      const sort = document.getElementById("sort-select").value || "high";
 
       let filtered = allMarketplaceItems.filter(card => (
         (!search || card.name.toLowerCase().includes(search)) &&
@@ -199,7 +205,8 @@
       if (sort === "low") filtered.sort((a, b) => a.value - b.value);
       if (sort === "high") filtered.sort((a, b) => b.value - a.value);
 
-      renderMarketplaceCards(filtered, userBalance);
+      filteredCards = filtered;
+      renderMarketplaceCards(filteredCards, userBalance, true);
     }
 
     function resetFilters() {
@@ -207,16 +214,26 @@
       document.getElementById("min-price").value = "";
       document.getElementById("max-price").value = "";
       document.getElementById("enough-gems").checked = false;
-      document.getElementById("sort-select").value = "";
+      document.getElementById("sort-select").value = "high";
       applyFilters(currentUserBalance);
     }
 
-    function renderMarketplaceCards(cards, userBalance) {
+    function renderMarketplaceCards(cards, userBalance, resetVisible = false) {
       const grid = document.getElementById("market-grid");
       const template = document.getElementById("market-card-template");
+      const showMoreBtn = document.getElementById("show-more-btn");
+      const itemsCount = document.getElementById("items-count");
+
+      if (resetVisible) {
+        visibleCount = itemsPerPage;
+      } else {
+        visibleCount = Math.min(visibleCount + itemsPerPage, cards.length);
+      }
+
+      const visibleCards = cards.slice(0, visibleCount);
       grid.innerHTML = "";
 
-      cards.forEach(card => {
+      visibleCards.forEach(card => {
         const clone = template.content.cloneNode(true);
         clone.querySelector("img").src = card.image;
         clone.querySelector(".name").textContent = card.name;
@@ -243,7 +260,14 @@
 
         grid.appendChild(clone);
       });
+
+      showMoreBtn.classList.toggle("hidden", visibleCount >= cards.length);
+      itemsCount.textContent = cards.length ? `Showing ${visibleCards.length} of ${cards.length} items` : "No items found";
     }
+
+    document.getElementById("show-more-btn").addEventListener("click", () => {
+      renderMarketplaceCards(filteredCards, currentUserBalance, false);
+    });
 
     document.getElementById("item-popup-buy").addEventListener("click", () => {
       if (!window.selectedCard) return;
