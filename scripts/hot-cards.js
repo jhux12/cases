@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const highRarities = new Set(['legendary', 'ultrarare', 'ultra', 'mythic']);
   const MAX_NAME_LENGTH = 22;
+  const gemIcon =
+    '<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gems" class="gem-icon" loading="lazy">';
 
   const truncate = (text, len) =>
     text.length > len ? text.slice(0, len).trimEnd() + '\u2026' : text;
@@ -78,16 +80,16 @@ document.addEventListener('DOMContentLoaded', () => {
     tile.style.setProperty('--win-color', color);
     tile.style.borderColor = hexToRgba(color, 0.45);
     tile.style.boxShadow = `0 22px 38px ${hexToRgba(color, 0.22)}`;
-    tile.innerHTML = `
-      <img src="${image}" alt="${escapeHtml(rawName)}" loading="lazy" />
-      <div class="tile-info">
-        <div class="name" title="${escapeHtml(rawName)}">${escapeHtml(truncate(rawName, MAX_NAME_LENGTH))}</div>
-        <div class="price">
-          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gems" />
-          <span>${price}</span>
-        </div>
-        <span class="pill ${rarityKey === 'ultra' ? 'ultrarare' : rarityKey}">${rarityLabel}</span>
-      </div>`;
+      tile.innerHTML = `
+        <img src="${image}" alt="${escapeHtml(rawName)}" loading="lazy" />
+        <div class="tile-info">
+          <div class="name" title="${escapeHtml(rawName)}">${escapeHtml(truncate(rawName, MAX_NAME_LENGTH))}</div>
+          <div class="price">
+            ${gemIcon}
+            <span>${price}</span>
+          </div>
+          <span class="pill ${rarityKey === 'ultra' ? 'ultrarare' : rarityKey}">${rarityLabel}</span>
+        </div>`;
     return tile;
   };
 
