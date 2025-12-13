@@ -30,9 +30,10 @@ function initFirebase() {
 }
 
 function ensurePrizes(caseData) {
-  const prizes = Object.values(caseData.prizes || {})
-    .map((prize) => ({
+  const prizes = Object.entries(caseData.prizes || {})
+    .map(([prizeId, prize]) => ({
       ...prize,
+      prizeId: prize.prizeId || prize.id || prizeId,
       odds: Number(prize.odds) || 0,
       value: Number(prize.value) || 0,
     }))
@@ -59,8 +60,7 @@ function hashRoll(serverSeed, clientSeed, nonce) {
     .digest('hex');
 
   const rollInt = BigInt('0x' + rollHash.slice(0, 13));
-  const maxInt = BigInt('0x' + 'f'.repeat(13));
-  const rollFraction = Number(rollInt) / Number(maxInt);
+  const rollFraction = Number(rollInt) / Number(1n << 52n);
 
   return { rollHash, rollFraction };
 }
@@ -177,6 +177,7 @@ module.exports = async (req, res) => {
       rarity: winningPrize.rarity,
       value: Number.isFinite(winningPrize.value) ? winningPrize.value : 0,
       odds: winningPrize.odds,
+      prizeId: winningPrize.prizeId,
       timestamp: now,
       sold: false,
     };
@@ -195,6 +196,19 @@ module.exports = async (req, res) => {
       [`users/${uid}/provablyFair/clientSeed`]: clientSeed,
       [`users/${uid}/provablyFair/serverSeedHash`]: nextSeeds.current.hash,
       [`serverSeeds/${uid}`]: nextSeeds,
+    };
+
+    const spinRef = db.ref(`spins/${uid}`).push();
+    const spinId = spinRef.key;
+    updates[`spins/${uid}/${spinId}`] = {
+      createdAt: now,
+      caseId,
+      nonceUsed: nonce,
+      clientSeed,
+      serverSeedRevealed: seeds.current.seed,
+      serverSeedHashUsed: seeds.current.hash,
+      rollHash,
+      prize: { ...unboxData },
     };
 
     if (!isFreeCase) {

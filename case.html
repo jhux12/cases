@@ -1054,45 +1054,136 @@ if (openBtn) openBtn.addEventListener("click", async () => {
     showToast("Server seeds rotate automatically after each spin.", "bg-blue-600");
   });
 
+  const sha256Hex = async (input) => {
+    const msgUint8 = new TextEncoder().encode(input);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
+    return Array.from(new Uint8Array(hashBuffer))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  };
+
   const toRollFraction = (hash) => {
     if (!hash || hash.length < 13) throw new Error("Invalid roll hash");
     const rollInt = BigInt("0x" + hash.slice(0, 13));
-    const maxInt = BigInt("0x" + "f".repeat(13));
-    return Number(rollInt) / Number(maxInt);
+    return Number(rollInt) / Number(1n << 52n);
   };
 
-  const verifyLastSpin = () => {
-    if (!lastSpinProof || !lastSpinProof.provablyFair || !lastSpinProof.prizePool?.length) {
-      showToast("Spin once to verify your result.", "bg-blue-600");
-      return;
-    }
-
-    const { provablyFair, prizePool, winningPrize } = lastSpinProof;
-    const rollFraction = toRollFraction(provablyFair.rollHash);
-    const totalOdds = prizePool.reduce((sum, prize) => sum + (Number(prize.odds) || 0), 0);
-    const target = rollFraction * totalOdds;
-
-    let cumulative = 0;
-    let computedPrize = prizePool[prizePool.length - 1];
-    for (const prize of prizePool) {
-      cumulative += Number(prize.odds) || 0;
-      if (target < cumulative) {
-        computedPrize = prize;
-        break;
-      }
-    }
-
-    const matches = computedPrize?.name === winningPrize?.name;
+  const verifyLastSpin = async () => {
     const resultEl = document.getElementById("pf-verification-result");
     if (resultEl) {
       resultEl.classList.remove("hidden");
-      resultEl.textContent = matches
-        ? `Verified: ${computedPrize.name} matches your recorded win (nonce ${provablyFair.nonceUsed}).`
-        : `Mismatch: expected ${computedPrize?.name || "unknown"}, but recorded ${winningPrize?.name || "unknown"}.`;
+      resultEl.textContent = "Verifying...";
     }
 
-    if (!matches) {
-      console.warn("Provably fair verification mismatch", { computedPrize, winningPrize, provablyFair });
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      showToast("Sign in to verify spins.", "bg-red-600");
+      if (resultEl) resultEl.textContent = "Sign in to verify spins.";
+      return;
+    }
+
+    try {
+      const spinsSnap = await firebase.database().ref(`spins/${user.uid}`).once("value");
+      const spins = spinsSnap.val();
+      if (!spins) {
+        if (resultEl) resultEl.textContent = "No spins found to verify.";
+        return;
+      }
+
+      const latest = Object.entries(spins).reduce((acc, [key, value]) => {
+        if (!value) return acc;
+        if (!acc) return { key, value };
+        const currentTs = Number(value.createdAt) || 0;
+        const accTs = Number(acc.value.createdAt) || 0;
+        if (currentTs > accTs) return { key, value };
+        if (currentTs === accTs && key > acc.key) return { key, value };
+        return acc;
+      }, null);
+
+      if (!latest) {
+        if (resultEl) resultEl.textContent = "No spins found to verify.";
+        return;
+      }
+
+      const spinRecord = { ...latest.value, spinId: latest.key };
+      const {
+        caseId,
+        nonceUsed,
+        clientSeed,
+        serverSeedRevealed,
+        serverSeedHashUsed,
+        rollHash,
+        prize: recordedPrize = {},
+      } = spinRecord;
+
+      if (!caseId) {
+        if (resultEl) resultEl.textContent = "Spin missing case reference.";
+        return;
+      }
+
+      const prizesSnap = await firebase.database().ref(`cases/${caseId}/prizes`).once("value");
+      if (!prizesSnap.exists()) {
+        if (resultEl) resultEl.textContent = "Missing prize data for spin case.";
+        return;
+      }
+
+      const prizePool = Object.entries(prizesSnap.val() || {})
+        .map(([prizeId, prize]) => ({
+          ...prize,
+          prizeId: prize.prizeId || prize.id || prizeId,
+          odds: Number(prize.odds) || 0,
+          value: Number(prize.value) || 0,
+        }))
+        .filter((prize) => prize.odds > 0);
+
+      if (!prizePool.length) {
+        if (resultEl) resultEl.textContent = "No prizes available to verify.";
+        return;
+      }
+
+      const totalOdds = prizePool.reduce((sum, prize) => sum + (Number(prize.odds) || 0), 0);
+
+      const computedServerHash = await sha256Hex(serverSeedRevealed || "");
+      if (computedServerHash !== serverSeedHashUsed) {
+        if (resultEl) resultEl.textContent = "Commitment hash mismatch.";
+        return;
+      }
+
+      const recomputedRoll = await sha256Hex(`${serverSeedRevealed}:${clientSeed}:${nonceUsed}`);
+      if (recomputedRoll !== rollHash) {
+        if (resultEl) resultEl.textContent = "Roll hash mismatch.";
+        return;
+      }
+
+      const rollFraction = toRollFraction(rollHash);
+      const target = rollFraction * totalOdds;
+
+      let cumulative = 0;
+      let computedPrize = prizePool[prizePool.length - 1];
+      for (const prize of prizePool) {
+        cumulative += Number(prize.odds) || 0;
+        if (target < cumulative) {
+          computedPrize = prize;
+          break;
+        }
+      }
+
+      const recordedPrizeId = recordedPrize.prizeId || recordedPrize.id;
+      const computedPrizeId = computedPrize.prizeId || computedPrize.id;
+      const prizeMatches = recordedPrizeId && computedPrizeId
+        ? recordedPrizeId === computedPrizeId
+        : `${recordedPrize.name || ""}${recordedPrize.image || ""}${recordedPrize.value || 0}` === `${computedPrize.name || ""}${computedPrize.image || ""}${computedPrize.value || 0}`;
+
+      if (resultEl) {
+        resultEl.textContent = prizeMatches
+          ? `✅ Verified (nonce ${nonceUsed}). Prize: ${computedPrize.name}`
+          : `Prize mismatch: expected ${computedPrize?.name || "unknown"}, recorded ${recordedPrize?.name || "unknown"}.`;
+      }
+    } catch (err) {
+      console.error("VERIFY-SPIN-ERROR", err);
+      if (resultEl) {
+        resultEl.textContent = err?.message || "Verification failed.";
+      }
     }
   };
 
