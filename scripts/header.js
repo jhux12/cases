@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const logos = header.querySelectorAll('.logo-animate');
     if (!logos.length) return;
 
-    const transformDuration = 2600;
+    const transformDuration = 3200;
     const intervalDuration = 15000;
 
     const triggerTransform = () => {
