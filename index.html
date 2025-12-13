@@ -217,20 +217,21 @@
             padding: 2.4rem 2rem;
             margin-left: auto;
             margin-right: auto;
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-            border: 1px solid rgba(255, 255, 255, 0.07);
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 24px;
-            box-shadow: 0 25px 45px rgba(15, 23, 42, 0.3);
+            box-shadow: 0 18px 34px rgba(0, 0, 0, 0.38);
             z-index: 1;
             overflow: hidden;
+            backdrop-filter: blur(12px);
         }
 
         .hot-reel-wrapper::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at 30% 30%, rgba(167, 139, 250, 0.12), transparent 55%),
-                        radial-gradient(circle at 70% 60%, rgba(14, 165, 233, 0.12), transparent 50%);
+            background: radial-gradient(circle at 24% 26%, rgba(99, 102, 241, 0.12), transparent 45%),
+                        radial-gradient(circle at 78% 68%, rgba(45, 212, 191, 0.14), transparent 48%);
             pointer-events: none;
         }
 
@@ -247,21 +248,21 @@
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            gap: 0.85rem;
-            padding: 1.35rem 1.15rem 1.25rem;
+            gap: 0.75rem;
+            padding: 1.15rem 1rem 1.05rem;
             margin: 0 12px;
-            border-radius: 18px;
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.15), rgba(15, 23, 42, 0.4)), rgba(255, 255, 255, 0.08);
-            color: #0f172a;
-            box-shadow: 0 22px 38px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+            color: #e2e8f0;
+            box-shadow: 0 18px 32px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         }
 
         .hot-reel-wrapper .tile:hover {
-            transform: translateY(-6px);
-            border-color: rgba(103, 232, 249, 0.45);
-            box-shadow: 0 28px 46px rgba(15, 23, 42, 0.38), 0 0 0 1px rgba(103, 232, 249, 0.18);
+            transform: translateY(-4px);
+            border-color: rgba(99, 102, 241, 0.42);
+            box-shadow: 0 22px 40px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(99, 102, 241, 0.2);
         }
 
         .hot-reel-wrapper .tile::after {
@@ -269,7 +270,7 @@
             position: absolute;
             inset: 12px;
             border-radius: 14px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0));
             pointer-events: none;
         }
 
@@ -277,56 +278,56 @@
             width: 100%;
             height: 170px;
             object-fit: contain;
-            border-radius: 14px;
-            background: linear-gradient(135deg, rgba(241, 245, 249, 0.38), rgba(255, 255, 255, 0.4));
-            padding: 0.65rem;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+            padding: 0.6rem;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
         }
 
         .hot-reel-wrapper .tile-info {
             position: static;
             width: 100%;
             font-size: 0.85rem;
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.1));
-            padding: 0.75rem 0.6rem 0.25rem;
-            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.38);
+            padding: 0.65rem 0.55rem 0.3rem;
+            border-radius: 12px;
             text-align: center;
             display: flex;
             flex-direction: column;
-            gap: 0.45rem;
+            gap: 0.4rem;
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
         .hot-reel-wrapper .tile-info .name {
             font-weight: 700;
             letter-spacing: 0.01em;
-            color: #e2e8f0;
+            color: #f8fafc;
         }
 
         .hot-reel-wrapper .tile-info .price {
             margin-top: 0;
-            color: #0b172a;
-            gap: 0.4rem;
+            color: #e2e8f0;
+            gap: 0.45rem;
             font-weight: 800;
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            padding: 0.3rem 0.75rem;
+            padding: 0.32rem 0.85rem;
             border-radius: 999px;
-            background: linear-gradient(135deg, rgba(250, 204, 21, 0.16), rgba(250, 204, 21, 0.28));
-            color: #facc15;
-            box-shadow: 0 8px 20px rgba(250, 204, 21, 0.18);
+            background: rgba(255, 255, 255, 0.06);
+            color: #f8fafc;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
         }
 
         .hot-reel-wrapper .tile-info .price img {
-            width: 0.9rem;
-            height: 0.9rem;
-            filter: drop-shadow(0 2px 6px rgba(15, 23, 42, 0.12));
+            width: 1rem;
+            height: 1rem;
+            filter: drop-shadow(0 2px 6px rgba(15, 23, 42, 0.25));
         }
 
         .hot-reel-wrapper .tile-info .price span {
             font-weight: 800;
-            color: #fef9c3;
+            color: #f8fafc;
         }
 
         .hot-reel-wrapper .pill {
@@ -347,42 +348,46 @@
         }
 
         .pill.common {
-            background: #e2e8f0;
-            color: #475569;
+            background: linear-gradient(90deg, #e2e8f0, #cbd5e1);
+            color: #1f2937;
         }
 
         .pill.uncommon {
-            background: #dcfce7;
-            color: #047857;
+            background: linear-gradient(90deg, #4ade80, #22c55e);
+            color: #03261b;
         }
 
         .pill.rare {
-            background: #dbeafe;
-            color: #1d4ed8;
+            background: linear-gradient(90deg, #60a5fa, #3b82f6);
+            color: #0b162f;
         }
 
         .pill.ultrarare {
-            background: #ede9fe;
-            color: #6d28d9;
+            background: linear-gradient(90deg, #c084fc, #a855f7);
+            color: #260b35;
         }
 
         body.dark-mode .hot-reel-wrapper {
-            background: linear-gradient(135deg, rgba(17, 24, 39, 0.9) 0%, rgba(11, 18, 36, 0.85) 100%);
-            border-color: rgba(255, 255, 255, 0.05);
+            background: rgba(10, 14, 28, 0.75);
+            border-color: rgba(255, 255, 255, 0.06);
             color: var(--text-primary);
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.55);
+            box-shadow: 0 20px 38px rgba(0, 0, 0, 0.5);
         }
 
         body.dark-mode .hot-reel-wrapper .tile {
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.2), rgba(15, 23, 42, 0.65));
-            border-color: rgba(255, 255, 255, 0.07);
-            color: var(--text-primary);
-            box-shadow: 0 22px 38px rgba(0, 0, 0, 0.38);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            border-color: rgba(148, 163, 184, 0.35);
+            color: #e2e8f0;
+            box-shadow: 0 18px 32px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        body.dark-mode .hot-reel-wrapper .tile-info {
+            background: rgba(8, 12, 24, 0.65);
         }
 
         body.dark-mode .hot-reel-wrapper .tile-info .price,
         body.dark-mode .hot-reel-wrapper .tile-info .name {
-            color: var(--text-primary);
+            color: #f8fafc;
         }
 
         body.dark-mode .hot-drops-card {
@@ -393,8 +398,8 @@
         }
 
         .pill.legendary {
-            background: #fef3c7;
-            color: #92400e;
+            background: linear-gradient(90deg, #fcd34d, #fbbf24);
+            color: #1f2937;
         }
 
         @media (max-width: 640px) {
