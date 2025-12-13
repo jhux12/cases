@@ -15,7 +15,7 @@ const rarityColors = {
 
 function renderPack(data) {
   document.getElementById('pack-name').textContent = data.name;
-  document.title = `Packly.gg | ${data.name}`;
+  document.title = `Pullz.gg | ${data.name}`;
   document.getElementById('main-pack-image').src = data.image;
   document.querySelectorAll('.case-pack-image').forEach(img => img.src = data.image);
   document.getElementById('pack-price').textContent = (data.price || 0).toLocaleString();
@@ -150,7 +150,7 @@ async function openPack() {
   document.getElementById('pack-display').classList.add('hidden');
   document.getElementById('back-btn').classList.add('hidden');
   document.getElementById('pack-name').textContent = 'Pick Your Card';
-  document.title = 'Packly.gg | Pick Your Card';
+  document.title = 'Pullz.gg | Pick Your Card';
   setupCards();
 }
 
@@ -274,7 +274,7 @@ function resetGame() {
   document.getElementById('open-pack').disabled = false;
   if (currentPack) {
     document.getElementById('pack-name').textContent = currentPack.name;
-    document.title = `Packly.gg | ${currentPack.name}`;
+    document.title = `Pullz.gg | ${currentPack.name}`;
   }
 }
 

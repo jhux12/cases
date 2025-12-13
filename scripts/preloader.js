@@ -53,7 +53,7 @@
   document.head.appendChild(style);
 
   const getPreferredTheme = () => {
-    const stored = localStorage.getItem('packly-theme');
+    const stored = localStorage.getItem('pullz-theme');
     if (stored === 'dark' || stored === 'light') return stored;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   };

@@ -71,15 +71,15 @@ document.addEventListener("DOMContentLoaded", () => {
       let handler;
       let unsubscribeNotifications;
       let latestNotificationTimestamp = 0;
-      let lastSeenTimestamp = Number(localStorage.getItem("packly-last-notification") || 0);
+      let lastSeenTimestamp = Number(localStorage.getItem("pullz-last-notification") || 0);
       let notificationCache = [];
       const dismissedNotifications = new Set(
-        JSON.parse(localStorage.getItem("packly-dismissed-notifications") || "[]").filter(Boolean)
+        JSON.parse(localStorage.getItem("pullz-dismissed-notifications") || "[]").filter(Boolean)
       );
 
       const persistDismissed = () => {
         const entries = Array.from(dismissedNotifications).slice(-200);
-        localStorage.setItem("packly-dismissed-notifications", JSON.stringify(entries));
+        localStorage.setItem("pullz-dismissed-notifications", JSON.stringify(entries));
       };
 
       const updateNotificationBadge = (items = []) => {
@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!notificationPanel) return;
         notificationPanel.classList.remove("hidden");
         lastSeenTimestamp = latestNotificationTimestamp || Date.now();
-        localStorage.setItem("packly-last-notification", String(lastSeenTimestamp));
+        localStorage.setItem("pullz-last-notification", String(lastSeenTimestamp));
         updateNotificationBadge(notificationCache);
       };
 
