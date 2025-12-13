@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const highRarities = new Set(['legendary', 'ultrarare', 'ultra', 'mythic']);
   const MAX_NAME_LENGTH = 22;
   const gemIcon =
-    '<svg class="gem-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="url(#gemGradient)" d="M12 3l4.5 2h3L18 9l-6 12L6 9 4.5 5h3z"/><path fill="#7dd3fc" d="M12 3l6 6h-3z"/><path fill="#22d3ee" d="M6 9l6-6-2.5 6z"/><path fill="#a5b4fc" d="M12 21l2.5-12 3.5 0z"/><path fill="#bae6fd" d="M12 21L9.5 9H6z"/><defs><linearGradient id="gemGradient" x1="5" x2="19" y1="5" y2="19" gradientUnits="userSpaceOnUse"><stop stop-color="#5eead4"/><stop offset="1" stop-color="#60a5fa"/></linearGradient></defs></svg>';
+    '<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gems" class="gem-icon" loading="lazy">';
 
   const truncate = (text, len) =>
     text.length > len ? text.slice(0, len).trimEnd() + '\u2026' : text;
