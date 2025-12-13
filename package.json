@@ -1,8 +1,8 @@
 {
-  "name": "packly-battles",
+  "name": "pullz-battles",
   "private": true,
   "version": "0.0.1",
-  "description": "Static site for Packly.gg Battles (winner-takes-all).",
+  "description": "Static site for Pullz.gg Battles (winner-takes-all).",
   "scripts": {
     "test": "node -e \"process.exit(0)\"",
     "build": "node -e \"process.exit(0)\"",
