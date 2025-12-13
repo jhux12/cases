@@ -64,6 +64,7 @@
       <div class="font-semibold text-center leading-tight mt-2 name text-gray-900 line-clamp-2 break-words"></div>
       <div class="text-yellow-600 font-bold mt-1 value"></div>
       <div class="text-xs text-gray-500 mt-1 rarity"></div>
+      <div class="text-[11px] text-indigo-700 font-semibold mt-1 pack-source hidden"></div>
       <button class="mt-4 px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-xs font-bold uppercase tracking-wide transition buy-btn">Buy</button>
     </div>
   </template>
@@ -84,27 +85,104 @@
       <button id="item-popup-buy" class="mt-5 px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-full text-white text-sm font-bold shadow-md">Buy</button>
     </div>
   </div>
+
+  <!-- Confirm Purchase Popup -->
+  <div id="confirm-popup" class="fixed inset-0 flex bg-black/80 hidden items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-2xl shadow-2xl border border-gray-200 max-w-sm w-full text-center relative animate-fade-in">
+      <button onclick="closeConfirmPopup()" class="absolute top-2 right-3 text-gray-600 text-lg" aria-label="Close">&times;</button>
+      <div class="relative mb-4 w-full flex justify-center">
+        <img id="confirm-image" src="" alt="Card" class="max-h-40 rounded shadow-lg border border-gray-200">
+      </div>
+      <div class="text-gray-900 font-semibold text-lg mb-1" id="confirm-name"></div>
+      <div class="text-yellow-600 font-bold text-sm" id="confirm-value"></div>
+      <div class="text-xs text-indigo-700 font-semibold" id="confirm-pack"></div>
+      <p class="text-xs text-gray-500 italic mt-1">Confirm to add this card to your inventory.</p>
+      <div class="mt-5 flex items-center justify-center gap-3">
+        <button onclick="closeConfirmPopup()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-full text-gray-800 text-sm font-semibold">Cancel</button>
+        <button id="confirm-buy" class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-full text-white text-sm font-bold shadow-md">Confirm Purchase</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Purchase Success Popup -->
+  <div id="purchase-popup" class="fixed inset-0 flex bg-black/80 hidden items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-2xl shadow-2xl border border-gray-200 max-w-sm w-full text-center relative animate-fade-in">
+      <button onclick="document.getElementById('purchase-popup').classList.add('hidden')" class="absolute top-2 right-3 text-gray-600 text-lg" aria-label="Close">&times;</button>
+      <div class="relative mb-4 w-full flex justify-center">
+        <img id="popup-image" src="" alt="Card" class="max-h-40 rounded shadow-lg border border-gray-200">
+      </div>
+      <h3 id="popup-name" class="text-gray-900 font-semibold text-lg mb-1"></h3>
+      <div id="popup-value" class="text-yellow-600 font-bold text-sm"></div>
+      <p class="text-xs text-gray-500 italic mt-1">Added to your inventory 🎉</p>
+      <button onclick="document.getElementById('purchase-popup').classList.add('hidden')" class="mt-5 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white text-sm font-bold shadow-md">Close</button>
+    </div>
+  </div>
   <script>
     let allMarketplaceItems = [];
+    let currentUserBalance = 0;
+    let pendingPurchaseCard = null;
+
+    function normalizeValue(value) {
+      const numeric = Number(value);
+      if (Number.isFinite(numeric)) return numeric;
+      const cleaned = parseFloat(String(value || "").replace(/[^0-9.]/g, ""));
+      return Number.isFinite(cleaned) ? cleaned : 0;
+    }
+
+    async function fetchMarketplaceItems() {
+      const db = firebase.database();
+      const [marketSnap, casesSnap, vaultsSnap] = await Promise.all([
+        db.ref("marketplace").once("value"),
+        db.ref("cases").once("value"),
+        db.ref("vaults").once("value")
+      ]);
+
+      const marketplaceEntries = Object.entries(marketSnap.val() || {}).map(([key, card]) => ({
+        ...card,
+        id: key,
+        value: normalizeValue(card?.value)
+      }));
+
+      const extractPrizes = (collection, type) => {
+        const items = [];
+        Object.entries(collection || {}).forEach(([packId, pack]) => {
+          Object.entries(pack?.prizes || {}).forEach(([prizeId, prize]) => {
+            if (!prize || !prize.name || !prize.image) return;
+            items.push({
+              id: `${type}-${packId}-${prizeId}`,
+              name: prize.name,
+              image: prize.image,
+              value: normalizeValue(prize.value),
+              rarity: prize.rarity || "Common",
+              source: pack?.name || type
+            });
+          });
+        });
+        return items;
+      };
+
+      const casePrizes = extractPrizes(casesSnap.val(), "case");
+      const vaultPrizes = extractPrizes(vaultsSnap.val(), "vault");
+
+      return [...marketplaceEntries, ...casePrizes, ...vaultPrizes];
+    }
 
     firebase.auth().onAuthStateChanged(async (user) => {
-      let userBalance = 0;
+      currentUserBalance = 0;
 
       if (user) {
         const userRef = firebase.database().ref("users/" + user.uid);
         const snapshot = await userRef.once("value");
         const userData = snapshot.val();
-        userBalance = userData?.balance || 0;
+        currentUserBalance = userData?.balance || 0;
       }
 
-      const snap = await firebase.database().ref("marketplace").once("value");
-      const cards = snap.val() || {};
-      allMarketplaceItems = Object.entries(cards).map(([key, card]) => ({ ...card, id: key }));
+      allMarketplaceItems = await fetchMarketplaceItems();
 
-      applyFilters(userBalance);
+      applyFilters(currentUserBalance);
     });
 
-    function applyFilters(userBalance = 0) {
+    function applyFilters(userBalance = currentUserBalance) {
       const search = document.getElementById("search-input").value.toLowerCase();
       const min = parseInt(document.getElementById("min-price").value) || 0;
       const max = parseInt(document.getElementById("max-price").value) || Infinity;
@@ -130,7 +208,7 @@
       document.getElementById("max-price").value = "";
       document.getElementById("enough-gems").checked = false;
       document.getElementById("sort-select").value = "";
-      applyFilters();
+      applyFilters(currentUserBalance);
     }
 
     function renderMarketplaceCards(cards, userBalance) {
@@ -144,23 +222,15 @@
         clone.querySelector(".name").textContent = card.name;
         clone.querySelector(".value").innerHTML = `${card.value.toLocaleString()} <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="inline w-4 h-4 gem-icon" alt="Gems">`;
         clone.querySelector(".rarity").textContent = `Rarity: ${card.rarity}`;
+        const packSource = clone.querySelector(".pack-source");
+        if (card.source) {
+          packSource.textContent = `From: ${card.source}`;
+          packSource.classList.remove("hidden");
+        }
 
-        clone.querySelector(".buy-btn").addEventListener("click", async (e) => {
+        clone.querySelector(".buy-btn").addEventListener("click", (e) => {
           e.stopPropagation();
-          if (userBalance < card.value) return alert("Not enough 🪙!");
-          await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/balance").set(userBalance - card.value);
-          await firebase.database().ref("users/" + firebase.auth().currentUser.uid + "/inventory").push({
-            name: card.name,
-            image: card.image,
-            value: card.value,
-            rarity: card.rarity,
-            fromMarketplace: true,
-            timestamp: Date.now()
-          });
-          document.getElementById("popup-image").src = card.image;
-          document.getElementById("popup-name").textContent = card.name;
-          document.getElementById("popup-value").innerHTML = `${card.value.toLocaleString()} <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="inline w-4 h-4 gem-icon" alt="Gems">`;
-          document.getElementById("purchase-popup").classList.remove("hidden");
+          openConfirmPopup(card);
         });
 
         clone.querySelector(".group").addEventListener("click", () => {
@@ -175,36 +245,66 @@
       });
     }
 
-    document.getElementById("item-popup-buy").addEventListener("click", async () => {
+    document.getElementById("item-popup-buy").addEventListener("click", () => {
+      if (!window.selectedCard) return;
+      openConfirmPopup(window.selectedCard);
+    });
+
+    function openConfirmPopup(card) {
       const user = firebase.auth().currentUser;
-      if (!user || !window.selectedCard) return;
+      if (!user) {
+        alert("You must be logged in to purchase.");
+        return;
+      }
+      pendingPurchaseCard = card;
+      document.getElementById("confirm-image").src = card.image;
+      document.getElementById("confirm-name").textContent = card.name;
+      document.getElementById("confirm-value").innerHTML = `${card.value.toLocaleString()} <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="inline w-4 h-4 gem-icon" alt="Gems">`;
+      document.getElementById("confirm-pack").textContent = card.source ? `From ${card.source}` : "";
+      document.getElementById("item-popup").classList.add("hidden");
+      document.getElementById("confirm-popup").classList.remove("hidden");
+    }
+
+    function closeConfirmPopup() {
+      pendingPurchaseCard = null;
+      document.getElementById("confirm-popup").classList.add("hidden");
+    }
+
+    document.getElementById("confirm-buy").addEventListener("click", completePurchase);
+
+    async function completePurchase() {
+      const user = firebase.auth().currentUser;
+      if (!user || !pendingPurchaseCard) return;
 
       const userRef = firebase.database().ref("users/" + user.uid);
       const snapshot = await userRef.once("value");
       const userData = snapshot.val();
       const userBalance = userData?.balance || 0;
 
-      if (userBalance < window.selectedCard.value) {
+      if (userBalance < pendingPurchaseCard.value) {
         alert("Not enough 🪙!");
+        closeConfirmPopup();
         return;
       }
 
-      await firebase.database().ref("users/" + user.uid + "/balance").set(userBalance - window.selectedCard.value);
+      await firebase.database().ref("users/" + user.uid + "/balance").set(userBalance - pendingPurchaseCard.value);
       await firebase.database().ref("users/" + user.uid + "/inventory").push({
-        name: window.selectedCard.name,
-        image: window.selectedCard.image,
-        value: window.selectedCard.value,
-        rarity: window.selectedCard.rarity,
+        name: pendingPurchaseCard.name,
+        image: pendingPurchaseCard.image,
+        value: pendingPurchaseCard.value,
+        rarity: pendingPurchaseCard.rarity,
         fromMarketplace: true,
         timestamp: Date.now()
       });
 
-      document.getElementById("item-popup").classList.add("hidden");
-      document.getElementById("popup-image").src = window.selectedCard.image;
-      document.getElementById("popup-name").textContent = window.selectedCard.name;
-      document.getElementById("popup-value").innerHTML = `${window.selectedCard.value.toLocaleString()} <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="inline w-4 h-4 gem-icon" alt="Gems">`;
+      currentUserBalance = userBalance - pendingPurchaseCard.value;
+      closeConfirmPopup();
+      document.getElementById("popup-image").src = pendingPurchaseCard.image;
+      document.getElementById("popup-name").textContent = pendingPurchaseCard.name;
+      document.getElementById("popup-value").innerHTML = `${pendingPurchaseCard.value.toLocaleString()} <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="inline w-4 h-4 gem-icon" alt="Gems">`;
       document.getElementById("purchase-popup").classList.remove("hidden");
-    });
+      applyFilters(currentUserBalance);
+    }
   </script>
 
   <script src="scripts/topup.js"></script>
