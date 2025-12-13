@@ -22,7 +22,19 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="flex justify-between h-16">
           <div class="flex items-center">
             <a href="index.html" class="flex-shrink-0 flex items-center">
-              <span class="text-2xl font-bold gradient-text logo-animate">pullz.gg</span>
+              <div class="logo-pack-wrapper" aria-label="Pullz.gg home">
+                <div class="logo-pack-inner">
+                  <img class="logo-front" src="/assets/logo-icon.svg" alt="Pullz.gg" loading="lazy" />
+                  <img
+                    class="pack-back"
+                    src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/download.png?alt=media&token=b5361b55-3d92-466a-9a51-460198da9d27"
+                    alt="Pullz.gg pack"
+                    loading="lazy"
+                  />
+                  <span class="pack-shimmer" aria-hidden="true"></span>
+                </div>
+              </div>
+              <span class="sr-only">Pullz.gg</span>
             </a>
             <div class="hidden md:ml-6 md:flex md:space-x-8">
               <a data-nav="index.html" href="index.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-box-open mr-1"></i>Open Packs</a>
@@ -143,33 +155,58 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
   `;
 
-  const enhanceLogoAnimation = () => {
-    document.querySelectorAll('.logo-animate').forEach((logo) => {
-      if (logo.dataset.slotReady === 'true') return;
+  const logoWrapper = header.querySelector('.logo-pack-wrapper');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const FLIP_DURATION_MS = prefersReducedMotion.matches ? 220 : 320;
+  let flipIntervalId;
+  let flipResetId;
+  let hoverLocked = false;
 
-      const text = logo.textContent.trim();
-      if (!text) return;
-
-      const letters = text.split('');
-      const fragment = document.createDocumentFragment();
-
-      letters.forEach((letter, index) => {
-        const span = document.createElement('span');
-        span.className = 'logo-letter';
-        span.dataset.letter = letter;
-        span.style.setProperty('--logo-letter-index', index);
-        span.textContent = letter;
-        fragment.appendChild(span);
-      });
-
-      logo.setAttribute('aria-label', text);
-      logo.textContent = '';
-      logo.appendChild(fragment);
-      logo.dataset.slotReady = 'true';
-    });
+  const setFlippedState = (state) => {
+    if (!logoWrapper) return;
+    logoWrapper.classList.toggle('is-flipped', state);
   };
 
-  enhanceLogoAnimation();
+  const queueFlipReset = (delay = FLIP_DURATION_MS + 80) => {
+    clearTimeout(flipResetId);
+    flipResetId = window.setTimeout(() => setFlippedState(false), delay);
+  };
+
+  const startFlipLoop = () => {
+    if (!logoWrapper) return;
+    clearInterval(flipIntervalId);
+    flipIntervalId = window.setInterval(() => {
+      if (hoverLocked) return;
+      setFlippedState(true);
+      queueFlipReset();
+    }, 15000);
+  };
+
+  if (logoWrapper) {
+    const handleEngage = () => {
+      hoverLocked = true;
+      setFlippedState(true);
+      clearTimeout(flipResetId);
+    };
+
+    logoWrapper.addEventListener('mouseenter', handleEngage);
+    logoWrapper.addEventListener('focusin', handleEngage);
+
+    const handleExit = () => {
+      hoverLocked = false;
+      queueFlipReset(FLIP_DURATION_MS);
+    };
+
+    logoWrapper.addEventListener('mouseleave', handleExit);
+    logoWrapper.addEventListener('focusout', handleExit);
+
+    prefersReducedMotion?.addEventListener('change', () => {
+      queueFlipReset((prefersReducedMotion.matches ? 220 : 320) + 80);
+    });
+
+    startFlipLoop();
+    queueFlipReset();
+  }
 
   const current = window.location.pathname.split('/').pop() || 'index.html';
   header.querySelectorAll('a[data-nav]').forEach(link => {
