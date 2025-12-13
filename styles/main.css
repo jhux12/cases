@@ -80,6 +80,219 @@ body.dark-mode {
   backdrop-filter: blur(10px);
 }
 
+.filter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: linear-gradient(150deg, rgba(30, 41, 59, 0.8), rgba(30, 64, 175, 0.6));
+}
+
+.filter-panel__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+@media (min-width: 768px) {
+  .filter-panel__header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.filter-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #e5edff;
+  letter-spacing: 0.01em;
+}
+
+.filter-kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #a5b4fc;
+}
+
+.filter-subtitle {
+  color: #cbd5f5;
+  max-width: 44rem;
+  font-size: 0.95rem;
+}
+
+.filter-hints {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  background: rgba(255, 255, 255, 0.07);
+  color: #e5edff;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.filter-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-input-wrap {
+  position: relative;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: none;
+  background: transparent;
+  color: #e5edff;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.filter-prefix {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a5b4fc;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.filter-input-wrap input[type='number'] {
+  padding-left: 3rem;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+  outline: none;
+}
+
+.filter-input-wrap:focus-within {
+  border-color: #a5b4fc;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.22);
+}
+
+.filter-select {
+  appearance: none;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  padding-right: 2.75rem;
+  background: transparent;
+  color: #e5edff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-select-icon {
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #c7d2fe;
+  pointer-events: none;
+}
+
+.filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filter-toggle:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.filter-toggle__track {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  background: #1f2937;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+}
+
+.filter-toggle input {
+  position: absolute;
+  inset: 0;
+}
+
+.filter-toggle__thumb {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #60a5fa, #818cf8);
+  border-radius: 999px;
+  transform: translateY(-50%);
+  transition: transform 0.25s ease;
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.35);
+}
+
+.filter-toggle input:checked + .filter-toggle__thumb {
+  transform: translate(18px, -50%);
+}
+
+.filter-toggle__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.filter-toggle__title {
+  font-weight: 700;
+  color: #e5edff;
+}
+
+.filter-toggle__subtitle {
+  font-size: 0.9rem;
+  color: #cbd5f5;
+}
+
 .home-hero {
   position: relative;
   overflow: hidden;
