@@ -10,12 +10,15 @@ function sendCorsHeaders(res) {
 function initFirebase() {
   if (admin.apps.length) return admin.app();
 
+  console.log('OPEN-CASE ENV present?', !!process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+
   const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
   if (!serviceAccountJson) {
     throw new Error('Missing FIREBASE_SERVICE_ACCOUNT_JSON environment variable');
   }
 
-  const serviceAccount = JSON.parse(serviceAccountJson);
+  const decodedJson = Buffer.from(serviceAccountJson, 'base64').toString('utf8');
+  const serviceAccount = JSON.parse(decodedJson);
   const databaseURL = process.env.FIREBASE_DATABASE_URL || 'https://cases-e5b4e-default-rtdb.firebaseio.com';
 
   admin.initializeApp({
@@ -218,7 +221,10 @@ module.exports = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('open-case error', error.message);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('OPEN-CASE ERROR:', error?.message || error);
+    res.status(500).json({
+      error: 'Server error',
+      message: error?.message || String(error),
+    });
   }
 };
