@@ -32,6 +32,9 @@ module.exports = (req, res) => {
     body = {};
   }
 
+  const data = body;
+  console.log("PROVABLY FAIR DATA:", data.provablyFair);
+
   const prizes = Array.isArray(body.prizes) ? body.prizes : [];
   if (prizes.length === 0) {
     res.status(400).json({ error: 'No prizes provided' });
