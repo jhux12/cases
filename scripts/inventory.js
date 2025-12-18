@@ -37,73 +37,14 @@ function getEffectiveValue(prize = {}) {
   if (isVoucherItem(prize) && voucherAmount > 0) return voucherAmount;
   return baseValue;
 }
-let popupRotX = 0;
-let popupRotY = 0;
-let currentRotX = 0;
-let currentRotY = 0;
-let targetRotX = 0;
-let targetRotY = 0;
-const MAX_ROT = 30;
-const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
-let isDragging = false;
-let startX = 0;
-let startY = 0;
 
+function formatGems(value = 0) {
+  return Number(value || 0).toLocaleString();
+}
 document.addEventListener('DOMContentLoaded', () => {
   const itemPopup = document.getElementById('item-popup');
-  const popupRotator = document.getElementById('popup-rotator');
-  const holoOverlay = document.getElementById('holo-overlay');
   document.getElementById('close-item-popup')?.addEventListener('click', closeItemPopup);
   itemPopup?.addEventListener('click', e => { if (e.target === itemPopup) closeItemPopup(); });
-
-  popupRotator?.addEventListener('pointerdown', e => {
-    isDragging = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    popupRotator.setPointerCapture(e.pointerId);
-    popupRotator.classList.add('grabbing');
-    targetRotX = popupRotX;
-    targetRotY = popupRotY;
-    if (holoOverlay) holoOverlay.style.opacity = '1';
-    e.preventDefault();
-  });
-
-  popupRotator?.addEventListener('pointermove', e => {
-    if (!isDragging) return;
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
-    targetRotY = clamp(popupRotY + dx / 3, -MAX_ROT, MAX_ROT);
-    targetRotX = clamp(popupRotX - dy / 3, -MAX_ROT, MAX_ROT);
-    e.preventDefault();
-  });
-
-  const endDrag = e => {
-    if (!isDragging) return;
-    popupRotY = 0;
-    popupRotX = 0;
-    targetRotX = 0;
-    targetRotY = 0;
-    isDragging = false;
-    popupRotator.classList.remove('grabbing');
-    if (holoOverlay) holoOverlay.style.opacity = '0';
-    e.preventDefault();
-  };
-  popupRotator?.addEventListener('pointerup', endDrag);
-  popupRotator?.addEventListener('pointerleave', endDrag);
-
-  const animate = () => {
-    currentRotX += (targetRotX - currentRotX) * 0.1;
-    currentRotY += (targetRotY - currentRotY) * 0.1;
-    popupRotator.style.transform = `rotateY(${currentRotY}deg) rotateX(${currentRotX}deg)`;
-    if (holoOverlay) {
-      holoOverlay.style.setProperty('--x', `${50 + currentRotY / 2}%`);
-      holoOverlay.style.setProperty('--y', `${50 + currentRotX / 2}%`);
-      holoOverlay.style.backgroundPosition = `${50 - currentRotY}% ${50 + currentRotX}%`;
-      holoOverlay.style.filter = `hue-rotate(${currentRotY * 2}deg) saturate(1.5) brightness(1.1)`;
-    }
-    requestAnimationFrame(animate);
-  };
-  if (popupRotator) requestAnimationFrame(animate);
 
   const inventoryTab = document.getElementById('inventory-tab');
   const ordersTab = document.getElementById('orders-tab');
@@ -213,7 +154,7 @@ function updateTotalValue() {
     const item = currentItems.find(i => i.key === key);
     if (item) total += getSellRefund(item);
   });
-  document.getElementById('selected-total').innerText = `Total: ${total} gems`;
+  document.getElementById('selected-total').innerText = `Total: ${formatGems(total)} gems`;
 }
 
 function toggleItem(key) {
@@ -254,7 +195,7 @@ function renderItems(items) {
     const rarityBadge = item.rarity
       ? `<span class="pill ${rarityClassMap[rarityKey] || 'common'}">${item.rarity}</span>`
       : '';
-    const valueBadge = `<span class="value-chip">Value ${effectiveValue} <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" width="14" height="14" class="gem-icon" alt="Gems" /></span>`;
+    const valueBadge = `<span class="value-chip">Value ${formatGems(effectiveValue)} <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" width="14" height="14" class="gem-icon" alt="Gems" /></span>`;
     const shipMarkup = (() => {
       if (isVoucher && !disabled) {
         return '<span class="muted-chip">Voucher — Redeem Only</span>';
@@ -285,7 +226,7 @@ function renderItems(items) {
         </div>
         <div class="item-actions">
           <button onclick="sellBack('${item.key}')" class="action-button sell-button" ${disabled ? 'disabled' : ''}>
-            <span>Sell for ${refund}</span>
+            <span>Sell for ${formatGems(refund)}</span>
             <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" width="14" height="14" class="gem-icon" alt="Gems" />
           </button>
           ${shipMarkup}
@@ -468,55 +409,54 @@ function showItemPopup(encodedSrc, encodedName, encodedRarity, value, isVoucher 
   const name = decodeURIComponent(encodedName || '');
   const rarity = decodeURIComponent(encodedRarity || '');
   const img = document.getElementById('popup-item-image');
-  const rotator = document.getElementById('popup-rotator');
-  const holo = document.getElementById('holo-overlay');
-  if (!img || !rotator) return;
+  const showcase = document.getElementById('popup-showcase');
+  if (!img || !showcase) return;
   img.src = src;
   const nameEl = document.getElementById('popup-item-name');
   if (nameEl) nameEl.textContent = name;
   const rarityEl = document.getElementById('popup-item-rarity');
   if (rarityEl) {
-    const rarityClassMap = { 'common': 'common', 'uncommon': 'uncommon', 'rare': 'rare', 'ultra rare': 'ultra', 'legendary': 'legendary' };
-    rarityEl.className = `pill ${rarityClassMap[rarity] || 'common'}`;
+    const rarityKey = rarity.toLowerCase();
+    const badgeClassMap = {
+      'common': 'badge-rarity-common',
+      'uncommon': 'badge-rarity-uncommon',
+      'rare': 'badge-rarity-rare',
+      'ultra rare': 'badge-rarity-ultra',
+      'ultra': 'badge-rarity-ultra',
+      'legendary': 'badge-rarity-legendary',
+      'mythic': 'badge-rarity-legendary'
+    };
+    rarityEl.className = `premium-badge ${badgeClassMap[rarityKey] || 'badge-rarity-common'}`;
     rarityEl.textContent = rarity;
+    const glowClassMap = {
+      'common': 'rarity-glow-common',
+      'uncommon': 'rarity-glow-uncommon',
+      'rare': 'rarity-glow-rare',
+      'ultra rare': 'rarity-glow-ultra',
+      'ultra': 'rarity-glow-ultra',
+      'legendary': 'rarity-glow-legendary',
+      'mythic': 'rarity-glow-legendary'
+    };
+    const sparkleClass = rarityKey === 'legendary' || rarityKey === 'mythic' ? 'legendary-sparkle' : '';
+    showcase.className = `showcase-frame ${glowClassMap[rarityKey] || 'rarity-glow-common'} ${sparkleClass}`.trim();
+  } else {
+    showcase.className = 'showcase-frame rarity-glow-common';
   }
   const valueEl = document.getElementById('popup-item-value');
   const displayValue = isVoucher && voucherAmount > 0 ? voucherAmount : value;
-  if (valueEl) valueEl.textContent = displayValue || 0;
-  popupRotX = 0;
-  popupRotY = 0;
-  currentRotX = 0;
-  currentRotY = 0;
-  targetRotX = 0;
-  targetRotY = 0;
-  rotator.style.transform = 'rotateY(0deg) rotateX(0deg)';
-  if (holo) {
-    holo.style.setProperty('--x', '50%');
-    holo.style.setProperty('--y', '50%');
-    holo.style.backgroundPosition = '50% 50%';
-    holo.style.filter = 'hue-rotate(0deg) saturate(1.5) brightness(1.1)';
-    holo.style.opacity = '0';
-  }
-  rotator.classList.remove('grabbing');
+  if (valueEl) valueEl.textContent = formatGems(displayValue || 0);
   const popup = document.getElementById('item-popup');
-  const card = popup?.querySelector('.popup-card');
   popup?.classList.remove('hidden');
-  const existingNote = popup?.querySelector('#popup-voucher-note');
-  if (existingNote) existingNote.remove();
-  if (popup && isVoucher) {
-    const info = popup.querySelector('.popup-info');
-    if (info) {
-      const note = document.createElement('p');
-      note.id = 'popup-voucher-note';
-      note.className = 'mt-2 text-xs font-semibold text-amber-600';
+  const note = document.getElementById('popup-voucher-note');
+  if (note) {
+    if (isVoucher) {
       note.textContent = 'Voucher prize — redeem for gems only. Shipping unavailable.';
-      info.appendChild(note);
+      note.className = 'text-xs font-semibold text-amber-600 text-center';
+      note.classList.remove('hidden');
+    } else {
+      note.textContent = '';
+      note.classList.add('hidden');
     }
-  }
-  if (card) {
-    card.classList.remove('animate');
-    void card.offsetWidth;
-    card.classList.add('animate');
   }
 }
 
