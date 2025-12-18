@@ -18,7 +18,7 @@
         <h1>Battle Mode</h1>
         <p class="subtitle">Open the same packs. Highest total wins.</p>
       </div>
-      <div class="balance" id="balance-display">Balance: 🪙 0</div>
+      <div class="balance" id="balance-display">Balance: 💎 0</div>
     </section>
 
     <section class="battle-grid">
@@ -36,18 +36,16 @@
           </label>
           <label class="field">
             <span>Players</span>
-            <select id="battle-players" name="players">
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
+            <select id="battle-players" name="players" disabled>
+              <option value="2">2 (two-player battles)</option>
             </select>
           </label>
           <label class="field">
             <span>Mode</span>
             <select id="battle-mode" name="mode">
               <option value="total">Total Value Wins</option>
-              <option value="single">Best Single Pull</option>
-              <option value="rare">Most Rare Pull</option>
+              <option value="bestSingle">Best Single Pull</option>
+              <option value="mostRare">Most Rare Pull</option>
             </select>
           </label>
         </form>
@@ -108,7 +106,7 @@
           <span class="step-number">1</span>
           <div>
             <p class="step-title">Create battle</p>
-            <p class="step-text">Choose packs and invite up to 4 players.</p>
+            <p class="step-text">Choose packs and invite a head-to-head challenger.</p>
           </div>
         </div>
         <div class="step">

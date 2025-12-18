@@ -459,3 +459,111 @@ button:not(:disabled):hover {
     align-items: flex-start;
   }
 }
+
+/* Battle room */
+body.battle-room,
+.battle-room {
+  background: radial-gradient(circle at 20% 20%, rgba(182, 103, 255, 0.08), transparent 40%),
+    radial-gradient(circle at 80% 0%, rgba(0, 255, 255, 0.04), transparent 45%),
+    #0a0a10;
+  min-height: 100vh;
+}
+
+.battle-room-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.room-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.room-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.player-panel {
+  background: rgba(20, 20, 30, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 0 24px rgba(164, 103, 255, 0.12);
+}
+
+.player-panel header {
+  margin-bottom: 0.5rem;
+}
+
+.reveal {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.35));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1rem;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+}
+
+.item-row {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.item-row .thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: radial-gradient(circle, rgba(255, 0, 255, 0.24), rgba(0, 255, 255, 0.16));
+}
+
+.round-history {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.round-history li {
+  font-size: 0.9rem;
+  color: #d7d7e0;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+}
+
+.round-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(122, 65, 255, 0.2), rgba(0, 200, 255, 0.08));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.winner-banner {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(0, 255, 170, 0.2), rgba(0, 255, 255, 0.15));
+  color: #e8fdf6;
+  font-weight: 700;
+}

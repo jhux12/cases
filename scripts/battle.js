@@ -1,12 +1,12 @@
 const state = {
   balance: 0,
   packs: [
-    { id: 'crystal', name: 'Crystal Storm', price: 120, difficulty: 2, image: 'CR' },
-    { id: 'neon', name: 'Neon Pulse', price: 80, difficulty: 1, image: 'NP' },
-    { id: 'mythic', name: 'Mythic Vault', price: 220, difficulty: 3, image: 'MV' },
-    { id: 'ember', name: 'Ember Rush', price: 60, difficulty: 1, image: 'ER' },
-    { id: 'shadow', name: 'Shadow Core', price: 150, difficulty: 2, image: 'SC' },
-    { id: 'prism', name: 'Prism Flux', price: 95, difficulty: 2, image: 'PF' },
+    { id: 'crystal', name: 'Crystal Storm', priceGems: 120, difficulty: 2, image: 'CR' },
+    { id: 'neon', name: 'Neon Pulse', priceGems: 80, difficulty: 1, image: 'NP' },
+    { id: 'mythic', name: 'Mythic Vault', priceGems: 220, difficulty: 3, image: 'MV' },
+    { id: 'ember', name: 'Ember Rush', priceGems: 60, difficulty: 1, image: 'ER' },
+    { id: 'shadow', name: 'Shadow Core', priceGems: 150, difficulty: 2, image: 'SC' },
+    { id: 'prism', name: 'Prism Flux', priceGems: 95, difficulty: 2, image: 'PF' },
   ],
   selectedPacks: {},
   createBattleForm: {
@@ -16,8 +16,8 @@ const state = {
     privacy: 'public',
   },
   publicBattles: [
-    { id: 'b-100', name: 'Twilight Trials', players: 4, joined: 2, packs: 3, mode: 'Total Value Wins', costPerPlayer: 180, userJoined: false },
-    { id: 'b-101', name: 'Pulse Party', players: 3, joined: 3, packs: 2, mode: 'Best Single Pull', costPerPlayer: 95, userJoined: true },
+    { id: 'b-100', name: 'Twilight Trials', players: 2, joined: 1, packs: 3, mode: 'Total Value Wins', costPerPlayer: 180, userJoined: false },
+    { id: 'b-101', name: 'Pulse Party', players: 2, joined: 2, packs: 2, mode: 'Best Single Pull', costPerPlayer: 95, userJoined: true },
   ],
   myBattles: [
     { id: 'm-200', name: 'Vault Kings', players: 2, joined: 1, packs: 4, mode: 'Most Rare Pull', costPerPlayer: 210, userJoined: true },
@@ -30,6 +30,16 @@ function requireAuth() {
   return true;
 }
 
+async function getIdToken() {
+  if (window.firebase?.auth) {
+    const current = window.firebase.auth().currentUser;
+    if (current) return current.getIdToken();
+  }
+  const mock = localStorage.getItem('mockIdToken') || 'mock-token';
+  console.warn('Using mock id token for battle API calls');
+  return mock;
+}
+
 function getUserBalance() {
   return 1250;
 }
@@ -37,7 +47,7 @@ function getUserBalance() {
 function initBattlePage() {
   requireAuth();
   state.balance = getUserBalance();
-  document.getElementById('balance-display').textContent = `Balance: 🪙 ${state.balance.toLocaleString()}`;
+  document.getElementById('balance-display').textContent = `Balance: 💎 ${state.balance.toLocaleString()}`;
 
   bindForm();
   renderPackCatalog();
@@ -65,7 +75,7 @@ function bindForm() {
   });
 
   modeSelect.addEventListener('change', (e) => {
-    state.createBattleForm.mode = e.target.options[e.target.selectedIndex].text;
+    state.createBattleForm.mode = e.target.value;
   });
 
   searchInput.addEventListener('input', (e) => {
@@ -110,7 +120,7 @@ function renderPackCatalog() {
     const title = document.createElement('h4');
     title.textContent = pack.name;
     const price = document.createElement('p');
-    price.textContent = `Price: 🪙 ${pack.price}`;
+    price.textContent = `Price: 💎 ${pack.priceGems}`;
     const difficulty = document.createElement('p');
     difficulty.className = 'difficulty';
     difficulty.textContent = '🌶'.repeat(pack.difficulty);
@@ -155,13 +165,13 @@ function renderSelectedSummary() {
   const totalPacks = Object.values(state.selectedPacks).reduce((sum, qty) => sum + qty, 0);
   const costPerPlayer = Object.entries(state.selectedPacks).reduce((sum, [packId, qty]) => {
     const pack = state.packs.find((p) => p.id === packId);
-    return sum + (pack ? pack.price * qty : 0);
+    return sum + (pack ? pack.priceGems * qty : 0);
   }, 0);
   const totalPot = costPerPlayer * state.createBattleForm.players;
 
   document.getElementById('total-packs').textContent = totalPacks;
-  document.getElementById('cost-per-player').textContent = `🪙 ${costPerPlayer.toLocaleString()}`;
-  document.getElementById('total-pot').textContent = `🪙 ${totalPot.toLocaleString()}`;
+  document.getElementById('cost-per-player').textContent = `💎 ${costPerPlayer.toLocaleString()}`;
+  document.getElementById('total-pot').textContent = `💎 ${totalPot.toLocaleString()}`;
 
   const canAfford = costPerPlayer > 0 && state.balance >= costPerPlayer;
   document.getElementById('create-public').disabled = !canAfford;
@@ -192,7 +202,7 @@ function renderLobbyList(tab) {
     const info = document.createElement('p');
     info.textContent = `${battle.joined}/${battle.players} joined · ${battle.packs} packs · ${battle.mode}`;
     const cost = document.createElement('p');
-    cost.textContent = `Cost per player: 🪙 ${battle.costPerPlayer.toLocaleString()}`;
+    cost.textContent = `Cost per player: 💎 ${battle.costPerPlayer.toLocaleString()}`;
     meta.append(title, info, cost);
 
     const actions = document.createElement('div');
@@ -242,14 +252,14 @@ function attachModalHandlers() {
   });
 }
 
-function createBattle(privacy) {
+async function createBattle(privacy) {
   const nameInput = document.getElementById('battle-name');
   state.createBattleForm.name = nameInput.value.trim() || 'Untitled Battle';
   state.createBattleForm.privacy = privacy;
 
   const costPerPlayer = Object.entries(state.selectedPacks).reduce((sum, [packId, qty]) => {
     const pack = state.packs.find((p) => p.id === packId);
-    return sum + (pack ? pack.price * qty : 0);
+    return sum + (pack ? pack.priceGems * qty : 0);
   }, 0);
 
   if (!costPerPlayer) {
@@ -258,61 +268,53 @@ function createBattle(privacy) {
   }
 
   if (state.balance < costPerPlayer) {
-    openModal('Insufficient balance', 'You need more coins to start this battle.');
+    openModal('Insufficient balance', 'You need more gems to start this battle.');
     return;
   }
 
-  const id = `battle-${Date.now()}`;
-  const code = `PB-${Math.floor(Math.random() * 9000 + 1000)}`;
-  const newBattle = {
-    id,
-    name: state.createBattleForm.name,
-    players: state.createBattleForm.players,
-    joined: 1,
-    packs: Object.values(state.selectedPacks).reduce((a, b) => a + b, 0),
-    mode: state.createBattleForm.mode,
-    costPerPlayer,
-    userJoined: true,
-  };
+  const selections = Object.entries(state.selectedPacks).map(([packId, qty]) => ({ packId, qty }));
+  try {
+    const idToken = await getIdToken();
+    const response = await fetch('/api/battle/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+      body: JSON.stringify({ packs: selections, mode: state.createBattleForm.mode, privacy, battleName: state.createBattleForm.name }),
+    });
 
-  state.myBattles = [newBattle, ...state.myBattles];
-  if (privacy === 'public') {
-    state.publicBattles = [newBattle, ...state.publicBattles];
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Unable to create battle');
+    }
+
+    const data = await response.json();
+    window.location.href = `battle-room.html?battleId=${data.battleId}`;
+  } catch (error) {
+    openModal('Create failed', error.message);
   }
-
-  renderLobbyList('my');
-  document.querySelectorAll('.tab').forEach((tab) => {
-    tab.classList.toggle('active', tab.dataset.tab === 'my');
-    tab.setAttribute('aria-selected', tab.dataset.tab === 'my');
-  });
-
-  openModal('Battle created (mock)', privacy === 'private' ? `Share code: ${code}` : 'Added to public lobby.');
 }
 
-function joinBattle(battleId, tab) {
-  const list = tab === 'public' ? state.publicBattles : state.myBattles;
-  const battle = list.find((b) => b.id === battleId);
-  if (!battle) {
-    openModal('Not found', 'Battle is no longer available.');
-    return;
-  }
-  if (battle.joined >= battle.players) {
-    openModal('Full', 'This battle is already full.');
-    return;
-  }
-  battle.joined += 1;
-  battle.userJoined = true;
+async function joinBattle(battleId, tab) {
+  try {
+    const idToken = await getIdToken();
+    const response = await fetch('/api/battle/join', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+      body: JSON.stringify({ battleId }),
+    });
 
-  if (tab === 'public' && !state.myBattles.find((b) => b.id === battleId)) {
-    state.myBattles = [battle, ...state.myBattles];
-  }
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Unable to join');
+    }
 
-  renderLobbyList(tab);
-  openModal('Joined battle (mock)', 'Routing to battle room soon...');
+    window.location.href = `battle-room.html?battleId=${battleId}`;
+  } catch (error) {
+    openModal('Join failed', error.message);
+  }
 }
 
 function enterBattle(battleId) {
-  openModal('Entering battle room (mock)', `Battle ID: ${battleId}`);
+  window.location.href = `battle-room.html?battleId=${battleId}`;
 }
 
 document.addEventListener('DOMContentLoaded', initBattlePage);
