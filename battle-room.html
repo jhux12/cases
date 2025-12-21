@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Battle Room</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/styles/battle.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
+  <script src="/scripts/firebase-config.js"></script>
+  <script defer src="/scripts/header.js"></script>
+  <script defer src="/scripts/navbar.js"></script>
+  <script defer src="/scripts/footer.js"></script>
+</head>
+<body>
+  <header></header>
+  <main data-theme="dark">
+    <div class="flex-between">
+      <div>
+        <p class="tag-pill">Battle room</p>
+        <h1 id="battle-id">Battle</h1>
+        <p class="muted" id="battle-status">Loading battle...</p>
+      </div>
+      <div class="flex" style="gap:0.5rem; align-items:center;">
+        <span class="status-pill" id="pot-display">Pot: 💎 0</span>
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">🌙</button>
+      </div>
+    </div>
+
+    <section class="section grid grid-2">
+      <div class="player-column" id="player-a"></div>
+      <div class="player-column" id="player-b"></div>
+    </section>
+
+    <section class="section card">
+      <div class="flex-between">
+        <h2>Rounds</h2>
+        <div class="flex" style="gap:0.5rem;">
+          <button class="button" id="start-battle">Start battle</button>
+          <button class="button secondary" id="roll-round">Roll next round</button>
+        </div>
+      </div>
+      <div id="rounds" class="rounds-list"></div>
+      <div class="sticky-actions">
+        <button class="button" id="cta-roll">Roll next round</button>
+      </div>
+    </section>
+
+    <section class="section card" id="completion" style="display:none;">
+      <h2>Results</h2>
+      <div id="winner-block"></div>
+      <div id="loser-block"></div>
+      <div class="flex" style="gap:0.5rem; margin-top:1rem;">
+        <a class="button secondary" href="/battle.html">Back to battles</a>
+        <a class="button" href="/inventory.html">View inventory</a>
+      </div>
+    </section>
+  </main>
+  <footer></footer>
+  <script defer src="/scripts/battle-room.js"></script>
+</body>
+</html>
