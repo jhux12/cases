@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Battle Lobby</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/styles/battle.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
+  <script src="/scripts/firebase-config.js"></script>
+  <script defer src="/scripts/header.js"></script>
+  <script defer src="/scripts/navbar.js"></script>
+  <script defer src="/scripts/footer.js"></script>
+</head>
+<body>
+  <header></header>
+  <main data-theme="dark">
+    <div class="flex-between">
+      <div>
+        <p class="tag-pill">Battle Mode</p>
+        <h1>Challenge other players</h1>
+        <p class="muted">Create or join a 1v1 battle using the same packs and odds as the regular opener.</p>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">🌙</button>
+    </div>
+
+    <section class="section grid grid-2">
+      <div class="card sticky-card" id="create-card">
+        <div class="flex-between">
+          <div>
+            <h2>Create Battle</h2>
+            <p class="muted">Pick packs, optional loser prize, then launch.</p>
+          </div>
+          <span class="badge">Winner Take All</span>
+        </div>
+
+        <div class="section">
+          <div class="flex-between">
+            <h3>Select packs</h3>
+            <span class="tag-pill" id="packs-selected-count">0 selected</span>
+          </div>
+          <div class="pack-list" id="pack-list"></div>
+        </div>
+
+        <div class="section">
+          <div class="flex-between">
+            <h3>Selected summary</h3>
+            <span class="tag-pill" id="selected-total">💎 0</span>
+          </div>
+          <div id="selected-packs"></div>
+        </div>
+
+        <div class="section">
+          <h3>Optional loser prize</h3>
+          <div class="pack-list" id="loser-prize-list"></div>
+          <p class="muted">Loser prize is granted to the loser at the end and adds to entry.</p>
+        </div>
+
+        <div class="section">
+          <div class="flex-between">
+            <div>
+              <p class="muted">Entry Cost</p>
+              <h3 id="entry-cost">💎 0</h3>
+            </div>
+            <div>
+              <p class="muted">Total Pot</p>
+              <h3 id="total-pot">💎 0</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <button class="button" id="create-battle">Create battle</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex-between">
+          <h2>Live battles</h2>
+          <div class="flex" id="sort-buttons">
+            <button class="button secondary" data-sort="newest">Newest</button>
+            <button class="button secondary" data-sort="pot">Highest pot</button>
+            <button class="button secondary" data-sort="ending">Ending soon</button>
+          </div>
+        </div>
+        <div id="live-battles" class="section grid"></div>
+      </div>
+    </section>
+
+    <section class="section card">
+      <div class="flex-between">
+        <h2>My battles</h2>
+        <p class="muted" id="my-battles-count">0 battles</p>
+      </div>
+      <div id="my-battles" class="grid"></div>
+    </section>
+  </main>
+
+  <footer></footer>
+  <script defer src="/scripts/battle.js"></script>
+</body>
+</html>
