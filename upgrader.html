@@ -109,7 +109,7 @@
     .wheel-disk {
       width: 86%; height: 86%; border-radius: 999px; border: 8px solid #0b1222;
       box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.55), 0 16px 30px rgba(0, 0, 0, 0.55);
-      background: conic-gradient(from 90deg, var(--success) 0deg var(--win-angle, 0deg), #0b1222 var(--win-angle, 0deg) 360deg);
+      background: conic-gradient(from -90deg, var(--success) 0deg var(--win-angle, 0deg), #0b1222 var(--win-angle, 0deg) 360deg);
       transition: transform 4s cubic-bezier(0.12, 0.66, 0.16, 1), filter 0.2s ease;
       position: relative;
     }
@@ -123,11 +123,11 @@
     }
 
     .wheel-pointer {
-      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
       width: 0; height: 0;
-      border-left: 14px solid transparent;
-      border-right: 14px solid transparent;
-      border-top: 20px solid #f8fafc;
+      border-left: 16px solid transparent;
+      border-right: 16px solid transparent;
+      border-top: 26px solid #f8fafc;
       filter: drop-shadow(0 6px 12px rgba(15, 23, 42, 0.65));
       z-index: 5;
     }
@@ -180,15 +180,42 @@
       </div>
 
       <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
-        <section class="glass p-4 xl:col-span-1 panel-section">
-          <div class="flex items-center justify-between mb-4">
+        <section class="glass p-4 xl:col-span-1 panel-section space-y-4">
+          <div class="flex items-center justify-between">
             <div>
-              <p class="text-xs uppercase text-gray-400 tracking-wide">Select Item</p>
-              <h2 class="font-semibold">Your Inventory</h2>
+              <p class="text-xs uppercase text-gray-400 tracking-wide">Set Wager</p>
+              <h2 class="font-semibold">Gems on the Line</h2>
             </div>
-            <span id="inventory-count" class="rarity-pill rarity-common">0 items</span>
+            <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-700 bg-gray-900/60 text-sm">
+              <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4" alt="Gems" />
+              <span id="side-balance" class="font-semibold">0</span>
+            </div>
           </div>
-          <div id="inventory-list" class="space-y-3 max-h-[540px] overflow-y-auto pr-2"></div>
+
+          <div class="glass border border-gray-800 rounded-xl p-4 space-y-3">
+            <div class="flex items-center justify-between text-xs uppercase tracking-wide text-gray-400">
+              <span>Wager amount</span>
+              <span class="text-gray-500">Min 1 gem</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex-1 flex items-center gap-2 bg-gray-900/70 border border-gray-800 rounded-lg px-3 py-2">
+                <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5" alt="Gems" />
+                <input id="wager-input" type="number" min="1" step="1" value="0" class="bg-transparent outline-none flex-1 text-white text-lg" placeholder="Enter gems" />
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <button data-wager="0.25" class="px-3 py-2 rounded-lg border border-gray-800 bg-gray-900/70 hover:border-gray-700">25%</button>
+                <button data-wager="0.5" class="px-3 py-2 rounded-lg border border-gray-800 bg-gray-900/70 hover:border-gray-700">50%</button>
+                <button data-wager="0.75" class="px-3 py-2 rounded-lg border border-gray-800 bg-gray-900/70 hover:border-gray-700">75%</button>
+                <button data-wager="1" class="px-3 py-2 rounded-lg border border-gray-800 bg-gray-900/70 hover:border-gray-700">MAX</button>
+              </div>
+            </div>
+            <p id="wager-helper" class="text-sm text-gray-400">Enter the gems you want to wager, then pick a target item.</p>
+          </div>
+
+          <div class="space-y-2">
+            <p class="text-xs uppercase tracking-wide text-gray-400">Recent results</p>
+            <div id="recent-upgrades" class="space-y-2 max-h-[420px] overflow-y-auto pr-1"></div>
+          </div>
         </section>
 
         <section class="xl:col-span-1 glass p-4 flex flex-col items-center justify-center text-center space-y-4 panel-section">
@@ -248,14 +275,6 @@
   <div id="topup-popup-container"></div>
 
   <script>
-    const fallbackInventory = [
-      { id: 'inv1', name: 'Nike Air Force 1 White', price: 90.94, image: 'https://i.imgur.com/aJrj9eJ.png', rarity: 'common' },
-      { id: 'inv2', name: 'Air Jordan 1 Retro', price: 150.22, image: 'https://i.imgur.com/2Uy5V8c.png', rarity: 'rare' },
-      { id: 'inv3', name: 'Beats Studio Headphones', price: 320.00, image: 'https://i.imgur.com/YVZwpEi.png', rarity: 'uncommon' },
-      { id: 'inv4', name: 'Xbox Series X', price: 450.50, image: 'https://i.imgur.com/BrLm1mH.png', rarity: 'rare' },
-      { id: 'inv5', name: 'Casual Street Hoodie', price: 64.30, image: 'https://i.imgur.com/1x9dJgg.png', rarity: 'common' }
-    ];
-
     const fallbackTargets = [
       { id: 't1', name: 'Rolex Submariner', price: 14990.93, image: 'https://i.imgur.com/foyqNts.png', rarity: 'legendary' },
       { id: 't2', name: 'Tesla Model 3 Key', price: 10250.00, image: 'https://i.imgur.com/nqfmbnW.png', rarity: 'legendary' },
@@ -265,13 +284,12 @@
       { id: 't6', name: 'Limited Edition Sneaker', price: 620.40, image: 'https://i.imgur.com/aJrj9eJ.png', rarity: 'rare' }
     ];
 
-    let inventoryItems = [];
     let targetItems = [...fallbackTargets];
-    let selectedSource = null;
     let selectedTarget = null;
     let isSpinning = false;
     let rotation = 0;
     let gems = 0;
+    let recentResults = [];
 
     const rarityClass = {
       common: 'rarity-common',
@@ -282,7 +300,6 @@
 
     const rarityLabel = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', legendary: 'Legendary' };
 
-    const inventoryList = document.getElementById('inventory-list');
     const targetList = document.getElementById('target-list');
     const chanceValue = document.getElementById('chance-value');
     const multiplierValue = document.getElementById('multiplier-value');
@@ -291,10 +308,14 @@
     const outcomeText = document.getElementById('outcome-text');
     const statusText = document.getElementById('status-text');
     const gemBalance = document.getElementById('gem-balance');
+    const sideBalance = document.getElementById('side-balance');
     const wheelDisk = document.getElementById('wheel-disk');
     const strip = document.getElementById('strip');
     const spinButton = document.getElementById('spin-button');
-    const inventoryCount = document.getElementById('inventory-count');
+    const wagerInput = document.getElementById('wager-input');
+    const wagerHelper = document.getElementById('wager-helper');
+    const recentUpgrades = document.getElementById('recent-upgrades');
+    const wagerButtons = document.querySelectorAll('[data-wager]');
 
     function getEffectivePrice(item = {}) {
       const candidates = [item.price, item.value, item.voucherAmount, item.redeemValue, item.redeemAmount];
@@ -319,8 +340,8 @@
         card.className = 'strip-item glass p-3 flex flex-col space-y-2 border border-gray-800 min-w-[120px]';
         card.innerHTML = `
           <div class="flex items-center space-x-2 text-xs text-gray-400">
-            <span class="h-2 w-2 rounded-full bg-lime-400 badge-live"></span>
-            <span>Upgrade</span>
+            <span class="h-2 w-2 rounded-full ${item.won ? 'bg-lime-400' : 'bg-amber-400'} badge-live"></span>
+            <span>${item.won ? 'Upgrade Win' : 'Consolation'}</span>
           </div>
           <div class="flex items-center space-x-2">
             <img src="${item.image}" class="w-10 h-10 object-contain bg-gray-900 rounded-lg p-1" alt="${item.name}">
@@ -353,19 +374,6 @@
       return card;
     }
 
-    function renderInventory() {
-      inventoryList.innerHTML = '';
-      inventoryItems.forEach((item) => {
-        const selected = selectedSource && selectedSource.id === item.id;
-        inventoryList.appendChild(createItemCard(item, selected, (it) => {
-          selectedSource = it;
-          renderInventory();
-          updateOdds();
-        }, selected ? 'Selected' : 'Available'));
-      });
-      inventoryCount.textContent = `${inventoryItems.length} ${inventoryItems.length === 1 ? 'item' : 'items'}`;
-    }
-
     function renderTargets() {
       targetList.innerHTML = '';
       targetItems.forEach((item) => {
@@ -374,7 +382,35 @@
           selectedTarget = it;
           renderTargets();
           updateOdds();
-        }, selected ? 'Selected' : 'Available'));
+        }, selected ? 'Selected' : 'Target'));
+      });
+    }
+
+    function renderRecent() {
+      recentUpgrades.innerHTML = '';
+      if (!recentResults.length) {
+        const empty = document.createElement('p');
+        empty.className = 'text-sm text-gray-500';
+        empty.textContent = 'Your results will appear here after each spin.';
+        recentUpgrades.appendChild(empty);
+        return;
+      }
+
+      recentResults.forEach((item) => {
+        const row = document.createElement('div');
+        row.className = 'glass p-3 border border-gray-800 rounded-lg flex items-center gap-3';
+        row.innerHTML = `
+          <div class="w-12 h-12 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center overflow-hidden">
+            <img src="${item.image}" alt="${item.name}" class="w-10 h-10 object-contain">
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs uppercase tracking-wide text-gray-400">${item.won ? 'Upgraded' : 'Consolation'}</p>
+            <p class="font-semibold truncate">${item.name}</p>
+            <p class="text-teal-300 text-sm">${formatGems(getEffectivePrice(item))}</p>
+          </div>
+          <span class="rarity-pill ${rarityClass[item.rarity] || rarityClass.common}">${item.won ? 'Win' : 'Loss'}</span>
+        `;
+        recentUpgrades.appendChild(row);
       });
     }
 
@@ -408,8 +444,16 @@
       }
     }
 
+    function getWagerValue(raw = false) {
+      const value = Number(wagerInput.value);
+      if (!Number.isFinite(value) || value <= 0) return 0;
+      if (raw) return value;
+      return Math.min(value, gems);
+    }
+
     function updateOdds() {
-      if (!selectedSource || !selectedTarget) {
+      const wagerValue = getWagerValue(true);
+      if (!selectedTarget || wagerValue <= 0) {
         chanceValue.textContent = '0.00%';
         multiplierValue.textContent = '0.00x';
         diffText.innerHTML = formatGems(0);
@@ -419,133 +463,165 @@
         return;
       }
 
-      const sourcePrice = getEffectivePrice(selectedSource);
       const targetPrice = getEffectivePrice(selectedTarget);
-      const chance = Math.max(Math.min((sourcePrice / targetPrice) * 100, 100), 1);
-      const multiplier = targetPrice / sourcePrice;
-      const diff = targetPrice - sourcePrice;
+      if (!targetPrice) {
+        chanceValue.textContent = '0.00%';
+        multiplierValue.textContent = '0.00x';
+        diffText.innerHTML = formatGems(0);
+        payoutText.innerHTML = formatGems(0);
+        spinButton.disabled = true;
+        return;
+      }
+
+      const chance = Math.min((wagerValue / targetPrice) * 100, 100);
+      const multiplier = targetPrice / Math.max(wagerValue, 1);
+      const diff = Math.max(targetPrice - wagerValue, 0);
 
       chanceValue.textContent = `${chance.toFixed(2)}%`;
       multiplierValue.textContent = `${multiplier.toFixed(2)}x`;
       diffText.innerHTML = formatGems(diff);
       payoutText.innerHTML = formatGems(targetPrice);
       wheelDisk.style.setProperty('--win-angle', `${(chance * 3.6).toFixed(2)}deg`);
-      spinButton.disabled = false;
+      spinButton.disabled = wagerValue < 1 || gems < 1;
     }
 
     function updateBalanceDisplay() {
       gemBalance.textContent = gems.toLocaleString();
+      sideBalance.textContent = gems.toLocaleString();
     }
 
     function handleSpin() {
-      if (isSpinning || !selectedSource || !selectedTarget) return;
+      if (isSpinning || !selectedTarget) return;
       isSpinning = true;
       spinButton.disabled = true;
       statusText.textContent = 'Spinning... good luck!';
       outcomeText.textContent = 'Spinning';
 
-      const sourcePrice = getEffectivePrice(selectedSource);
       const targetPrice = getEffectivePrice(selectedTarget);
-      const chance = Math.max(Math.min((sourcePrice / targetPrice) * 100, 100), 1);
+      const rawWager = getWagerValue(true);
+      const wagerValue = Math.min(rawWager, gems);
+
+      if (!targetPrice || rawWager < 1) {
+        statusText.textContent = 'Add a valid wager to spin.';
+        outcomeText.textContent = 'Awaiting wager';
+        isSpinning = false;
+        spinButton.disabled = false;
+        return;
+      }
+
+      if (rawWager > gems) {
+        statusText.textContent = 'Not enough gems to spin that amount.';
+        outcomeText.textContent = 'Insufficient balance';
+        isSpinning = false;
+        spinButton.disabled = false;
+        return;
+      }
+
+      gems -= wagerValue;
+      updateBalanceDisplay();
+
+      const chance = Math.min((wagerValue / targetPrice) * 100, 100);
       const winAngle = chance * 3.6;
-      const willWin = Math.random() * 100 < chance;
-
       const spins = 6 + Math.random() * 3;
-      const landing = willWin ? Math.random() * (winAngle - 2) : (winAngle + 4) + Math.random() * (360 - winAngle - 8);
-      rotation += spins * 360 + landing;
+      const landingAngle = Math.random() * 360;
 
+      rotation = spins * 360 + landingAngle;
       wheelDisk.style.transform = `rotate(${rotation}deg)`;
 
       setTimeout(() => {
-        isSpinning = false;
-        const outcome = willWin ? 'success' : 'fail';
-        if (outcome === 'success') {
+        const normalized = ((rotation % 360) + 360) % 360;
+        const didWin = normalized <= winAngle;
+
+        if (didWin) {
           statusText.textContent = 'Congratulations! Upgrade succeeded.';
           outcomeText.textContent = 'Upgraded';
-          applyUpgrade();
+          gems += targetPrice;
         } else {
           statusText.textContent = 'Unlucky! You received 10 gems as a consolation.';
           outcomeText.textContent = 'Failed (+10 gems)';
           gems += 10;
-          updateBalanceDisplay();
         }
+
+        const resultItem = { ...selectedTarget, won: didWin };
+        recentResults = [resultItem, ...recentResults].slice(0, 6);
+        renderRecent();
+        renderStrip(recentResults);
+
+        updateBalanceDisplay();
         spinButton.disabled = false;
+        isSpinning = false;
+        updateOdds();
+        resetWheel();
       }, 4200);
     }
 
-    function applyUpgrade() {
-      const idx = inventoryItems.findIndex((it) => it.id === selectedSource.id);
-      if (idx !== -1) { inventoryItems.splice(idx, 1); }
-      const newItem = { ...selectedTarget, id: `inv-${Date.now()}` };
-      inventoryItems.unshift(newItem);
-      renderInventory();
-      renderStrip([newItem, ...inventoryItems.slice(0, 3)]);
-      selectedSource = newItem;
-      updateOdds();
+    function resetWheel() {
+      const currentTransition = wheelDisk.style.transition;
+      wheelDisk.style.transition = 'none';
+      wheelDisk.style.transform = 'rotate(0deg)';
+      rotation = 0;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          wheelDisk.style.transition = currentTransition || '';
+        });
+      });
     }
 
     spinButton.addEventListener('click', handleSpin);
+    wagerInput.addEventListener('input', () => {
+      const wagerValue = Number(wagerInput.value) || 0;
+      if (wagerValue > gems) {
+        wagerHelper.textContent = 'Wager exceeds your current balance.';
+        wagerHelper.classList.remove('text-gray-400');
+        wagerHelper.classList.add('text-amber-300');
+      } else {
+        wagerHelper.textContent = 'Enter the gems you want to wager, then pick a target item.';
+        wagerHelper.classList.add('text-gray-400');
+        wagerHelper.classList.remove('text-amber-300');
+      }
+      updateOdds();
+    });
 
-    function populateFromSnapshot(snapshot) {
-      if (!snapshot.exists()) return false;
-      inventoryItems = [];
-      snapshot.forEach(child => {
-        const item = child.val();
-        const value = getEffectivePrice(item);
-        inventoryItems.push({
-          ...item,
-          id: child.key,
-          price: value,
-          image: item.image || item.img || 'https://i.imgur.com/aJrj9eJ.png',
-          rarity: (item.rarity || 'common').toLowerCase()
+    wagerButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const pct = Number(btn.dataset.wager);
+        const value = gems ? Math.max(Math.floor(gems * pct), 1) : 0;
+        wagerInput.value = value;
+        updateOdds();
+      });
+    });
+
+    function bootstrapFirebase() {
+      if (!firebase.apps.length && typeof firebaseConfig !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+      }
+
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user) return (window.location.href = 'auth.html');
+
+        const db = firebase.database();
+        const userRef = db.ref('users/' + user.uid);
+
+        userRef.once('value').then((snapshot) => {
+          const data = snapshot.val() || {};
+          gems = Number(data.balance || 0);
+          updateBalanceDisplay();
+          const usernameDisplay = document.getElementById('username-display');
+          if (usernameDisplay) {
+            usernameDisplay.innerText = user.displayName || user.email;
+          }
         });
       });
-      if (!inventoryItems.length) return false;
-      return true;
     }
-
-      function bootstrapFirebase() {
-        if (!firebase.apps.length && typeof firebaseConfig !== 'undefined') {
-          firebase.initializeApp(firebaseConfig);
-        }
-
-        firebase.auth().onAuthStateChanged((user) => {
-          if (!user) return (window.location.href = 'auth.html');
-
-          const db = firebase.database();
-          const userRef = db.ref('users/' + user.uid);
-
-          userRef.once('value').then((snapshot) => {
-            const data = snapshot.val() || {};
-            gems = Number(data.balance || 0);
-            updateBalanceDisplay();
-            const usernameDisplay = document.getElementById('username-display');
-            if (usernameDisplay) {
-              usernameDisplay.innerText = user.displayName || user.email;
-            }
-          });
-
-          const inventoryRef = db.ref('users/' + user.uid + '/inventory');
-          inventoryRef.once('value').then((snap) => {
-            const hasData = populateFromSnapshot(snap);
-            if (!hasData) {
-              inventoryItems = [...fallbackInventory];
-            }
-            renderInventory();
-            renderTargets();
-            renderStrip(inventoryItems.slice(0, 4));
-            updateOdds();
-          });
-        });
-      }
 
     function init() {
       renderTargets();
       bootstrapFirebase();
       loadMarketplaceTargets();
-      renderStrip(fallbackInventory.slice(0, 4));
+      renderStrip(fallbackTargets.slice(0, 4));
+      renderRecent();
       updateBalanceDisplay();
-      statusText.textContent = 'Choose an item and a target to begin.';
+      statusText.textContent = 'Enter your wager and pick a target to spin.';
       updateOdds();
     }
 
