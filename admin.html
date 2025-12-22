@@ -868,6 +868,30 @@
                     <input id="rarity-legendary" type="number" min="0" max="100" step="0.1" class="form-input" placeholder="10" />
                   </label>
                 </div>
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between text-xs text-slate-400">
+                    <span>Prize pools (one per line: <strong>Name | weight</strong>)</span>
+                    <span class="text-slate-500">Weights are relative within each rarity</span>
+                  </div>
+                  <div class="grid gap-3 md:grid-cols-2">
+                    <label class="glass-subcard space-y-2">
+                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Common items</span><span class="text-sky-200">Ex: Starter | 1</span></div>
+                      <textarea id="items-common" rows="3" class="form-textarea" placeholder="Starter Bundle | 1&#10;Warm-up Pack | 1"></textarea>
+                    </label>
+                    <label class="glass-subcard space-y-2">
+                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Rare items</span><span class="text-indigo-200">Ex: Rare Pack | 2</span></div>
+                      <textarea id="items-rare" rows="3" class="form-textarea" placeholder="Rare Neon Case | 2&#10;Holo Sticker | 1"></textarea>
+                    </label>
+                    <label class="glass-subcard space-y-2">
+                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Epic items</span><span class="text-purple-200">Ex: Epic Drop | 3</span></div>
+                      <textarea id="items-epic" rows="3" class="form-textarea" placeholder="Epic Hardware Drop | 3"></textarea>
+                    </label>
+                    <label class="glass-subcard space-y-2">
+                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Legendary items</span><span class="text-amber-200">Ex: Grail | 5</span></div>
+                      <textarea id="items-legendary" rows="3" class="form-textarea" placeholder="Legendary Skin | 5"></textarea>
+                    </label>
+                  </div>
+                </div>
                 <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-500/90 hover:bg-indigo-500 px-4 py-3 font-semibold shadow-lg">
                   <i class="fa-solid fa-floppy-disk"></i> Publish vending machine
                 </button>
@@ -878,6 +902,7 @@
                   <li>• Use a 3:4 image ratio for the thumbnail.</li>
                   <li>• Odds fields are optional—defaults are applied if blank.</li>
                   <li>• Leave destination blank to auto-generate a link after publishing.</li>
+                  <li>• Add prize pools per rarity using “Name | weight”. Weights decide pull likelihood inside each rarity.</li>
                 </ul>
               </div>
             </div>
@@ -1243,6 +1268,12 @@
       image: document.getElementById('vending-image'),
       link: document.getElementById('vending-link'),
       description: document.getElementById('vending-description'),
+      items: {
+        common: document.getElementById('items-common'),
+        rare: document.getElementById('items-rare'),
+        epic: document.getElementById('items-epic'),
+        legendary: document.getElementById('items-legendary')
+      },
       rarities: {
         common: document.getElementById('rarity-common'),
         rare: document.getElementById('rarity-rare'),
@@ -1345,6 +1376,30 @@
       }, 3200);
     }
 
+    function parseItemsInput(value = '') {
+      return value
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => {
+          const [namePart, weightPart] = line.split('|').map(v => (v || '').trim());
+          return {
+            name: namePart || 'Mystery reward',
+            weight: Math.max(0.0001, parseFloat(weightPart) || 1)
+          };
+        });
+    }
+
+    function buildItemsPayload() {
+      if (!vendingElements.items) return {};
+      return {
+        common: parseItemsInput(vendingElements.items.common?.value || ''),
+        rare: parseItemsInput(vendingElements.items.rare?.value || ''),
+        epic: parseItemsInput(vendingElements.items.epic?.value || ''),
+        legendary: parseItemsInput(vendingElements.items.legendary?.value || ''),
+      };
+    }
+
     function renderVendingMachinesAdmin(items = []) {
       const { list, empty } = vendingElements;
       if (!list || !empty) return;
@@ -1356,6 +1411,20 @@
       empty.classList.add('hidden');
       items.forEach((item) => {
         const fallbackLink = item.link || (item.id ? `vending.html?id=${item.id}` : '#');
+        const itemCounts = item.items || {};
+        const badgeRow = ['common', 'rare', 'epic', 'legendary']
+          .map((key) => {
+            const count = Array.isArray(itemCounts[key]) ? itemCounts[key].length : 0;
+            const label = key.charAt(0).toUpperCase() + key.slice(1);
+            const colors = {
+              common: 'bg-cyan-500/15 text-cyan-100 border border-cyan-400/30',
+              rare: 'bg-indigo-500/15 text-indigo-100 border border-indigo-400/30',
+              epic: 'bg-purple-500/15 text-purple-100 border border-purple-400/30',
+              legendary: 'bg-amber-500/15 text-amber-100 border border-amber-400/30',
+            };
+            return `<span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.65rem] font-semibold ${colors[key] || 'bg-white/10 border border-white/10'}">${label}: ${count}</span>`;
+          })
+          .join('');
         const card = document.createElement('article');
         card.className = 'glass-subcard p-4 space-y-3 flex flex-col';
         card.innerHTML = `
@@ -1370,6 +1439,7 @@
             <img src="${item.image || 'https://placehold.co/360x220/0f172a/94a3b8?text=Vending'}" alt="${item.name || 'Vending machine'}" class="w-full h-40 object-cover" />
           </div>
           <p class="text-sm text-slate-300 line-clamp-3">${item.description || 'Published via admin panel.'}</p>
+          <div class="flex flex-wrap gap-2 text-[11px] text-slate-200/90">${badgeRow}</div>
           <div class="text-xs text-slate-400">Link: <a href="${fallbackLink}" class="text-indigo-300 break-all">${item.link || fallbackLink}</a></div>
           <div class="flex items-center gap-2">
             <button data-id="${item.id}" class="inline-flex items-center gap-2 text-xs rounded-lg px-3 py-2 bg-rose-500/20 text-rose-200 hover:bg-rose-500/30 delete-vending">Delete</button>
@@ -1641,6 +1711,7 @@
           image: vendingElements.image.value.trim(),
           link: providedLink,
           description: vendingElements.description.value.trim(),
+          items: buildItemsPayload(),
           rarities: {
             common: parseFloat(vendingElements.rarities.common.value) || 40,
             rare: parseFloat(vendingElements.rarities.rare.value) || 30,

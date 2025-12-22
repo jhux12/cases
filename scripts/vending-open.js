@@ -46,10 +46,23 @@
   let hitTimer = null;
 
   const defaultItems = {
-    common: ['Starter Bundle', 'Warm-up Pack', 'Basic Crate'],
-    rare: ['Rare Neon Case', 'Holo Sticker Pack'],
-    epic: ['Epic Hardware Drop', 'Mythic Blueprint'],
-    legendary: ['Legendary Skin', 'Ultra Grail']
+    common: [
+      { name: 'Starter Bundle', weight: 1 },
+      { name: 'Warm-up Pack', weight: 1 },
+      { name: 'Basic Crate', weight: 1 },
+    ],
+    rare: [
+      { name: 'Rare Neon Case', weight: 1.5 },
+      { name: 'Holo Sticker Pack', weight: 1 },
+    ],
+    epic: [
+      { name: 'Epic Hardware Drop', weight: 2 },
+      { name: 'Mythic Blueprint', weight: 1 },
+    ],
+    legendary: [
+      { name: 'Legendary Skin', weight: 2.5 },
+      { name: 'Ultra Grail', weight: 1 },
+    ]
   };
 
   const rarityWidth = (value) => `${Math.max(0, Number(value) || 0)}%`;
@@ -103,15 +116,38 @@
     hitRarityPill.className = `px-3 py-1 rounded-full text-xs font-semibold border ${colorMap[rarity] || 'bg-white/10 text-white border-white/10'}`;
   };
 
+  const normalizePool = (pool = []) => {
+    return (Array.isArray(pool) ? pool : [])
+      .map((entry) => {
+        if (typeof entry === 'string') return { name: entry, weight: 1 };
+        return {
+          name: entry?.name || 'Mystery hit',
+          weight: Math.max(0.0001, Number(entry?.weight) || 1),
+        };
+      })
+      .filter((entry) => entry.name);
+  };
+
+  const pickItemFromPool = (pool = []) => {
+    const normalized = normalizePool(pool);
+    if (!normalized.length) return { name: 'Mystery hit', weight: 1 };
+    const total = normalized.reduce((acc, cur) => acc + cur.weight, 0) || 1;
+    let roll = Math.random() * total;
+    for (const item of normalized) {
+      if ((roll -= item.weight) <= 0) return item;
+    }
+    return normalized[0];
+  };
+
   const startHitCycle = (rarities = {}, items = {}) => {
     const pools = { ...defaultItems, ...items };
     if (hitTimer) clearInterval(hitTimer);
 
     const cycle = () => {
       const rarity = pickRarity(rarities);
-      const pool = Array.isArray(pools[rarity]) && pools[rarity].length ? pools[rarity] : defaultItems[rarity] || ['Featured hit'];
-      const item = pool[Math.floor(Math.random() * pool.length)];
-      setHitDisplay(rarity, item);
+      const pool = normalizePool(pools[rarity])?.length ? pools[rarity] : defaultItems[rarity];
+      const item = pickItemFromPool(pool);
+      setHitDisplay(rarity, item.name);
     };
 
     cycle();
@@ -201,10 +237,19 @@
       showToast('Not enough gems');
       return;
     }
-    showToast('Opening…');
+    const rarity = pickRarity(currentMachine?.rarities || {});
+    const pools = { ...defaultItems, ...(currentMachine?.items || {}) };
+    const pool = normalizePool(pools[rarity])?.length ? pools[rarity] : defaultItems[rarity];
+    const prize = pickItemFromPool(pool);
+
+    showToast(`Opening…`);
     toggleOpeningOverlay(true);
     if (window.VendingAnim) window.VendingAnim.bump();
-    setTimeout(() => toggleOpeningOverlay(false), 1200);
+    setHitDisplay(rarity, prize.name || 'Mystery hit');
+    setTimeout(() => {
+      toggleOpeningOverlay(false);
+      showToast(`You won ${prize.name || 'a prize'} (${rarity})!`);
+    }, 900);
   };
 
   const wireFairModal = () => {
