@@ -11,8 +11,108 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="styles/main.css" />
   <style>
-    .preview-card img {
+    .spotlight-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
+      box-shadow: 0 18px 70px rgba(0, 0, 0, 0.45);
+    }
+
+    .spotlight-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0));
+      pointer-events: none;
+    }
+
+    .spotlight-body {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      z-index: 1;
+    }
+
+    .spotlight-accent {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08), transparent 45%);
+    }
+
+    .spotlight-image {
+      width: 92px;
+      height: 92px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .spotlight-image img {
       object-fit: cover;
+    }
+
+    .reward-pill {
+      padding: 8px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.92);
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+    }
+
+    .spotlight-legendary {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.16), rgba(30, 27, 75, 0.45));
+      border-color: rgba(251, 191, 36, 0.35);
+    }
+
+    .spotlight-epic {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(37, 99, 235, 0.28));
+      border-color: rgba(168, 85, 247, 0.35);
+    }
+
+    .machine-window {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .machine-floor {
+      position: relative;
+      height: 42px;
+      margin-top: 4px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.35));
+      box-shadow: inset 0 12px 28px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+    }
+
+    .floor-gem {
+      position: absolute;
+      bottom: -6px;
+      width: 72px;
+      height: 52px;
+      border-radius: 18px;
+      filter: blur(0.3px);
+    }
+
+    .gem-left {
+      left: 18px;
+      background: radial-gradient(circle at 30% 40%, rgba(236, 72, 153, 0.85), rgba(109, 40, 217, 0.8));
+    }
+
+    .gem-right {
+      right: 18px;
+      background: radial-gradient(circle at 60% 30%, rgba(251, 191, 36, 0.9), rgba(252, 211, 77, 0.75));
     }
 
     @keyframes machine-bump {
@@ -52,32 +152,46 @@
               <div class="absolute inset-0 pointer-events-none bg-gradient-to-br from-white/5 via-transparent to-white/0"></div>
               <div class="relative" id="machine-shell">
                 <img id="machine-image" src="https://placehold.co/560x720/0b1224/94a3b8?text=Vending" alt="Vending machine" class="w-full max-w-[560px] mx-auto rounded-2xl border border-white/10 object-cover select-none pointer-events-none" />
-                <div class="absolute inset-0 flex items-center justify-center px-6">
-                  <div class="grid gap-3 w-full max-w-xl">
-                    <div class="preview-card relative overflow-hidden rounded-2xl border border-amber-400/40 bg-amber-400/5 backdrop-blur-md shadow-[0_20px_70px_rgba(0,0,0,0.35)] p-3" id="legendary-preview">
-                      <div class="absolute inset-0 bg-gradient-to-br from-amber-400/10 via-transparent to-amber-500/10 pointer-events-none"></div>
-                      <div class="flex items-center gap-3">
-                        <div class="w-20 h-20 rounded-xl overflow-hidden border border-amber-200/40 bg-amber-500/10 flex-shrink-0">
-                          <img id="legendary-image" src="https://placehold.co/200x200/0b1224/ffd166?text=Legendary" alt="Legendary preview" class="w-full h-full" />
-                        </div>
-                        <div class="space-y-1">
-                          <p class="text-xs uppercase tracking-[0.25em] text-amber-200">Legendary</p>
-                          <p id="legendary-name" class="text-lg font-semibold text-white">Rotating grails</p>
-                          <p class="text-sm text-amber-100/80">High-odds spotlight</p>
+                <div class="absolute inset-0 flex items-center justify-center px-4 sm:px-6">
+                  <div class="machine-window relative w-full max-w-xl rounded-[26px] border border-white/10 bg-gradient-to-b from-white/10 via-slate-950/50 to-black/70 shadow-[0_30px_100px_rgba(0,0,0,0.5)] overflow-hidden">
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(250,204,21,0.08),transparent_38%),radial-gradient(circle_at_80%_30%,rgba(168,85,247,0.12),transparent_42%),radial-gradient(circle_at_50%_90%,rgba(59,130,246,0.1),transparent_45%)]"></div>
+                    <div class="absolute inset-0 pointer-events-none">
+                      <div class="absolute inset-0 border border-white/5 rounded-[24px]"></div>
+                      <div class="absolute inset-0 bg-gradient-to-br from-white/6 via-transparent to-white/0"></div>
+                      <div class="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white/10 via-white/4 to-transparent"></div>
+                    </div>
+                    <div class="relative space-y-3 p-4 sm:p-6">
+                      <div class="spotlight-card spotlight-legendary" id="legendary-preview">
+                        <div class="spotlight-accent"></div>
+                        <div class="spotlight-body">
+                          <div class="reward-pill">Reward</div>
+                          <div class="flex-1 space-y-1">
+                            <p class="text-[11px] uppercase tracking-[0.3em] text-amber-100/80">Legendary</p>
+                            <p id="legendary-name" class="text-lg font-semibold text-white">Legendary Skin</p>
+                            <p class="text-sm text-amber-50/80">High-odds spotlight</p>
+                          </div>
+                          <div class="spotlight-image border-amber-200/40 bg-amber-500/10">
+                            <img id="legendary-image" src="https://placehold.co/240x240/0b1224/ffd166?text=Legendary" alt="Legendary preview" class="w-full h-full" />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div class="preview-card relative overflow-hidden rounded-2xl border border-purple-300/40 bg-purple-400/5 backdrop-blur-md shadow-[0_20px_70px_rgba(0,0,0,0.35)] p-3" id="epic-preview">
-                      <div class="absolute inset-0 bg-gradient-to-br from-purple-400/10 via-transparent to-purple-500/10 pointer-events-none"></div>
-                      <div class="flex items-center gap-3">
-                        <div class="w-20 h-20 rounded-xl overflow-hidden border border-purple-200/40 bg-purple-500/10 flex-shrink-0">
-                          <img id="epic-image" src="https://placehold.co/200x200/0b1224/c084fc?text=Epic" alt="Epic preview" class="w-full h-full" />
+                      <div class="spotlight-card spotlight-epic" id="epic-preview">
+                        <div class="spotlight-accent"></div>
+                        <div class="spotlight-body">
+                          <div class="reward-pill">Reward</div>
+                          <div class="flex-1 space-y-1">
+                            <p class="text-[11px] uppercase tracking-[0.3em] text-purple-100/80">Epic</p>
+                            <p id="epic-name" class="text-lg font-semibold text-white">Epic Hardware Drop</p>
+                            <p class="text-sm text-purple-50/80">Premium spotlight</p>
+                          </div>
+                          <div class="spotlight-image border-purple-200/40 bg-purple-500/10">
+                            <img id="epic-image" src="https://placehold.co/240x240/0b1224/c084fc?text=Epic" alt="Epic preview" class="w-full h-full" />
+                          </div>
                         </div>
-                        <div class="space-y-1">
-                          <p class="text-xs uppercase tracking-[0.25em] text-purple-200">Epic</p>
-                          <p id="epic-name" class="text-lg font-semibold text-white">Rotating epics</p>
-                          <p class="text-sm text-purple-100/80">Premium spotlight</p>
-                        </div>
+                      </div>
+                      <div class="machine-floor">
+                        <span class="floor-gem gem-left"></span>
+                        <span class="floor-gem gem-right"></span>
                       </div>
                     </div>
                   </div>
