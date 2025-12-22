@@ -4,11 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Upgrader | Pullz.gg</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles/main.css">
   <style>
     :root {
       --surface: #0f172a;
@@ -22,9 +26,7 @@
       --success: #22c55e;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -36,12 +38,18 @@
       min-height: 100vh;
     }
 
+    header { position: fixed; inset: 0 0 auto 0; z-index: 50; }
+
+    main { padding-top: 5.5rem; }
+
     .glass {
       background: var(--panel);
       border: 1px solid var(--panel-border);
       border-radius: 1rem;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
     }
+
+    .panel-section { border: 1px solid var(--panel-border); }
 
     .item-tile {
       border: 1px solid var(--panel-border);
@@ -55,10 +63,7 @@
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
     }
 
-    .item-tile.active {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.35);
-    }
+    .item-tile.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.35); }
 
     .rarity-pill {
       font-size: 0.75rem;
@@ -67,6 +72,7 @@
       border-radius: 999px;
       text-transform: uppercase;
       letter-spacing: 0.02em;
+      white-space: nowrap;
     }
 
     .rarity-common { background: rgba(156, 163, 175, 0.15); color: #e5e7eb; }
@@ -74,85 +80,45 @@
     .rarity-rare { background: rgba(59, 130, 246, 0.18); color: #93c5fd; }
     .rarity-legendary { background: rgba(251, 191, 36, 0.12); color: #facc15; }
 
-    .wheel-shell {
-      width: 100%;
-      max-width: 520px;
-      aspect-ratio: 1 / 1;
-      display: grid;
-      place-items: center;
-      position: relative;
-    }
+    .wheel-shell { width: 100%; max-width: 520px; aspect-ratio: 1 / 1; display: grid; place-items: center; position: relative; }
 
     .wheel-outer {
-      width: 100%;
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(145deg, rgba(148, 163, 184, 0.25), rgba(15, 23, 42, 0.4));
-      padding: 18px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      width: 100%; height: 100%; border-radius: 999px; background: linear-gradient(145deg, rgba(148, 163, 184, 0.25), rgba(15, 23, 42, 0.4));
+      padding: 18px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
 
-    .wheel-inner {
-      width: 100%;
-      height: 100%;
-      border-radius: 999px;
-      background: var(--panel);
-      border: 1px solid var(--panel-border);
-      display: grid;
-      place-items: center;
-      position: relative;
-      overflow: hidden;
-    }
+    .wheel-inner { width: 100%; height: 100%; border-radius: 999px; background: var(--panel); border: 1px solid var(--panel-border); display: grid; place-items: center; position: relative; overflow: hidden; }
 
     .wheel-disk {
-      width: 86%;
-      height: 86%;
-      border-radius: 999px;
-      border: 8px solid #0b1222;
+      width: 86%; height: 86%; border-radius: 999px; border: 8px solid #0b1222;
       box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.55), 0 16px 30px rgba(0, 0, 0, 0.55);
-      background: conic-gradient(from -90deg, var(--success) 0deg var(--win-angle, 0deg), #0b1222 var(--win-angle, 0deg) 360deg);
+      background: conic-gradient(from 90deg, var(--success) 0deg var(--win-angle, 0deg), #0b1222 var(--win-angle, 0deg) 360deg);
       transition: transform 4s cubic-bezier(0.12, 0.66, 0.16, 1), filter 0.2s ease;
       position: relative;
     }
 
     .wheel-center {
-      position: absolute;
-      width: 42%;
-      height: 42%;
-      border-radius: 50%;
+      position: absolute; width: 42%; height: 42%; border-radius: 50%;
       background: linear-gradient(160deg, #0f172a, #111827);
-      border: 1px solid #1f2937;
-      display: grid;
-      place-items: center;
+      border: 1px solid #1f2937; display: grid; place-items: center;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      text-align: center;
     }
 
     .wheel-pointer {
-      position: absolute;
-      top: -14px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 14px solid transparent;
-      border-right: 14px solid transparent;
-      border-bottom: 20px solid #f8fafc;
+      position: absolute; right: -16px; top: 50%; transform: translateY(-50%);
+      width: 0; height: 0;
+      border-top: 14px solid transparent;
+      border-bottom: 14px solid transparent;
+      border-left: 20px solid #f8fafc;
       filter: drop-shadow(0 6px 12px rgba(15, 23, 42, 0.65));
       z-index: 5;
     }
 
-    .strip-item {
-      min-width: 110px;
-    }
-
     .floating-button {
       background: linear-gradient(120deg, #6366f1, #8b5cf6, #14b8a6);
-      color: white;
-      border: none;
-      border-radius: 999px;
-      padding: 0.9rem 1.4rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
+      color: white; border: none; border-radius: 999px; padding: 0.9rem 1.4rem;
+      font-weight: 700; letter-spacing: 0.02em;
       box-shadow: 0 16px 30px rgba(20, 184, 166, 0.2), 0 12px 24px rgba(99, 102, 241, 0.2);
       transition: transform 0.15s ease, box-shadow 0.2s ease;
     }
@@ -164,104 +130,108 @@
   </style>
 </head>
 <body>
-  <div class="flex items-center justify-between px-6 py-4 border-b border-gray-800/70 sticky top-0 z-30 backdrop-blur" style="background: rgba(13, 19, 33, 0.75);">
-    <div class="flex items-center space-x-4">
-      <div class="flex items-center space-x-2 text-lg font-bold uppercase tracking-wide">
-        <span class="px-2 py-1 rounded bg-gray-800 border border-gray-700">Pullz.gg</span>
-        <span class="text-xs text-gray-400">Upgrader</span>
-      </div>
-      <div class="hidden md:flex items-center space-x-3 text-sm text-gray-400">
-        <a class="px-3 py-2 rounded-lg border border-transparent hover:border-gray-700 hover:text-white" href="index.html">Boxes</a>
-        <a class="px-3 py-2 rounded-lg border border-transparent hover:border-gray-700 hover:text-white" href="box-battles.html">Battles</a>
-        <a class="px-3 py-2 rounded-lg border border-transparent hover:border-gray-700 hover:text-white" href="#">Upgrader</a>
-        <a class="px-3 py-2 rounded-lg border border-transparent hover:border-gray-700 hover:text-white" href="marketplace.html">Marketplace</a>
-      </div>
-    </div>
-    <div class="flex items-center space-x-4 text-sm">
-      <div class="flex items-center space-x-2 px-3 py-2 rounded-lg border border-gray-700 bg-gray-900/60">
-        <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5" alt="Gems" />
-        <span id="gem-balance" class="font-semibold">11,340</span>
-      </div>
-      <button class="floating-button text-xs px-4 py-2">Deposit</button>
-    </div>
-  </div>
-
-  <div class="px-6 pt-6 pb-10 max-w-7xl mx-auto">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center space-x-2 text-xs uppercase tracking-wide text-gray-400">
-        <span class="h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
-        <span>Live Upgrades</span>
-      </div>
-      <div class="flex space-x-2 overflow-x-auto pb-3" id="strip"></div>
-    </div>
-
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
-      <div class="glass p-4 xl:col-span-1">
-        <div class="flex items-center justify-between mb-3">
-          <div>
-            <p class="text-xs uppercase text-gray-400 tracking-wide">Select Item</p>
-            <h2 class="font-semibold">Your Inventory</h2>
+  <header></header>
+  <main class="pb-16">
+    <div class="px-6 pt-8 max-w-7xl mx-auto">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 text-lg font-bold uppercase tracking-wide">
+            <span class="px-3 py-2 rounded-lg bg-gray-900 border border-gray-800">Upgrader</span>
+            <span class="text-xs text-gray-400">Trade up with calculated odds</span>
           </div>
-          <span class="rarity-pill rarity-common">64 items</span>
+          <div class="hidden md:flex items-center gap-2 text-sm text-gray-300">
+            <a class="px-3 py-2 rounded-lg border border-transparent hover:border-gray-700 hover:text-white" href="index.html">Packs</a>
+            <a class="px-3 py-2 rounded-lg border border-transparent hover:border-gray-700 hover:text-white" href="box-battles.html">Battles</a>
+            <a class="px-3 py-2 rounded-lg border border-transparent hover:border-gray-700 hover:text-white" href="marketplace.html">Marketplace</a>
+          </div>
         </div>
-        <div id="inventory-list" class="space-y-3 max-h-[540px] overflow-y-auto pr-2"></div>
+        <div class="flex items-center gap-4 text-sm">
+          <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-700 bg-gray-900/60">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5" alt="Gems" />
+            <span id="gem-balance" class="font-semibold">0</span>
+          </div>
+          <button class="floating-button text-xs px-4 py-2" onclick="document.getElementById('topup-button')?.click()">Deposit</button>
+        </div>
       </div>
 
-      <div class="xl:col-span-1 glass p-4 flex flex-col items-center justify-center text-center space-y-4">
-        <div class="wheel-shell">
-          <div class="wheel-pointer"></div>
-          <div class="wheel-outer">
-            <div class="wheel-inner">
-              <div id="wheel-disk" class="wheel-disk"></div>
-              <div class="wheel-center">
-                <div class="text-xs uppercase text-gray-400 tracking-wide">Chance</div>
-                <div id="chance-value" class="text-3xl font-bold">0.00%</div>
-                <div class="mt-2 text-gray-400 text-sm">Multiplier <span id="multiplier-value" class="text-white font-semibold">0.00x</span></div>
+      <div class="flex items-center justify-between mt-6">
+        <div class="flex items-center gap-2 text-xs uppercase tracking-wide text-gray-400">
+          <span class="h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
+          <span>Live Upgrades</span>
+        </div>
+        <div class="flex gap-3 overflow-x-auto pb-3" id="strip"></div>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
+        <section class="glass p-4 xl:col-span-1 panel-section">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <p class="text-xs uppercase text-gray-400 tracking-wide">Select Item</p>
+              <h2 class="font-semibold">Your Inventory</h2>
+            </div>
+            <span id="inventory-count" class="rarity-pill rarity-common">0 items</span>
+          </div>
+          <div id="inventory-list" class="space-y-3 max-h-[540px] overflow-y-auto pr-2"></div>
+        </section>
+
+        <section class="xl:col-span-1 glass p-4 flex flex-col items-center justify-center text-center space-y-4 panel-section">
+          <div class="wheel-shell">
+            <div class="wheel-pointer"></div>
+            <div class="wheel-outer">
+              <div class="wheel-inner">
+                <div id="wheel-disk" class="wheel-disk"></div>
+                <div class="wheel-center">
+                  <div class="text-xs uppercase text-gray-400 tracking-wide">Chance</div>
+                  <div id="chance-value" class="text-3xl font-bold">0.00%</div>
+                  <div class="mt-2 text-gray-400 text-sm">Multiplier <span id="multiplier-value" class="text-white font-semibold">0.00x</span></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <button id="spin-button" class="floating-button px-10 py-3 text-base">Spin Upgrade</button>
-        <div id="status-text" class="text-sm text-gray-400">Choose an item and a target to begin.</div>
-        <div class="grid grid-cols-2 gap-3 w-full">
-          <div class="glass p-3 flex items-center justify-between text-sm">
-            <div class="text-left">
-              <p class="text-xs uppercase tracking-wide text-gray-400">Cost Diff</p>
-              <p id="diff-text" class="font-semibold">$0.00</p>
+          <button id="spin-button" class="floating-button px-10 py-3 text-base">Spin Upgrade</button>
+          <div id="status-text" class="text-sm text-gray-400">Choose an item and a target to begin.</div>
+          <div class="grid grid-cols-2 gap-3 w-full">
+            <div class="glass p-3 flex items-center justify-between text-sm panel-section">
+              <div class="text-left">
+                <p class="text-xs uppercase tracking-wide text-gray-400">Cost Diff</p>
+                <p id="diff-text" class="font-semibold">$0.00</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs uppercase tracking-wide text-gray-400">Payout</p>
+                <p id="payout-text" class="font-semibold">$0.00</p>
+              </div>
             </div>
-            <div class="text-right">
-              <p class="text-xs uppercase tracking-wide text-gray-400">Payout</p>
-              <p id="payout-text" class="font-semibold">$0.00</p>
+            <div class="glass p-3 flex items-center justify-between text-sm panel-section">
+              <div class="text-left">
+                <p class="text-xs uppercase tracking-wide text-gray-400">Outcome</p>
+                <p id="outcome-text" class="font-semibold text-gray-300">Waiting</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs uppercase tracking-wide text-gray-400">Consolation</p>
+                <p class="font-semibold text-teal-300">10 gems</p>
+              </div>
             </div>
           </div>
-          <div class="glass p-3 flex items-center justify-between text-sm">
-            <div class="text-left">
-              <p class="text-xs uppercase tracking-wide text-gray-400">Outcome</p>
-              <p id="outcome-text" class="font-semibold text-gray-300">Waiting</p>
-            </div>
-            <div class="text-right">
-              <p class="text-xs uppercase tracking-wide text-gray-400">Consolation</p>
-              <p class="font-semibold text-teal-300">10 gems</p>
-            </div>
-          </div>
-        </div>
-      </div>
+        </section>
 
-      <div class="glass p-4 xl:col-span-1">
-        <div class="flex items-center justify-between mb-3">
-          <div>
-            <p class="text-xs uppercase text-gray-400 tracking-wide">Target Item</p>
-            <h2 class="font-semibold">Upgrade Into</h2>
+        <section class="glass p-4 xl:col-span-1 panel-section">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <p class="text-xs uppercase text-gray-400 tracking-wide">Target Item</p>
+              <h2 class="font-semibold">Upgrade Into</h2>
+            </div>
+            <span class="rarity-pill rarity-rare">Top picks</span>
           </div>
-          <span class="rarity-pill rarity-rare">Top picks</span>
-        </div>
-        <div id="target-list" class="space-y-3 max-h-[540px] overflow-y-auto pr-2"></div>
+          <div id="target-list" class="space-y-3 max-h-[540px] overflow-y-auto pr-2"></div>
+        </section>
       </div>
     </div>
-  </div>
+  </main>
+
+  <div id="topup-popup-container"></div>
 
   <script>
-    const inventoryItems = [
+    const fallbackInventory = [
       { id: 'inv1', name: 'Nike Air Force 1 White', price: 90.94, image: 'https://i.imgur.com/aJrj9eJ.png', rarity: 'common' },
       { id: 'inv2', name: 'Air Jordan 1 Retro', price: 150.22, image: 'https://i.imgur.com/2Uy5V8c.png', rarity: 'rare' },
       { id: 'inv3', name: 'Beats Studio Headphones', price: 320.00, image: 'https://i.imgur.com/YVZwpEi.png', rarity: 'uncommon' },
@@ -278,11 +248,12 @@
       { id: 't6', name: 'Limited Edition Sneaker', price: 620.40, image: 'https://i.imgur.com/aJrj9eJ.png', rarity: 'rare' }
     ];
 
+    let inventoryItems = [];
     let selectedSource = null;
     let selectedTarget = null;
     let isSpinning = false;
     let rotation = 0;
-    let gems = 11340;
+    let gems = 0;
 
     const rarityClass = {
       common: 'rarity-common',
@@ -291,12 +262,7 @@
       legendary: 'rarity-legendary'
     };
 
-    const rarityLabel = {
-      common: 'Common',
-      uncommon: 'Uncommon',
-      rare: 'Rare',
-      legendary: 'Legendary'
-    };
+    const rarityLabel = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', legendary: 'Legendary' };
 
     const inventoryList = document.getElementById('inventory-list');
     const targetList = document.getElementById('target-list');
@@ -310,6 +276,16 @@
     const wheelDisk = document.getElementById('wheel-disk');
     const strip = document.getElementById('strip');
     const spinButton = document.getElementById('spin-button');
+    const inventoryCount = document.getElementById('inventory-count');
+
+    function getEffectivePrice(item = {}) {
+      const candidates = [item.price, item.value, item.voucherAmount, item.redeemValue, item.redeemAmount];
+      for (const value of candidates) {
+        const numeric = Number(value);
+        if (Number.isFinite(numeric) && numeric > 0) return numeric;
+      }
+      return 0;
+    }
 
     function formatCurrency(value) {
       return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -319,7 +295,7 @@
       strip.innerHTML = '';
       items.forEach((item) => {
         const card = document.createElement('div');
-        card.className = 'strip-item glass p-3 flex flex-col space-y-2 border border-gray-800';
+        card.className = 'strip-item glass p-3 flex flex-col space-y-2 border border-gray-800 min-w-[120px]';
         card.innerHTML = `
           <div class="flex items-center space-x-2 text-xs text-gray-400">
             <span class="h-2 w-2 rounded-full bg-lime-400 badge-live"></span>
@@ -329,26 +305,28 @@
             <img src="${item.image}" class="w-10 h-10 object-contain bg-gray-900 rounded-lg p-1" alt="${item.name}">
             <div class="text-xs">
               <p class="font-semibold text-white leading-tight">${item.name}</p>
-              <p class="text-teal-300">${formatCurrency(item.price)}</p>
+              <p class="text-teal-300">${formatCurrency(getEffectivePrice(item))}</p>
             </div>
           </div>`;
         strip.appendChild(card);
       });
     }
 
-    function createItemCard(item, selected, onSelect) {
+    function createItemCard(item, selected, onSelect, label) {
+      const price = getEffectivePrice(item);
+      const rarity = rarityClass[item.rarity] ? item.rarity : 'common';
       const card = document.createElement('div');
-      card.className = `item-tile glass p-3 flex items-center space-x-3 ${selected ? 'active' : ''}`;
+      card.className = `item-tile glass p-3 flex items-center gap-3 ${selected ? 'active' : ''}`;
       card.innerHTML = `
         <div class="w-16 h-16 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center overflow-hidden">
           <img src="${item.image}" alt="${item.name}" class="w-14 h-14 object-contain">
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-xs uppercase tracking-wide text-gray-400">${selected ? 'Selected' : 'Available'}</p>
+          <p class="text-xs uppercase tracking-wide text-gray-400">${label}</p>
           <p class="font-semibold truncate">${item.name}</p>
-          <p class="text-teal-300 text-sm">${formatCurrency(item.price)}</p>
+          <p class="text-teal-300 text-sm">${formatCurrency(price)}</p>
         </div>
-        <div class="rarity-pill ${rarityClass[item.rarity]}">${rarityLabel[item.rarity]}</div>
+        <div class="rarity-pill ${rarityClass[rarity]}">${rarityLabel[rarity]}</div>
       `;
       card.addEventListener('click', () => onSelect(item));
       return card;
@@ -362,8 +340,9 @@
           selectedSource = it;
           renderInventory();
           updateOdds();
-        }));
+        }, selected ? 'Selected' : 'Available'));
       });
+      inventoryCount.textContent = `${inventoryItems.length} ${inventoryItems.length === 1 ? 'item' : 'items'}`;
     }
 
     function renderTargets() {
@@ -374,7 +353,7 @@
           selectedTarget = it;
           renderTargets();
           updateOdds();
-        }));
+        }, selected ? 'Selected' : 'Available'));
       });
     }
 
@@ -389,14 +368,16 @@
         return;
       }
 
-      const chance = Math.max(Math.min((selectedSource.price / selectedTarget.price) * 100, 100), 1);
-      const multiplier = selectedTarget.price / selectedSource.price;
-      const diff = selectedTarget.price - selectedSource.price;
+      const sourcePrice = getEffectivePrice(selectedSource);
+      const targetPrice = getEffectivePrice(selectedTarget);
+      const chance = Math.max(Math.min((sourcePrice / targetPrice) * 100, 100), 1);
+      const multiplier = targetPrice / sourcePrice;
+      const diff = targetPrice - sourcePrice;
 
       chanceValue.textContent = `${chance.toFixed(2)}%`;
       multiplierValue.textContent = `${multiplier.toFixed(2)}x`;
       diffText.textContent = formatCurrency(diff);
-      payoutText.textContent = formatCurrency(selectedTarget.price);
+      payoutText.textContent = formatCurrency(targetPrice);
       wheelDisk.style.setProperty('--win-angle', `${(chance * 3.6).toFixed(2)}deg`);
       spinButton.disabled = false;
     }
@@ -412,7 +393,9 @@
       statusText.textContent = 'Spinning... good luck!';
       outcomeText.textContent = 'Spinning';
 
-      const chance = Math.max(Math.min((selectedSource.price / selectedTarget.price) * 100, 100), 1);
+      const sourcePrice = getEffectivePrice(selectedSource);
+      const targetPrice = getEffectivePrice(selectedTarget);
+      const chance = Math.max(Math.min((sourcePrice / targetPrice) * 100, 100), 1);
       const winAngle = chance * 3.6;
       const willWin = Math.random() * 100 < chance;
 
@@ -441,9 +424,7 @@
 
     function applyUpgrade() {
       const idx = inventoryItems.findIndex((it) => it.id === selectedSource.id);
-      if (idx !== -1) {
-        inventoryItems.splice(idx, 1);
-      }
+      if (idx !== -1) { inventoryItems.splice(idx, 1); }
       const newItem = { ...selectedTarget, id: `inv-${Date.now()}` };
       inventoryItems.unshift(newItem);
       renderInventory();
@@ -454,16 +435,83 @@
 
     spinButton.addEventListener('click', handleSpin);
 
+    function populateFromSnapshot(snapshot) {
+      if (!snapshot.exists()) return false;
+      inventoryItems = [];
+      snapshot.forEach(child => {
+        const item = child.val();
+        const value = getEffectivePrice(item);
+        inventoryItems.push({
+          ...item,
+          id: child.key,
+          price: value,
+          image: item.image || item.img || 'https://i.imgur.com/aJrj9eJ.png',
+          rarity: (item.rarity || 'common').toLowerCase()
+        });
+      });
+      if (!inventoryItems.length) return false;
+      return true;
+    }
+
+    function bootstrapFirebase() {
+      const firebaseConfig = {
+        apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+        authDomain: "cases-e5b4e.firebaseapp.com",
+        databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+        projectId: "cases-e5b4e",
+        storageBucket: "cases-e5b4e.appspot.com",
+        messagingSenderId: "22502548396",
+        appId: "1:22502548396:web:aac335672c21f07524d009"
+      };
+
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user) return (window.location.href = 'auth.html');
+
+        const db = firebase.database();
+        const userRef = db.ref('users/' + user.uid);
+
+        userRef.once('value').then((snapshot) => {
+          const data = snapshot.val() || {};
+          gems = Number(data.balance || 0);
+          updateBalanceDisplay();
+          document.getElementById('username-display')?.innerText = user.displayName || user.email;
+        });
+
+        const inventoryRef = db.ref('users/' + user.uid + '/inventory');
+        inventoryRef.once('value').then((snap) => {
+          const hasData = populateFromSnapshot(snap);
+          if (!hasData) {
+            inventoryItems = [...fallbackInventory];
+          }
+          renderInventory();
+          renderTargets();
+          renderStrip(inventoryItems.slice(0, 4));
+          updateOdds();
+        });
+      });
+    }
+
     function init() {
-      renderInventory();
       renderTargets();
-      renderStrip(inventoryItems.slice(0, 4));
+      bootstrapFirebase();
+      renderStrip(fallbackInventory.slice(0, 4));
       updateBalanceDisplay();
       statusText.textContent = 'Choose an item and a target to begin.';
       updateOdds();
     }
 
     init();
+  </script>
+
+  <script src="scripts/header.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/topup.js"></script>
+  <script>
+    fetch('components/topup.html').then(res => res.text()).then(html => {
+      document.getElementById('topup-popup-container').innerHTML = html;
+    });
   </script>
 </body>
 </html>
