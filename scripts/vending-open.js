@@ -12,6 +12,18 @@
   const machineShell = document.getElementById('machine-shell');
   const openingOverlay = document.getElementById('opening-overlay');
 
+  const hitImage = document.getElementById('hit-image');
+  const previewSlots = {
+    legendary: {
+      image: document.getElementById('legendary-image'),
+      name: document.getElementById('legendary-name'),
+    },
+    epic: {
+      image: document.getElementById('epic-image'),
+      name: document.getElementById('epic-name'),
+    }
+  };
+
   const hitName = document.getElementById('hit-name');
   const hitNote = document.getElementById('hit-note');
   const hitRarityPill = document.getElementById('hit-rarity-pill');
@@ -39,29 +51,32 @@
   const toastEl = document.getElementById('toast');
 
   const defaults = { common: 40, rare: 30, epic: 20, legendary: 10 };
+  const fallbackImage = 'https://placehold.co/400x400/0b1224/94a3b8?text=Reward';
   let currentMachine = null;
   let unsubscribeMachine = null;
   let currentUser = null;
   let currentGems = 0;
   let hitTimer = null;
+  let cachedRarities = defaults;
+  let cachedItems = {};
 
   const defaultItems = {
     common: [
-      { name: 'Starter Bundle', weight: 1 },
-      { name: 'Warm-up Pack', weight: 1 },
-      { name: 'Basic Crate', weight: 1 },
+      { name: 'Starter Bundle', weight: 1, image: fallbackImage },
+      { name: 'Warm-up Pack', weight: 1, image: fallbackImage },
+      { name: 'Basic Crate', weight: 1, image: fallbackImage },
     ],
     rare: [
-      { name: 'Rare Neon Case', weight: 1.5 },
-      { name: 'Holo Sticker Pack', weight: 1 },
+      { name: 'Rare Neon Case', weight: 1.5, image: fallbackImage },
+      { name: 'Holo Sticker Pack', weight: 1, image: fallbackImage },
     ],
     epic: [
-      { name: 'Epic Hardware Drop', weight: 2 },
-      { name: 'Mythic Blueprint', weight: 1 },
+      { name: 'Epic Hardware Drop', weight: 2, image: fallbackImage },
+      { name: 'Mythic Blueprint', weight: 1, image: fallbackImage },
     ],
     legendary: [
-      { name: 'Legendary Skin', weight: 2.5 },
-      { name: 'Ultra Grail', weight: 1 },
+      { name: 'Legendary Skin', weight: 2.5, image: fallbackImage },
+      { name: 'Ultra Grail', weight: 1, image: fallbackImage },
     ]
   };
 
@@ -88,9 +103,6 @@
       if (rarityEls[key]) rarityEls[key].style.width = rarityWidth(value);
       if (rarityLabels[key]) rarityLabels[key].textContent = `${key.charAt(0).toUpperCase() + key.slice(1)} - ${rarityWidth(value)}`;
     });
-    if (window.VendingAnim) {
-      window.VendingAnim.updateRarities(data);
-    }
   };
 
   const pickRarity = (rarities = {}) => {
@@ -104,7 +116,7 @@
   };
 
   const setHitDisplay = (rarity, item) => {
-    hitName.textContent = item;
+    hitName.textContent = item?.name || 'Mystery hit';
     hitNote.textContent = `${rarity.charAt(0).toUpperCase() + rarity.slice(1)} pull · weighted preview`;
     const colorMap = {
       common: 'bg-cyan-400/20 text-cyan-100 border-cyan-400/40',
@@ -114,15 +126,20 @@
     };
     hitRarityPill.textContent = rarity.charAt(0).toUpperCase() + rarity.slice(1);
     hitRarityPill.className = `px-3 py-1 rounded-full text-xs font-semibold border ${colorMap[rarity] || 'bg-white/10 text-white border-white/10'}`;
+    if (hitImage) {
+      hitImage.src = item?.image || fallbackImage;
+      hitImage.alt = item?.name || 'Preview item';
+    }
   };
 
   const normalizePool = (pool = []) => {
     return (Array.isArray(pool) ? pool : [])
       .map((entry) => {
-        if (typeof entry === 'string') return { name: entry, weight: 1 };
+        if (typeof entry === 'string') return { name: entry, weight: 1, image: fallbackImage };
         return {
           name: entry?.name || 'Mystery hit',
           weight: Math.max(0.0001, Number(entry?.weight) || 1),
+          image: entry?.image || fallbackImage,
         };
       })
       .filter((entry) => entry.name);
@@ -139,19 +156,36 @@
     return normalized[0];
   };
 
-  const startHitCycle = (rarities = {}, items = {}) => {
-    const pools = { ...defaultItems, ...items };
-    if (hitTimer) clearInterval(hitTimer);
+  const setPreviewCard = (rarity, item) => {
+    const slot = previewSlots[rarity];
+    if (!slot) return;
+    if (slot.name) slot.name.textContent = item?.name || `${rarity} preview`;
+    if (slot.image) {
+      slot.image.src = item?.image || fallbackImage;
+      slot.image.alt = item?.name || `${rarity} preview`;
+    }
+  };
 
-    const cycle = () => {
-      const rarity = pickRarity(rarities);
+  const runHitCycle = () => {
+    const pools = { ...defaultItems, ...cachedItems };
+    ['legendary', 'epic'].forEach((rarity) => {
       const pool = normalizePool(pools[rarity])?.length ? pools[rarity] : defaultItems[rarity];
       const item = pickItemFromPool(pool);
-      setHitDisplay(rarity, item.name);
-    };
+      setPreviewCard(rarity, item);
+    });
 
-    cycle();
-    hitTimer = setInterval(cycle, 2800);
+    const rarity = pickRarity(cachedRarities);
+    const pool = normalizePool(pools[rarity])?.length ? pools[rarity] : defaultItems[rarity];
+    const item = pickItemFromPool(pool);
+    setHitDisplay(rarity, item);
+  };
+
+  const startHitCycle = (rarities = {}, items = {}) => {
+    cachedRarities = { ...defaults, ...(rarities || {}) };
+    cachedItems = items || {};
+    if (hitTimer) clearInterval(hitTimer);
+    runHitCycle();
+    hitTimer = setInterval(runHitCycle, 2600);
   };
 
   const toggleOpeningOverlay = (state) => {
@@ -171,7 +205,7 @@
 
     machineName.textContent = machine?.name || 'Vending machine';
     machineNamePill.textContent = machine?.name || 'Vending machine';
-    machineDescription.textContent = machine?.description || 'Open this machine to see the live disc stack.';
+    machineDescription.textContent = machine?.description || 'Open this machine to see the live legendary and epic spotlights.';
     machinePrice.textContent = formatPrice(machine?.price);
     openLabel.textContent = `Open for ${formatPrice(machine?.price)}`;
 
@@ -244,8 +278,13 @@
 
     showToast(`Opening…`);
     toggleOpeningOverlay(true);
-    if (window.VendingAnim) window.VendingAnim.bump();
-    setHitDisplay(rarity, prize.name || 'Mystery hit');
+    if (machineShell) {
+      machineShell.classList.remove('machine-bump');
+      void machineShell.offsetWidth;
+      machineShell.classList.add('machine-bump');
+    }
+    setHitDisplay(rarity, prize);
+    setPreviewCard(rarity, prize);
     setTimeout(() => {
       toggleOpeningOverlay(false);
       showToast(`You won ${prize.name || 'a prize'} (${rarity})!`);
@@ -268,14 +307,12 @@
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
 
-    if (window.VendingAnim) {
-      window.VendingAnim.init({ rarities: defaults });
-    }
-
     loadMachine(id);
     wireFairModal();
 
-    bumpBtn?.addEventListener('click', () => window.VendingAnim && window.VendingAnim.bump());
+    bumpBtn?.addEventListener('click', () => {
+      runHitCycle();
+    });
     openBtn?.addEventListener('click', handleOpen);
 
     auth.onAuthStateChanged((user) => {

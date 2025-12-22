@@ -11,30 +11,20 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="styles/main.css" />
   <style>
-    .glass-window {
-      position: absolute;
-      overflow: hidden;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 20px 60px rgba(0, 0, 0, 0.45);
-      backdrop-filter: blur(2px);
+    .preview-card img {
+      object-fit: cover;
     }
 
-    #vendingCanvas {
-      width: 100%;
-      height: 100%;
-      display: block;
+    @keyframes machine-bump {
+      0% { transform: translateY(0); }
+      25% { transform: translateY(-6px); }
+      50% { transform: translateY(2px); }
+      75% { transform: translateY(-3px); }
+      100% { transform: translateY(0); }
     }
 
-    .glass-reflection {
-      pointer-events: none;
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(115deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0) 45%);
-      mix-blend-mode: screen;
-      opacity: 0.45;
-      transform: translateX(-8%);
+    .machine-bump {
+      animation: machine-bump 0.7s ease;
     }
   </style>
 </head>
@@ -62,9 +52,35 @@
               <div class="absolute inset-0 pointer-events-none bg-gradient-to-br from-white/5 via-transparent to-white/0"></div>
               <div class="relative" id="machine-shell">
                 <img id="machine-image" src="https://placehold.co/560x720/0b1224/94a3b8?text=Vending" alt="Vending machine" class="w-full max-w-[560px] mx-auto rounded-2xl border border-white/10 object-cover select-none pointer-events-none" />
-                <div id="glassWindow" class="glass-window" style="top: 22%; left: 50%; width: 68%; height: 46%; transform: translateX(-50%);">
-                  <canvas id="vendingCanvas"></canvas>
-                  <div class="glass-reflection"></div>
+                <div class="absolute inset-0 flex items-center justify-center px-6">
+                  <div class="grid gap-3 w-full max-w-xl">
+                    <div class="preview-card relative overflow-hidden rounded-2xl border border-amber-400/40 bg-amber-400/5 backdrop-blur-md shadow-[0_20px_70px_rgba(0,0,0,0.35)] p-3" id="legendary-preview">
+                      <div class="absolute inset-0 bg-gradient-to-br from-amber-400/10 via-transparent to-amber-500/10 pointer-events-none"></div>
+                      <div class="flex items-center gap-3">
+                        <div class="w-20 h-20 rounded-xl overflow-hidden border border-amber-200/40 bg-amber-500/10 flex-shrink-0">
+                          <img id="legendary-image" src="https://placehold.co/200x200/0b1224/ffd166?text=Legendary" alt="Legendary preview" class="w-full h-full" />
+                        </div>
+                        <div class="space-y-1">
+                          <p class="text-xs uppercase tracking-[0.25em] text-amber-200">Legendary</p>
+                          <p id="legendary-name" class="text-lg font-semibold text-white">Rotating grails</p>
+                          <p class="text-sm text-amber-100/80">High-odds spotlight</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="preview-card relative overflow-hidden rounded-2xl border border-purple-300/40 bg-purple-400/5 backdrop-blur-md shadow-[0_20px_70px_rgba(0,0,0,0.35)] p-3" id="epic-preview">
+                      <div class="absolute inset-0 bg-gradient-to-br from-purple-400/10 via-transparent to-purple-500/10 pointer-events-none"></div>
+                      <div class="flex items-center gap-3">
+                        <div class="w-20 h-20 rounded-xl overflow-hidden border border-purple-200/40 bg-purple-500/10 flex-shrink-0">
+                          <img id="epic-image" src="https://placehold.co/200x200/0b1224/c084fc?text=Epic" alt="Epic preview" class="w-full h-full" />
+                        </div>
+                        <div class="space-y-1">
+                          <p class="text-xs uppercase tracking-[0.25em] text-purple-200">Epic</p>
+                          <p id="epic-name" class="text-lg font-semibold text-white">Rotating epics</p>
+                          <p class="text-sm text-purple-100/80">Premium spotlight</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div id="opening-overlay" class="absolute inset-0 flex flex-col items-center justify-center rounded-2xl bg-black/40 backdrop-blur-sm border border-cyan-400/30 opacity-0 pointer-events-none transition duration-500">
                   <div class="w-14 h-14 rounded-full border-2 border-cyan-300/30 border-t-cyan-300 animate-spin"></div>
@@ -88,10 +104,15 @@
                 </div>
                 <span id="hit-rarity-pill" class="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 border border-white/10">—</span>
               </div>
-              <div class="relative overflow-hidden rounded-xl border border-white/10 bg-slate-950/60 p-4">
-                <div class="absolute inset-0 pointer-events-none bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/10"></div>
-                <p id="hit-name" class="relative z-10 text-lg sm:text-xl font-semibold text-white">Loading featured hit…</p>
-                <p id="hit-note" class="relative z-10 mt-1 text-sm text-slate-300">Cycling through weighted drops.</p>
+              <div class="relative overflow-hidden rounded-xl border border-white/10 bg-slate-950/60 p-4 flex items-center gap-4">
+                <div class="w-20 h-20 rounded-lg overflow-hidden border border-white/15 bg-white/5 flex-shrink-0">
+                  <img id="hit-image" src="https://placehold.co/200x200/0b1224/67e8f9?text=Hit" alt="Preview item" class="w-full h-full object-cover" />
+                </div>
+                <div class="flex-1">
+                  <div class="absolute inset-0 pointer-events-none bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/10"></div>
+                  <p id="hit-name" class="relative z-10 text-lg sm:text-xl font-semibold text-white">Loading featured hit…</p>
+                  <p id="hit-note" class="relative z-10 mt-1 text-sm text-slate-300">Cycling through weighted drops.</p>
+                </div>
               </div>
             </div>
             <div class="space-y-2">
@@ -114,7 +135,7 @@
             </div>
             <div class="flex flex-wrap gap-3">
               <button id="open-btn" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 text-slate-900 font-semibold shadow-lg shadow-cyan-500/30 hover:-translate-y-0.5 transition"><i class="fa-solid fa-bolt"></i> <span id="open-label">Open</span></button>
-              <button id="bump-btn" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-white/10 text-slate-100 hover:border-cyan-300/60 transition"><i class="fa-solid fa-circle-dot"></i> Shake tokens</button>
+              <button id="bump-btn" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-white/10 text-slate-100 hover:border-cyan-300/60 transition"><i class="fa-solid fa-shuffle"></i> Shuffle previews</button>
             </div>
             <div id="toast" class="fixed bottom-6 right-6 px-4 py-3 rounded-xl bg-slate-900/90 border border-white/10 shadow-lg text-sm text-white opacity-0 pointer-events-none transition"></div>
           </div>
@@ -157,8 +178,6 @@
   <script src="scripts/navbar.js"></script>
   <script src="scripts/footer.js"></script>
   <script src="scripts/firebase-config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
-  <script src="scripts/vending-anim.js"></script>
   <script src="scripts/vending-open.js"></script>
 </body>
 </html>

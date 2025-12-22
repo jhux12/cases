@@ -870,25 +870,25 @@
                 </div>
                 <div class="space-y-3">
                   <div class="flex items-center justify-between text-xs text-slate-400">
-                    <span>Prize pools (one per line: <strong>Name | weight</strong>)</span>
+                    <span>Prize pools (one per line: <strong>Name | weight | image URL (optional)</strong>)</span>
                     <span class="text-slate-500">Weights are relative within each rarity</span>
                   </div>
                   <div class="grid gap-3 md:grid-cols-2">
                     <label class="glass-subcard space-y-2">
-                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Common items</span><span class="text-sky-200">Ex: Starter | 1</span></div>
-                      <textarea id="items-common" rows="3" class="form-textarea" placeholder="Starter Bundle | 1&#10;Warm-up Pack | 1"></textarea>
+                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Common items</span><span class="text-sky-200">Ex: Starter | 1 | https://...</span></div>
+                      <textarea id="items-common" rows="3" class="form-textarea" placeholder="Starter Bundle | 1 | https://.../starter.png&#10;Warm-up Pack | 1 | https://.../warm.png"></textarea>
                     </label>
                     <label class="glass-subcard space-y-2">
-                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Rare items</span><span class="text-indigo-200">Ex: Rare Pack | 2</span></div>
-                      <textarea id="items-rare" rows="3" class="form-textarea" placeholder="Rare Neon Case | 2&#10;Holo Sticker | 1"></textarea>
+                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Rare items</span><span class="text-indigo-200">Ex: Rare Pack | 2 | https://...</span></div>
+                      <textarea id="items-rare" rows="3" class="form-textarea" placeholder="Rare Neon Case | 2 | https://.../rare.png&#10;Holo Sticker | 1 | https://.../holo.png"></textarea>
                     </label>
                     <label class="glass-subcard space-y-2">
-                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Epic items</span><span class="text-purple-200">Ex: Epic Drop | 3</span></div>
-                      <textarea id="items-epic" rows="3" class="form-textarea" placeholder="Epic Hardware Drop | 3"></textarea>
+                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Epic items</span><span class="text-purple-200">Ex: Epic Drop | 3 | https://...</span></div>
+                      <textarea id="items-epic" rows="3" class="form-textarea" placeholder="Epic Hardware Drop | 3 | https://.../epic.png"></textarea>
                     </label>
                     <label class="glass-subcard space-y-2">
-                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Legendary items</span><span class="text-amber-200">Ex: Grail | 5</span></div>
-                      <textarea id="items-legendary" rows="3" class="form-textarea" placeholder="Legendary Skin | 5"></textarea>
+                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Legendary items</span><span class="text-amber-200">Ex: Grail | 5 | https://...</span></div>
+                      <textarea id="items-legendary" rows="3" class="form-textarea" placeholder="Legendary Skin | 5 | https://.../legendary.png"></textarea>
                     </label>
                   </div>
                 </div>
@@ -902,7 +902,7 @@
                   <li>• Use a 3:4 image ratio for the thumbnail.</li>
                   <li>• Odds fields are optional—defaults are applied if blank.</li>
                   <li>• Leave destination blank to auto-generate a link after publishing.</li>
-                  <li>• Add prize pools per rarity using “Name | weight”. Weights decide pull likelihood inside each rarity.</li>
+                  <li>• Add prize pools per rarity using “Name | weight | image URL (optional)”. Weights decide pull likelihood inside each rarity.</li>
                 </ul>
               </div>
             </div>
@@ -1382,10 +1382,14 @@
         .map(line => line.trim())
         .filter(Boolean)
         .map(line => {
-          const [namePart, weightPart] = line.split('|').map(v => (v || '').trim());
+          const parts = line.split('|').map(v => (v || '').trim());
+          const namePart = parts[0] || 'Mystery reward';
+          const weightPart = parts[1];
+          const imagePart = parts[2];
           return {
-            name: namePart || 'Mystery reward',
-            weight: Math.max(0.0001, parseFloat(weightPart) || 1)
+            name: namePart,
+            weight: Math.max(0.0001, parseFloat(weightPart) || 1),
+            image: imagePart || ''
           };
         });
     }
