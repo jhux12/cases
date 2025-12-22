@@ -37,13 +37,13 @@
     .battle-pill.live { border-color: rgba(34,197,94,0.6); color: #34d399; box-shadow: 0 0 0 2px rgba(34,197,94,0.12); }
     .battle-card { border-radius: 18px; border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(145deg, rgba(17,24,39,0.72), rgba(15,23,42,0.6)); box-shadow: 0 18px 42px rgba(0,0,0,0.35); padding: 1rem; }
     .battle-card + .battle-card { margin-top: 0.75rem; }
-    .battle-card__grid { display: grid; grid-template-columns: 1.1fr 2fr 1.1fr 1.1fr 1fr; gap: 1rem; align-items: center; }
+    .battle-card__grid { display: grid; grid-template-columns: 1.2fr 1fr auto; gap: 1rem; align-items: start; }
     .battle-round { width: 3rem; height: 3rem; border-radius: 9999px; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18), rgba(79,70,229,0.65)); display: grid; place-items: center; font-weight: 700; color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); }
     .battle-pack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 0.35rem; }
     .battle-pack { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); }
     .battle-pack img { width: 100%; height: 76px; object-fit: cover; }
     .battle-pack .count { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #22d3ee); color: #fff; font-size: 0.75rem; display: grid; place-items: center; box-shadow: 0 8px 18px rgba(0,0,0,0.35); }
-    .battle-actions { display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap; }
+    .battle-actions { display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap; align-items: flex-end; }
     .battle-actions button { border-radius: 12px; font-weight: 700; }
     .battle-meta { display: flex; flex-direction: column; gap: 0.25rem; }
     .battle-avatars { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
@@ -53,18 +53,13 @@
     .mode-chip { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #e0e7ff; font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 999px; display: inline-flex; align-items: center; gap: 0.45rem; }
     .mode-chip small { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; color: #94a3b8; }
     .muted { color: #94a3b8; }
-    @media (max-width: 1080px) { .battle-card__grid { grid-template-columns: 1fr 1fr; grid-template-areas: 'meta actions' 'packs packs' 'players cost'; }
-      .battle-meta { grid-area: meta; }
-      .battle-pack-grid { grid-area: packs; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); }
-      .battle-avatars { grid-area: players; }
-      .battle-actions { grid-area: actions; justify-content: flex-end; }
-      .battle-price { grid-area: cost; justify-content: flex-end; display: inline-flex; }
-      .battle-card__grid > * { width: 100%; }
+    @media (max-width: 1080px) { .battle-card__grid { grid-template-columns: 1fr; }
+      .battle-pack-grid { grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); }
+      .battle-actions { justify-content: flex-start; align-items: flex-start; }
+      .battle-price { justify-content: flex-start; }
     }
     @media (max-width: 640px) { .battle-card { padding: 0.9rem; }
-      .battle-card__grid { grid-template-columns: 1fr; grid-template-areas: 'meta' 'packs' 'players' 'cost' 'actions'; gap: 0.75rem; }
-      .battle-actions { justify-content: flex-start; }
-      .battle-price { justify-content: flex-start; }
+      .battle-card__grid { gap: 0.75rem; }
     }
     /* Minimal reel host styles; rest via Tailwind */
     .reel-host { position: relative; overflow: hidden; }
@@ -121,35 +116,32 @@
 
   <main class="relative mt-20 mx-auto max-w-6xl xl:max-w-7xl px-4 pb-16 space-y-8">
     <section class="glass-panel rounded-3xl p-6 md:p-7 flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-2xl">
-      <div class="flex items-center gap-4">
+      <div class="flex items-start gap-4">
         <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-400 grid place-items-center text-white font-extrabold text-lg shadow-lg">
           VS
         </div>
-        <div>
-          <p class="text-sm uppercase tracking-[0.2em] text-indigo-200">Battle Mode</p>
+        <div class="space-y-1">
           <h1 class="text-3xl md:text-4xl font-extrabold text-white">Box Battles</h1>
-          <p class="text-slate-300 mt-1 text-sm md:text-base">Winner takes all. Queue up, watch the spins, and chase the big pulls.</p>
+          <p class="text-slate-300 text-sm md:text-base">Join a live battle in seconds. Pick a lobby, watch the spins, and see who takes it all.</p>
+          <a href="#previous-battles" class="inline-flex items-center gap-2 text-indigo-100 text-sm hover:text-white">
+            <span class="h-2 w-2 rounded-full bg-indigo-300"></span>View previous winners
+          </a>
         </div>
       </div>
       <div class="flex flex-wrap gap-3 items-center">
-        <a href="#previous-battles" class="battle-pill">Previous Battles</a>
         <button id="create-battle-btn" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-500 to-cyan-400 text-white font-semibold shadow-indigo-500/40 shadow-lg hover:from-indigo-400 hover:to-cyan-300">
-          + Create Battle
+          Start a battle
         </button>
       </div>
     </section>
 
     <section class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
-      <div class="glass-panel rounded-2xl p-4 flex items-center justify-between md:col-span-3">
+      <div class="glass-panel rounded-2xl p-4 md:col-span-3 flex flex-col gap-2">
         <div class="flex items-center gap-3">
           <span class="battle-pill live">Live</span>
-          <span class="text-sm text-slate-300">Standard battles filling right now</span>
+          <span class="text-sm text-slate-200">Battles are filling right now — pick one below to jump in.</span>
         </div>
-        <div class="hidden sm:flex items-center gap-3">
-          <button class="mode-chip"><small>Mode</small> Standard</button>
-          <button class="mode-chip">Crazy Mode</button>
-          <button class="mode-chip">Group</button>
-        </div>
+        <p class="text-xs text-slate-400">We’ll auto-fill with bots if seats stay open so you never wait long.</p>
       </div>
       <div class="glass-panel rounded-2xl p-4 flex items-center justify-between">
         <span class="text-slate-300 text-sm">My Battles</span>
@@ -171,14 +163,10 @@
           <div>
             <p class="text-xs uppercase tracking-[0.25em] text-indigo-200">Live Queue</p>
             <h2 class="text-xl font-semibold text-white">Open Battles</h2>
+            <p class="text-slate-300 text-sm mt-1">Choose a lobby and tap join. That’s it.</p>
           </div>
-          <form id="filters-form" class="flex flex-wrap items-center gap-2 text-sm text-slate-300">
-            <input class="bg-transparent rounded-xl px-3 py-2 border border-white/10 placeholder:text-slate-500" placeholder="Min value"/>
-            <select class="bg-transparent rounded-xl px-3 py-2 border border-white/10">
-              <option class="text-slate-900">Any seats</option><option class="text-slate-900">2</option><option class="text-slate-900">3</option><option class="text-slate-900">4</option>
-            </select>
-          </form>
         </header>
+        <form id="filters-form" class="hidden" aria-hidden="true"></form>
         <div id="battle-list" class="space-y-3"></div>
       </div>
 
@@ -485,31 +473,29 @@
         const seatCount = `${(b.players?.length || 0)}/${b.maxPlayers}`;
         const canJoin = (b.status==='lobby' || b.status==='countdown') && (b.players?.length||0) < b.maxPlayers;
         const cost = Number(b.cost || 0).toLocaleString();
-        const waitingText = canJoin ? 'Waiting for players' : 'Ready to watch or join';
+        const statusText = live ? 'Seats fill, then everyone spins together.' : 'Battle finished — catch the replay.';
+        const actionLabel = canJoin ? 'Join battle' : (live ? 'Watch' : 'View replay');
 
         return rowCard(`
           <div class="battle-card__grid">
-            <div class="battle-meta">
-              <div class="flex items-center gap-3">
-                <div class="battle-round">${b.spinCount || b.packs?.length || 0}</div>
-                <div>
-                  <div class="flex items-center gap-2 flex-wrap">
-                    ${live ? '<span class="battle-pill live">LIVE</span>' : '<span class="battle-pill">Finished</span>'}
-                    <span class="mode-chip">Standard</span>
-                  </div>
-                  <p class="text-xs muted mt-1">Seats: ${seatCount}</p>
+            <div class="battle-meta flex items-start gap-3">
+              <div class="battle-round">${b.spinCount || b.packs?.length || 0}</div>
+              <div class="space-y-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  ${live ? '<span class="battle-pill live">Live</span>' : '<span class="battle-pill">Finished</span>'}
+                  <span class="text-sm text-slate-100 font-semibold">${seatCount} seats</span>
                 </div>
+                <p class="text-xs muted">${b.packs?.length || 0} boxes • ${b.spinCount || b.packs?.length || 0} rounds</p>
+                <div class="battle-avatars">${playerIcons || '<span class="muted text-sm">Waiting for players</span>'}</div>
               </div>
             </div>
             <div class="battle-pack-grid">${packs || '<span class="text-sm muted">No boxes selected</span>'}</div>
-            <div class="battle-avatars">${playerIcons || '<span class="muted text-sm">Awaiting players</span>'}<span class="battle-pill">${seatCount}</span></div>
-            <div class="battle-price"><img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gem"/>${cost}</div>
-            <div class="battle-actions">
-              ${canJoin ? `<button class="join-btn px-4 py-2 bg-gradient-to-r from-indigo-500 to-cyan-400 text-white" data-id="${b.id}">Join</button>` : ''}
-              <button class="watch-btn px-4 py-2 bg-white/5 text-white border border-white/10" data-id="${b.id}">Watch</button>
+            <div class="battle-actions flex-col items-end">
+              <div class="battle-price"><img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" alt="Gem"/>${cost}</div>
+              <button class="primary-action px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-400 text-white w-full sm:w-auto" data-id="${b.id}" data-mode="${canJoin ? 'join' : 'watch'}">${actionLabel}</button>
+              <p class="text-xs muted mt-1 text-right">${statusText}</p>
             </div>
           </div>
-          <div class="text-xs muted mt-2">${waitingText}</div>
         `);
       }
 
@@ -692,8 +678,11 @@
         $('#previous-battles-list').innerHTML = finished.slice(0,5).map(renderPreviousRow).join('') || '<div class="text-slate-400">Nothing yet — be the first!</div>';
 
         // Buttons
-        $$('.join-btn').forEach(btn=> btn.onclick = ()=> joinBattle(btn.dataset.id));
-        $$('.watch-btn').forEach(btn=> btn.onclick = ()=> showBattle(btn.dataset.id));
+        $$('.primary-action').forEach(btn=> {
+          const id = btn.dataset.id;
+          const mode = btn.dataset.mode;
+          btn.onclick = ()=> mode==='join' ? joinBattle(id) : showBattle(id);
+        });
         $$('.rewatch-btn').forEach(btn=> btn.onclick = ()=> openRewatch(btn.dataset.id));
       });
     }
