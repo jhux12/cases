@@ -1,226 +1,193 @@
-// Physics token animation inside the vending machine glass using Matter.js
+// Plain script exposing VendingAnim for the vending-open page
+(() => {
+  const { Engine, Render, Runner, World, Bodies, Body, Composite, Events } = window.Matter || {};
 
-const {
-  Engine,
-  Render,
-  Runner,
-  World,
-  Bodies,
-  Body,
-  Composite,
-  Events
-} = Matter;
-
-const glass = document.getElementById('glassWindow');
-const canvas = document.getElementById('vendingCanvas');
-const buyBtn = document.getElementById('buyBtn');
-
-if (!glass || !canvas) {
-  console.warn('Missing #glassWindow or #vendingCanvas');
-}
-
-const DPR = Math.min(window.devicePixelRatio || 1, 2);
-
-// Token images (replace these with real rarity icons)
-const tokenSprites = [
-  { key: 'common', url: '/images/tokens/common.png', fill: '#67e8f9' },
-  { key: 'uncommon', url: '/images/tokens/uncommon.png', fill: '#a5f3fc' },
-  { key: 'rare', url: '/images/tokens/rare.png', fill: '#c4b5fd' },
-  { key: 'epic', url: '/images/tokens/epic.png', fill: '#d8b4fe' },
-  { key: 'legendary', url: '/images/tokens/legendary.png', fill: '#facc15' }
-];
-
-function preloadImages(list) {
-  return Promise.all(
-    list.map(
-      (item) =>
-        new Promise((resolve) => {
-          const img = new Image();
-          img.onload = () => resolve({ ...item, img });
-          img.onerror = () => resolve({ ...item, img: null });
-          img.src = item.url;
-        })
-    )
-  );
-}
-
-let engine;
-let render;
-let runner;
-let W = 0;
-let H = 0;
-let walls = [];
-let tokens = [];
-
-function rebuildWalls() {
-  if (walls.length) {
-    walls.forEach((wall) => Composite.remove(engine.world, wall));
+  if (!Engine) {
+    console.warn('Matter.js is required for VendingAnim');
+    return;
   }
-  walls = [];
 
-  const w = W * DPR;
-  const h = H * DPR;
-  const thickness = 40 * DPR;
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
 
-  const floor = Bodies.rectangle(w / 2, h + thickness / 2, w + thickness * 2, thickness, { isStatic: true });
-  const ceiling = Bodies.rectangle(w / 2, -thickness / 2, w + thickness * 2, thickness, { isStatic: true });
-  const leftWall = Bodies.rectangle(-thickness / 2, h / 2, thickness, h + thickness * 2, { isStatic: true });
-  const rightWall = Bodies.rectangle(w + thickness / 2, h / 2, thickness, h + thickness * 2, { isStatic: true });
+  const rarityColors = {
+    common: '#22d3ee',
+    rare: '#6366f1',
+    epic: '#a855f7',
+    legendary: '#f59e0b'
+  };
 
-  const rampLeft = Bodies.rectangle(w * 0.18, h * 0.72, w * 0.55, 18 * DPR, {
-    isStatic: true,
-    angle: -0.25
-  });
+  const state = {
+    engine: null,
+    render: null,
+    runner: null,
+    walls: [],
+    tokens: [],
+    glass: null,
+    canvas: null,
+    rarities: { common: 40, rare: 30, epic: 20, legendary: 10 }
+  };
 
-  const rampRight = Bodies.rectangle(w * 0.78, h * 0.62, w * 0.45, 18 * DPR, {
-    isStatic: true,
-    angle: 0.22
-  });
+  const getCounts = (rarities, total = 60) => {
+    const entries = Object.entries(rarities).map(([key, value]) => [key, Math.max(0, Number(value) || 0)]);
+    const sum = entries.reduce((acc, [, v]) => acc + v, 0) || 1;
+    return entries.map(([key, value]) => [key, Math.round((value / sum) * total)]);
+  };
 
-  walls.push(floor, ceiling, leftWall, rightWall, rampLeft, rampRight);
-  World.add(engine.world, walls);
-}
+  const clearBodies = (items = []) => {
+    items.forEach((item) => Composite.remove(state.engine.world, item));
+  };
 
-function resizeRenderer() {
-  if (!glass || !canvas) return;
-  W = Math.floor(glass.clientWidth);
-  H = Math.floor(glass.clientHeight);
+  const rebuildWalls = () => {
+    clearBodies(state.walls);
+    state.walls = [];
 
-  canvas.width = Math.floor(W * DPR);
-  canvas.height = Math.floor(H * DPR);
+    const w = state.canvas.width;
+    const h = state.canvas.height;
+    const thickness = 40 * DPR;
 
-  render.options.width = canvas.width;
-  render.options.height = canvas.height;
-  render.bounds.max.x = canvas.width;
-  render.bounds.max.y = canvas.height;
+    const floor = Bodies.rectangle(w / 2, h + thickness / 2, w + thickness * 2, thickness, { isStatic: true });
+    const ceiling = Bodies.rectangle(w / 2, -thickness / 2, w + thickness * 2, thickness, { isStatic: true });
+    const left = Bodies.rectangle(-thickness / 2, h / 2, thickness, h + thickness * 2, { isStatic: true });
+    const right = Bodies.rectangle(w + thickness / 2, h / 2, thickness, h + thickness * 2, { isStatic: true });
 
-  rebuildWalls();
-}
+    const rampA = Bodies.rectangle(w * 0.2, h * 0.7, w * 0.55, 18 * DPR, { isStatic: true, angle: -0.25 });
+    const rampB = Bodies.rectangle(w * 0.78, h * 0.62, w * 0.45, 18 * DPR, { isStatic: true, angle: 0.22 });
 
-function randomTokenSprite(loadedSprites) {
-  const r = Math.random();
-  if (r < 0.57) return loadedSprites.find((x) => x.key === 'common');
-  if (r < 0.77) return loadedSprites.find((x) => x.key === 'uncommon');
-  if (r < 0.93) return loadedSprites.find((x) => x.key === 'rare');
-  if (r < 0.99) return loadedSprites.find((x) => x.key === 'epic');
-  return loadedSprites.find((x) => x.key === 'legendary');
-}
+    state.walls.push(floor, ceiling, left, right, rampA, rampB);
+    World.add(state.engine.world, state.walls);
+  };
 
-function spawnTokens(loadedSprites, count = 55) {
-  tokens.forEach((token) => Composite.remove(engine.world, token));
-  tokens = [];
+  const spawnTokens = () => {
+    clearBodies(state.tokens);
+    state.tokens = [];
 
-  const w = W * DPR;
-  const h = H * DPR;
+    const w = state.canvas.width;
+    const h = state.canvas.height;
 
-  for (let i = 0; i < count; i += 1) {
-    const radius = (18 + Math.random() * 8) * DPR;
-    const x = Math.random() * (w - radius * 2) + radius;
-    const y = Math.random() * (h * 0.35) + radius;
+    const counts = getCounts(state.rarities, 60);
+    counts.forEach(([key, count]) => {
+      for (let i = 0; i < count; i++) {
+        const radius = (18 + Math.random() * 8) * DPR;
+        const x = Math.random() * (w - radius * 2) + radius;
+        const y = Math.random() * (h * 0.35) + radius;
 
-    const sprite = randomTokenSprite(loadedSprites);
-    const fallbackFill = sprite?.fill || '#66ccff';
-    const body = Bodies.circle(x, y, radius, {
-      restitution: 0.45,
-      friction: 0.1,
-      frictionAir: 0.02,
-      density: 0.0012,
-      render: sprite?.img
-        ? {
-            sprite: {
-              texture: sprite.url,
-              xScale: (radius * 2) / 64,
-              yScale: (radius * 2) / 64
-            }
+        const fill = rarityColors[key] || '#22d3ee';
+        const token = Bodies.circle(x, y, radius, {
+          restitution: 0.45,
+          friction: 0.1,
+          frictionAir: 0.02,
+          density: 0.0012,
+          render: {
+            fillStyle: fill,
+            strokeStyle: '#0f172a',
+            lineWidth: 1.5 * DPR
           }
-        : {
-            fillStyle: fallbackFill,
-            strokeStyle: '#0ea5e9',
-            lineWidth: 1.5
-          }
+        });
+
+        Body.setAngularVelocity(token, (Math.random() - 0.5) * 0.25);
+        Body.setVelocity(token, { x: (Math.random() - 0.5) * 2.2 * DPR, y: (Math.random() - 0.5) * 1.2 * DPR });
+
+        state.tokens.push(token);
+      }
     });
 
-    Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.25);
-    Body.setVelocity(body, { x: (Math.random() - 0.5) * 2.2 * DPR, y: (Math.random() - 0.5) * 1.2 * DPR });
+    World.add(state.engine.world, state.tokens);
+  };
 
-    tokens.push(body);
-  }
+  const resizeRenderer = () => {
+    const W = Math.floor(state.glass.clientWidth || 0);
+    const H = Math.floor(state.glass.clientHeight || 0);
+    if (!W || !H) return;
 
-  World.add(engine.world, tokens);
-}
+    state.canvas.width = Math.floor(W * DPR);
+    state.canvas.height = Math.floor(H * DPR);
 
-function bumpTokens() {
-  tokens.forEach((token) => {
-    const fx = (Math.random() - 0.5) * 0.012 * token.mass * DPR;
-    const fy = -Math.random() * 0.02 * token.mass * DPR;
-    Body.applyForce(token, token.position, { x: fx, y: fy });
-  });
-}
+    state.render.options.width = state.canvas.width;
+    state.render.options.height = state.canvas.height;
+    state.render.bounds.max.x = state.canvas.width;
+    state.render.bounds.max.y = state.canvas.height;
 
-async function init() {
-  if (!glass || !canvas) return;
-  const loadedSprites = await preloadImages(tokenSprites);
+    rebuildWalls();
+    spawnTokens();
+  };
 
-  engine = Engine.create();
-  engine.gravity.y = 1.05;
+  const bumpTokens = () => {
+    state.tokens.forEach((t) => {
+      const fx = (Math.random() - 0.5) * 0.012 * t.mass * DPR;
+      const fy = (-Math.random() * 0.02) * t.mass * DPR;
+      Body.applyForce(t, t.position, { x: fx, y: fy });
+    });
+  };
 
-  render = Render.create({
-    canvas,
-    engine,
-    options: {
-      width: 1,
-      height: 1,
-      wireframes: false,
-      background: 'transparent',
-      pixelRatio: 1
-    }
-  });
-
-  runner = Runner.create();
-
-  resizeRenderer();
-  spawnTokens(loadedSprites, 60);
-
-  Render.run(render);
-  Runner.run(runner, engine);
-
-  let t = 0;
-  Events.on(engine, 'beforeUpdate', () => {
-    t += 1;
-    if (t % 55 === 0) {
-      const pick = tokens[Math.floor(Math.random() * tokens.length)];
-      if (pick) {
-        Body.applyForce(pick, pick.position, {
-          x: (Math.random() - 0.5) * 0.01 * pick.mass * DPR,
-          y: -0.012 * pick.mass * DPR
-        });
-      }
-    }
-  });
-
-  glass.addEventListener('pointerdown', (event) => {
-    const rect = glass.getBoundingClientRect();
+  const pokeTokens = (event) => {
+    const rect = state.glass.getBoundingClientRect();
     const px = (event.clientX - rect.left) * DPR;
     const py = (event.clientY - rect.top) * DPR;
 
-    tokens.forEach((body) => {
+    state.tokens.forEach((body) => {
       const dx = body.position.x - px;
       const dy = body.position.y - py;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 120 * DPR) {
-        const strength = (1 - dist / (120 * DPR)) * 0.02 * body.mass * DPR;
+      if (dist < 140 * DPR) {
+        const strength = (1 - dist / (140 * DPR)) * 0.02 * body.mass * DPR;
         Body.applyForce(body, body.position, { x: (dx / (dist || 1)) * strength, y: (dy / (dist || 1)) * strength });
       }
     });
-  });
+  };
 
-  buyBtn?.addEventListener('click', () => {
-    bumpTokens();
-  });
+  const init = ({ glassId = 'glassWindow', canvasId = 'vendingCanvas', rarities = {} } = {}) => {
+    state.glass = document.getElementById(glassId);
+    state.canvas = document.getElementById(canvasId);
 
-  window.addEventListener('resize', () => {
+    if (!state.glass || !state.canvas) {
+      console.warn('Missing glass or canvas for VendingAnim');
+      return;
+    }
+
+    state.rarities = { ...state.rarities, ...rarities };
+
+    state.engine = Engine.create();
+    state.engine.gravity.y = 1.05;
+    state.render = Render.create({
+      canvas: state.canvas,
+      engine: state.engine,
+      options: {
+        width: 1,
+        height: 1,
+        wireframes: false,
+        background: 'transparent',
+        pixelRatio: 1
+      }
+    });
+    state.runner = Runner.create();
+
     resizeRenderer();
-  });
-}
+    Render.run(state.render);
+    Runner.run(state.runner, state.engine);
 
-init();
+    let tick = 0;
+    Events.on(state.engine, 'beforeUpdate', () => {
+      tick++;
+      if (tick % 60 === 0 && state.tokens.length) {
+        const pick = state.tokens[Math.floor(Math.random() * state.tokens.length)];
+        if (pick) {
+          Body.applyForce(pick, pick.position, { x: (Math.random() - 0.5) * 0.01 * pick.mass * DPR, y: -0.012 * pick.mass * DPR });
+        }
+      }
+    });
+
+    state.glass.addEventListener('pointerdown', pokeTokens);
+    window.addEventListener('resize', resizeRenderer);
+  };
+
+  const updateRarities = (rarities = {}) => {
+    state.rarities = { ...state.rarities, ...rarities };
+    spawnTokens();
+  };
+
+  window.VendingAnim = {
+    init,
+    bump: bumpTokens,
+    updateRarities
+  };
+})();
