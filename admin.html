@@ -159,6 +159,7 @@
         <button type="button" data-section="support" class="admin-nav-link"><i class="fa-solid fa-inbox"></i>Support Inbox</button>
         <button type="button" data-section="users" class="admin-nav-link"><i class="fa-solid fa-users"></i>User Directory</button>
         <button type="button" data-section="notifications" class="admin-nav-link"><i class="fa-solid fa-bell"></i>Notifications</button>
+        <button type="button" data-section="home-editor" class="admin-nav-link"><i class="fa-solid fa-object-group"></i>Homepage Editor</button>
         <button type="button" data-section="marketplace" class="admin-nav-link"><i class="fa-solid fa-store"></i>Marketplace</button>
         <button type="button" data-section="quests" class="admin-nav-link"><i class="fa-solid fa-list-check"></i>Weekly Quests</button>
         <button type="button" data-section="rewards" class="admin-nav-link"><i class="fa-solid fa-circle-notch"></i>Rewards Wheel</button>
@@ -194,6 +195,7 @@
             <button type="button" data-section="support" class="admin-nav-link"><i class="fa-solid fa-inbox"></i>Support</button>
             <button type="button" data-section="users" class="admin-nav-link"><i class="fa-solid fa-users"></i>Users</button>
             <button type="button" data-section="notifications" class="admin-nav-link"><i class="fa-solid fa-bell"></i>Notifications</button>
+            <button type="button" data-section="home-editor" class="admin-nav-link"><i class="fa-solid fa-object-group"></i>Homepage Editor</button>
           </div>
         </div>
       </header>
@@ -437,6 +439,39 @@
                   <p class="text-slate-500">No notifications published yet.</p>
                 </div>
               </div>
+            </div>
+          </section>
+          <section id="home-editor-section" class="hidden space-y-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div class="space-y-1">
+                <h2 class="text-3xl font-semibold text-white">Homepage drag & drop editor</h2>
+                <p class="text-slate-400 text-sm max-w-3xl">Reorder and resize homepage sections, then publish them instantly to the live site.</p>
+                <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Saves to Realtime DB · pageContent/home</p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" id="home-add-block" class="inline-flex items-center gap-2 rounded-xl border border-slate-700/80 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-800/70">
+                  <i class="fa-solid fa-plus"></i> Add section
+                </button>
+                <button type="button" id="home-save-layout" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-400 px-5 py-2 text-sm font-semibold text-white">
+                  <i class="fa-solid fa-floppy-disk"></i> Save layout
+                </button>
+              </div>
+            </div>
+
+            <div class="glass-card space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Last updated</p>
+                  <p id="home-builder-updated" class="text-lg font-semibold text-white">Loading…</p>
+                </div>
+                <div class="text-xs text-slate-400 flex items-center gap-2">
+                  <i class="fa-solid fa-hand"></i>
+                  <span>Drag cards to reorder. Use the slider to resize.</span>
+                </div>
+              </div>
+
+              <div id="home-layout-canvas" class="space-y-3"></div>
+              <p id="home-layout-empty-admin" class="text-slate-500 text-sm">No custom sections yet. Add one to start building.</p>
             </div>
           </section>
           <section id="cases-section" class="hidden space-y-8">
@@ -1131,6 +1166,11 @@
     const notificationAdminList = document.getElementById('notification-admin-list');
     const notificationLastSent = document.getElementById('notification-last-sent');
     const notificationsLastSync = document.getElementById('notifications-last-sync');
+    const homeLayoutCanvas = document.getElementById('home-layout-canvas');
+    const homeAddBlockBtn = document.getElementById('home-add-block');
+    const homeSaveLayoutBtn = document.getElementById('home-save-layout');
+    const homeBuilderUpdated = document.getElementById('home-builder-updated');
+    const homeLayoutEmptyAdmin = document.getElementById('home-layout-empty-admin');
     const statElements = {
       totalCases: document.getElementById('stat-total-cases'),
       pickemCases: document.getElementById('stat-pickem-cases'),
@@ -1151,10 +1191,12 @@
       Shipped: document.getElementById('shipments-shipped')
     };
 
-    const sectionIds = ['overview', 'cases', 'shipments', 'support', 'users', 'notifications', 'marketplace', 'quests', 'rewards'];
+    const sectionIds = ['overview', 'cases', 'shipments', 'support', 'users', 'notifications', 'home-editor', 'marketplace', 'quests', 'rewards'];
 
     let casesData = [];
     let vaultsData = [];
+    let homeLayout = [];
+    let homeDragIndex = null;
     let homeSpinnerConfig = {};
     let supportCasesCache = [];
     const supportFilters = {
@@ -1173,6 +1215,176 @@
         <i class="fa-solid fa-plus"></i> Add prize
       </button>
     `;
+
+    function createBlankHomeBlock() {
+      return {
+        title: 'New section',
+        subtitle: 'Describe this section',
+        content: '<p>Start writing content for this area. You can include basic HTML like <strong>bold</strong> or <em>emphasis</em>.</p>',
+        background: '',
+        width: 100
+      };
+    }
+
+    function renderHomeLayoutEditor() {
+      if (!homeLayoutCanvas) return;
+
+      homeLayoutCanvas.innerHTML = '';
+      if (!homeLayout.length) {
+        homeLayoutEmptyAdmin?.classList.remove('hidden');
+        return;
+      }
+
+      homeLayoutEmptyAdmin?.classList.add('hidden');
+
+      homeLayout.forEach((block, index) => {
+        const card = document.createElement('div');
+        card.className = 'glass-subcard space-y-3 border border-slate-800/70';
+        card.draggable = true;
+        card.dataset.index = index;
+
+        card.addEventListener('dragstart', () => {
+          homeDragIndex = index;
+          card.classList.add('ring-2', 'ring-indigo-500');
+        });
+
+        card.addEventListener('dragend', () => {
+          homeDragIndex = null;
+          card.classList.remove('ring-2', 'ring-indigo-500');
+        });
+
+        card.addEventListener('dragover', event => event.preventDefault());
+
+        card.addEventListener('drop', event => {
+          event.preventDefault();
+          const targetIndex = Number(card.dataset.index);
+          if (Number.isNaN(targetIndex) || homeDragIndex === null || homeDragIndex === targetIndex) return;
+          const [moved] = homeLayout.splice(homeDragIndex, 1);
+          homeLayout.splice(targetIndex, 0, moved);
+          renderHomeLayoutEditor();
+        });
+
+        const header = document.createElement('div');
+        header.className = 'flex flex-wrap items-center justify-between gap-2';
+
+        const titleGroup = document.createElement('div');
+        const label = document.createElement('p');
+        label.className = 'text-xs uppercase tracking-[0.3em] text-slate-400';
+        label.textContent = `Section ${index + 1}`;
+
+        const titleInput = document.createElement('input');
+        titleInput.className = 'form-input mt-1';
+        titleInput.value = block.title || '';
+        titleInput.placeholder = 'Section title';
+        titleInput.addEventListener('input', event => {
+          homeLayout[index].title = event.target.value;
+        });
+
+        titleGroup.appendChild(label);
+        titleGroup.appendChild(titleInput);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'inline-flex items-center gap-2 rounded-xl border border-red-500/40 text-red-200 px-3 py-2 text-xs font-semibold hover:bg-red-500/10';
+        removeBtn.innerHTML = '<i class="fa-solid fa-trash"></i> Remove';
+        removeBtn.addEventListener('click', () => {
+          if (!confirm('Remove this section from the homepage?')) return;
+          homeLayout.splice(index, 1);
+          renderHomeLayoutEditor();
+        });
+
+        header.appendChild(titleGroup);
+        header.appendChild(removeBtn);
+
+        const subtitleInput = document.createElement('input');
+        subtitleInput.className = 'form-input';
+        subtitleInput.placeholder = 'Optional subtitle';
+        subtitleInput.value = block.subtitle || '';
+        subtitleInput.addEventListener('input', event => {
+          homeLayout[index].subtitle = event.target.value;
+        });
+
+        const widthRow = document.createElement('div');
+        widthRow.className = 'flex flex-wrap items-center justify-between gap-3';
+        const widthLabel = document.createElement('span');
+        widthLabel.className = 'text-xs uppercase tracking-[0.25em] text-slate-400';
+        widthLabel.textContent = `${block.width || 100}% width`;
+        const widthInput = document.createElement('input');
+        widthInput.type = 'range';
+        widthInput.min = '30';
+        widthInput.max = '100';
+        widthInput.value = block.width || 100;
+        widthInput.className = 'w-full md:w-64 accent-indigo-500';
+        widthInput.addEventListener('input', event => {
+          const value = Number(event.target.value) || 100;
+          homeLayout[index].width = value;
+          widthLabel.textContent = `${value}% width`;
+        });
+        widthRow.appendChild(widthLabel);
+        widthRow.appendChild(widthInput);
+
+        const backgroundInput = document.createElement('input');
+        backgroundInput.className = 'form-input';
+        backgroundInput.placeholder = 'Background (optional: color hex, gradient, or leave blank)';
+        backgroundInput.value = block.background || '';
+        backgroundInput.addEventListener('input', event => {
+          homeLayout[index].background = event.target.value;
+        });
+
+        const contentInput = document.createElement('textarea');
+        contentInput.className = 'form-textarea';
+        contentInput.value = block.content || '';
+        contentInput.rows = 5;
+        contentInput.addEventListener('input', event => {
+          homeLayout[index].content = event.target.value;
+        });
+
+        const helper = document.createElement('p');
+        helper.className = 'text-xs text-slate-500';
+        helper.textContent = 'Supports basic HTML (links, lists, bold). Drag the card handle to reorder.';
+
+        card.appendChild(header);
+        card.appendChild(subtitleInput);
+        card.appendChild(widthRow);
+        card.appendChild(backgroundInput);
+        card.appendChild(contentInput);
+        card.appendChild(helper);
+
+        homeLayoutCanvas.appendChild(card);
+      });
+    }
+
+    function loadHomeLayoutAdmin() {
+      if (!homeLayoutCanvas) return;
+      firebase.database().ref('pageContent/home').once('value').then(snap => {
+        const data = snap.val() || {};
+        homeLayout = Array.isArray(data.sections) ? data.sections : [];
+        if (homeBuilderUpdated) {
+          homeBuilderUpdated.textContent = data.updatedAt ? new Date(data.updatedAt).toLocaleString() : 'Never published';
+        }
+        renderHomeLayoutEditor();
+      }).catch(err => {
+        console.warn('Failed to load homepage layout', err);
+        if (homeBuilderUpdated) homeBuilderUpdated.textContent = 'Failed to load';
+      });
+    }
+
+    function saveHomeLayoutAdmin() {
+      if (!homeLayoutCanvas || !homeSaveLayoutBtn) return;
+      homeSaveLayoutBtn.disabled = true;
+      const payload = {
+        updatedAt: Date.now(),
+        sections: homeLayout
+      };
+      firebase.database().ref('pageContent/home').set(payload).then(() => {
+        showToast('✅ Homepage layout saved');
+        if (homeBuilderUpdated) homeBuilderUpdated.textContent = new Date(payload.updatedAt).toLocaleString();
+      }).catch(() => {
+        showToast('⚠️ Failed to save layout');
+      }).finally(() => {
+        homeSaveLayoutBtn.disabled = false;
+      });
+    }
 
     const wizardSteps = {
       1: document.getElementById('wizard-step-1'),
@@ -1319,6 +1531,15 @@
         updateHomeSpinnerPreviewFromConfig();
       });
     }
+
+    homeAddBlockBtn?.addEventListener('click', () => {
+      homeLayout.push(createBlankHomeBlock());
+      renderHomeLayoutEditor();
+    });
+
+    homeSaveLayoutBtn?.addEventListener('click', () => {
+      saveHomeLayoutAdmin();
+    });
 
     notificationForm?.addEventListener('submit', e => {
       e.preventDefault();
@@ -2919,6 +3140,7 @@
       document.getElementById('admin-panel').style.display = 'block';
       showSection('overview');
       loadHomeSpinnerConfig();
+      loadHomeLayoutAdmin();
       loadCases();
       loadShipments();
       loadSupportForms();
