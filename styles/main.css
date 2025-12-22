@@ -1,28 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
 :root {
-  --page-bg: #0f132e;
-  --card-surface: #111836;
-  --card-border: #1f2a4d;
-  --text-primary: #e5e9ff;
-  --text-muted: #9da9c7;
-  --nav-bg: rgba(16, 19, 46, 0.92);
-  --nav-border: #252f55;
-  --nav-link: #e5e9ff;
-  --nav-link-hover: #7ce7ff;
-  --nav-shadow: 0 12px 40px rgba(4, 6, 15, 0.45);
-  --accent-strong: #8f5bff;
-  --accent-soft: #22d5ff;
-  --control-surface: rgba(255, 255, 255, 0.04);
-  --page-gradient: radial-gradient(circle at 20% 20%, rgba(143, 91, 255, 0.2), transparent 30%),
-    radial-gradient(circle at 80% 0%, rgba(34, 213, 255, 0.18), transparent 32%),
-    linear-gradient(180deg, #0d122a 0%, #0a0f24 60%, #0c1434 100%);
-  --home-gradient: radial-gradient(circle at 20% 20%, rgba(143, 91, 255, 0.2), transparent 32%),
-    radial-gradient(circle at 78% 10%, rgba(34, 213, 255, 0.18), transparent 36%),
-    linear-gradient(180deg, #101542 0%, #0b102e 55%, #0c1434 100%);
-  --hero-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
-  --panel-surface: linear-gradient(160deg, rgba(29, 36, 77, 0.85), rgba(15, 18, 44, 0.92));
-  --chip-surface: rgba(255, 255, 255, 0.06);
+  --page-bg: #0b0f24;
+  --card-surface: #101632;
+  --card-border: #1d2750;
+  --text-primary: #ecf1ff;
+  --text-muted: #a8b3d8;
+  --nav-bg: rgba(12, 15, 34, 0.9);
+  --nav-border: #222d55;
+  --nav-link: #ecf1ff;
+  --nav-link-hover: #9fe4ff;
+  --nav-shadow: 0 16px 50px rgba(0, 0, 0, 0.55);
+  --accent-strong: #ffb7ff;
+  --accent-soft: #7ce7ff;
+  --control-surface: rgba(255, 255, 255, 0.06);
+  --page-gradient: radial-gradient(circle at 18% 20%, rgba(255, 183, 255, 0.22), transparent 30%),
+    radial-gradient(circle at 82% 0%, rgba(124, 231, 255, 0.18), transparent 32%),
+    linear-gradient(180deg, #0c1026 0%, #0a0f24 60%, #070918 100%);
+  --home-gradient: radial-gradient(circle at 20% 20%, rgba(255, 183, 255, 0.18), transparent 32%),
+    radial-gradient(circle at 78% 10%, rgba(124, 231, 255, 0.18), transparent 36%),
+    linear-gradient(180deg, #0d122f 0%, #0b1028 55%, #080c1e 100%);
+  --hero-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  --panel-surface: linear-gradient(160deg, rgba(28, 35, 78, 0.82), rgba(12, 15, 38, 0.92));
+  --chip-surface: rgba(255, 255, 255, 0.08);
 }
 
 body {
@@ -32,28 +32,28 @@ body {
 }
 
 body.dark-mode {
-  --page-bg: #070918;
-  --card-surface: #0c1025;
-  --card-border: #1a2040;
-  --text-primary: #eef3ff;
-  --text-muted: #c6d0ff;
-  --nav-bg: rgba(8, 10, 24, 0.9);
-  --nav-border: #1c2142;
-  --nav-link: #eef3ff;
-  --nav-link-hover: #7ce7ff;
-  --nav-shadow: 0 14px 50px rgba(0, 0, 0, 0.6);
-  --accent-strong: #a976ff;
-  --accent-soft: #33dcff;
-  --control-surface: rgba(255, 255, 255, 0.04);
-  --page-gradient: radial-gradient(circle at 20% 20%, rgba(169, 118, 255, 0.2), transparent 30%),
-    radial-gradient(circle at 80% 0%, rgba(51, 220, 255, 0.18), transparent 32%),
-    linear-gradient(180deg, #050712 0%, #070a18 60%, #050714 100%);
-  --home-gradient: radial-gradient(circle at 20% 20%, rgba(169, 118, 255, 0.2), transparent 32%),
-    radial-gradient(circle at 80% 0%, rgba(51, 220, 255, 0.22), transparent 36%),
-    linear-gradient(180deg, #050712 0%, #06091a 60%, #050714 100%);
-  --hero-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-  --panel-surface: linear-gradient(160deg, rgba(24, 31, 74, 0.82), rgba(10, 13, 32, 0.9));
-  --chip-surface: rgba(255, 255, 255, 0.08);
+  --page-bg: #050714;
+  --card-surface: #0a0f26;
+  --card-border: #172149;
+  --text-primary: #f4f7ff;
+  --text-muted: #c9d2f3;
+  --nav-bg: rgba(5, 7, 20, 0.9);
+  --nav-border: #1b2146;
+  --nav-link: #f4f7ff;
+  --nav-link-hover: #a0e6ff;
+  --nav-shadow: 0 18px 60px rgba(0, 0, 0, 0.65);
+  --accent-strong: #ffc5ff;
+  --accent-soft: #7ce7ff;
+  --control-surface: rgba(255, 255, 255, 0.06);
+  --page-gradient: radial-gradient(circle at 20% 20%, rgba(255, 197, 255, 0.18), transparent 30%),
+    radial-gradient(circle at 80% 0%, rgba(124, 231, 255, 0.2), transparent 32%),
+    linear-gradient(180deg, #040713 0%, #050818 60%, #040612 100%);
+  --home-gradient: radial-gradient(circle at 20% 20%, rgba(255, 197, 255, 0.18), transparent 32%),
+    radial-gradient(circle at 80% 0%, rgba(124, 231, 255, 0.22), transparent 36%),
+    linear-gradient(180deg, #040713 0%, #05081a 60%, #040612 100%);
+  --hero-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+  --panel-surface: linear-gradient(160deg, rgba(22, 29, 71, 0.9), rgba(8, 11, 30, 0.95));
+  --chip-surface: rgba(255, 255, 255, 0.1);
   background: var(--page-gradient);
   color: var(--text-primary);
 }
@@ -78,6 +78,14 @@ body.dark-mode {
   border: 1px solid var(--card-border);
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
   backdrop-filter: blur(10px);
+}
+
+.collection-shell {
+  padding: 1.75rem;
+  border-radius: 22px;
+  background: var(--panel-surface);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
 }
 
 .filter-panel {

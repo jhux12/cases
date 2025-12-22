@@ -18,69 +18,386 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: var(--page-bg);
+            background: var(--page-gradient);
             color: var(--text-primary);
         }
-        
+
         .gradient-text {
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            background: linear-gradient(120deg, #ffb7ff, #7ce7ff);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
-        
+
         .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
         }
-        
+
         .pack-card {
             transition: all 0.3s ease;
         }
-        
+
         .pack-card:hover {
-            transform: scale(1.03);
+            transform: translateY(-4px) scale(1.02);
         }
-        
+
         .gem-icon {
-            filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.7));
+            filter: drop-shadow(0 0 4px rgba(124, 231, 255, 0.7));
             display: inline-block;
             vertical-align: middle;
             object-fit: contain;
         }
-        
+
         .navbar {
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
             background-color: var(--nav-bg);
             border-color: var(--nav-border);
             box-shadow: var(--nav-shadow);
         }
-        
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-        
-        .floating {
-            animation: float 3s ease-in-out infinite;
+
+        .home-hero {
+            position: relative;
+            background: radial-gradient(circle at 18% 20%, rgba(255, 183, 255, 0.24), transparent 36%),
+                        radial-gradient(circle at 82% 16%, rgba(124, 231, 255, 0.18), transparent 34%),
+                        var(--home-gradient);
         }
 
-        /* Demo spinner styles */
+        .hero-sheen {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.18), transparent 40%);
+            pointer-events: none;
+        }
+
+        .hero-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr 420px;
+            gap: 1.25rem;
+            align-items: stretch;
+        }
+
+        .hero-rail {
+            border-radius: 18px;
+            padding: 1.25rem;
+            background: var(--panel-surface);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .rail-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .rail-link {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.75rem 0.85rem;
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            border: 1px solid transparent;
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.2s ease;
+        }
+
+        .rail-link i {
+            color: var(--accent-soft);
+        }
+
+        .rail-link.active,
+        .rail-link:hover {
+            border-color: rgba(124, 231, 255, 0.3);
+            background: linear-gradient(135deg, rgba(255, 183, 255, 0.2), rgba(124, 231, 255, 0.16));
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
+        }
+
+        .hero-main {
+            padding: 1.5rem;
+            border-radius: 22px;
+            background: var(--panel-surface);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 22px 60px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-main::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(140deg, rgba(255, 255, 255, 0.06), transparent 50%);
+            pointer-events: none;
+        }
+
+
+        .hero-title {
+            font-size: clamp(2.25rem, 3vw, 3.25rem);
+            font-weight: 800;
+            line-height: 1.05;
+        }
+
+        .hero-intro {
+            color: var(--text-muted);
+            max-width: 36rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .hero-cta {
+            padding: 0.85rem 1.35rem;
+            border-radius: 12px;
+            font-weight: 700;
+            border: 1px solid transparent;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .hero-cta.primary {
+            background: linear-gradient(120deg, #7ce7ff, #a855f7);
+            color: #0c0f25;
+            box-shadow: 0 16px 40px rgba(124, 231, 255, 0.35);
+        }
+
+        .hero-cta.secondary {
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .pill-compact {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+
+            gap: 0.85rem;
+        }
+
+        .hero-stat {
+            padding: 0.85rem 1rem;
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .hero-stat span {
+            font-weight: 700;
+        }
+
+        .hero-feature {
+            display: grid;
+            grid-template-rows: 1fr auto;
+            gap: 1rem;
+        }
+
+        .hero-card {
+            background: linear-gradient(170deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 1.25rem;
+            box-shadow: 0 22px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .hero-pack-visual {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 5 / 3;
+            border-radius: 18px;
+            overflow: hidden;
+            background: radial-gradient(circle at 20% 20%, rgba(255, 183, 255, 0.35), transparent 45%),
+                        radial-gradient(circle at 80% 20%, rgba(124, 231, 255, 0.35), transparent 40%),
+                        linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+            border: 1px solid rgba(124, 231, 255, 0.35);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 30px 70px rgba(8, 13, 35, 0.65);
+        }
+
+        .hero-pack-visual::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+            pointer-events: none;
+        }
+
+        .hero-pack-image-frame {
+            position: absolute;
+            inset: 12px;
+            border-radius: 14px;
+            background: radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.45));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .hero-pack-img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            max-width: 82%;
+            max-height: 82%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.45s ease, transform 0.45s ease;
+            filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.4));
+        }
+
+        .hero-pack-img.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
         .reel-wrapper {
             position: relative;
             overflow: hidden;
             width: 100%;
-            max-width: 360px;
+            max-width: 420px;
             height: 240px;
             margin: 0 auto;
-            border: 1px solid #2a2f3a;
-            border-radius: 12px;
-            background: linear-gradient(180deg,#1e2333,#151820);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            background: radial-gradient(circle at 20% 20%, rgba(255, 183, 255, 0.18), transparent 42%),
+                        radial-gradient(circle at 80% 20%, rgba(124, 231, 255, 0.18), transparent 40%),
+                        linear-gradient(180deg, #0f172a, #0b1220);
             padding: 1rem 0;
             display: flex;
             align-items: center;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 22px 50px rgba(0, 0, 0, 0.35);
         }
+
+        .reel {
+            display: flex;
+            will-change: transform;
+            padding: 0;
+            align-items: center;
+        }
+
+        .tile {
+            flex: 0 0 160px;
+            margin: 0 10px;
+            position: relative;
+            background: #131a38;
+            border: 1px solid #1f294d;
+            border-radius: 14px;
+            padding: 6px;
+            color: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tile img {
+            width: 146px;
+            height: 188px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .tile.win {
+            box-shadow: 0 0 0 3px var(--win-color,#FFD36E);
+            animation: flash 0.6s;
+        }
+
+        @keyframes flash {
+            0%,100% { filter: brightness(1); }
+            50% { filter: brightness(1.8); }
+        }
+
+        .tile-info {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            font-size: 0.75rem;
+            padding: 2px 4px;
+            border-bottom-left-radius: 14px;
+            border-bottom-right-radius: 14px;
+            text-align: center;
+        }
+
+        .tile-info .name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tile-info .price {
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: #fbbf24;
+        }
+
+        .tile-info .price img {
+            width: 0.7rem;
+            height: 0.7rem;
+        }
+
+        .center-marker {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .center-marker .marker-line {
+            flex: 1;
+            width: 2px;
+            background: linear-gradient(#a855f7,#22d5ff);
+            box-shadow: 0 0 10px rgba(124, 231, 255, 0.6);
+        }
+
+        .center-marker .marker-arrow {
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+        }
+
+        .center-marker .marker-arrow.top { border-top: 12px solid #e0e7ff; }
+        .center-marker .marker-arrow.bottom { border-bottom: 12px solid #e0e7ff; }
 
         .hot-reel-wrapper {
             position: relative;
@@ -88,13 +405,13 @@
             width: 100%;
             height: auto;
             min-height: 260px;
-            padding: 2.5rem 2rem;
+            padding: 2.25rem 2rem;
             margin-left: auto;
             margin-right: auto;
-            background: linear-gradient(135deg,#ffffff 0%,#f1f5f9 100%);
-            border: 1px solid #e2e8f0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(233, 236, 255, 0.9) 100%);
+            border: 1px solid #dfe3f7;
             border-radius: 24px;
-            box-shadow: 0 25px 45px rgba(15,23,42,0.08);
+            box-shadow: 0 25px 45px rgba(15,23,42,0.12);
         }
 
         .hot-reel-wrapper .reel {
@@ -140,9 +457,9 @@
         }
 
         .hot-reel-wrapper .tile-info .name {
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 0.01em;
-            color: #1f2937;
+            color: #111827;
         }
 
         .hot-reel-wrapper .pill {
@@ -165,7 +482,7 @@
             margin-top: 0;
             color: #0b172a;
             gap: 0.35rem;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .hot-reel-wrapper .tile-info .price img {
@@ -175,54 +492,35 @@
         }
 
         .hot-reel-wrapper .tile-info .price span {
-            font-weight: 700;
+            font-weight: 800;
             color: #0f172a;
-        }
-
-        .hot-reel-wrapper .tile-info .name {
-            color: #0f172a;
-            font-weight: 700;
         }
 
         .pill {
             display: inline-block;
             padding: 2px 8px;
             border-radius: 999px;
-            font-weight: 600;
+            font-weight: 700;
         }
 
-        .pill.common {
-            background: #e2e8f0;
-            color: #475569;
-        }
-
-        .pill.uncommon {
-            background: #dcfce7;
-            color: #047857;
-        }
-
-        .pill.rare {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-
-        .pill.ultrarare {
-            background: #ede9fe;
-            color: #6d28d9;
-        }
+        .pill.common { background: #e2e8f0; color: #475569; }
+        .pill.uncommon { background: #dcfce7; color: #047857; }
+        .pill.rare { background: #dbeafe; color: #1d4ed8; }
+        .pill.ultrarare { background: #ede9fe; color: #6d28d9; }
+        .pill.legendary { background: #fef3c7; color: #92400e; }
 
         body.dark-mode .hot-reel-wrapper {
-            background: linear-gradient(135deg, #111827 0%, #0b1224 100%);
+            background: linear-gradient(135deg, #0b1120 0%, #0b1224 100%);
             border-color: var(--card-border);
             color: var(--text-primary);
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.45);
         }
 
         body.dark-mode .hot-reel-wrapper .tile {
             background: var(--card-surface);
             border-color: var(--card-border);
             color: var(--text-primary);
-            box-shadow: 0 22px 38px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 22px 38px rgba(0, 0, 0, 0.35);
         }
 
         body.dark-mode .hot-reel-wrapper .tile-info .price,
@@ -230,192 +528,32 @@
             color: var(--text-primary);
         }
 
-        .pill.legendary {
-            background: #fef3c7;
-            color: #92400e;
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
         }
 
-        @media (max-width: 640px) {
-            .hot-reel-wrapper {
-                min-height: 220px;
-                padding: 1.75rem 1.25rem;
-            }
-
-            .hot-reel-wrapper .tile {
-                flex: 0 0 180px;
-                padding: 1rem;
-            }
-
-            .hot-reel-wrapper .tile img {
-                height: 140px;
-            }
-        }
-
-        .spinner-featured-pack {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 18px;
-            width: 100%;
-            max-width: 360px;
-        }
-
-        .hero-pack-visual {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 5 / 3;
-            border-radius: 18px;
-            overflow: hidden;
-            background: radial-gradient(circle at 20% 20%, rgba(143, 91, 255, 0.35), transparent 45%),
-                        radial-gradient(circle at 80% 20%, rgba(34, 213, 255, 0.35), transparent 40%),
-                        linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
-            border: 1px solid rgba(124, 231, 255, 0.35);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 30px 70px rgba(8, 13, 35, 0.65);
-        }
-
-        .hero-pack-visual::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(120deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0));
-            pointer-events: none;
-        }
-
-        .hero-pack-image-frame {
-            position: absolute;
-            inset: 12px;
-            border-radius: 14px;
-            background: radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.45));
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-        }
-
-        .hero-pack-img {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
-            max-width: 82%;
-            max-height: 82%;
-            object-fit: contain;
-            opacity: 0;
-            transition: opacity 0.45s ease, transform 0.45s ease;
-            filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.4));
-        }
-
-        .hero-pack-img.active {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        .reel {
-            display: flex;
-            will-change: transform;
-            padding: 0;
-            align-items: center;
-        }
-
-        .tile {
-            flex: 0 0 150px;
-            margin: 0 8px;
-            position: relative;
-            background: #2a2f3a;
-            border: 1px solid #3a4050;
-            border-radius: 12px;
-            padding: 6px;
-            color: #f1f5f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .tile img {
-            width: 138px;
-            height: 184px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .tile.win {
-            box-shadow: 0 0 0 3px var(--win-color,#FFD36E);
-            animation: flash 0.6s;
-        }
-
-        @keyframes flash {
-            0%,100% { filter: brightness(1); }
-            50% { filter: brightness(1.8); }
-        }
-
-        .tile-info {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.6);
-            font-size: 0.75rem;
-            padding: 2px 4px;
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
-            text-align: center;
-        }
-
-        .tile-info .name {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .tile-info .price {
-            margin-top: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
-            color: #fbbf24;
-        }
-
-        .tile-info .price img {
-            width: 0.6rem;
-            height: 0.6rem;
-        }
-
-        .center-marker {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            pointer-events: none;
-        }
-
-        .center-marker .marker-line {
-            flex: 1;
-            width: 2px;
-            background: linear-gradient(#8b5cf6,#3b82f6);
-            box-shadow: 0 0 6px #8b5cf6;
-        }
-
-        .center-marker .marker-arrow {
-            width: 0;
-            height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-        }
-
-        .center-marker .marker-arrow.top { border-top: 12px solid #cbd5e1; }
-        .center-marker .marker-arrow.bottom { border-bottom: 12px solid #cbd5e1; }
-
-        .confetti {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            animation: fall 0.7s forwards;
+        .floating {
+            animation: float 3s ease-in-out infinite;
         }
 
         @keyframes fall {
             to { transform: translateY(60px) rotate(360deg); opacity: 0; }
+        }
+
+        @media (max-width: 1024px) {
+            .hero-layout { grid-template-columns: 1fr; }
+            .hero-feature { grid-template-columns: 1fr; }
+            .hero-rail { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+        }
+
+        @media (max-width: 640px) {
+            .hero-actions { flex-direction: column; align-items: stretch; }
+            .hero-cta { justify-content: center; }
+            .hot-reel-wrapper { min-height: 220px; padding: 1.75rem 1.25rem; }
+            .hot-reel-wrapper .tile { flex: 0 0 180px; padding: 1rem; }
+            .hot-reel-wrapper .tile img { height: 140px; }
         }
     </style>
 </head>
@@ -425,59 +563,78 @@
 
   <!-- Hero Section -->
   <div class="relative overflow-hidden pt-24 home-hero">
+        <div class="hero-sheen" aria-hidden="true"></div>
         <div class="max-w-7xl mx-auto px-6 lg:px-10">
             <div class="relative z-10 pb-12">
-                <main class="hero-grid">
-                    <div class="space-y-6">
-                        <div class="flex items-center mb-2">
-                            <span class="hero-badge">
-                                <i class="fas fa-bolt"></i>
-                                Mystery Box Template
-                            </span>
+                <main class="hero-layout">
+                    <aside class="hero-rail">
+                        <p class="rail-label">Navigation</p>
+                        <a class="rail-link active" href="index.html"><i class="fas fa-bolt"></i> Mystery Boxes</a>
+                        <a class="rail-link" href="box-battles.html"><i class="fas fa-swords"></i> Battles</a>
+                        <a class="rail-link" href="marketplace.html"><i class="fas fa-store"></i> Marketplace</a>
+                        <a class="rail-link" href="rewards.html"><i class="fas fa-gift"></i> Rewards</a>
+                        <p class="rail-label mt-3">Highlights</p>
+                        <div class="pill-compact w-full justify-between">
+                            <span class="flex items-center gap-2"><i class="fas fa-circle text-emerald-300 text-xs"></i> Live drops</span>
+                            <span class="font-semibold">24/7</span>
                         </div>
-                        <h1 class="text-4xl tracking-tight font-extrabold text-white sm:text-5xl md:text-6xl leading-tight">
-                            <span class="block">Win Big, Play Real</span>
-                            <span class="block gradient-text">Casino rush for collectors.</span>
+                        <div class="pill-compact w-full justify-between">
+                            <span class="flex items-center gap-2"><i class="fas fa-shield-halved"></i> Provably fair</span>
+                            <span class="font-semibold">On-chain</span>
+                        </div>
+                    </aside>
+
+                    <div class="hero-main space-y-6">
+                        <div class="flex items-center gap-2">
+                            <span class="hero-badge"><i class="fas fa-star"></i> Mystery box template</span>
+                            <span class="pill-compact"><i class="fas fa-moon"></i> Light & dark ready</span>
+                        </div>
+                        <h1 class="hero-title text-white">
+                            The mystery box vault built for the neon screenshot look.
+                            <span class="block gradient-text">Stacked layout, glowing rails, instant wins.</span>
                         </h1>
-                        <p class="mt-3 text-lg text-slate-200 sm:mt-5 sm:max-w-xl sm:mx-0 md:mt-5 md:text-xl">
-                            Experience the neon glow of premium drops, live battles, and instant wins inspired by the Mystery Box layout.
+                        <p class="hero-intro text-lg md:text-xl">
+                            Mirror the showcased design with pill navigation, glassy panels, and bold CTAs. Every section has been realigned to match the reference layout while staying responsive in light or dark mode.
                         </p>
-                        <div class="hero-quick-nav mt-3">
-                            <a href="#available-packs" class="nav-pill active"><i class="fas fa-box"></i> Popular Mystery Boxes</a>
-                            <a href="box-battles.html" class="nav-pill"><i class="fas fa-gamepad"></i> Mystery Box Battles</a>
-                            <a href="rewards.html" class="nav-pill"><i class="fas fa-gift"></i> Free Boxes</a>
-                            <a href="rewards.html" class="nav-pill"><i class="fas fa-coins"></i> Daily Spins</a>
+
+                        <div class="hero-actions">
+                            <a href="#available-packs" class="hero-cta primary"><i class="fas fa-box"></i> Open a mystery box</a>
+                            <a href="how-it-works.html" class="hero-cta secondary"><i class="fas fa-compass"></i> How it works</a>
+                            <a href="rewards.html" class="hero-cta secondary"><i class="fas fa-sparkles"></i> Claim freebies</a>
                         </div>
-                        <div class="flex flex-wrap gap-3">
-                            <span class="pill-compact"><i class="fas fa-shield-alt mr-2"></i>Provably fair</span>
-                            <span class="pill-compact"><i class="fas fa-bag-shopping mr-2"></i>Live inventory</span>
+
+                        <div class="flex flex-wrap gap-2">
+                            <span class="pill-compact"><i class="fas fa-rocket"></i> Instant delivery</span>
+                            <span class="pill-compact"><i class="fas fa-crown"></i> Premium pulls</span>
+                            <span class="pill-compact"><i class="fas fa-mobile-screen"></i> Mobile ready</span>
                         </div>
-                        <div class="mt-4 sm:mt-6 flex flex-wrap gap-3">
-                            <a href="#available-packs" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-semibold rounded-lg text-white bg-gradient-to-r from-indigo-600 to-cyan-400 hover:from-indigo-500 hover:to-cyan-300 md:py-3.5 md:text-lg md:px-10 shadow-lg shadow-indigo-800/40">
-                                Grab A Pack
-                            </a>
-                            <a href="how-it-works.html" class="inline-flex items-center justify-center px-6 py-3 border border-indigo-500 text-base font-semibold rounded-lg text-indigo-100 bg-transparent hover:bg-indigo-600/20 md:py-3.5 md:text-lg md:px-8">
-                                How It Works
-                            </a>
-                        </div>
-                        <div class="hero-meta pt-2">
+
+                        <div class="hero-stats">
                             <div class="hero-stat">
-                                <i class="fas fa-box-open text-cyan-300"></i>
+                                <i class="fas fa-bolt text-cyan-300"></i>
                                 <div>
                                     <p class="muted-label">Live unboxings</p>
                                     <span>24/7 feed</span>
                                 </div>
                             </div>
                             <div class="hero-stat">
-                                <i class="fas fa-gift text-violet-300"></i>
+                                <i class="fas fa-chess-king text-pink-200"></i>
                                 <div>
-                                    <p class="muted-label">Free rewards</p>
-                                    <span>Daily bonuses</span>
+                                    <p class="muted-label">Top prizes</p>
+                                    <span>$10k+ jackpots</span>
+                                </div>
+                            </div>
+                            <div class="hero-stat">
+                                <i class="fas fa-shield-alt text-violet-200"></i>
+                                <div>
+                                    <p class="muted-label">Protected</p>
+                                    <span>Escrow & verified</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="hero-card-stack">
+
+                    <div class="hero-feature">
                         <div class="hero-card frosted-panel">
                             <div class="card-title">
                                 <div class="flex flex-col gap-1">
@@ -531,15 +688,17 @@
     <!-- Available Packs Section -->
     <div id="available-packs" class="py-12 bg-transparent">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="collection-shell frosted-panel">
 
 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8">
   <div>
+    <p class="filter-kicker">Layout matched to the screenshot</p>
     <h2 class="text-2xl font-bold text-white section-heading">Available Packs</h2>
-    <p class="mt-2 text-slate-300">Rip, collect, and uncover what's inside 🔥</p>
+    <p class="mt-1 text-slate-300">Rip, collect, and uncover what's inside 🔥</p>
   </div>
   <div class="mt-4 sm:mt-0 flex gap-2 w-full sm:w-auto">
     <button id="filter-toggle" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 shadow-lg shadow-indigo-900/30"><i class="fas fa-filter"></i><span>Filters</span></button>
-    <button id="clear-filters" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700"><i class="fas fa-undo"></i><span>Clear</span></button>
+    <button id="clear-filters" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-slate-200 bg-slate-800/70 hover:bg-slate-700 border border-slate-700"><i class="fas fa-undo"></i><span>Clear</span></button>
   </div>
 </div>
 
@@ -621,6 +780,7 @@
         <div class="flex justify-center mt-6">
           <button id="see-more-cases" class="px-4 py-2 border border-indigo-500 rounded-md shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 hidden">See more</button>
         </div>
+      </div>
       </div>
     </div>
 
