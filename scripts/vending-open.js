@@ -16,11 +16,9 @@
   const previewSlots = {
     legendary: {
       image: document.getElementById('legendary-image'),
-      name: document.getElementById('legendary-name'),
     },
     epic: {
       image: document.getElementById('epic-image'),
-      name: document.getElementById('epic-name'),
     }
   };
 
@@ -159,7 +157,6 @@
   const setPreviewCard = (rarity, item) => {
     const slot = previewSlots[rarity];
     if (!slot) return;
-    if (slot.name) slot.name.textContent = item?.name || `${rarity} preview`;
     if (slot.image) {
       slot.image.src = item?.image || fallbackImage;
       slot.image.alt = item?.name || `${rarity} preview`;
