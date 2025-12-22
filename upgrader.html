@@ -123,12 +123,12 @@
     }
 
     .wheel-pointer {
-      position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
+      position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
       width: 0; height: 0;
-      border-left: 16px solid transparent;
-      border-right: 16px solid transparent;
-      border-top: 26px solid #f8fafc;
-      filter: drop-shadow(0 6px 12px rgba(15, 23, 42, 0.65));
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-bottom: 40px solid #f8fafc;
+      filter: drop-shadow(0 10px 14px rgba(15, 23, 42, 0.65));
       z-index: 5;
     }
 
@@ -272,6 +272,32 @@
     </div>
   </main>
 
+  <div id="result-modal" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden z-50">
+    <div class="glass p-6 w-full max-w-md border border-gray-700 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <p class="text-xs uppercase tracking-wide text-gray-400">Upgrade result</p>
+          <h3 id="result-title" class="text-xl font-semibold">Spin outcome</h3>
+        </div>
+        <button id="close-result" class="text-gray-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="flex items-start gap-3 mb-4">
+        <div class="w-14 h-14 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center overflow-hidden">
+          <img id="result-image" src="" alt="Result" class="w-12 h-12 object-contain">
+        </div>
+        <div class="flex-1">
+          <p class="text-xs uppercase tracking-wide text-gray-400">Outcome</p>
+          <p id="result-message" class="font-semibold">You won!</p>
+          <p id="result-value" class="text-teal-300 text-sm"></p>
+        </div>
+        <span id="result-pill" class="rarity-pill rarity-rare">Win</span>
+      </div>
+      <button id="result-primary" class="floating-button w-full text-center">Got it</button>
+    </div>
+  </div>
+
   <div id="topup-popup-container"></div>
 
   <script>
@@ -290,6 +316,8 @@
     let rotation = 0;
     let gems = 0;
     let recentResults = [];
+    let currentUser = null;
+    let userRef = null;
 
     const rarityClass = {
       common: 'rarity-common',
@@ -414,6 +442,23 @@
       });
     }
 
+    function showResultModal(didWin, item) {
+      const modal = document.getElementById('result-modal');
+      const title = document.getElementById('result-title');
+      const message = document.getElementById('result-message');
+      const value = document.getElementById('result-value');
+      const pill = document.getElementById('result-pill');
+      const image = document.getElementById('result-image');
+
+      title.textContent = didWin ? 'Upgrade succeeded' : 'Upgrade failed';
+      message.textContent = didWin ? `You won ${item?.name || 'your target item'}!` : 'You received a consolation of 10 gems.';
+      value.innerHTML = didWin ? formatGems(getEffectivePrice(item || {})) : formatGems(10);
+      pill.textContent = didWin ? 'Win' : 'Loss';
+      pill.className = `rarity-pill ${didWin ? 'rarity-legendary' : 'rarity-common'}`;
+      image.src = didWin ? (item?.image || '') : 'https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff';
+      modal.classList.remove('hidden');
+    }
+
     async function loadMarketplaceTargets() {
       try {
         const snap = await firebase.database().ref('marketplace').once('value');
@@ -490,6 +535,30 @@
       sideBalance.textContent = gems.toLocaleString();
     }
 
+    function persistBalance() {
+      if (userRef) {
+        userRef.update({ balance: gems }).catch((err) => console.error('Failed to persist balance', err));
+      }
+    }
+
+    function addWinToInventory(item) {
+      if (!currentUser || !item) return;
+      const invRef = firebase.database().ref(`users/${currentUser.uid}/inventory`).push();
+      const payload = {
+        name: item.name,
+        image: item.image,
+        rarity: item.rarity || 'common',
+        value: getEffectivePrice(item),
+        odds: Number(chanceValue.textContent.replace('%', '')) || 0,
+        prizeId: item.id || null,
+        timestamp: Date.now(),
+        sold: false,
+        fromUpgrade: true,
+      };
+      invRef.set(payload).catch((err) => console.error('Failed to add inventory item', err));
+      firebase.database().ref(`users/${currentUser.uid}/unboxHistory/${invRef.key}`).set(payload).catch(() => {});
+    }
+
     function handleSpin() {
       if (isSpinning || !selectedTarget) return;
       isSpinning = true;
@@ -519,6 +588,7 @@
 
       gems -= wagerValue;
       updateBalanceDisplay();
+      persistBalance();
 
       const chance = Math.min((wagerValue / targetPrice) * 100, 100);
       const winAngle = chance * 3.6;
@@ -543,6 +613,7 @@
           statusText.textContent = 'Congratulations! Upgrade succeeded.';
           outcomeText.textContent = 'Upgraded';
           gems += targetPrice;
+          addWinToInventory(selectedTarget);
         } else {
           statusText.textContent = 'Unlucky! You received 10 gems as a consolation.';
           outcomeText.textContent = 'Failed (+10 gems)';
@@ -555,10 +626,12 @@
         renderStrip(recentResults);
 
         updateBalanceDisplay();
+        persistBalance();
+        showResultModal(didWin, selectedTarget);
         spinButton.disabled = false;
         isSpinning = false;
         updateOdds();
-        resetWheel();
+        setTimeout(resetWheel, 600);
       }, 4200);
     }
 
@@ -572,6 +645,10 @@
           wheelDisk.style.transition = currentTransition || '';
         });
       });
+    }
+
+    function closeResultModal() {
+      document.getElementById('result-modal').classList.add('hidden');
     }
 
     spinButton.addEventListener('click', handleSpin);
@@ -606,8 +683,9 @@
       firebase.auth().onAuthStateChanged((user) => {
         if (!user) return (window.location.href = 'auth.html');
 
+        currentUser = user;
         const db = firebase.database();
-        const userRef = db.ref('users/' + user.uid);
+        userRef = db.ref('users/' + user.uid);
 
         userRef.once('value').then((snapshot) => {
           const data = snapshot.val() || {};
@@ -630,6 +708,12 @@
       updateBalanceDisplay();
       statusText.textContent = 'Enter your wager and pick a target to spin.';
       updateOdds();
+
+      document.getElementById('close-result').addEventListener('click', closeResultModal);
+      document.getElementById('result-primary').addEventListener('click', closeResultModal);
+      document.getElementById('result-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'result-modal') closeResultModal();
+      });
     }
 
     init();
