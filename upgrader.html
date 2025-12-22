@@ -8,11 +8,28 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/main.css">
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
+      authDomain: "cases-e5b4e.firebaseapp.com",
+      databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
+      projectId: "cases-e5b4e",
+      storageBucket: "cases-e5b4e.appspot.com",
+      messagingSenderId: "22502548396",
+      appId: "1:22502548396:web:aac335672c21f07524d009"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
   <style>
     :root {
       --surface: #0f172a;
@@ -453,45 +470,40 @@
       return true;
     }
 
-    function bootstrapFirebase() {
-      const firebaseConfig = {
-        apiKey: "AIzaSyCyRm6dWH-fAmfWy83zLTrPFVi9Ny8gyxE",
-        authDomain: "cases-e5b4e.firebaseapp.com",
-        databaseURL: "https://cases-e5b4e-default-rtdb.firebaseio.com",
-        projectId: "cases-e5b4e",
-        storageBucket: "cases-e5b4e.appspot.com",
-        messagingSenderId: "22502548396",
-        appId: "1:22502548396:web:aac335672c21f07524d009"
-      };
+      function bootstrapFirebase() {
+        if (!firebase.apps.length && typeof firebaseConfig !== 'undefined') {
+          firebase.initializeApp(firebaseConfig);
+        }
 
-      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        firebase.auth().onAuthStateChanged((user) => {
+          if (!user) return (window.location.href = 'auth.html');
 
-      firebase.auth().onAuthStateChanged((user) => {
-        if (!user) return (window.location.href = 'auth.html');
+          const db = firebase.database();
+          const userRef = db.ref('users/' + user.uid);
 
-        const db = firebase.database();
-        const userRef = db.ref('users/' + user.uid);
+          userRef.once('value').then((snapshot) => {
+            const data = snapshot.val() || {};
+            gems = Number(data.balance || 0);
+            updateBalanceDisplay();
+            const usernameDisplay = document.getElementById('username-display');
+            if (usernameDisplay) {
+              usernameDisplay.innerText = user.displayName || user.email;
+            }
+          });
 
-        userRef.once('value').then((snapshot) => {
-          const data = snapshot.val() || {};
-          gems = Number(data.balance || 0);
-          updateBalanceDisplay();
-          document.getElementById('username-display')?.innerText = user.displayName || user.email;
+          const inventoryRef = db.ref('users/' + user.uid + '/inventory');
+          inventoryRef.once('value').then((snap) => {
+            const hasData = populateFromSnapshot(snap);
+            if (!hasData) {
+              inventoryItems = [...fallbackInventory];
+            }
+            renderInventory();
+            renderTargets();
+            renderStrip(inventoryItems.slice(0, 4));
+            updateOdds();
+          });
         });
-
-        const inventoryRef = db.ref('users/' + user.uid + '/inventory');
-        inventoryRef.once('value').then((snap) => {
-          const hasData = populateFromSnapshot(snap);
-          if (!hasData) {
-            inventoryItems = [...fallbackInventory];
-          }
-          renderInventory();
-          renderTargets();
-          renderStrip(inventoryItems.slice(0, 4));
-          updateOdds();
-        });
-      });
-    }
+      }
 
     function init() {
       renderTargets();
