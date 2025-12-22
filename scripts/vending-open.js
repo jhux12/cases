@@ -8,8 +8,7 @@
   const machinePrice = document.getElementById('machine-price');
   const openLabel = document.getElementById('open-label');
   const gemBalance = document.querySelector('#gem-balance span');
-  const machineImage = document.getElementById('machine-image');
-  const machineShell = document.getElementById('machine-shell');
+  const previewStage = document.getElementById('preview-stage');
   const openingOverlay = document.getElementById('opening-overlay');
 
   const hitImage = document.getElementById('hit-image');
@@ -193,10 +192,10 @@
     if (!openingOverlay) return;
     if (state) {
       openingOverlay.classList.remove('opacity-0', 'pointer-events-none');
-      machineShell?.classList.add('ring-2', 'ring-cyan-400/50', 'shadow-[0_0_45px_rgba(34,211,238,0.35)]');
+      previewStage?.classList.add('ring-2', 'ring-cyan-400/50', 'shadow-[0_0_45px_rgba(34,211,238,0.35)]');
     } else {
       openingOverlay.classList.add('opacity-0', 'pointer-events-none');
-      machineShell?.classList.remove('ring-2', 'ring-cyan-400/50', 'shadow-[0_0_45px_rgba(34,211,238,0.35)]');
+      previewStage?.classList.remove('ring-2', 'ring-cyan-400/50', 'shadow-[0_0_45px_rgba(34,211,238,0.35)]');
     }
   };
 
@@ -209,10 +208,6 @@
     machineDescription.textContent = machine?.description || 'Open this machine to see the live legendary and epic spotlights.';
     machinePrice.textContent = formatPrice(machine?.price);
     openLabel.textContent = `Open for ${formatPrice(machine?.price)}`;
-
-    const image = machine?.image || 'https://placehold.co/560x720/0b1224/94a3b8?text=Vending';
-    machineImage.src = image;
-    machineImage.alt = machine?.name || 'Vending machine';
 
     applyRarities(rarities);
     startHitCycle(rarities, machine?.items || {});
@@ -279,10 +274,10 @@
 
     showToast(`Opening…`);
     toggleOpeningOverlay(true);
-    if (machineShell) {
-      machineShell.classList.remove('machine-bump');
-      void machineShell.offsetWidth;
-      machineShell.classList.add('machine-bump');
+    if (previewStage) {
+      previewStage.classList.remove('machine-bump');
+      void previewStage.offsetWidth;
+      previewStage.classList.add('machine-bump');
     }
     setHitDisplay(rarity, prize);
     setPreviewCard(rarity, prize);

@@ -8,111 +8,44 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="styles/main.css" />
   <style>
-    .spotlight-card {
+    .preview-stage {
       position: relative;
       overflow: hidden;
-      border-radius: 18px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: linear-gradient(120deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
-      box-shadow: 0 18px 70px rgba(0, 0, 0, 0.45);
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.18), transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.16), transparent 42%),
+        radial-gradient(circle at 40% 80%, rgba(34, 211, 238, 0.12), transparent 38%),
+        rgba(6, 8, 16, 0.75);
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
 
-    .spotlight-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0));
-      pointer-events: none;
-    }
-
-    .spotlight-body {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px;
-      z-index: 1;
-    }
-
-    .spotlight-accent {
+    .preview-glow {
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08), transparent 45%);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
     }
 
-    .spotlight-image {
-      width: 92px;
-      height: 92px;
-      border-radius: 16px;
+    .preview-slot {
+      position: relative;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      min-height: 210px;
     }
 
-    .spotlight-image img {
+    .preview-slot img {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-    }
-
-    .reward-pill {
-      padding: 8px 12px;
-      border-radius: 14px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.92);
-      background: linear-gradient(120deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
-      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
-    }
-
-    .spotlight-legendary {
-      background: linear-gradient(135deg, rgba(251, 191, 36, 0.16), rgba(30, 27, 75, 0.45));
-      border-color: rgba(251, 191, 36, 0.35);
-    }
-
-    .spotlight-epic {
-      background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(37, 99, 235, 0.28));
-      border-color: rgba(168, 85, 247, 0.35);
-    }
-
-    .machine-window {
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-
-    .machine-floor {
-      position: relative;
-      height: 42px;
-      margin-top: 4px;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.35));
-      box-shadow: inset 0 12px 28px rgba(0, 0, 0, 0.45);
-      overflow: hidden;
-    }
-
-    .floor-gem {
-      position: absolute;
-      bottom: -6px;
-      width: 72px;
-      height: 52px;
-      border-radius: 18px;
-      filter: blur(0.3px);
-    }
-
-    .gem-left {
-      left: 18px;
-      background: radial-gradient(circle at 30% 40%, rgba(236, 72, 153, 0.85), rgba(109, 40, 217, 0.8));
-    }
-
-    .gem-right {
-      right: 18px;
-      background: radial-gradient(circle at 60% 30%, rgba(251, 191, 36, 0.9), rgba(252, 211, 77, 0.75));
+      display: block;
     }
 
     @keyframes machine-bump {
@@ -148,42 +81,19 @@
         <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div class="relative">
             <div class="absolute inset-6 rounded-3xl bg-white/5 blur-3xl"></div>
-            <div class="relative rounded-[28px] border border-white/10 bg-slate-950/50 p-5 sm:p-6 shadow-[0_40px_120px_rgba(0,0,0,0.55)] overflow-hidden">
-              <div class="absolute inset-0 pointer-events-none bg-gradient-to-br from-white/5 via-transparent to-white/0"></div>
-              <div class="relative" id="machine-shell">
-                <img id="machine-image" src="https://placehold.co/560x720/0b1224/94a3b8?text=Vending" alt="Vending machine" class="w-full max-w-[560px] mx-auto rounded-2xl border border-white/10 object-cover select-none pointer-events-none" />
-                <div class="absolute inset-0 flex items-center justify-center px-4 sm:px-6">
-                  <div class="machine-window relative w-full max-w-xl rounded-[26px] border border-white/10 bg-gradient-to-b from-white/10 via-slate-950/50 to-black/70 shadow-[0_30px_100px_rgba(0,0,0,0.5)] overflow-hidden">
-                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(250,204,21,0.08),transparent_38%),radial-gradient(circle_at_80%_30%,rgba(168,85,247,0.12),transparent_42%),radial-gradient(circle_at_50%_90%,rgba(59,130,246,0.1),transparent_45%)]"></div>
-                    <div class="absolute inset-0 pointer-events-none">
-                      <div class="absolute inset-0 border border-white/5 rounded-[24px]"></div>
-                      <div class="absolute inset-0 bg-gradient-to-br from-white/6 via-transparent to-white/0"></div>
-                      <div class="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white/10 via-white/4 to-transparent"></div>
-                    </div>
-                    <div class="relative space-y-3 p-4 sm:p-6">
-                      <div class="spotlight-card spotlight-legendary" id="legendary-preview">
-                        <div class="spotlight-accent"></div>
-                        <div class="spotlight-image border-amber-200/40 bg-amber-500/10 w-full h-36 sm:h-40">
-                          <img id="legendary-image" src="https://placehold.co/240x240/0b1224/ffd166?text=Legendary" alt="Legendary preview" class="w-full h-full object-cover" />
-                        </div>
-                      </div>
-                      <div class="spotlight-card spotlight-epic" id="epic-preview">
-                        <div class="spotlight-accent"></div>
-                        <div class="spotlight-image border-purple-200/40 bg-purple-500/10 w-full h-36 sm:h-40">
-                          <img id="epic-image" src="https://placehold.co/240x240/0b1224/c084fc?text=Epic" alt="Epic preview" class="w-full h-full object-cover" />
-                        </div>
-                      </div>
-                      <div class="machine-floor">
-                        <span class="floor-gem gem-left"></span>
-                        <span class="floor-gem gem-right"></span>
-                      </div>
-                    </div>
-                  </div>
+            <div id="preview-stage" class="preview-stage relative p-5 sm:p-6">
+              <div class="preview-glow"></div>
+              <div class="relative space-y-4">
+                <div class="preview-slot" id="legendary-preview">
+                  <img id="legendary-image" src="https://placehold.co/600x400/0b1224/ffd166?text=Legendary" alt="Legendary preview" />
                 </div>
-                <div id="opening-overlay" class="absolute inset-0 flex flex-col items-center justify-center rounded-2xl bg-black/40 backdrop-blur-sm border border-cyan-400/30 opacity-0 pointer-events-none transition duration-500">
-                  <div class="w-14 h-14 rounded-full border-2 border-cyan-300/30 border-t-cyan-300 animate-spin"></div>
-                  <p class="mt-3 text-cyan-100 font-semibold">Opening…</p>
+                <div class="preview-slot" id="epic-preview">
+                  <img id="epic-image" src="https://placehold.co/600x400/0b1224/c084fc?text=Epic" alt="Epic preview" />
                 </div>
+              </div>
+              <div id="opening-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm border border-cyan-400/30 opacity-0 pointer-events-none transition duration-500">
+                <div class="w-14 h-14 rounded-full border-2 border-cyan-300/30 border-t-cyan-300 animate-spin"></div>
+                <p class="mt-3 text-cyan-100 font-semibold">Opening…</p>
               </div>
             </div>
           </div>
