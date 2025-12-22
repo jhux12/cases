@@ -53,11 +53,12 @@
         linear-gradient(180deg, #0b1224 0%, #0a0f1f 45%, #0b1226 100%);
       color: var(--text);
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
     header { position: fixed; inset: 0 0 auto 0; z-index: 50; }
 
-    main { padding-top: 5.5rem; }
+    main { padding-top: 5.5rem; overflow-x: hidden; }
 
     .glass {
       background: var(--panel);
@@ -174,21 +175,22 @@
     }
 
     @media (max-width: 640px) {
-      .layout-grid { gap: 1rem; }
-      .wheel-shell { max-width: min(90vw, 320px); }
+      .layout-grid { gap: 1rem; width: 100%; }
+      .wheel-shell { max-width: min(86vw, 320px); }
       .item-tile { padding: 0.75rem; gap: 0.5rem; }
       .item-tile img { max-height: 3rem; }
-      .target-scroller { grid-auto-columns: minmax(220px, 1fr); max-height: 360px; padding-right: 0; }
+      .target-scroller { grid-auto-columns: minmax(200px, 1fr); max-height: 360px; padding-right: 0; }
       #recent-upgrades { max-height: 260px; }
       .glass { border-radius: 0.9rem; }
       .panel-section { border-width: 1px; }
+      .panel-section, .glass { width: 100%; }
     }
   </style>
 </head>
 <body>
   <header></header>
   <main class="pb-16">
-    <div class="px-4 sm:px-6 pt-6 sm:pt-8 max-w-7xl mx-auto">
+    <div class="px-4 sm:px-6 pt-6 sm:pt-8 max-w-7xl w-full mx-auto overflow-hidden">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div class="flex items-center gap-3">
           <div class="flex items-center gap-2 text-lg font-bold uppercase tracking-wide">
