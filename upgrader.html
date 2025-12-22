@@ -123,11 +123,11 @@
     }
 
     .wheel-pointer {
-      position: absolute; right: -16px; top: 50%; transform: translateY(-50%);
+      position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
       width: 0; height: 0;
       border-top: 14px solid transparent;
       border-bottom: 14px solid transparent;
-      border-left: 20px solid #f8fafc;
+      border-right: 20px solid #f8fafc;
       filter: drop-shadow(0 6px 12px rgba(15, 23, 42, 0.65));
       z-index: 5;
     }
@@ -211,11 +211,11 @@
             <div class="glass p-3 flex items-center justify-between text-sm panel-section">
               <div class="text-left">
                 <p class="text-xs uppercase tracking-wide text-gray-400">Cost Diff</p>
-                <p id="diff-text" class="font-semibold">$0.00</p>
+                <p id="diff-text" class="font-semibold">0.00 <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="inline w-4 h-4" alt="Gems"></p>
               </div>
               <div class="text-right">
                 <p class="text-xs uppercase tracking-wide text-gray-400">Payout</p>
-                <p id="payout-text" class="font-semibold">$0.00</p>
+                <p id="payout-text" class="font-semibold">0.00 <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="inline w-4 h-4" alt="Gems"></p>
               </div>
             </div>
             <div class="glass p-3 flex items-center justify-between text-sm panel-section">
@@ -256,7 +256,7 @@
       { id: 'inv5', name: 'Casual Street Hoodie', price: 64.30, image: 'https://i.imgur.com/1x9dJgg.png', rarity: 'common' }
     ];
 
-    const targetItems = [
+    const fallbackTargets = [
       { id: 't1', name: 'Rolex Submariner', price: 14990.93, image: 'https://i.imgur.com/foyqNts.png', rarity: 'legendary' },
       { id: 't2', name: 'Tesla Model 3 Key', price: 10250.00, image: 'https://i.imgur.com/nqfmbnW.png', rarity: 'legendary' },
       { id: 't3', name: 'Gold Bar 1kg', price: 8460.00, image: 'https://i.imgur.com/vwttdTq.png', rarity: 'legendary' },
@@ -266,6 +266,7 @@
     ];
 
     let inventoryItems = [];
+    let targetItems = [...fallbackTargets];
     let selectedSource = null;
     let selectedTarget = null;
     let isSpinning = false;
@@ -304,8 +305,11 @@
       return 0;
     }
 
-    function formatCurrency(value) {
-      return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const gemIcon = '<img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="inline w-4 h-4" style="vertical-align:-2px" alt="Gems">';
+
+    function formatGems(value) {
+      const formatted = value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return `${formatted} ${gemIcon}`;
     }
 
     function renderStrip(items) {
@@ -322,7 +326,7 @@
             <img src="${item.image}" class="w-10 h-10 object-contain bg-gray-900 rounded-lg p-1" alt="${item.name}">
             <div class="text-xs">
               <p class="font-semibold text-white leading-tight">${item.name}</p>
-              <p class="text-teal-300">${formatCurrency(getEffectivePrice(item))}</p>
+              <p class="text-teal-300">${formatGems(getEffectivePrice(item))}</p>
             </div>
           </div>`;
         strip.appendChild(card);
@@ -341,7 +345,7 @@
         <div class="flex-1 min-w-0">
           <p class="text-xs uppercase tracking-wide text-gray-400">${label}</p>
           <p class="font-semibold truncate">${item.name}</p>
-          <p class="text-teal-300 text-sm">${formatCurrency(price)}</p>
+          <p class="text-teal-300 text-sm">${formatGems(price)}</p>
         </div>
         <div class="rarity-pill ${rarityClass[rarity]}">${rarityLabel[rarity]}</div>
       `;
@@ -374,12 +378,42 @@
       });
     }
 
+    async function loadMarketplaceTargets() {
+      try {
+        const snap = await firebase.database().ref('marketplace').once('value');
+        const items = [];
+        snap.forEach(child => {
+          const data = child.val();
+          const price = getEffectivePrice(data);
+          if (!data || !data.name || !data.image || !price) return;
+          items.push({
+            ...data,
+            id: child.key,
+            price,
+            rarity: (data.rarity || 'common').toLowerCase(),
+            image: data.image
+          });
+        });
+
+        if (items.length) {
+          items.sort((a, b) => getEffectivePrice(b) - getEffectivePrice(a));
+          targetItems = items;
+          renderTargets();
+          updateOdds();
+        }
+      } catch (err) {
+        console.error('Failed to load marketplace targets', err);
+        targetItems = [...fallbackTargets];
+        renderTargets();
+      }
+    }
+
     function updateOdds() {
       if (!selectedSource || !selectedTarget) {
         chanceValue.textContent = '0.00%';
         multiplierValue.textContent = '0.00x';
-        diffText.textContent = '$0.00';
-        payoutText.textContent = '$0.00';
+        diffText.innerHTML = formatGems(0);
+        payoutText.innerHTML = formatGems(0);
         wheelDisk.style.setProperty('--win-angle', '0deg');
         spinButton.disabled = true;
         return;
@@ -393,8 +427,8 @@
 
       chanceValue.textContent = `${chance.toFixed(2)}%`;
       multiplierValue.textContent = `${multiplier.toFixed(2)}x`;
-      diffText.textContent = formatCurrency(diff);
-      payoutText.textContent = formatCurrency(targetPrice);
+      diffText.innerHTML = formatGems(diff);
+      payoutText.innerHTML = formatGems(targetPrice);
       wheelDisk.style.setProperty('--win-angle', `${(chance * 3.6).toFixed(2)}deg`);
       spinButton.disabled = false;
     }
@@ -508,6 +542,7 @@
     function init() {
       renderTargets();
       bootstrapFirebase();
+      loadMarketplaceTargets();
       renderStrip(fallbackInventory.slice(0, 4));
       updateBalanceDisplay();
       statusText.textContent = 'Choose an item and a target to begin.';
