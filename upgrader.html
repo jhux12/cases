@@ -523,14 +523,21 @@
       const chance = Math.min((wagerValue / targetPrice) * 100, 100);
       const winAngle = chance * 3.6;
       const spins = 6 + Math.random() * 3;
-      const landingAngle = Math.random() * 360;
+      const willWin = Math.random() * 100 < chance;
+
+      const loseStart = Math.min(winAngle + 2, 359.9);
+      const pointerTarget = willWin
+        ? Math.random() * (winAngle || 1)
+        : loseStart + Math.random() * (360 - loseStart);
+
+      const landingAngle = (360 - pointerTarget + 360) % 360;
 
       rotation = spins * 360 + landingAngle;
       wheelDisk.style.transform = `rotate(${rotation}deg)`;
 
       setTimeout(() => {
-        const normalized = ((rotation % 360) + 360) % 360;
-        const didWin = normalized <= winAngle;
+        const pointerAngle = ((360 - (rotation % 360)) + 360) % 360;
+        const didWin = pointerAngle <= winAngle;
 
         if (didWin) {
           statusText.textContent = 'Congratulations! Upgrade succeeded.';
