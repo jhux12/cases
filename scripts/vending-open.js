@@ -9,6 +9,12 @@
   const openLabel = document.getElementById('open-label');
   const gemBalance = document.querySelector('#gem-balance span');
   const machineImage = document.getElementById('machine-image');
+  const machineShell = document.getElementById('machine-shell');
+  const openingOverlay = document.getElementById('opening-overlay');
+
+  const hitName = document.getElementById('hit-name');
+  const hitNote = document.getElementById('hit-note');
+  const hitRarityPill = document.getElementById('hit-rarity-pill');
   const rarityEls = {
     common: document.getElementById('rarity-common'),
     rare: document.getElementById('rarity-rare'),
@@ -37,6 +43,14 @@
   let unsubscribeMachine = null;
   let currentUser = null;
   let currentGems = 0;
+  let hitTimer = null;
+
+  const defaultItems = {
+    common: ['Starter Bundle', 'Warm-up Pack', 'Basic Crate'],
+    rare: ['Rare Neon Case', 'Holo Sticker Pack'],
+    epic: ['Epic Hardware Drop', 'Mythic Blueprint'],
+    legendary: ['Legendary Skin', 'Ultra Grail']
+  };
 
   const rarityWidth = (value) => `${Math.max(0, Number(value) || 0)}%`;
 
@@ -66,6 +80,55 @@
     }
   };
 
+  const pickRarity = (rarities = {}) => {
+    const entries = Object.entries({ ...defaults, ...rarities }).map(([key, value]) => [key, Math.max(0, Number(value) || 0)]);
+    const total = entries.reduce((acc, [, v]) => acc + v, 0) || 1;
+    let roll = Math.random() * total;
+    for (const [key, value] of entries) {
+      if ((roll -= value) <= 0) return key;
+    }
+    return entries[0][0] || 'common';
+  };
+
+  const setHitDisplay = (rarity, item) => {
+    hitName.textContent = item;
+    hitNote.textContent = `${rarity.charAt(0).toUpperCase() + rarity.slice(1)} pull · weighted preview`;
+    const colorMap = {
+      common: 'bg-cyan-400/20 text-cyan-100 border-cyan-400/40',
+      rare: 'bg-indigo-400/20 text-indigo-100 border-indigo-400/40',
+      epic: 'bg-purple-500/20 text-purple-100 border-purple-400/40',
+      legendary: 'bg-amber-400/20 text-amber-100 border-amber-400/40'
+    };
+    hitRarityPill.textContent = rarity.charAt(0).toUpperCase() + rarity.slice(1);
+    hitRarityPill.className = `px-3 py-1 rounded-full text-xs font-semibold border ${colorMap[rarity] || 'bg-white/10 text-white border-white/10'}`;
+  };
+
+  const startHitCycle = (rarities = {}, items = {}) => {
+    const pools = { ...defaultItems, ...items };
+    if (hitTimer) clearInterval(hitTimer);
+
+    const cycle = () => {
+      const rarity = pickRarity(rarities);
+      const pool = Array.isArray(pools[rarity]) && pools[rarity].length ? pools[rarity] : defaultItems[rarity] || ['Featured hit'];
+      const item = pool[Math.floor(Math.random() * pool.length)];
+      setHitDisplay(rarity, item);
+    };
+
+    cycle();
+    hitTimer = setInterval(cycle, 2800);
+  };
+
+  const toggleOpeningOverlay = (state) => {
+    if (!openingOverlay) return;
+    if (state) {
+      openingOverlay.classList.remove('opacity-0', 'pointer-events-none');
+      machineShell?.classList.add('ring-2', 'ring-cyan-400/50', 'shadow-[0_0_45px_rgba(34,211,238,0.35)]');
+    } else {
+      openingOverlay.classList.add('opacity-0', 'pointer-events-none');
+      machineShell?.classList.remove('ring-2', 'ring-cyan-400/50', 'shadow-[0_0_45px_rgba(34,211,238,0.35)]');
+    }
+  };
+
   const applyMachine = (machine) => {
     currentMachine = machine;
     const rarities = machine?.rarities || {};
@@ -81,6 +144,7 @@
     machineImage.alt = machine?.name || 'Vending machine';
 
     applyRarities(rarities);
+    startHitCycle(rarities, machine?.items || {});
   };
 
   const loadMachine = (id) => {
@@ -138,7 +202,9 @@
       return;
     }
     showToast('Opening…');
+    toggleOpeningOverlay(true);
     if (window.VendingAnim) window.VendingAnim.bump();
+    setTimeout(() => toggleOpeningOverlay(false), 1200);
   };
 
   const wireFairModal = () => {
