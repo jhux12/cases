@@ -14,33 +14,37 @@
   <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
   <style>
     :root {
-      --vm-surface: rgba(21, 27, 46, 0.9);
+      --vm-surface: rgba(17, 23, 42, 0.92);
       --vm-border: rgba(255, 255, 255, 0.08);
-      --vm-gradient: linear-gradient(135deg, #1d4ed8, #9333ea);
+      --vm-border-strong: rgba(255, 255, 255, 0.12);
+      --vm-gradient: linear-gradient(135deg, #22d3ee, #6366f1, #a855f7);
       --vm-text: #e2e8f0;
       --vm-muted: #cbd5e1;
     }
 
     body {
       font-family: 'Poppins', sans-serif;
-      background: radial-gradient(circle at 18% 22%, rgba(99, 102, 241, 0.07), transparent 32%),
-                  radial-gradient(circle at 80% 12%, rgba(14, 165, 233, 0.08), transparent 30%),
-                  #0b1120;
+      background: radial-gradient(circle at 20% 18%, rgba(59, 130, 246, 0.09), transparent 28%),
+        radial-gradient(circle at 82% 12%, rgba(16, 185, 129, 0.07), transparent 30%),
+        radial-gradient(circle at 60% 72%, rgba(168, 85, 247, 0.08), transparent 26%),
+        #0b1120;
       color: var(--vm-text);
+      min-height: 100vh;
     }
 
     .vm-card {
       position: relative;
       border: 1px solid var(--vm-border);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(12, 18, 36, 0.75) 100%);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.02), rgba(15, 23, 42, 0.75));
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, translate 0.2s ease;
+      backdrop-filter: blur(6px);
     }
 
     .vm-card:hover {
       transform: translateY(-6px);
-      border-color: rgba(96, 165, 250, 0.45);
-      box-shadow: 0 25px 60px rgba(59, 130, 246, 0.22);
+      border-color: rgba(94, 234, 212, 0.45);
+      box-shadow: 0 28px 60px rgba(6, 182, 212, 0.16);
     }
 
     .vm-rarity-bar {
@@ -52,32 +56,62 @@
     .vm-badge {
       background: var(--vm-gradient);
       color: #0b1224;
+      box-shadow: 0 8px 26px rgba(79, 70, 229, 0.35);
     }
 
     .vm-hero {
       position: relative;
       overflow: hidden;
       border: 1px solid rgba(255, 255, 255, 0.08);
-      background: linear-gradient(145deg, rgba(14, 165, 233, 0.18), rgba(124, 58, 237, 0.18));
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(99, 102, 241, 0.12), rgba(147, 51, 234, 0.14));
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
     }
 
     .vm-hero::after {
       content: '';
       position: absolute;
       inset: -40%;
-      background: radial-gradient(circle at 30% 20%, rgba(56, 189, 248, 0.25), transparent 35%),
-                  radial-gradient(circle at 80% 30%, rgba(147, 51, 234, 0.25), transparent 38%);
+      background: radial-gradient(circle at 30% 20%, rgba(45, 212, 191, 0.18), transparent 35%),
+        radial-gradient(circle at 80% 32%, rgba(147, 51, 234, 0.22), transparent 40%),
+        radial-gradient(circle at 10% 80%, rgba(59, 130, 246, 0.16), transparent 35%);
       pointer-events: none;
-      filter: blur(12px);
-      opacity: 0.8;
+      filter: blur(14px);
+      opacity: 0.9;
+    }
+
+    .vm-hero::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -80px;
+      width: 280px;
+      height: 280px;
+      background: conic-gradient(from 120deg, rgba(94, 234, 212, 0.15), rgba(99, 102, 241, 0.25), rgba(56, 189, 248, 0.2));
+      filter: blur(35px);
+      opacity: 0.85;
+      transform: rotate(-8deg);
+    }
+
+    .vm-glow-pill {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.18), rgba(168, 85, 247, 0.18));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .vm-chip {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
     }
 
     /* Glass window container (clips the canvas) */
     .glass-window {
       position: absolute;
       overflow: hidden;
-      border-radius: 12px;
+      border-radius: 14px;
       background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
     }
 
     /* Optional: glass reflection overlay */
@@ -85,9 +119,9 @@
       pointer-events: none;
       position: absolute;
       inset: 0;
-      background: linear-gradient(120deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 45%);
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 45%);
       mix-blend-mode: screen;
-      opacity: 0.35;
+      opacity: 0.4;
       transform: translateX(-12%);
     }
 
@@ -95,6 +129,22 @@
       width: 100%;
       height: 100%;
       display: block;
+    }
+
+    @media (max-width: 1024px) {
+      .glass-window {
+        left: 50% !important;
+        transform: translateX(-50%);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .glass-window {
+        width: 72vw !important;
+        height: 55vw !important;
+        top: 23% !important;
+        border-radius: 12px;
+      }
     }
   </style>
 </head>
@@ -104,54 +154,57 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 space-y-12">
     <section class="vm-hero rounded-3xl p-6 sm:p-10 relative overflow-hidden">
-      <div class="relative z-10 grid gap-8 lg:grid-cols-2 lg:items-center">
-        <div class="space-y-4">
+      <div class="absolute inset-0 bg-gradient-to-br from-white/3 via-transparent to-white/0"></div>
+      <div class="absolute -left-10 top-10 h-52 w-52 rounded-full bg-cyan-500/10 blur-3xl"></div>
+      <div class="absolute -right-16 -bottom-4 h-64 w-64 rounded-full bg-indigo-500/15 blur-3xl"></div>
+      <div class="relative z-10 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <div class="space-y-5">
           <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold vm-badge shadow-lg">Vending Machines</p>
           <h1 class="text-4xl sm:text-5xl font-bold leading-tight">Pullz.gg vending machines</h1>
-          <p class="text-slate-200/80 text-base sm:text-lg max-w-2xl">Browse the latest curated machines from the admin panel and jump straight into an experience tailored to your pulls.</p>
+          <p class="text-slate-200/85 text-base sm:text-lg max-w-2xl">Browse admin-curated drops, see live odds, and jump straight into the machines built for your pulls.</p>
           <div class="flex flex-wrap gap-3 text-sm text-slate-200/90">
-            <span class="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-2 rounded-xl"><i class="fa-solid fa-wand-magic-sparkles text-indigo-300"></i>Admin curated drops</span>
-            <span class="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-2 rounded-xl"><i class="fa-solid fa-shield-halved text-sky-300"></i>Live odds display</span>
-            <span class="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-2 rounded-xl"><i class="fa-solid fa-credit-card text-amber-300"></i>One-click entry</span>
+            <span class="vm-chip flex items-center gap-2 px-3 py-2 rounded-xl"><i class="fa-solid fa-wand-magic-sparkles text-indigo-200"></i>Admin curated drops</span>
+            <span class="vm-chip flex items-center gap-2 px-3 py-2 rounded-xl"><i class="fa-solid fa-shield-halved text-cyan-200"></i>Live odds display</span>
+            <span class="vm-chip flex items-center gap-2 px-3 py-2 rounded-xl"><i class="fa-solid fa-credit-card text-amber-200"></i>One-click entry</span>
           </div>
         </div>
         <div class="relative space-y-6">
           <div class="vm-card rounded-3xl p-6 sm:p-8 overflow-hidden">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center justify-between mb-6 gap-4">
               <div>
                 <p class="text-xs uppercase tracking-[0.35em] text-slate-400">Featured</p>
                 <p class="text-2xl font-semibold" id="featured-name">Loading…</p>
               </div>
               <span class="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 border border-white/10" id="featured-price">—</span>
             </div>
-            <div class="bg-slate-900/80 rounded-2xl border border-white/5 p-4 flex items-center gap-4">
-              <img id="featured-image" src="https://placehold.co/160x200/111827/94a3b8?text=Vending" alt="Featured vending machine" class="w-28 sm:w-32 h-36 sm:h-40 object-cover rounded-xl border border-white/5" />
-              <div class="flex-1 space-y-3">
-                <div class="vm-rarity-bar bg-white/5 flex overflow-hidden">
-                  <div id="featured-common" class="bg-sky-400/70" style="width: 40%"></div>
+            <div class="bg-slate-900/80 rounded-2xl border border-white/5 p-4 flex flex-col sm:flex-row items-center gap-4">
+              <img id="featured-image" src="https://placehold.co/200x240/0f172a/94a3b8?text=Vending" alt="Featured vending machine" class="w-40 h-48 object-cover rounded-xl border border-white/5 shadow-lg" />
+              <div class="flex-1 space-y-3 w-full">
+                <div class="vm-rarity-bar bg-white/5 flex overflow-hidden border border-white/5">
+                  <div id="featured-common" class="bg-cyan-400/70" style="width: 40%"></div>
                   <div id="featured-rare" class="bg-indigo-400/70" style="width: 30%"></div>
                   <div id="featured-epic" class="bg-purple-500/70" style="width: 20%"></div>
                   <div id="featured-legendary" class="bg-amber-400/80" style="width: 10%"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-2 text-xs text-slate-300/90">
-                  <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-sky-400"></span><span id="featured-common-label">Common</span></div>
+                  <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-cyan-400"></span><span id="featured-common-label">Common</span></div>
                   <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-400"></span><span id="featured-rare-label">Rare</span></div>
                   <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span><span id="featured-epic-label">Epic</span></div>
                   <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span><span id="featured-legendary-label">Legendary</span></div>
                 </div>
-                <button id="featured-link" class="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-white text-slate-900 font-semibold py-3 hover:shadow-lg hover:-translate-y-0.5 transition" disabled>
+                <a id="featured-link" class="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-white text-slate-900 font-semibold py-3 hover:shadow-lg hover:-translate-y-0.5 transition" href="#" aria-disabled="true">
                   <i class="fa-solid fa-bolt"></i> Go to machine
-                </button>
+                </a>
               </div>
             </div>
           </div>
           <div class="vm-card rounded-3xl p-4 sm:p-6 overflow-hidden">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div>
                 <p class="text-xs uppercase tracking-[0.35em] text-slate-400">Live preview</p>
                 <p class="text-lg font-semibold">Token physics inside the glass</p>
               </div>
-              <button id="buyBtn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 font-semibold shadow-lg hover:shadow-indigo-500/30 transition">
+              <button id="buyBtn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 font-semibold shadow-lg hover:shadow-indigo-500/30 transition active:translate-y-[1px]">
                 Bump tokens
               </button>
             </div>
@@ -164,7 +217,7 @@
               <div
                 id="glassWindow"
                 class="glass-window"
-                style="top: 110px; left: 104px; width: 312px; height: 240px;"
+                style="top: 114px; left: 106px; width: 308px; height: 236px;"
               >
                 <canvas id="vendingCanvas"></canvas>
                 <div class="glass-reflection"></div>
@@ -176,15 +229,15 @@
     </section>
 
     <section class="space-y-6">
-      <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <p class="text-xs uppercase tracking-[0.35em] text-slate-500">Live lineup</p>
-          <h2 class="text-2xl font-semibold">Available vending machines</h2>
+          <h2 class="text-2xl sm:text-3xl font-semibold">Available vending machines</h2>
         </div>
-        <div class="text-sm text-slate-400" id="vending-sync">Syncing…</div>
+        <div class="text-sm text-slate-400 vm-glow-pill px-3 py-1 rounded-full" id="vending-sync">Syncing…</div>
       </div>
       <div id="vending-list" class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3"></div>
-      <p id="vending-empty" class="hidden text-center text-slate-400">No vending machines published yet. Add one from the admin panel to see it here.</p>
+      <p id="vending-empty" class="hidden text-center text-slate-400 bg-white/5 border border-white/10 rounded-2xl py-6">No vending machines published yet. Add one from the admin panel to see it here.</p>
     </section>
   </main>
 
@@ -228,8 +281,13 @@
       featuredName.textContent = machine.name || 'Vending Machine';
       featuredPrice.textContent = formatPrice(machine.price);
       featuredImage.src = machine.image || featuredImage.src;
-      featuredLink.disabled = !machine.link;
-      featuredLink.href = machine.link || '#';
+
+      const hasLink = Boolean(machine.link);
+      featuredLink.href = hasLink ? machine.link : '#';
+      featuredLink.setAttribute('aria-disabled', String(!hasLink));
+      featuredLink.classList.toggle('opacity-60', !hasLink);
+      featuredLink.classList.toggle('cursor-not-allowed', !hasLink);
+      featuredLink.classList.toggle('pointer-events-none', !hasLink);
 
       const rarities = machine.rarities || {};
       const defaults = { common: 40, rare: 30, epic: 20, legendary: 10 };
@@ -248,28 +306,29 @@
       const data = { ...defaults, ...rarities };
 
       const card = document.createElement('article');
-      card.className = 'vm-card rounded-2xl overflow-hidden border border-white/5 bg-slate-900/80';
+      card.className = 'vm-card rounded-2xl overflow-hidden border border-white/10 bg-slate-900/70 backdrop-blur-sm';
       card.innerHTML = `
         <div class="flex items-start justify-between p-4 pb-2">
-          <div>
-            <p class="text-xs uppercase tracking-[0.3em] text-slate-500">${machine.tag || 'Featured'}</p>
+          <div class="space-y-1">
+            <p class="text-[10px] uppercase tracking-[0.35em] text-slate-500">${machine.tag || 'Featured'}</p>
             <h3 class="text-xl font-semibold text-white">${machine.name || 'Vending Machine'}</h3>
           </div>
           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 border border-white/10">${formatPrice(machine.price)}</span>
         </div>
-        <div class="px-4 pb-4 space-y-4">
+        <div class="px-4 pb-5 space-y-4">
           <div class="relative rounded-2xl overflow-hidden border border-white/5 bg-slate-800/60">
-            <img src="${machine.image || 'https://placehold.co/420x260/0f172a/94a3b8?text=Vending'}" alt="${machine.name || 'Vending machine'}" class="w-full h-52 object-cover" />
+            <img src="${machine.image || 'https://placehold.co/420x260/0f172a/94a3b8?text=Vending'}" alt="${machine.name || 'Vending machine'}" class="w-full aspect-[4/3] object-cover" />
+            <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-slate-950/35 via-transparent"></div>
           </div>
           <p class="text-sm text-slate-300/90 leading-relaxed min-h-[44px]">${machine.description || 'Admin curated drops with live odds and quick checkout.'}</p>
           <div class="vm-rarity-bar flex overflow-hidden bg-white/5 border border-white/5">
-            <div class="bg-sky-400/70" style="width:${data.common}%"></div>
+            <div class="bg-cyan-400/70" style="width:${data.common}%"></div>
             <div class="bg-indigo-400/70" style="width:${data.rare}%"></div>
             <div class="bg-purple-500/70" style="width:${data.epic}%"></div>
             <div class="bg-amber-400/80" style="width:${data.legendary}%"></div>
           </div>
           <div class="grid grid-cols-2 gap-2 text-xs text-slate-300/90">
-            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-sky-400"></span>Common - ${data.common}%</div>
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-cyan-400"></span>Common - ${data.common}%</div>
             <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-400"></span>Rare - ${data.rare}%</div>
             <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span>Epic - ${data.epic}%</div>
             <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span>Legendary - ${data.legendary}%</div>
