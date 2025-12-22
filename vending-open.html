@@ -23,6 +23,17 @@
     .machine-bump {
       animation: machine-bump 0.7s ease;
     }
+
+    @keyframes hit-spin {
+      0% { transform: translateY(0) rotate(-6deg) scale(0.9); opacity: 0.9; }
+      40% { transform: translateY(-6px) rotate(6deg) scale(1.02); opacity: 1; }
+      70% { transform: translateY(3px) rotate(-4deg) scale(0.98); }
+      100% { transform: translateY(0) rotate(0deg) scale(1); }
+    }
+
+    .hit-animate {
+      animation: hit-spin 1.2s ease;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-[#05060c] text-slate-100">
@@ -48,8 +59,8 @@
             <div id="machine-stage" class="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-[0_40px_120px_rgba(0,0,0,0.55)]">
               <img id="machine-image" src="https://placehold.co/800x900/0b1224/94a3b8?text=Vending+Machine" alt="Vending machine" class="w-full h-full object-cover select-none" />
               <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/35 pointer-events-none"></div>
-              <div class="absolute inset-0 flex items-start justify-center pt-6 sm:pt-8 pointer-events-none">
-                <img id="hit-overlay-image" src="https://placehold.co/600x400/0b1224/ffd166?text=Hit" alt="Preview hit" class="max-w-[72%] max-h-[70%] object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.55)]" />
+              <div class="absolute inset-0 flex items-start justify-center pt-4 sm:pt-6 pointer-events-none">
+                <img id="hit-overlay-image" src="https://placehold.co/600x400/0b1224/ffd166?text=Hit" alt="Preview hit" class="max-w-[58%] max-h-[58%] object-contain drop-shadow-[0_24px_70px_rgba(0,0,0,0.55)]" />
               </div>
               <div id="opening-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/45 backdrop-blur-sm border border-cyan-400/30 opacity-0 pointer-events-none transition duration-500">
                 <div class="w-14 h-14 rounded-full border-2 border-cyan-300/30 border-t-cyan-300 animate-spin"></div>

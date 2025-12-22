@@ -104,6 +104,9 @@
     if (overlayImage) {
       overlayImage.src = item?.image || fallbackImage;
       overlayImage.alt = item?.name || `${rarity} hit`;
+      overlayImage.classList.remove('hit-animate');
+      void overlayImage.offsetWidth;
+      overlayImage.classList.add('hit-animate');
     }
   };
 
