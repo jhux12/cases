@@ -23,11 +23,11 @@ const DPR = Math.min(window.devicePixelRatio || 1, 2);
 
 // Token images (replace these with real rarity icons)
 const tokenSprites = [
-  { key: 'common', url: '/images/tokens/common.png' },
-  { key: 'uncommon', url: '/images/tokens/uncommon.png' },
-  { key: 'rare', url: '/images/tokens/rare.png' },
-  { key: 'epic', url: '/images/tokens/epic.png' },
-  { key: 'legendary', url: '/images/tokens/legendary.png' }
+  { key: 'common', url: '/images/tokens/common.png', fill: '#67e8f9' },
+  { key: 'uncommon', url: '/images/tokens/uncommon.png', fill: '#a5f3fc' },
+  { key: 'rare', url: '/images/tokens/rare.png', fill: '#c4b5fd' },
+  { key: 'epic', url: '/images/tokens/epic.png', fill: '#d8b4fe' },
+  { key: 'legendary', url: '/images/tokens/legendary.png', fill: '#facc15' }
 ];
 
 function preloadImages(list) {
@@ -119,6 +119,7 @@ function spawnTokens(loadedSprites, count = 55) {
     const y = Math.random() * (h * 0.35) + radius;
 
     const sprite = randomTokenSprite(loadedSprites);
+    const fallbackFill = sprite?.fill || '#66ccff';
     const body = Bodies.circle(x, y, radius, {
       restitution: 0.45,
       friction: 0.1,
@@ -133,7 +134,9 @@ function spawnTokens(loadedSprites, count = 55) {
             }
           }
         : {
-            fillStyle: '#66ccff'
+            fillStyle: fallbackFill,
+            strokeStyle: '#0ea5e9',
+            lineWidth: 1.5
           }
     });
 

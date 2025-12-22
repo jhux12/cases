@@ -104,6 +104,48 @@
       box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
     }
 
+    .vm-stage {
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.8), rgba(51, 65, 85, 0.45));
+      box-shadow: 0 30px 80px rgba(6, 182, 212, 0.12);
+      overflow: hidden;
+    }
+
+    .vm-stage::before {
+      content: '';
+      position: absolute;
+      inset: -18%;
+      background: radial-gradient(circle at 20% 30%, rgba(56, 189, 248, 0.18), transparent 32%),
+        radial-gradient(circle at 78% 18%, rgba(124, 58, 237, 0.25), transparent 30%),
+        radial-gradient(circle at 80% 72%, rgba(45, 212, 191, 0.16), transparent 32%);
+      filter: blur(12px);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .vm-stage::after {
+      content: '';
+      position: absolute;
+      right: -120px;
+      top: -120px;
+      width: 280px;
+      height: 280px;
+      background: conic-gradient(from 140deg, rgba(94, 234, 212, 0.18), rgba(99, 102, 241, 0.32), rgba(6, 182, 212, 0.16));
+      filter: blur(40px);
+      opacity: 0.9;
+      transform: rotate(-5deg);
+      pointer-events: none;
+    }
+
+    .vm-stage-sheen {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.08), transparent 40%),
+        linear-gradient(160deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+      pointer-events: none;
+    }
+
     /* Glass window container (clips the canvas) */
     .glass-window {
       position: absolute;
@@ -192,8 +234,8 @@
                   <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span><span id="featured-epic-label">Epic</span></div>
                   <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span><span id="featured-legendary-label">Legendary</span></div>
                 </div>
-                <a id="featured-link" class="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-white text-slate-900 font-semibold py-3 hover:shadow-lg hover:-translate-y-0.5 transition" href="#" aria-disabled="true">
-                  <i class="fa-solid fa-bolt"></i> Go to machine
+                <a id="featured-link" class="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-white text-slate-900 font-semibold py-3 hover:shadow-lg hover:-translate-y-0.5 transition featured-open" href="#" aria-disabled="true">
+                  <i class="fa-solid fa-bolt"></i> Open live machine
                 </a>
               </div>
             </div>
@@ -201,8 +243,8 @@
           <div class="vm-card rounded-3xl p-4 sm:p-6 overflow-hidden">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div>
-                <p class="text-xs uppercase tracking-[0.35em] text-slate-400">Live preview</p>
-                <p class="text-lg font-semibold">Token physics inside the glass</p>
+                <p class="text-xs uppercase tracking-[0.35em] text-slate-400">Live opening screen</p>
+                <p class="text-lg font-semibold">Glass tokens, bouncing rarities</p>
               </div>
               <button id="buyBtn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 font-semibold shadow-lg hover:shadow-indigo-500/30 transition active:translate-y-[1px]">
                 Bump tokens
@@ -210,19 +252,84 @@
             </div>
             <div class="relative w-full max-w-xl mx-auto">
               <img
-                src="https://placehold.co/520x640/0f172a/94a3b8?text=Vending+Machine"
+                id="machine-shell-preview"
+                src="https://placehold.co/520x640/0b1224/94a3b8?text=Live+Vending"
                 alt="Vending machine"
                 class="w-full select-none pointer-events-none rounded-2xl border border-white/10 shadow-2xl"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="machine-view" class="vm-stage rounded-3xl p-6 sm:p-8 lg:p-10 space-y-8">
+      <div class="vm-stage-sheen"></div>
+      <div class="relative grid gap-10 lg:grid-cols-[1.05fr_0.95fr] items-center">
+        <div class="relative">
+          <div class="absolute inset-4 rounded-3xl border border-white/5 bg-white/2 blur-2xl"></div>
+          <div class="relative max-w-2xl mx-auto rounded-[28px] border border-white/10 bg-slate-950/50 p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <span class="vm-chip px-3 py-1 text-xs font-semibold text-white/90">Live machine</span>
+                <span id="machine-tag" class="text-sm text-slate-300">Curated drops</span>
+              </div>
+              <span id="machine-price" class="px-3 py-1 rounded-full text-sm font-semibold bg-white/10 border border-white/10">—</span>
+            </div>
+            <div class="relative">
+              <img
+                id="machine-shell"
+                src="https://placehold.co/520x640/0b1224/94a3b8?text=Live+Vending"
+                alt="Selected vending machine"
+                class="w-full max-w-[540px] mx-auto rounded-2xl border border-white/10 shadow-[0_40px_90px_rgba(0,0,0,0.45)]"
               />
               <div
                 id="glassWindow"
                 class="glass-window"
-                style="top: 114px; left: 106px; width: 308px; height: 236px;"
+                style="top: 22%; left: 50%; width: 68%; height: 46%; transform: translateX(-50%);"
               >
                 <canvas id="vendingCanvas"></canvas>
                 <div class="glass-reflection"></div>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="space-y-5 relative z-10">
+          <div class="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-slate-400">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Opening screen
+          </div>
+          <div class="space-y-2">
+            <h2 id="machine-name" class="text-3xl sm:text-4xl font-bold">Vending machine</h2>
+            <p id="machine-description" class="text-slate-200/85 text-base sm:text-lg max-w-3xl">Select a machine to see its glass window fill with live rarity tokens.</p>
+          </div>
+          <div class="grid grid-cols-2 gap-3 text-sm text-slate-200/85">
+            <div class="vm-chip px-3 py-2 rounded-xl flex items-center gap-2"><i class="fa-solid fa-coins text-amber-200"></i>Live token stack</div>
+            <div class="vm-chip px-3 py-2 rounded-xl flex items-center gap-2"><i class="fa-solid fa-mobile-screen-button text-cyan-200"></i>Mobile ready</div>
+            <div class="vm-chip px-3 py-2 rounded-xl flex items-center gap-2"><i class="fa-solid fa-shield text-emerald-200"></i>Secure checkout</div>
+            <div class="vm-chip px-3 py-2 rounded-xl flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-indigo-200"></i>Polished UI</div>
+          </div>
+          <div class="space-y-2">
+            <div class="vm-rarity-bar bg-white/5 flex overflow-hidden border border-white/5">
+              <div id="machine-common" class="bg-cyan-400/70" style="width: 40%"></div>
+              <div id="machine-rare" class="bg-indigo-400/70" style="width: 30%"></div>
+              <div id="machine-epic" class="bg-purple-500/70" style="width: 20%"></div>
+              <div id="machine-legendary" class="bg-amber-400/80" style="width: 10%"></div>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-2 text-xs text-slate-300/90">
+              <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-cyan-400"></span><span id="machine-common-label">Common</span></div>
+              <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-400"></span><span id="machine-rare-label">Rare</span></div>
+              <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span><span id="machine-epic-label">Epic</span></div>
+              <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span><span id="machine-legendary-label">Legendary</span></div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <a id="machine-cta" href="#" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-slate-900 font-semibold shadow-lg hover:-translate-y-0.5 transition machine-cta" aria-disabled="true">
+              <i class="fa-solid fa-play"></i> Start opening
+            </a>
+            <button id="machine-bump" type="button" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-white/10 text-slate-100 hover:border-cyan-300/60 hover:text-white transition">
+              <i class="fa-solid fa-circle-dot"></i> Shake the tokens
+            </button>
           </div>
         </div>
       </div>
@@ -272,6 +379,36 @@
       legendary: document.getElementById('featured-legendary-label')
     };
 
+    const machineShell = document.getElementById('machine-shell');
+    const machineShellPreview = document.getElementById('machine-shell-preview');
+    const machineTag = document.getElementById('machine-tag');
+    const machineName = document.getElementById('machine-name');
+    const machinePrice = document.getElementById('machine-price');
+    const machineDescription = document.getElementById('machine-description');
+    const machineCTA = document.getElementById('machine-cta');
+    const machineBump = document.getElementById('machine-bump');
+    const featuredOpeners = document.querySelectorAll('.featured-open');
+
+    const machineRarityBars = {
+      common: document.getElementById('machine-common'),
+      rare: document.getElementById('machine-rare'),
+      epic: document.getElementById('machine-epic'),
+      legendary: document.getElementById('machine-legendary')
+    };
+
+    const machineRarityLabels = {
+      common: document.getElementById('machine-common-label'),
+      rare: document.getElementById('machine-rare-label'),
+      epic: document.getElementById('machine-epic-label'),
+      legendary: document.getElementById('machine-legendary-label')
+    };
+
+    const defaultMachineImage = 'https://placehold.co/520x640/0b1224/94a3b8?text=Live+Vending';
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedMachineId = urlParams.get('id');
+    let machinesCache = [];
+    let activeMachineId = null;
+
     const formatPrice = (price) => {
       if (price === undefined || price === null || isNaN(price)) return '—';
       return `$${Number(price).toFixed(2)}`;
@@ -284,28 +421,68 @@
       return '#';
     };
 
+    const setLinkState = (element, href) => {
+      const hasLink = Boolean(href);
+      element.href = hasLink ? href : '#';
+      element.setAttribute('aria-disabled', String(!hasLink));
+      element.classList.toggle('opacity-60', !hasLink);
+      element.classList.toggle('cursor-not-allowed', !hasLink);
+      element.classList.toggle('pointer-events-none', !hasLink);
+    };
+
+    const applyRarities = (bars, labels, rarities = {}) => {
+      const defaults = { common: 40, rare: 30, epic: 20, legendary: 10 };
+      const data = { ...defaults, ...rarities };
+
+      Object.entries(data).forEach(([key, value]) => {
+        const pct = Math.max(0, Number(value) || 0);
+        if (bars[key]) bars[key].style.width = `${pct}%`;
+        if (labels[key]) labels[key].textContent = `${key.charAt(0).toUpperCase() + key.slice(1)} - ${pct}%`;
+      });
+    };
+
     const applyFeatured = (machine) => {
       featuredName.textContent = machine.name || 'Vending Machine';
       featuredPrice.textContent = formatPrice(machine.price);
       featuredImage.src = machine.image || featuredImage.src;
 
       const fallbackLink = resolveMachineLink(machine);
-      const hasLink = fallbackLink !== '#';
-      featuredLink.href = fallbackLink;
-      featuredLink.setAttribute('aria-disabled', String(!hasLink));
-      featuredLink.classList.toggle('opacity-60', !hasLink);
-      featuredLink.classList.toggle('cursor-not-allowed', !hasLink);
-      featuredLink.classList.toggle('pointer-events-none', !hasLink);
+      setLinkState(featuredLink, fallbackLink);
 
-      const rarities = machine.rarities || {};
-      const defaults = { common: 40, rare: 30, epic: 20, legendary: 10 };
-      const data = { ...defaults, ...rarities };
+      applyRarities(rarityBars, rarityLabels, machine.rarities);
+    };
 
-      Object.entries(data).forEach(([key, value]) => {
-        const pct = Math.max(0, Number(value) || 0);
-        rarityBars[key].style.width = `${pct}%`;
-        rarityLabels[key].textContent = `${key.charAt(0).toUpperCase() + key.slice(1)} - ${pct}%`;
-      });
+    const applyMachine = (machine, scrollIntoView = false) => {
+      if (!machine) return;
+      activeMachineId = machine.id || null;
+      applyFeatured(machine);
+
+      machineTag.textContent = machine.tag || 'Curated drops';
+      machineName.textContent = machine.name || 'Vending machine';
+      machinePrice.textContent = formatPrice(machine.price);
+      machineDescription.textContent = machine.description || 'Admin curated drops with live odds and a glass token chamber.';
+
+      const image = machine.image || defaultMachineImage;
+      machineShell.src = image;
+      machineShellPreview.src = image;
+      machineShell.alt = `${machine.name || 'Vending machine'} preview`;
+      machineShellPreview.alt = machineShell.alt;
+
+      const destination = resolveMachineLink(machine);
+      machineCTA.dataset.destination = destination;
+      setLinkState(machineCTA, destination);
+
+      applyRarities(machineRarityBars, machineRarityLabels, machine.rarities);
+
+      if (machine.id) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('id', machine.id);
+        window.history.replaceState({}, '', url.toString());
+      }
+
+      if (scrollIntoView) {
+        document.getElementById('machine-view')?.scrollIntoView({ behavior: 'smooth' });
+      }
     };
 
     const renderCard = (machine) => {
@@ -341,7 +518,7 @@
             <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span>Epic - ${data.epic}%</div>
             <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span>Legendary - ${data.legendary}%</div>
           </div>
-          <a href="${resolveMachineLink(machine)}" class="block w-full text-center rounded-xl bg-white text-slate-900 font-semibold py-3 hover:shadow-lg hover:-translate-y-0.5 transition">
+          <a href="${resolveMachineLink(machine)}" data-machine-id="${machine.id || ''}" class="block w-full text-center rounded-xl bg-white text-slate-900 font-semibold py-3 hover:shadow-lg hover:-translate-y-0.5 transition vm-open">
             Use this machine
           </a>
         </div>
@@ -351,15 +528,28 @@
 
     const renderMachines = (machines) => {
       vendingList.innerHTML = '';
+      machinesCache = machines;
       if (!machines.length) {
         vendingEmpty.classList.remove('hidden');
         return;
       }
       vendingEmpty.classList.add('hidden');
-      machines.forEach((machine, index) => {
+      machines.forEach((machine) => {
         const card = renderCard(machine);
         vendingList.appendChild(card);
-        if (index === 0) applyFeatured(machine);
+      });
+
+      const targetMachine = machines.find((m) => m.id === (activeMachineId || requestedMachineId)) || machines[0];
+      applyMachine(targetMachine);
+
+      document.querySelectorAll('.vm-open').forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+          event.preventDefault();
+          const id = btn.getAttribute('data-machine-id');
+          const match = machinesCache.find((machine) => machine.id === id) || machinesCache[0];
+          applyMachine(match, true);
+          document.getElementById('buyBtn')?.click();
+        });
       });
     };
 
@@ -380,6 +570,27 @@
           vendingEmpty.classList.remove('hidden');
         });
     };
+
+    featuredOpeners.forEach((opener) => {
+      opener.addEventListener('click', (event) => {
+        event.preventDefault();
+        applyMachine(machinesCache[0] || machinesCache.find((m) => m.id === requestedMachineId), true);
+        document.getElementById('buyBtn')?.click();
+      });
+    });
+
+    machineCTA?.addEventListener('click', (event) => {
+      const destination = machineCTA.dataset.destination;
+      if (!destination || destination === '#' || destination.includes('vending.html')) {
+        event.preventDefault();
+        document.getElementById('buyBtn')?.click();
+        document.getElementById('machine-view')?.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+
+    machineBump?.addEventListener('click', () => {
+      document.getElementById('buyBtn')?.click();
+    });
 
     document.addEventListener('DOMContentLoaded', loadMachines);
   </script>
