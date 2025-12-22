@@ -868,28 +868,76 @@
                     <input id="rarity-legendary" type="number" min="0" max="100" step="0.1" class="form-input" placeholder="10" />
                   </label>
                 </div>
-                <div class="space-y-3">
-                  <div class="flex items-center justify-between text-xs text-slate-400">
-                    <span>Prize pools (one per line: <strong>Name | weight | image URL (optional)</strong>)</span>
-                    <span class="text-slate-500">Weights are relative within each rarity</span>
+                <div class="space-y-4">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-slate-400">
+                    <span>Prize pools (Name, weight, optional image) — add items per rarity like you do for packs.</span>
+                    <span class="text-slate-500">Weights are relative within each rarity.</span>
                   </div>
-                  <div class="grid gap-3 md:grid-cols-2">
-                    <label class="glass-subcard space-y-2">
-                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Common items</span><span class="text-sky-200">Ex: Starter | 1 | https://...</span></div>
-                      <textarea id="items-common" rows="3" class="form-textarea" placeholder="Starter Bundle | 1 | https://.../starter.png&#10;Warm-up Pack | 1 | https://.../warm.png"></textarea>
-                    </label>
-                    <label class="glass-subcard space-y-2">
-                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Rare items</span><span class="text-indigo-200">Ex: Rare Pack | 2 | https://...</span></div>
-                      <textarea id="items-rare" rows="3" class="form-textarea" placeholder="Rare Neon Case | 2 | https://.../rare.png&#10;Holo Sticker | 1 | https://.../holo.png"></textarea>
-                    </label>
-                    <label class="glass-subcard space-y-2">
-                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Epic items</span><span class="text-purple-200">Ex: Epic Drop | 3 | https://...</span></div>
-                      <textarea id="items-epic" rows="3" class="form-textarea" placeholder="Epic Hardware Drop | 3 | https://.../epic.png"></textarea>
-                    </label>
-                    <label class="glass-subcard space-y-2">
-                      <div class="flex items-center justify-between text-xs text-slate-400"><span>Legendary items</span><span class="text-amber-200">Ex: Grail | 5 | https://...</span></div>
-                      <textarea id="items-legendary" rows="3" class="form-textarea" placeholder="Legendary Skin | 5 | https://.../legendary.png"></textarea>
-                    </label>
+                  <div class="grid gap-4 md:grid-cols-2">
+                    <div class="glass-subcard space-y-3">
+                      <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span class="font-semibold text-sky-200">Common items</span>
+                        <span class="text-slate-500">Starter | 1 | https://...</span>
+                      </div>
+                      <div class="grid gap-2 md:grid-cols-3">
+                        <input id="item-name-common" type="text" class="form-input" placeholder="Item name" />
+                        <input id="item-weight-common" type="number" min="0" step="0.01" class="form-input" placeholder="Weight" />
+                        <input id="item-image-common" type="url" class="form-input" placeholder="Image URL (optional)" />
+                      </div>
+                      <button type="button" data-rarity="common" class="vending-add-item inline-flex items-center gap-2 rounded-lg bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-100 hover:bg-sky-500/30">
+                        <i class="fa-solid fa-plus"></i> Add common item
+                      </button>
+                      <div id="items-list-common" class="space-y-2 text-sm"></div>
+                      <textarea id="items-common" rows="3" class="form-textarea hidden" placeholder="Starter Bundle | 1 | https://.../starter.png&#10;Warm-up Pack | 1 | https://.../warm.png"></textarea>
+                    </div>
+                    <div class="glass-subcard space-y-3">
+                      <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span class="font-semibold text-indigo-200">Rare items</span>
+                        <span class="text-slate-500">Rare Pack | 2 | https://...</span>
+                      </div>
+                      <div class="grid gap-2 md:grid-cols-3">
+                        <input id="item-name-rare" type="text" class="form-input" placeholder="Item name" />
+                        <input id="item-weight-rare" type="number" min="0" step="0.01" class="form-input" placeholder="Weight" />
+                        <input id="item-image-rare" type="url" class="form-input" placeholder="Image URL (optional)" />
+                      </div>
+                      <button type="button" data-rarity="rare" class="vending-add-item inline-flex items-center gap-2 rounded-lg bg-indigo-500/20 px-3 py-2 text-xs font-semibold text-indigo-100 hover:bg-indigo-500/30">
+                        <i class="fa-solid fa-plus"></i> Add rare item
+                      </button>
+                      <div id="items-list-rare" class="space-y-2 text-sm"></div>
+                      <textarea id="items-rare" rows="3" class="form-textarea hidden" placeholder="Rare Neon Case | 2 | https://.../rare.png&#10;Holo Sticker | 1 | https://.../holo.png"></textarea>
+                    </div>
+                    <div class="glass-subcard space-y-3">
+                      <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span class="font-semibold text-purple-200">Epic items</span>
+                        <span class="text-slate-500">Epic Drop | 3 | https://...</span>
+                      </div>
+                      <div class="grid gap-2 md:grid-cols-3">
+                        <input id="item-name-epic" type="text" class="form-input" placeholder="Item name" />
+                        <input id="item-weight-epic" type="number" min="0" step="0.01" class="form-input" placeholder="Weight" />
+                        <input id="item-image-epic" type="url" class="form-input" placeholder="Image URL (optional)" />
+                      </div>
+                      <button type="button" data-rarity="epic" class="vending-add-item inline-flex items-center gap-2 rounded-lg bg-purple-500/20 px-3 py-2 text-xs font-semibold text-purple-100 hover:bg-purple-500/30">
+                        <i class="fa-solid fa-plus"></i> Add epic item
+                      </button>
+                      <div id="items-list-epic" class="space-y-2 text-sm"></div>
+                      <textarea id="items-epic" rows="3" class="form-textarea hidden" placeholder="Epic Hardware Drop | 3 | https://.../epic.png"></textarea>
+                    </div>
+                    <div class="glass-subcard space-y-3">
+                      <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span class="font-semibold text-amber-200">Legendary items</span>
+                        <span class="text-slate-500">Legendary | 5 | https://...</span>
+                      </div>
+                      <div class="grid gap-2 md:grid-cols-3">
+                        <input id="item-name-legendary" type="text" class="form-input" placeholder="Item name" />
+                        <input id="item-weight-legendary" type="number" min="0" step="0.01" class="form-input" placeholder="Weight" />
+                        <input id="item-image-legendary" type="url" class="form-input" placeholder="Image URL (optional)" />
+                      </div>
+                      <button type="button" data-rarity="legendary" class="vending-add-item inline-flex items-center gap-2 rounded-lg bg-amber-500/20 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/30">
+                        <i class="fa-solid fa-plus"></i> Add legendary item
+                      </button>
+                      <div id="items-list-legendary" class="space-y-2 text-sm"></div>
+                      <textarea id="items-legendary" rows="3" class="form-textarea hidden" placeholder="Legendary Skin | 5 | https://.../legendary.png"></textarea>
+                    </div>
                   </div>
                 </div>
                 <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-500/90 hover:bg-indigo-500 px-4 py-3 font-semibold shadow-lg">
@@ -1274,6 +1322,32 @@
         epic: document.getElementById('items-epic'),
         legendary: document.getElementById('items-legendary')
       },
+      itemInputs: {
+        common: {
+          name: document.getElementById('item-name-common'),
+          weight: document.getElementById('item-weight-common'),
+          image: document.getElementById('item-image-common'),
+          list: document.getElementById('items-list-common'),
+        },
+        rare: {
+          name: document.getElementById('item-name-rare'),
+          weight: document.getElementById('item-weight-rare'),
+          image: document.getElementById('item-image-rare'),
+          list: document.getElementById('items-list-rare'),
+        },
+        epic: {
+          name: document.getElementById('item-name-epic'),
+          weight: document.getElementById('item-weight-epic'),
+          image: document.getElementById('item-image-epic'),
+          list: document.getElementById('items-list-epic'),
+        },
+        legendary: {
+          name: document.getElementById('item-name-legendary'),
+          weight: document.getElementById('item-weight-legendary'),
+          image: document.getElementById('item-image-legendary'),
+          list: document.getElementById('items-list-legendary'),
+        }
+      },
       rarities: {
         common: document.getElementById('rarity-common'),
         rare: document.getElementById('rarity-rare'),
@@ -1367,6 +1441,7 @@
     }
 
     resetPrizesSection();
+    resetVendingItems();
 
     function showToast(message) {
       toast.textContent = message;
@@ -1389,18 +1464,82 @@
           return {
             name: namePart,
             weight: Math.max(0.0001, parseFloat(weightPart) || 1),
-            image: imagePart || ''
-          };
-        });
+          image: imagePart || ''
+        };
+      });
+    }
+
+    const vendingItemsState = {
+      common: [],
+      rare: [],
+      epic: [],
+      legendary: []
+    };
+
+    function syncTextareaFromState(rarity) {
+      if (!vendingElements.items?.[rarity]) return;
+      const rows = (vendingItemsState[rarity] || []).map(item => `${item.name} | ${item.weight} | ${item.image || ''}`);
+      vendingElements.items[rarity].value = rows.join('\n');
+    }
+
+    function renderVendingItems(rarity) {
+      const target = vendingElements.itemInputs?.[rarity]?.list;
+      if (!target) return;
+      const pool = vendingItemsState[rarity] || [];
+      target.innerHTML = '';
+      if (!pool.length) {
+        target.innerHTML = '<p class="text-xs text-slate-500">No items added yet.</p>';
+        syncTextareaFromState(rarity);
+        return;
+      }
+      pool.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between gap-2 rounded-lg bg-slate-900/70 border border-slate-800/80 px-3 py-2';
+        row.innerHTML = `
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-white">${item.name || 'Prize'}</p>
+            <p class="text-xs text-slate-400">Weight: ${item.weight} ${item.image ? '• img' : ''}</p>
+          </div>
+          <button type="button" data-rarity="${rarity}" data-index="${idx}" class="vending-remove-item text-xs text-rose-300 hover:text-rose-200">Remove</button>
+        `;
+        target.appendChild(row);
+      });
+      syncTextareaFromState(rarity);
+    }
+
+    function addVendingItem(rarity) {
+      const inputs = vendingElements.itemInputs?.[rarity];
+      if (!inputs) return;
+      const name = (inputs.name?.value || '').trim();
+      const weight = Math.max(0.0001, parseFloat(inputs.weight?.value) || 1);
+      const image = (inputs.image?.value || '').trim();
+      if (!name) return showToast('Enter a name for the item');
+      vendingItemsState[rarity] = [...(vendingItemsState[rarity] || []), { name, weight, image }];
+      if (inputs.name) inputs.name.value = '';
+      if (inputs.weight) inputs.weight.value = '';
+      if (inputs.image) inputs.image.value = '';
+      renderVendingItems(rarity);
+    }
+
+    function resetVendingItems() {
+      ['common', 'rare', 'epic', 'legendary'].forEach((rarity) => {
+        vendingItemsState[rarity] = [];
+        renderVendingItems(rarity);
+      });
     }
 
     function buildItemsPayload() {
       if (!vendingElements.items) return {};
+      const byState = (rarity) => {
+        const fromState = vendingItemsState[rarity] || [];
+        if (fromState.length) return fromState;
+        return parseItemsInput(vendingElements.items[rarity]?.value || '');
+      };
       return {
-        common: parseItemsInput(vendingElements.items.common?.value || ''),
-        rare: parseItemsInput(vendingElements.items.rare?.value || ''),
-        epic: parseItemsInput(vendingElements.items.epic?.value || ''),
-        legendary: parseItemsInput(vendingElements.items.legendary?.value || ''),
+        common: byState('common'),
+        rare: byState('rare'),
+        epic: byState('epic'),
+        legendary: byState('legendary'),
       };
     }
 
@@ -1682,6 +1821,24 @@
       });
     });
 
+    document.querySelectorAll('.vending-add-item').forEach((button) => {
+      button.addEventListener('click', () => {
+        const rarity = button.dataset.rarity;
+        if (rarity) addVendingItem(rarity);
+      });
+    });
+
+    document.getElementById('vending-form')?.addEventListener('click', (e) => {
+      const target = e.target.closest('.vending-remove-item');
+      if (!target) return;
+      const rarity = target.dataset.rarity;
+      const index = Number(target.dataset.index);
+      if (!rarity || Number.isNaN(index)) return;
+      const pool = vendingItemsState[rarity] || [];
+      vendingItemsState[rarity] = pool.filter((_, i) => i !== index);
+      renderVendingItems(rarity);
+    });
+
     if (logoutButton) {
       logoutButton.addEventListener('click', () => {
         firebase.auth().signOut();
@@ -1734,6 +1891,7 @@
         }).then(() => {
           showToast('✅ Vending machine published');
           vendingElements.form.reset();
+          resetVendingItems();
         }).catch(() => showToast('❌ Failed to publish vending machine'));
       });
 

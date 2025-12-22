@@ -168,15 +168,19 @@
 
   const runHitCycle = () => {
     const pools = { ...defaultItems, ...cachedItems };
+    const choosePool = (rarity) => {
+      const basePool = normalizePool(pools[rarity])?.length ? pools[rarity] : defaultItems[rarity];
+      const normalized = normalizePool(basePool);
+      const withImages = normalized.filter((entry) => entry.image);
+      return withImages.length ? withImages : basePool;
+    };
     ['legendary', 'epic'].forEach((rarity) => {
-      const pool = normalizePool(pools[rarity])?.length ? pools[rarity] : defaultItems[rarity];
-      const item = pickItemFromPool(pool);
+      const item = pickItemFromPool(choosePool(rarity));
       setPreviewCard(rarity, item);
     });
 
     const rarity = pickRarity(cachedRarities);
-    const pool = normalizePool(pools[rarity])?.length ? pools[rarity] : defaultItems[rarity];
-    const item = pickItemFromPool(pool);
+    const item = pickItemFromPool(choosePool(rarity));
     setHitDisplay(rarity, item);
   };
 
