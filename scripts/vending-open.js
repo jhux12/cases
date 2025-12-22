@@ -8,22 +8,10 @@
   const machinePrice = document.getElementById('machine-price');
   const openLabel = document.getElementById('open-label');
   const gemBalance = document.querySelector('#gem-balance span');
-  const previewStage = document.getElementById('preview-stage');
+  const machineStage = document.getElementById('machine-stage');
+  const machineImage = document.getElementById('machine-image');
   const openingOverlay = document.getElementById('opening-overlay');
-
-  const hitImage = document.getElementById('hit-image');
-  const previewSlots = {
-    legendary: {
-      image: document.getElementById('legendary-image'),
-    },
-    epic: {
-      image: document.getElementById('epic-image'),
-    }
-  };
-
-  const hitName = document.getElementById('hit-name');
-  const hitNote = document.getElementById('hit-note');
-  const hitRarityPill = document.getElementById('hit-rarity-pill');
+  const overlayImage = document.getElementById('hit-overlay-image');
   const rarityEls = {
     common: document.getElementById('rarity-common'),
     rare: document.getElementById('rarity-rare'),
@@ -113,19 +101,9 @@
   };
 
   const setHitDisplay = (rarity, item) => {
-    hitName.textContent = item?.name || 'Mystery hit';
-    hitNote.textContent = `${rarity.charAt(0).toUpperCase() + rarity.slice(1)} pull · weighted preview`;
-    const colorMap = {
-      common: 'bg-cyan-400/20 text-cyan-100 border-cyan-400/40',
-      rare: 'bg-indigo-400/20 text-indigo-100 border-indigo-400/40',
-      epic: 'bg-purple-500/20 text-purple-100 border-purple-400/40',
-      legendary: 'bg-amber-400/20 text-amber-100 border-amber-400/40'
-    };
-    hitRarityPill.textContent = rarity.charAt(0).toUpperCase() + rarity.slice(1);
-    hitRarityPill.className = `px-3 py-1 rounded-full text-xs font-semibold border ${colorMap[rarity] || 'bg-white/10 text-white border-white/10'}`;
-    if (hitImage) {
-      hitImage.src = item?.image || fallbackImage;
-      hitImage.alt = item?.name || 'Preview item';
+    if (overlayImage) {
+      overlayImage.src = item?.image || fallbackImage;
+      overlayImage.alt = item?.name || `${rarity} hit`;
     }
   };
 
@@ -153,15 +131,6 @@
     return normalized[0];
   };
 
-  const setPreviewCard = (rarity, item) => {
-    const slot = previewSlots[rarity];
-    if (!slot) return;
-    if (slot.image) {
-      slot.image.src = item?.image || fallbackImage;
-      slot.image.alt = item?.name || `${rarity} preview`;
-    }
-  };
-
   const runHitCycle = () => {
     const pools = { ...defaultItems, ...cachedItems };
     const choosePool = (rarity) => {
@@ -170,11 +139,6 @@
       const withImages = normalized.filter((entry) => entry.image);
       return withImages.length ? withImages : basePool;
     };
-    ['legendary', 'epic'].forEach((rarity) => {
-      const item = pickItemFromPool(choosePool(rarity));
-      setPreviewCard(rarity, item);
-    });
-
     const rarity = pickRarity(cachedRarities);
     const item = pickItemFromPool(choosePool(rarity));
     setHitDisplay(rarity, item);
@@ -192,10 +156,10 @@
     if (!openingOverlay) return;
     if (state) {
       openingOverlay.classList.remove('opacity-0', 'pointer-events-none');
-      previewStage?.classList.add('ring-2', 'ring-cyan-400/50', 'shadow-[0_0_45px_rgba(34,211,238,0.35)]');
+      machineStage?.classList.add('ring-2', 'ring-cyan-400/50', 'shadow-[0_0_45px_rgba(34,211,238,0.35)]');
     } else {
       openingOverlay.classList.add('opacity-0', 'pointer-events-none');
-      previewStage?.classList.remove('ring-2', 'ring-cyan-400/50', 'shadow-[0_0_45px_rgba(34,211,238,0.35)]');
+      machineStage?.classList.remove('ring-2', 'ring-cyan-400/50', 'shadow-[0_0_45px_rgba(34,211,238,0.35)]');
     }
   };
 
@@ -208,6 +172,10 @@
     machineDescription.textContent = machine?.description || 'Open this machine to see the live legendary and epic spotlights.';
     machinePrice.textContent = formatPrice(machine?.price);
     openLabel.textContent = `Open for ${formatPrice(machine?.price)}`;
+    if (machineImage) {
+      machineImage.src = machine?.image || 'https://placehold.co/800x900/0b1224/94a3b8?text=Vending+Machine';
+      machineImage.alt = machine?.name || 'Vending machine';
+    }
 
     applyRarities(rarities);
     startHitCycle(rarities, machine?.items || {});
@@ -274,13 +242,12 @@
 
     showToast(`Opening…`);
     toggleOpeningOverlay(true);
-    if (previewStage) {
-      previewStage.classList.remove('machine-bump');
-      void previewStage.offsetWidth;
-      previewStage.classList.add('machine-bump');
+    if (machineStage) {
+      machineStage.classList.remove('machine-bump');
+      void machineStage.offsetWidth;
+      machineStage.classList.add('machine-bump');
     }
     setHitDisplay(rarity, prize);
-    setPreviewCard(rarity, prize);
     setTimeout(() => {
       toggleOpeningOverlay(false);
       showToast(`You won ${prize.name || 'a prize'} (${rarity})!`);
