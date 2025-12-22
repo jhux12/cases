@@ -834,8 +834,8 @@
                     <input id="vending-image" type="url" class="form-input" placeholder="https://.../machine.png" required />
                   </label>
                   <label class="block space-y-2">
-                    <span class="text-sm text-slate-300">Destination link</span>
-                    <input id="vending-link" type="url" class="form-input" placeholder="vending-machine.html?id=123" required />
+                    <span class="text-sm text-slate-300">Destination link (optional)</span>
+                    <input id="vending-link" type="url" class="form-input" placeholder="Auto-generated if left blank" />
                   </label>
                 </div>
                 <label class="block space-y-2">
@@ -877,7 +877,7 @@
                 <ul class="space-y-2 text-sm text-slate-300">
                   <li>• Use a 3:4 image ratio for the thumbnail.</li>
                   <li>• Odds fields are optional—defaults are applied if blank.</li>
-                  <li>• Destination link should point to the machine runtime page.</li>
+                  <li>• Leave destination blank to auto-generate a link after publishing.</li>
                 </ul>
               </div>
             </div>
@@ -1355,6 +1355,7 @@
       }
       empty.classList.add('hidden');
       items.forEach((item) => {
+        const fallbackLink = item.link || (item.id ? `vending.html?id=${item.id}` : '#');
         const card = document.createElement('article');
         card.className = 'glass-subcard p-4 space-y-3 flex flex-col';
         card.innerHTML = `
@@ -1369,7 +1370,7 @@
             <img src="${item.image || 'https://placehold.co/360x220/0f172a/94a3b8?text=Vending'}" alt="${item.name || 'Vending machine'}" class="w-full h-40 object-cover" />
           </div>
           <p class="text-sm text-slate-300 line-clamp-3">${item.description || 'Published via admin panel.'}</p>
-          <div class="text-xs text-slate-400">Link: <a href="${item.link || '#'}" class="text-indigo-300 break-all">${item.link || '—'}</a></div>
+          <div class="text-xs text-slate-400">Link: <a href="${fallbackLink}" class="text-indigo-300 break-all">${item.link || fallbackLink}</a></div>
           <div class="flex items-center gap-2">
             <button data-id="${item.id}" class="inline-flex items-center gap-2 text-xs rounded-lg px-3 py-2 bg-rose-500/20 text-rose-200 hover:bg-rose-500/30 delete-vending">Delete</button>
           </div>
@@ -1633,11 +1634,12 @@
     if (vendingElements.form) {
       vendingElements.form.addEventListener('submit', (e) => {
         e.preventDefault();
+        const providedLink = vendingElements.link.value.trim();
         const payload = {
           name: vendingElements.name.value.trim(),
           price: parseFloat(vendingElements.price.value) || 0,
           image: vendingElements.image.value.trim(),
-          link: vendingElements.link.value.trim(),
+          link: providedLink,
           description: vendingElements.description.value.trim(),
           rarities: {
             common: parseFloat(vendingElements.rarities.common.value) || 40,
@@ -1648,7 +1650,13 @@
           createdAt: Date.now(),
         };
 
-        firestore.collection('vendingMachines').add(payload).then(() => {
+        firestore.collection('vendingMachines').add(payload).then((docRef) => {
+          if (!providedLink && docRef?.id) {
+            const autoLink = `vending.html?id=${docRef.id}`;
+            return docRef.update({ link: autoLink }).then(() => autoLink);
+          }
+          return providedLink;
+        }).then(() => {
           showToast('✅ Vending machine published');
           vendingElements.form.reset();
         }).catch(() => showToast('❌ Failed to publish vending machine'));

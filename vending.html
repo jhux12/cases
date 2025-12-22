@@ -277,13 +277,21 @@
       return `$${Number(price).toFixed(2)}`;
     };
 
+    const resolveMachineLink = (machine) => {
+      if (!machine) return '#';
+      if (machine.link) return machine.link;
+      if (machine.id) return `vending.html?id=${machine.id}`;
+      return '#';
+    };
+
     const applyFeatured = (machine) => {
       featuredName.textContent = machine.name || 'Vending Machine';
       featuredPrice.textContent = formatPrice(machine.price);
       featuredImage.src = machine.image || featuredImage.src;
 
-      const hasLink = Boolean(machine.link);
-      featuredLink.href = hasLink ? machine.link : '#';
+      const fallbackLink = resolveMachineLink(machine);
+      const hasLink = fallbackLink !== '#';
+      featuredLink.href = fallbackLink;
       featuredLink.setAttribute('aria-disabled', String(!hasLink));
       featuredLink.classList.toggle('opacity-60', !hasLink);
       featuredLink.classList.toggle('cursor-not-allowed', !hasLink);
@@ -333,7 +341,7 @@
             <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span>Epic - ${data.epic}%</div>
             <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span>Legendary - ${data.legendary}%</div>
           </div>
-          <a href="${machine.link || '#'}" class="block w-full text-center rounded-xl bg-white text-slate-900 font-semibold py-3 hover:shadow-lg hover:-translate-y-0.5 transition">
+          <a href="${resolveMachineLink(machine)}" class="block w-full text-center rounded-xl bg-white text-slate-900 font-semibold py-3 hover:shadow-lg hover:-translate-y-0.5 transition">
             Use this machine
           </a>
         </div>
