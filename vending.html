@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pullz.gg | Vending Machines</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/main.css" />
+  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
+  <style>
+    :root {
+      --vm-surface: rgba(21, 27, 46, 0.9);
+      --vm-border: rgba(255, 255, 255, 0.08);
+      --vm-gradient: linear-gradient(135deg, #1d4ed8, #9333ea);
+      --vm-text: #e2e8f0;
+      --vm-muted: #cbd5e1;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at 18% 22%, rgba(99, 102, 241, 0.07), transparent 32%),
+                  radial-gradient(circle at 80% 12%, rgba(14, 165, 233, 0.08), transparent 30%),
+                  #0b1120;
+      color: var(--vm-text);
+    }
+
+    .vm-card {
+      position: relative;
+      border: 1px solid var(--vm-border);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(12, 18, 36, 0.75) 100%);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .vm-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(96, 165, 250, 0.45);
+      box-shadow: 0 25px 60px rgba(59, 130, 246, 0.22);
+    }
+
+    .vm-rarity-bar {
+      height: 9px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .vm-badge {
+      background: var(--vm-gradient);
+      color: #0b1224;
+    }
+
+    .vm-hero {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(145deg, rgba(14, 165, 233, 0.18), rgba(124, 58, 237, 0.18));
+    }
+
+    .vm-hero::after {
+      content: '';
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 30% 20%, rgba(56, 189, 248, 0.25), transparent 35%),
+                  radial-gradient(circle at 80% 30%, rgba(147, 51, 234, 0.25), transparent 38%);
+      pointer-events: none;
+      filter: blur(12px);
+      opacity: 0.8;
+    }
+
+    /* Glass window container (clips the canvas) */
+    .glass-window {
+      position: absolute;
+      overflow: hidden;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Optional: glass reflection overlay */
+    .glass-reflection {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 45%);
+      mix-blend-mode: screen;
+      opacity: 0.35;
+      transform: translateX(-12%);
+    }
+
+    #vendingCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-100">
+  <script src="scripts/preloader.js"></script>
+  <header></header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 space-y-12">
+    <section class="vm-hero rounded-3xl p-6 sm:p-10 relative overflow-hidden">
+      <div class="relative z-10 grid gap-8 lg:grid-cols-2 lg:items-center">
+        <div class="space-y-4">
+          <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold vm-badge shadow-lg">Vending Machines</p>
+          <h1 class="text-4xl sm:text-5xl font-bold leading-tight">Pullz.gg vending machines</h1>
+          <p class="text-slate-200/80 text-base sm:text-lg max-w-2xl">Browse the latest curated machines from the admin panel and jump straight into an experience tailored to your pulls.</p>
+          <div class="flex flex-wrap gap-3 text-sm text-slate-200/90">
+            <span class="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-2 rounded-xl"><i class="fa-solid fa-wand-magic-sparkles text-indigo-300"></i>Admin curated drops</span>
+            <span class="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-2 rounded-xl"><i class="fa-solid fa-shield-halved text-sky-300"></i>Live odds display</span>
+            <span class="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-2 rounded-xl"><i class="fa-solid fa-credit-card text-amber-300"></i>One-click entry</span>
+          </div>
+        </div>
+        <div class="relative space-y-6">
+          <div class="vm-card rounded-3xl p-6 sm:p-8 overflow-hidden">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <p class="text-xs uppercase tracking-[0.35em] text-slate-400">Featured</p>
+                <p class="text-2xl font-semibold" id="featured-name">Loading…</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 border border-white/10" id="featured-price">—</span>
+            </div>
+            <div class="bg-slate-900/80 rounded-2xl border border-white/5 p-4 flex items-center gap-4">
+              <img id="featured-image" src="https://placehold.co/160x200/111827/94a3b8?text=Vending" alt="Featured vending machine" class="w-28 sm:w-32 h-36 sm:h-40 object-cover rounded-xl border border-white/5" />
+              <div class="flex-1 space-y-3">
+                <div class="vm-rarity-bar bg-white/5 flex overflow-hidden">
+                  <div id="featured-common" class="bg-sky-400/70" style="width: 40%"></div>
+                  <div id="featured-rare" class="bg-indigo-400/70" style="width: 30%"></div>
+                  <div id="featured-epic" class="bg-purple-500/70" style="width: 20%"></div>
+                  <div id="featured-legendary" class="bg-amber-400/80" style="width: 10%"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs text-slate-300/90">
+                  <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-sky-400"></span><span id="featured-common-label">Common</span></div>
+                  <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-400"></span><span id="featured-rare-label">Rare</span></div>
+                  <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span><span id="featured-epic-label">Epic</span></div>
+                  <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span><span id="featured-legendary-label">Legendary</span></div>
+                </div>
+                <button id="featured-link" class="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-white text-slate-900 font-semibold py-3 hover:shadow-lg hover:-translate-y-0.5 transition" disabled>
+                  <i class="fa-solid fa-bolt"></i> Go to machine
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="vm-card rounded-3xl p-4 sm:p-6 overflow-hidden">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <p class="text-xs uppercase tracking-[0.35em] text-slate-400">Live preview</p>
+                <p class="text-lg font-semibold">Token physics inside the glass</p>
+              </div>
+              <button id="buyBtn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 font-semibold shadow-lg hover:shadow-indigo-500/30 transition">
+                Bump tokens
+              </button>
+            </div>
+            <div class="relative w-full max-w-xl mx-auto">
+              <img
+                src="https://placehold.co/520x640/0f172a/94a3b8?text=Vending+Machine"
+                alt="Vending machine"
+                class="w-full select-none pointer-events-none rounded-2xl border border-white/10 shadow-2xl"
+              />
+              <div
+                id="glassWindow"
+                class="glass-window"
+                style="top: 110px; left: 104px; width: 312px; height: 240px;"
+              >
+                <canvas id="vendingCanvas"></canvas>
+                <div class="glass-reflection"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="space-y-6">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <p class="text-xs uppercase tracking-[0.35em] text-slate-500">Live lineup</p>
+          <h2 class="text-2xl font-semibold">Available vending machines</h2>
+        </div>
+        <div class="text-sm text-slate-400" id="vending-sync">Syncing…</div>
+      </div>
+      <div id="vending-list" class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3"></div>
+      <p id="vending-empty" class="hidden text-center text-slate-400">No vending machines published yet. Add one from the admin panel to see it here.</p>
+    </section>
+  </main>
+
+  <script src="scripts/header.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/footer.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script type="module" src="scripts/vending-anim.js"></script>
+  <script>
+    const firestore = firebase.firestore();
+
+    const vendingList = document.getElementById('vending-list');
+    const vendingEmpty = document.getElementById('vending-empty');
+    const vendingSync = document.getElementById('vending-sync');
+
+    const featuredName = document.getElementById('featured-name');
+    const featuredPrice = document.getElementById('featured-price');
+    const featuredImage = document.getElementById('featured-image');
+    const featuredLink = document.getElementById('featured-link');
+
+    const rarityBars = {
+      common: document.getElementById('featured-common'),
+      rare: document.getElementById('featured-rare'),
+      epic: document.getElementById('featured-epic'),
+      legendary: document.getElementById('featured-legendary')
+    };
+
+    const rarityLabels = {
+      common: document.getElementById('featured-common-label'),
+      rare: document.getElementById('featured-rare-label'),
+      epic: document.getElementById('featured-epic-label'),
+      legendary: document.getElementById('featured-legendary-label')
+    };
+
+    const formatPrice = (price) => {
+      if (price === undefined || price === null || isNaN(price)) return '—';
+      return `$${Number(price).toFixed(2)}`;
+    };
+
+    const applyFeatured = (machine) => {
+      featuredName.textContent = machine.name || 'Vending Machine';
+      featuredPrice.textContent = formatPrice(machine.price);
+      featuredImage.src = machine.image || featuredImage.src;
+      featuredLink.disabled = !machine.link;
+      featuredLink.href = machine.link || '#';
+
+      const rarities = machine.rarities || {};
+      const defaults = { common: 40, rare: 30, epic: 20, legendary: 10 };
+      const data = { ...defaults, ...rarities };
+
+      Object.entries(data).forEach(([key, value]) => {
+        const pct = Math.max(0, Number(value) || 0);
+        rarityBars[key].style.width = `${pct}%`;
+        rarityLabels[key].textContent = `${key.charAt(0).toUpperCase() + key.slice(1)} - ${pct}%`;
+      });
+    };
+
+    const renderCard = (machine) => {
+      const rarities = machine.rarities || {};
+      const defaults = { common: 40, rare: 30, epic: 20, legendary: 10 };
+      const data = { ...defaults, ...rarities };
+
+      const card = document.createElement('article');
+      card.className = 'vm-card rounded-2xl overflow-hidden border border-white/5 bg-slate-900/80';
+      card.innerHTML = `
+        <div class="flex items-start justify-between p-4 pb-2">
+          <div>
+            <p class="text-xs uppercase tracking-[0.3em] text-slate-500">${machine.tag || 'Featured'}</p>
+            <h3 class="text-xl font-semibold text-white">${machine.name || 'Vending Machine'}</h3>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 border border-white/10">${formatPrice(machine.price)}</span>
+        </div>
+        <div class="px-4 pb-4 space-y-4">
+          <div class="relative rounded-2xl overflow-hidden border border-white/5 bg-slate-800/60">
+            <img src="${machine.image || 'https://placehold.co/420x260/0f172a/94a3b8?text=Vending'}" alt="${machine.name || 'Vending machine'}" class="w-full h-52 object-cover" />
+          </div>
+          <p class="text-sm text-slate-300/90 leading-relaxed min-h-[44px]">${machine.description || 'Admin curated drops with live odds and quick checkout.'}</p>
+          <div class="vm-rarity-bar flex overflow-hidden bg-white/5 border border-white/5">
+            <div class="bg-sky-400/70" style="width:${data.common}%"></div>
+            <div class="bg-indigo-400/70" style="width:${data.rare}%"></div>
+            <div class="bg-purple-500/70" style="width:${data.epic}%"></div>
+            <div class="bg-amber-400/80" style="width:${data.legendary}%"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-xs text-slate-300/90">
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-sky-400"></span>Common - ${data.common}%</div>
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-400"></span>Rare - ${data.rare}%</div>
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span>Epic - ${data.epic}%</div>
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span>Legendary - ${data.legendary}%</div>
+          </div>
+          <a href="${machine.link || '#'}" class="block w-full text-center rounded-xl bg-white text-slate-900 font-semibold py-3 hover:shadow-lg hover:-translate-y-0.5 transition">
+            Use this machine
+          </a>
+        </div>
+      `;
+      return card;
+    };
+
+    const renderMachines = (machines) => {
+      vendingList.innerHTML = '';
+      if (!machines.length) {
+        vendingEmpty.classList.remove('hidden');
+        return;
+      }
+      vendingEmpty.classList.add('hidden');
+      machines.forEach((machine, index) => {
+        const card = renderCard(machine);
+        vendingList.appendChild(card);
+        if (index === 0) applyFeatured(machine);
+      });
+    };
+
+    const loadMachines = () => {
+      vendingSync.textContent = 'Syncing…';
+      firestore
+        .collection('vendingMachines')
+        .orderBy('createdAt', 'desc')
+        .onSnapshot((snapshot) => {
+          const machines = [];
+          snapshot.forEach((doc) => {
+            machines.push({ id: doc.id, ...(doc.data() || {}) });
+          });
+          vendingSync.textContent = `Last updated ${new Date().toLocaleTimeString()}`;
+          renderMachines(machines);
+        }, () => {
+          vendingSync.textContent = 'Unable to load vending machines';
+          vendingEmpty.classList.remove('hidden');
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', loadMachines);
+  </script>
+</body>
+</html>
