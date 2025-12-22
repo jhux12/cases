@@ -55,6 +55,49 @@
             border-color: var(--nav-border);
             box-shadow: var(--nav-shadow);
         }
+
+        .home-layout-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .home-layout-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .home-layout-card {
+            flex: 0 0 var(--block-width, 100%);
+            max-width: var(--block-width, 100%);
+            border-radius: 18px;
+            padding: 1.5rem;
+            background: var(--card-surface);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+            color: inherit;
+        }
+
+        .home-layout-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .home-layout-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .home-layout-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+        }
         
         @keyframes float {
             0% { transform: translateY(0px); }
@@ -424,7 +467,7 @@
   <header></header>
 
   <!-- Hero Section -->
-  <div class="relative overflow-hidden pt-24 home-hero">
+    <div class="relative overflow-hidden pt-24 home-hero">
         <div class="max-w-7xl mx-auto px-6 lg:px-10">
             <div class="relative z-10 pb-12">
                 <main class="hero-grid">
@@ -502,6 +545,15 @@
                 </main>
             </div>
         </div>
+    </div>
+
+    <div id="home-dynamic-wrapper" class="home-layout-wrapper hidden">
+        <div class="home-layout-meta">
+            <span class="uppercase tracking-[0.35em] text-xs">Custom layout</span>
+            <span id="home-layout-updated" class="text-sm">Loading…</span>
+        </div>
+        <div id="home-dynamic-sections" class="home-layout-grid"></div>
+        <p id="home-layout-empty" class="text-center text-slate-400 mt-4 hidden">No custom sections published yet.</p>
     </div>
 
     <!-- Featured Cards Section -->
@@ -827,7 +879,65 @@
 
     <script src="pack-opener/spinner.js"></script>
     <script>
+        async function loadHomeLayout() {
+            const wrapper = document.getElementById('home-dynamic-wrapper');
+            const grid = document.getElementById('home-dynamic-sections');
+            const empty = document.getElementById('home-layout-empty');
+            const updated = document.getElementById('home-layout-updated');
+            if (!wrapper || !grid) return;
+
+            try {
+                const snap = await firebase.database().ref('pageContent/home').once('value');
+                const data = snap.val() || {};
+                const sections = Array.isArray(data.sections) ? data.sections : [];
+
+                if (updated) {
+                    updated.textContent = data.updatedAt ? `Updated ${new Date(data.updatedAt).toLocaleString()}` : 'Live layout';
+                }
+
+                if (!sections.length) {
+                    wrapper.classList.remove('hidden');
+                    grid.innerHTML = '';
+                    if (empty) empty.classList.remove('hidden');
+                    return;
+                }
+
+                wrapper.classList.remove('hidden');
+                if (empty) empty.classList.add('hidden');
+                grid.innerHTML = '';
+
+                sections.forEach(section => {
+                    const width = Math.min(Math.max(Number(section.width) || 100, 20), 100);
+                    const block = document.createElement('section');
+                    block.className = 'home-layout-card';
+                    block.style.setProperty('--block-width', `${width}%`);
+                    if (section.background) block.style.background = section.background;
+
+                    const heading = document.createElement('h3');
+                    heading.textContent = section.title || 'Untitled section';
+
+                    const content = document.createElement('div');
+                    content.className = 'home-layout-content';
+                    content.innerHTML = section.content || '';
+
+                    block.appendChild(heading);
+                    if (section.subtitle) {
+                        const sub = document.createElement('p');
+                        sub.className = 'text-sm text-slate-400 mb-2';
+                        sub.textContent = section.subtitle;
+                        block.appendChild(sub);
+                    }
+                    block.appendChild(content);
+                    grid.appendChild(block);
+                });
+            } catch (err) {
+                console.warn('Failed to load homepage layout', err);
+                if (updated) updated.textContent = 'Failed to load layout';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            loadHomeLayout();
             const root = document.getElementById('demo-spinner');
             if (!root) return;
 
