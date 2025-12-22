@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pullz.gg | Vending Machines</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body class="min-h-screen bg-[#05060c] text-slate-100">
+  <script src="scripts/preloader.js"></script>
+  <header></header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 space-y-10">
+    <section class="relative overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-br from-slate-900/70 via-slate-900/60 to-slate-950/80 shadow-[0_30px_100px_rgba(0,0,0,0.45)]">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(59,130,246,0.15),transparent_35%),radial-gradient(circle_at_80%_10%,rgba(99,102,241,0.18),transparent_38%),radial-gradient(circle_at_60%_70%,rgba(16,185,129,0.16),transparent_40%)]"></div>
+      <div class="relative z-10 p-6 sm:p-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-4 max-w-2xl">
+          <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 border border-white/10 shadow">Vending machines</p>
+          <div class="space-y-2">
+            <h1 class="text-3xl sm:text-4xl font-bold">Pick a machine and start opening</h1>
+            <p class="text-slate-300/90 leading-relaxed">Live, admin-curated vending drops with clean odds bars and quick entry into the opening screen. Tap a machine to launch it instantly.</p>
+          </div>
+          <div class="flex flex-wrap gap-3 text-sm text-slate-200/90">
+            <span class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-indigo-200"></i>Neon glass styling</span>
+            <span class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2"><i class="fa-solid fa-bolt text-amber-200"></i>One-click open</span>
+            <span class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2"><i class="fa-solid fa-wifi text-cyan-200"></i>Realtime updates</span>
+          </div>
+        </div>
+        <div class="shrink-0 rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-slate-200/90 shadow-lg backdrop-blur">
+          <p class="font-semibold text-white">How it works</p>
+          <ul class="mt-2 space-y-1 list-disc list-inside text-slate-300/90">
+            <li>Browse machines curated by admins</li>
+            <li>Check price + rarity spread</li>
+            <li>Hit <span class="font-semibold text-white">Open</span> to launch the machine</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="space-y-4">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Live lineup</p>
+          <h2 class="text-2xl sm:text-3xl font-semibold">Available vending machines</h2>
+        </div>
+        <div id="vending-sync" class="text-sm text-slate-300 px-3 py-1 rounded-full bg-white/5 border border-white/10">Syncing…</div>
+      </div>
+      <div id="vending-list" class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3"></div>
+      <p id="vending-empty" class="hidden text-center text-slate-400 bg-white/5 border border-white/10 rounded-2xl py-6">No vending machines published yet. Add one from the admin panel to see it here.</p>
+    </section>
+  </main>
+
+  <script src="scripts/header.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/footer.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script src="scripts/vending-list.js"></script>
+</body>
+</html>
