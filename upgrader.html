@@ -110,8 +110,9 @@
       width: 86%; height: 86%; border-radius: 999px; border: 8px solid #0b1222;
       box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.55), 0 16px 30px rgba(0, 0, 0, 0.55);
       background: conic-gradient(from 0deg, var(--success) 0deg var(--win-angle, 0deg), #0b1222 var(--win-angle, 0deg) 360deg);
-      transition: transform 4s cubic-bezier(0.12, 0.66, 0.16, 1), filter 0.2s ease;
+      transition: transform 3.65s cubic-bezier(0.21, 0.8, 0.26, 1), filter 0.2s ease;
       position: relative;
+      will-change: transform;
     }
 
     .wheel-center {
@@ -252,7 +253,7 @@
               </div>
               <div class="text-right">
                 <p class="text-xs uppercase tracking-wide text-gray-400">Consolation</p>
-                <p class="font-semibold text-teal-300">10 gems</p>
+                <p class="font-semibold text-teal-300">No gem payout</p>
               </div>
             </div>
           </div>
@@ -451,8 +452,8 @@
       const image = document.getElementById('result-image');
 
       title.textContent = didWin ? 'Upgrade succeeded' : 'Upgrade failed';
-      message.textContent = didWin ? `You won ${item?.name || 'your target item'}!` : 'You received a consolation of 10 gems.';
-      value.innerHTML = didWin ? formatGems(getEffectivePrice(item || {})) : formatGems(10);
+      message.textContent = didWin ? `You won ${item?.name || 'your target item'}!` : 'No gems awarded this time.';
+      value.innerHTML = didWin ? formatGems(getEffectivePrice(item || {})) : 'Better luck on the next spin';
       pill.textContent = didWin ? 'Win' : 'Loss';
       pill.className = `rarity-pill ${didWin ? 'rarity-legendary' : 'rarity-common'}`;
       image.src = didWin ? (item?.image || '') : 'https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff';
@@ -603,6 +604,8 @@
       const landingAngle = (360 - pointerTarget + 360) % 360;
 
       rotation = spins * 360 + landingAngle;
+      wheelDisk.style.transition = 'transform 3.65s cubic-bezier(0.21, 0.8, 0.26, 1)';
+      void wheelDisk.offsetWidth;
       wheelDisk.style.transform = `rotate(${rotation}deg)`;
 
       setTimeout(() => {
@@ -612,12 +615,10 @@
         if (didWin) {
           statusText.textContent = 'Congratulations! Upgrade succeeded.';
           outcomeText.textContent = 'Upgraded';
-          gems += targetPrice;
           addWinToInventory(selectedTarget);
         } else {
-          statusText.textContent = 'Unlucky! You received 10 gems as a consolation.';
-          outcomeText.textContent = 'Failed (+10 gems)';
-          gems += 10;
+          statusText.textContent = 'Unlucky! No gems awarded.';
+          outcomeText.textContent = 'Failed';
         }
 
         const resultItem = { ...selectedTarget, won: didWin };
@@ -631,8 +632,8 @@
         spinButton.disabled = false;
         isSpinning = false;
         updateOdds();
-        setTimeout(resetWheel, 600);
-      }, 4200);
+        setTimeout(resetWheel, 400);
+      }, 3750);
     }
 
     function resetWheel() {
