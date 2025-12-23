@@ -1,193 +1,175 @@
+// @ts-nocheck
 // scripts/topup.js
-
 // ✅ Initialize Stripe at the top of the file
 const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
-
 // Load and inject the top-up popup component
 async function loadTopupPopup() {
-  const res = await fetch("components/topup.html");
-  const html = await res.text();
-  document.body.insertAdjacentHTML("beforeend", html);
-
-  const popup = document.getElementById("topup-popup");
-  const closeBtn = document.getElementById("close-topup");
-  const topupDesktop = document.getElementById("topup-button");
-  const topupMobileHeader = document.getElementById("topup-button-mobile-header");
-  const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
-  const topupScroll = popup?.querySelector(".topup-scroll");
-  const topupCards = popup?.querySelectorAll(".topup-card") ?? [];
-  const indicatorsHost = popup?.querySelector(".topup-indicators");
-
-  if (popup && closeBtn) {
-    closeBtn.onclick = () => popup.classList.add("hidden");
-  }
-
-  const openPopup = () => {
-    if (popup) popup.classList.remove("hidden");
-    const mobileDrawer = document.getElementById("mobile-drawer");
-    const drawerOverlay = document.getElementById("drawer-overlay");
-    if (mobileDrawer && !mobileDrawer.classList.contains("-translate-x-full")) {
-      mobileDrawer.classList.add("-translate-x-full");
+    const res = await fetch("components/topup.html");
+    const html = await res.text();
+    document.body.insertAdjacentHTML("beforeend", html);
+    const popup = document.getElementById("topup-popup");
+    const closeBtn = document.getElementById("close-topup");
+    const topupDesktop = document.getElementById("topup-button");
+    const topupMobileHeader = document.getElementById("topup-button-mobile-header");
+    const topupMobileDrawer = document.getElementById("topup-button-mobile-drawer");
+    const topupScroll = popup?.querySelector(".topup-scroll");
+    const topupCards = popup?.querySelectorAll(".topup-card") ?? [];
+    const indicatorsHost = popup?.querySelector(".topup-indicators");
+    if (popup && closeBtn) {
+        closeBtn.onclick = () => popup.classList.add("hidden");
     }
-    if (drawerOverlay && !drawerOverlay.classList.contains("hidden")) {
-      drawerOverlay.classList.add("hidden");
-    }
-  };
-  if (topupDesktop) topupDesktop.onclick = openPopup;
-  if (topupMobileHeader) topupMobileHeader.onclick = openPopup;
-  if (topupMobileDrawer) topupMobileDrawer.onclick = openPopup;
-
-  // Build and sync a position indicator for the horizontal scroller
-  if (topupScroll && indicatorsHost && topupCards.length) {
-    indicatorsHost.innerHTML = "";
-    const dots = Array.from(topupCards).map((card, index) => {
-      const dot = document.createElement("button");
-      dot.type = "button";
-      dot.className = `topup-indicator${index === 0 ? " active" : ""}`;
-      dot.setAttribute("aria-label", `View package ${index + 1}`);
-      dot.onclick = () => {
-        const offset = card.offsetLeft - (topupScroll.clientWidth - card.clientWidth) / 2;
-        topupScroll.scrollTo({ left: offset, behavior: "smooth" });
-      };
-      indicatorsHost.appendChild(dot);
-      return dot;
-    });
-
-    const updateActiveDot = () => {
-      let activeIndex = 0;
-      let minDistance = Infinity;
-      const viewportCenter = topupScroll.scrollLeft + topupScroll.clientWidth / 2;
-
-      topupCards.forEach((card, index) => {
-        const cardCenter = card.offsetLeft + card.clientWidth / 2;
-        const distance = Math.abs(cardCenter - viewportCenter);
-        if (distance < minDistance) {
-          minDistance = distance;
-          activeIndex = index;
+    const openPopup = () => {
+        if (popup)
+            popup.classList.remove("hidden");
+        const mobileDrawer = document.getElementById("mobile-drawer");
+        const drawerOverlay = document.getElementById("drawer-overlay");
+        if (mobileDrawer && !mobileDrawer.classList.contains("-translate-x-full")) {
+            mobileDrawer.classList.add("-translate-x-full");
         }
-      });
-
-      dots.forEach((dot, index) => {
-        dot.classList.toggle("active", index === activeIndex);
-      });
+        if (drawerOverlay && !drawerOverlay.classList.contains("hidden")) {
+            drawerOverlay.classList.add("hidden");
+        }
     };
-
-    topupScroll.addEventListener("scroll", () => requestAnimationFrame(updateActiveDot));
-    window.addEventListener("resize", updateActiveDot);
-    updateActiveDot();
-  }
-
-  // Attach loading feedback to all buy buttons
-  document.querySelectorAll("#topup-popup form").forEach(form => {
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const button = form.querySelector("button");
-      const priceId = form.getAttribute("data-price-id");
-      if (priceId && button) {
-        redirectToCheckout(e, priceId, button);
-      }
+    if (topupDesktop)
+        topupDesktop.onclick = openPopup;
+    if (topupMobileHeader)
+        topupMobileHeader.onclick = openPopup;
+    if (topupMobileDrawer)
+        topupMobileDrawer.onclick = openPopup;
+    // Build and sync a position indicator for the horizontal scroller
+    if (topupScroll && indicatorsHost && topupCards.length) {
+        indicatorsHost.innerHTML = "";
+        const dots = Array.from(topupCards).map((card, index) => {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.className = `topup-indicator${index === 0 ? " active" : ""}`;
+            dot.setAttribute("aria-label", `View package ${index + 1}`);
+            dot.onclick = () => {
+                const offset = card.offsetLeft - (topupScroll.clientWidth - card.clientWidth) / 2;
+                topupScroll.scrollTo({ left: offset, behavior: "smooth" });
+            };
+            indicatorsHost.appendChild(dot);
+            return dot;
+        });
+        const updateActiveDot = () => {
+            let activeIndex = 0;
+            let minDistance = Infinity;
+            const viewportCenter = topupScroll.scrollLeft + topupScroll.clientWidth / 2;
+            topupCards.forEach((card, index) => {
+                const cardCenter = card.offsetLeft + card.clientWidth / 2;
+                const distance = Math.abs(cardCenter - viewportCenter);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    activeIndex = index;
+                }
+            });
+            dots.forEach((dot, index) => {
+                dot.classList.toggle("active", index === activeIndex);
+            });
+        };
+        topupScroll.addEventListener("scroll", () => requestAnimationFrame(updateActiveDot));
+        window.addEventListener("resize", updateActiveDot);
+        updateActiveDot();
+    }
+    // Attach loading feedback to all buy buttons
+    document.querySelectorAll("#topup-popup form").forEach(form => {
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const button = form.querySelector("button");
+            const priceId = form.getAttribute("data-price-id");
+            if (priceId && button) {
+                redirectToCheckout(e, priceId, button);
+            }
+        });
     });
-  });
 }
-
 // Ensure the top-up popup is initialized after the full page, including the
 // header component, has loaded. This avoids race conditions where the popup
 // tries to bind to wallet buttons before they exist in the DOM.
 window.addEventListener("load", loadTopupPopup);
-
 // Stripe redirect with loading indicator
 function redirectToCheckout(event, priceId, button) {
-  event.preventDefault();
-
-  const originalText = button.innerHTML;
-  button.disabled = true;
-  button.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Loading...`;
-
-  const user = firebase.auth().currentUser;
-  if (!user) {
-    alert("Please sign in to purchase gems.");
-    button.disabled = false;
-    button.innerHTML = originalText;
-    return;
-  }
-
-  firebase.firestore()
-    .collection("customers")
-    .doc(user.uid)
-    .collection("checkout_sessions")
-    .add({
-      mode: "payment",
-      success_url: window.location.href,
-      cancel_url: window.location.href,
-      allow_promotion_codes: true,
-      line_items: [{ price: priceId, quantity: 1 }],
-      metadata: { priceId }
+    event.preventDefault();
+    const originalText = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Loading...`;
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        alert("Please sign in to purchase gems.");
+        button.disabled = false;
+        button.innerHTML = originalText;
+        return;
+    }
+    firebase.firestore()
+        .collection("customers")
+        .doc(user.uid)
+        .collection("checkout_sessions")
+        .add({
+        mode: "payment",
+        success_url: window.location.href,
+        cancel_url: window.location.href,
+        allow_promotion_codes: true,
+        line_items: [{ price: priceId, quantity: 1 }],
+        metadata: { priceId }
     })
-    .then((docRef) => {
-      docRef.onSnapshot((snap) => {
-        const { error, sessionId } = snap.data();
-        if (error) {
-          alert(`An error occurred: ${error.message}`);
-          button.disabled = false;
-          button.innerHTML = originalText;
-        }
-        if (sessionId) {
-          stripe.redirectToCheckout({ sessionId });
-        }
-      });
+        .then((docRef) => {
+        docRef.onSnapshot((snap) => {
+            const { error, sessionId } = snap.data();
+            if (error) {
+                alert(`An error occurred: ${error.message}`);
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+            if (sessionId) {
+                stripe.redirectToCheckout({ sessionId });
+            }
+        });
     });
 }
-
 // Update gem balance when payment is successful
 firebase.auth().onAuthStateChanged(async (user) => {
-  if (!user) return;
-  const dbRTDB = firebase.database();
-  const dbFS = firebase.firestore();
-  const userRef = dbRTDB.ref("users/" + user.uid);
-
-  const paymentsRef = dbFS.collection("customers").doc(user.uid).collection("payments");
-
-  paymentsRef.onSnapshot(async (snapshot) => {
-    for (const change of snapshot.docChanges()) {
-      if (change.type === "added") {
-        const payment = change.doc.data();
-        const priceId = payment?.metadata?.priceId || payment?.price?.id;
-
-        if (payment.status === "succeeded" && !payment.processed && priceId) {
-          try {
-            const productSnap = await dbFS.collection("products").where("priceId", "==", priceId).get();
-
-            if (!productSnap.empty) {
-              const product = productSnap.docs[0].data();
-              const gems = parseInt(product.coin_amount || "0");
-              const bonus = parseInt(product.bonus || "0");
-              const total = gems + bonus;
-
-              const currentSnap = await userRef.once("value");
-              const currentBalance = currentSnap.val()?.balance || 0;
-              const newBalance = currentBalance + total;
-
-              await userRef.update({ balance: newBalance });
-
-              const formattedBalance = newBalance.toLocaleString();
-              document.getElementById("balance-amount").innerText = formattedBalance;
-              const mobileBalance = document.getElementById("balance-amount-mobile");
-              const mobileDropdownBalance = document.getElementById("balance-amount-mobile-dropdown");
-              if (mobileBalance) mobileBalance.innerText = formattedBalance;
-              if (mobileDropdownBalance) mobileDropdownBalance.innerText = formattedBalance;
-
-              const popupBalance = document.getElementById("popup-balance");
-              if (popupBalance) popupBalance.innerText = `${formattedBalance} gems`;
-
-              await change.doc.ref.update({ processed: true });
+    if (!user)
+        return;
+    const dbRTDB = firebase.database();
+    const dbFS = firebase.firestore();
+    const userRef = dbRTDB.ref("users/" + user.uid);
+    const paymentsRef = dbFS.collection("customers").doc(user.uid).collection("payments");
+    paymentsRef.onSnapshot(async (snapshot) => {
+        for (const change of snapshot.docChanges()) {
+            if (change.type === "added") {
+                const payment = change.doc.data();
+                const priceId = payment?.metadata?.priceId || payment?.price?.id;
+                if (payment.status === "succeeded" && !payment.processed && priceId) {
+                    try {
+                        const productSnap = await dbFS.collection("products").where("priceId", "==", priceId).get();
+                        if (!productSnap.empty) {
+                            const product = productSnap.docs[0].data();
+                            const gems = parseInt(product.coin_amount || "0");
+                            const bonus = parseInt(product.bonus || "0");
+                            const total = gems + bonus;
+                            const currentSnap = await userRef.once("value");
+                            const currentBalance = currentSnap.val()?.balance || 0;
+                            const newBalance = currentBalance + total;
+                            await userRef.update({ balance: newBalance });
+                            const formattedBalance = newBalance.toLocaleString();
+                            document.getElementById("balance-amount").innerText = formattedBalance;
+                            const mobileBalance = document.getElementById("balance-amount-mobile");
+                            const mobileDropdownBalance = document.getElementById("balance-amount-mobile-dropdown");
+                            if (mobileBalance)
+                                mobileBalance.innerText = formattedBalance;
+                            if (mobileDropdownBalance)
+                                mobileDropdownBalance.innerText = formattedBalance;
+                            const popupBalance = document.getElementById("popup-balance");
+                            if (popupBalance)
+                                popupBalance.innerText = `${formattedBalance} gems`;
+                            await change.doc.ref.update({ processed: true });
+                        }
+                    }
+                    catch (err) {
+                        console.error("🔥 Error processing Stripe payment:", err);
+                    }
+                }
             }
-          } catch (err) {
-            console.error("🔥 Error processing Stripe payment:", err);
-          }
         }
-      }
-    }
-  });
+    });
 });
-
-
