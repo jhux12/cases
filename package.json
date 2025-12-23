@@ -5,11 +5,14 @@
   "description": "Static site for Pullz.gg Battles (winner-takes-all).",
   "scripts": {
     "test": "node -e \"process.exit(0)\"",
-    "build": "node -e \"process.exit(0)\"",
+    "build": "tsc",
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.19.2",
     "firebase-admin": "^11.10.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
   }
 }

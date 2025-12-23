@@ -1,8 +1,8 @@
 // @ts-nocheck
 document.addEventListener('DOMContentLoaded', () => {
-    const featuresSection = document.createElement('section');
-    featuresSection.className = 'bg-gradient-to-b from-[#1f1f2b] to-[#12121b] py-20 px-6 text-white border-t border-gray-800';
-    featuresSection.innerHTML = `
+  const featuresSection = document.createElement('section');
+  featuresSection.className = 'bg-gradient-to-b from-[#1f1f2b] to-[#12121b] py-20 px-6 text-white border-t border-gray-800';
+  featuresSection.innerHTML = `
     <div class="max-w-6xl mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
         <div class="flex flex-col items-center p-6 rounded-xl bg-[#1a1a23]/60 backdrop-blur-sm border border-gray-700/50 hover:border-purple-500 transition">
@@ -46,5 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </div>
   `;
-    document.body.insertBefore(featuresSection, document.querySelector('footer'));
+
+  document.body.insertBefore(featuresSection, document.querySelector('footer'));
 });

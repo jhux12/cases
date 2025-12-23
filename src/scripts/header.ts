@@ -1,21 +1,23 @@
 // @ts-nocheck
 document.addEventListener("DOMContentLoaded", () => {
-    const header = document.querySelector("header");
-    if (!header)
-        return;
-    if (!document.querySelector('link[href="styles/main.css"]')) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'styles/main.css';
-        document.head.appendChild(link);
-    }
-    if (!document.querySelector('link[href*="font-awesome"]')) {
-        const fa = document.createElement('link');
-        fa.rel = 'stylesheet';
-        fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
-        document.head.appendChild(fa);
-    }
-    header.innerHTML = `
+  const header = document.querySelector("header");
+  if (!header) return;
+
+  if (!document.querySelector('link[href="styles/main.css"]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'styles/main.css';
+    document.head.appendChild(link);
+  }
+
+  if (!document.querySelector('link[href*="font-awesome"]')) {
+    const fa = document.createElement('link');
+    fa.rel = 'stylesheet';
+    fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+    document.head.appendChild(fa);
+  }
+
+  header.innerHTML = `
     <nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200 backdrop-blur bg-white/80">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -141,112 +143,138 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     </div>
   `;
-    const enhanceLogoAnimation = () => {
-        document.querySelectorAll('.logo-animate').forEach((logo) => {
-            if (logo.dataset.slotReady === 'true')
-                return;
-            const text = logo.textContent.trim();
-            if (!text)
-                return;
-            const letters = text.split('');
-            const fragment = document.createDocumentFragment();
-            letters.forEach((letter, index) => {
-                const span = document.createElement('span');
-                span.className = 'logo-letter';
-                span.dataset.letter = letter;
-                span.style.setProperty('--logo-letter-index', index);
-                span.textContent = letter;
-                fragment.appendChild(span);
-            });
-            logo.setAttribute('aria-label', text);
-            logo.textContent = '';
-            logo.appendChild(fragment);
-            logo.dataset.slotReady = 'true';
-        });
-    };
-    enhanceLogoAnimation();
-    const current = window.location.pathname.split('/').pop() || 'index.html';
-    header.querySelectorAll('a[data-nav]').forEach(link => {
-        if (link.getAttribute('data-nav') === current) {
-            if (link.closest('#mobile-dropdown')) {
-                link.classList.add('border-indigo-500', 'text-indigo-700', 'bg-indigo-50');
-                link.classList.remove('border-transparent', 'text-gray-600', 'hover:bg-gray-50', 'hover:border-gray-300');
-            }
-            else {
-                link.classList.add('border-indigo-500', 'text-gray-900');
-                link.classList.remove('border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700');
-            }
-        }
+
+  const enhanceLogoAnimation = () => {
+    document.querySelectorAll('.logo-animate').forEach((logo) => {
+      if (logo.dataset.slotReady === 'true') return;
+
+      const text = logo.textContent.trim();
+      if (!text) return;
+
+      const letters = text.split('');
+      const fragment = document.createDocumentFragment();
+
+      letters.forEach((letter, index) => {
+        const span = document.createElement('span');
+        span.className = 'logo-letter';
+        span.dataset.letter = letter;
+        span.style.setProperty('--logo-letter-index', index);
+        span.textContent = letter;
+        fragment.appendChild(span);
+      });
+
+      logo.setAttribute('aria-label', text);
+      logo.textContent = '';
+      logo.appendChild(fragment);
+      logo.dataset.slotReady = 'true';
     });
-    const themeButtons = header.querySelectorAll('.theme-toggle');
-    const themeStateLabels = header.querySelectorAll('.theme-state-label');
-    const storedTheme = localStorage.getItem('pullz-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-    const ensureThemeMeta = () => {
-        const ensureSpecificMeta = (selector, attributes) => {
-            let meta = document.querySelector(selector);
-            if (!meta) {
-                meta = document.createElement('meta');
-                Object.assign(meta, { name: 'theme-color' });
-                Object.entries(attributes).forEach(([key, value]) => meta.setAttribute(key, value));
-                document.head.appendChild(meta);
-            }
-            return meta;
-        };
-        const lightMeta = ensureSpecificMeta('meta[name="theme-color"][data-theme="light"]', {
-            'data-theme': 'light',
-            media: '(prefers-color-scheme: light)',
-        });
-        const darkMeta = ensureSpecificMeta('meta[name="theme-color"][data-theme="dark"]', {
-            'data-theme': 'dark',
-            media: '(prefers-color-scheme: dark)',
-        });
-        const dynamicMeta = ensureSpecificMeta('meta[name="theme-color"][data-dynamic="true"]', {
-            'data-dynamic': 'true',
-        });
-        return { lightMeta, darkMeta, dynamicMeta };
+  };
+
+  enhanceLogoAnimation();
+
+  const current = window.location.pathname.split('/').pop() || 'index.html';
+  header.querySelectorAll('a[data-nav]').forEach(link => {
+    if (link.getAttribute('data-nav') === current) {
+      if (link.closest('#mobile-dropdown')) {
+        link.classList.add('border-indigo-500', 'text-indigo-700', 'bg-indigo-50');
+        link.classList.remove('border-transparent', 'text-gray-600', 'hover:bg-gray-50', 'hover:border-gray-300');
+      } else {
+        link.classList.add('border-indigo-500', 'text-gray-900');
+        link.classList.remove('border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700');
+      }
+    }
+  });
+
+  const themeButtons = header.querySelectorAll('.theme-toggle');
+  const themeStateLabels = header.querySelectorAll('.theme-state-label');
+  const storedTheme = localStorage.getItem('pullz-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+  const ensureThemeMeta = () => {
+    const ensureSpecificMeta = (selector, attributes) => {
+      let meta = document.querySelector(selector);
+
+      if (!meta) {
+        meta = document.createElement('meta');
+        Object.assign(meta, { name: 'theme-color' });
+        Object.entries(attributes).forEach(([key, value]) => meta.setAttribute(key, value));
+        document.head.appendChild(meta);
+      }
+
+      return meta;
     };
-    const setThemeColor = (isDark) => {
-        const { lightMeta, darkMeta, dynamicMeta } = ensureThemeMeta();
-        const lightColor = '#f8fafc';
-        const darkColor = '#0b0f1c';
-        lightMeta.setAttribute('content', lightColor);
-        darkMeta.setAttribute('content', darkColor);
-        dynamicMeta.setAttribute('content', isDark ? darkColor : lightColor);
-        document.documentElement.style.setProperty('color-scheme', isDark ? 'dark' : 'light');
-    };
-    const applyTheme = (mode) => {
-        const isDark = mode === 'dark';
-        document.body.classList.toggle('dark-mode', isDark);
-        document.documentElement.classList.toggle('dark-mode', isDark);
-        localStorage.setItem('pullz-theme', isDark ? 'dark' : 'light');
-        setThemeColor(isDark);
-        themeButtons.forEach((btn) => {
-            const icon = btn.querySelector('i');
-            btn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
-            if (icon) {
-                icon.classList.toggle('fa-moon', !isDark);
-                icon.classList.toggle('fa-sun', isDark);
-            }
-        });
-        themeStateLabels.forEach((label) => {
-            label.textContent = isDark ? 'Dark' : 'Light';
-        });
-    };
-    const initialTheme = storedTheme || (prefersDark.matches ? 'dark' : 'light');
-    applyTheme(initialTheme);
-    prefersDark.addEventListener('change', (event) => {
-        if (!localStorage.getItem('pullz-theme')) {
-            applyTheme(event.matches ? 'dark' : 'light');
-        }
+
+    const lightMeta = ensureSpecificMeta('meta[name="theme-color"][data-theme="light"]', {
+      'data-theme': 'light',
+      media: '(prefers-color-scheme: light)',
     });
-    const syncThemeMeta = () => {
-        setThemeColor(document.body.classList.contains('dark-mode'));
-    };
-    const bodyObserver = new MutationObserver(syncThemeMeta);
-    bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
-    themeButtons.forEach((btn) => btn.addEventListener('click', () => {
-        const nextTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
-        applyTheme(nextTheme);
-    }));
+
+    const darkMeta = ensureSpecificMeta('meta[name="theme-color"][data-theme="dark"]', {
+      'data-theme': 'dark',
+      media: '(prefers-color-scheme: dark)',
+    });
+
+    const dynamicMeta = ensureSpecificMeta('meta[name="theme-color"][data-dynamic="true"]', {
+      'data-dynamic': 'true',
+    });
+
+    return { lightMeta, darkMeta, dynamicMeta };
+  };
+
+  const setThemeColor = (isDark) => {
+    const { lightMeta, darkMeta, dynamicMeta } = ensureThemeMeta();
+    const lightColor = '#f8fafc';
+    const darkColor = '#0b0f1c';
+
+    lightMeta.setAttribute('content', lightColor);
+    darkMeta.setAttribute('content', darkColor);
+
+    dynamicMeta.setAttribute('content', isDark ? darkColor : lightColor);
+    document.documentElement.style.setProperty('color-scheme', isDark ? 'dark' : 'light');
+  };
+
+  const applyTheme = (mode) => {
+    const isDark = mode === 'dark';
+    document.body.classList.toggle('dark-mode', isDark);
+    document.documentElement.classList.toggle('dark-mode', isDark);
+    localStorage.setItem('pullz-theme', isDark ? 'dark' : 'light');
+
+    setThemeColor(isDark);
+
+    themeButtons.forEach((btn) => {
+      const icon = btn.querySelector('i');
+      btn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+      if (icon) {
+        icon.classList.toggle('fa-moon', !isDark);
+        icon.classList.toggle('fa-sun', isDark);
+      }
+    });
+
+    themeStateLabels.forEach((label) => {
+      label.textContent = isDark ? 'Dark' : 'Light';
+    });
+  };
+
+  const initialTheme = storedTheme || (prefersDark.matches ? 'dark' : 'light');
+  applyTheme(initialTheme);
+
+  prefersDark.addEventListener('change', (event) => {
+    if (!localStorage.getItem('pullz-theme')) {
+      applyTheme(event.matches ? 'dark' : 'light');
+    }
+  });
+
+  const syncThemeMeta = () => {
+    setThemeColor(document.body.classList.contains('dark-mode'));
+  };
+
+  const bodyObserver = new MutationObserver(syncThemeMeta);
+  bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+  themeButtons.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const nextTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+      applyTheme(nextTheme);
+    })
+  );
 });

@@ -1,7 +1,7 @@
 // @ts-nocheck
 (() => {
-    const style = document.createElement('style');
-    style.textContent = `
+  const style = document.createElement('style');
+  style.textContent = `
     #preloader {
       position: fixed;
       inset: 0;
@@ -51,45 +51,51 @@
       }
     }
   `;
-    document.head.appendChild(style);
-    const getPreferredTheme = () => {
-        const stored = localStorage.getItem('pullz-theme');
-        if (stored === 'dark' || stored === 'light')
-            return stored;
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    };
-    const preloader = document.createElement('div');
-    preloader.id = 'preloader';
-    preloader.innerHTML = `
+  document.head.appendChild(style);
+
+  const getPreferredTheme = () => {
+    const stored = localStorage.getItem('pullz-theme');
+    if (stored === 'dark' || stored === 'light') return stored;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+
+  const preloader = document.createElement('div');
+  preloader.id = 'preloader';
+  preloader.innerHTML = `
     <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ChatGPT%20Image%20Aug%2010%2C%202025%2C%2011_08_17%20PM.png?alt=media&token=4950e6a0-1cf9-4c7b-aa56-686dc42693a8" alt="Mascot">
     <div id="preloader-progress">0%</div>
   `;
-    document.body.appendChild(preloader);
-    const applyTheme = (theme) => {
-        preloader.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'light');
-    };
-    applyTheme(getPreferredTheme());
-    const observer = new MutationObserver(() => {
-        if (!document.body)
-            return;
-        applyTheme(document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-    });
-    if (document.body) {
-        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
-    }
-    let current = 0;
-    const progressEl = document.getElementById('preloader-progress');
-    const interval = setInterval(() => {
-        current = Math.min(current + Math.random() * 10, 90);
-        progressEl.textContent = `${Math.floor(current)}%`;
-    }, 100);
-    window.addEventListener('load', () => {
-        clearInterval(interval);
-        progressEl.textContent = '100%';
-        preloader.classList.add('fade-out');
-        setTimeout(() => {
-            observer.disconnect();
-            preloader.remove();
-        }, 500);
-    });
+  document.body.appendChild(preloader);
+
+  const applyTheme = (theme) => {
+    preloader.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'light');
+  };
+
+  applyTheme(getPreferredTheme());
+
+  const observer = new MutationObserver(() => {
+    if (!document.body) return;
+    applyTheme(document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+  });
+
+  if (document.body) {
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  let current = 0;
+  const progressEl = document.getElementById('preloader-progress');
+  const interval = setInterval(() => {
+    current = Math.min(current + Math.random() * 10, 90);
+    progressEl.textContent = `${Math.floor(current)}%`;
+  }, 100);
+
+  window.addEventListener('load', () => {
+    clearInterval(interval);
+    progressEl.textContent = '100%';
+    preloader.classList.add('fade-out');
+    setTimeout(() => {
+      observer.disconnect();
+      preloader.remove();
+    }, 500);
+  });
 })();
