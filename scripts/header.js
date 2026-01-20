@@ -136,6 +136,14 @@ document.addEventListener("DOMContentLoaded", () => {
           <p class="notification-center__eyebrow">Sitewide updates</p>
           <p class="notification-center__title">Notifications</p>
         </div>
+        <div class="notification-center__actions">
+          <button id="notification-clear-old" type="button" class="notification-action-button">
+            Clear old
+          </button>
+          <button id="notification-clear-all" type="button" class="notification-action-button notification-action-button--danger">
+            Clear all
+          </button>
+        </div>
       </div>
       <div id="notification-list" class="notification-list">
         <p class="notification-empty">No notifications yet.</p>

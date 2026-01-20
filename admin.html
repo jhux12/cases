@@ -939,6 +939,49 @@
                 <p class="text-slate-400 text-sm max-w-2xl">Track every shipment request from approval to delivery with smart batching.</p>
               </div>
             </div>
+            <div class="glass-card space-y-5">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 class="text-lg font-semibold text-white">Shipment manager</h3>
+                  <p class="text-sm text-slate-400">Search, filter, and manage shipments across every stage.</p>
+                </div>
+                <span class="text-xs uppercase tracking-[0.3em] text-slate-500">All orders</span>
+              </div>
+              <div class="grid gap-3 md:grid-cols-3">
+                <div class="relative">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                  <input id="shipment-search" type="search" class="form-input pl-9" placeholder="Search by user, address, or item" />
+                </div>
+                <select id="shipment-status-filter" class="form-select text-sm">
+                  <option value="all">All statuses</option>
+                  <option value="Requested">Requested</option>
+                  <option value="Approved">Approved</option>
+                  <option value="Shipped">Shipped</option>
+                </select>
+                <select id="shipment-sort" class="form-select text-sm">
+                  <option value="recent">Most recent</option>
+                  <option value="oldest">Oldest first</option>
+                </select>
+              </div>
+              <div class="grid gap-3 sm:grid-cols-3">
+                <div class="glass-subcard space-y-1">
+                  <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Requested</p>
+                  <p id="shipment-count-requested" class="text-2xl font-semibold text-amber-200">--</p>
+                  <p class="text-xs text-slate-500">Waiting for approval.</p>
+                </div>
+                <div class="glass-subcard space-y-1">
+                  <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Approved</p>
+                  <p id="shipment-count-approved" class="text-2xl font-semibold text-sky-200">--</p>
+                  <p class="text-xs text-slate-500">Ready to fulfill.</p>
+                </div>
+                <div class="glass-subcard space-y-1">
+                  <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Shipped</p>
+                  <p id="shipment-count-shipped" class="text-2xl font-semibold text-emerald-200">--</p>
+                  <p class="text-xs text-slate-500">Fulfilled orders.</p>
+                </div>
+              </div>
+              <div id="shipment-manager-list" class="space-y-3 text-sm"></div>
+            </div>
             <div id="shipment-board" class="grid gap-6 xl:grid-cols-3">
               <div class="glass-card space-y-4">
                 <div class="flex items-center justify-between">
@@ -1131,6 +1174,13 @@
     const notificationAdminList = document.getElementById('notification-admin-list');
     const notificationLastSent = document.getElementById('notification-last-sent');
     const notificationsLastSync = document.getElementById('notifications-last-sync');
+    const shipmentSearchInput = document.getElementById('shipment-search');
+    const shipmentStatusFilter = document.getElementById('shipment-status-filter');
+    const shipmentSortSelect = document.getElementById('shipment-sort');
+    const shipmentManagerList = document.getElementById('shipment-manager-list');
+    const shipmentCountRequested = document.getElementById('shipment-count-requested');
+    const shipmentCountApproved = document.getElementById('shipment-count-approved');
+    const shipmentCountShipped = document.getElementById('shipment-count-shipped');
     const statElements = {
       totalCases: document.getElementById('stat-total-cases'),
       pickemCases: document.getElementById('stat-pickem-cases'),
@@ -1157,11 +1207,17 @@
     let vaultsData = [];
     let homeSpinnerConfig = {};
     let supportCasesCache = [];
+    let shipmentsData = [];
     const supportFilters = {
       search: '',
       status: 'all',
       sort: 'recent',
       onlyUnreplied: false
+    };
+    const shipmentFilters = {
+      search: '',
+      status: 'all',
+      sort: 'recent'
     };
 
     const basePrizeMarkup = `
@@ -2123,17 +2179,112 @@
       return card;
     }
 
+    function getShipmentTimestamp(item) {
+      return item.updatedAt || item.createdAt || item.requestedAt || item.timestamp || 0;
+    }
+
+    function applyShipmentFilters() {
+      let filtered = [...shipmentsData];
+      const searchTerm = (shipmentFilters.search || '').toLowerCase();
+
+      if (searchTerm) {
+        filtered = filtered.filter(item => {
+          const info = item.shippingInfo || {};
+          const fields = [
+            item.name,
+            item.userId,
+            info.name,
+            info.address,
+            info.city,
+            info.zip,
+            info.phone
+          ];
+          return fields.some(field => (field || '').toString().toLowerCase().includes(searchTerm));
+        });
+      }
+
+      if (shipmentFilters.status !== 'all') {
+        filtered = filtered.filter(item => (item.status || 'Requested') === shipmentFilters.status);
+      }
+
+      filtered.sort((a, b) => {
+        const timeA = getShipmentTimestamp(a);
+        const timeB = getShipmentTimestamp(b);
+        if (shipmentFilters.sort === 'oldest') return timeA - timeB;
+        return timeB - timeA;
+      });
+
+      return filtered;
+    }
+
+    function renderShipmentManagerCard(item) {
+      const info = item.shippingInfo || {};
+      const status = item.status || 'Requested';
+      const statusTone = status === 'Shipped' ? 'text-emerald-300' : status === 'Approved' ? 'text-sky-300' : 'text-amber-300';
+      const timeLabel = getShipmentTimestamp(item);
+      const timeText = timeLabel ? new Date(timeLabel).toLocaleString() : 'No timestamp';
+      const card = document.createElement('div');
+      card.className = 'glass-subcard space-y-3';
+      card.innerHTML = `
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p class="text-sm font-semibold text-white">${item.name || 'Reward'}</p>
+            <p class="text-xs text-slate-400">User: ${item.userId || 'Unknown'}</p>
+          </div>
+          <div class="text-right">
+            <span class="text-xs uppercase tracking-[0.35em] ${statusTone}">${status}</span>
+            <p class="text-[0.7rem] text-slate-500 mt-1">${timeText}</p>
+          </div>
+        </div>
+        <div class="grid gap-2 text-xs text-slate-400 sm:grid-cols-2">
+          <p><strong class="text-slate-300">Name:</strong> ${info.name || '-'}</p>
+          <p><strong class="text-slate-300">Phone:</strong> ${info.phone || '-'}</p>
+          <p><strong class="text-slate-300">Address:</strong> ${info.address || '-'}</p>
+          <p><strong class="text-slate-300">City/Zip:</strong> ${info.city || '-'} ${info.zip || ''}</p>
+        </div>
+        <div class="flex flex-wrap gap-2 pt-1 text-xs">
+          ${status === 'Requested' ? `<button type="button" class="inline-flex items-center gap-2 rounded-xl bg-sky-500/20 px-3 py-2 font-semibold text-sky-200 hover:bg-sky-500/30" onclick="approveShipment('${item.id}')"><i class="fa-solid fa-circle-check"></i>Approve</button>` : ''}
+          ${status !== 'Shipped' ? `<button type="button" class="inline-flex items-center gap-2 rounded-xl bg-emerald-500/20 px-3 py-2 font-semibold text-emerald-200 hover:bg-emerald-500/30" onclick="markShipped('${item.id}')"><i class="fa-solid fa-truck"></i>Mark shipped</button>` : ''}
+          <button type="button" class="inline-flex items-center gap-2 rounded-xl bg-rose-500/20 px-3 py-2 font-semibold text-rose-200 hover:bg-rose-500/30" onclick="deleteShipment('${item.id}')"><i class="fa-solid fa-trash"></i>Delete</button>
+        </div>
+      `;
+      return card;
+    }
+
+    function renderShipmentManager() {
+      if (!shipmentManagerList) return;
+      shipmentManagerList.innerHTML = '';
+      const filtered = applyShipmentFilters();
+
+      if (!filtered.length) {
+        shipmentManagerList.innerHTML = '<p class="text-sm text-slate-500">No shipments match these filters.</p>';
+        return;
+      }
+
+      filtered.forEach(item => {
+        shipmentManagerList.appendChild(renderShipmentManagerCard(item));
+      });
+    }
+
     function loadShipments() {
       db.ref('shipments').on('value', snapshot => {
         Object.values(shipmentColumns).forEach(col => { if (col) col.innerHTML = ''; });
         let pendingCount = 0;
+        const statusCounts = { Requested: 0, Approved: 0, Shipped: 0 };
+        const list = [];
         snapshot.forEach(child => {
           const item = child.val() || {};
           const status = item.status || 'Requested';
           if (status !== 'Shipped') pendingCount += 1;
+          statusCounts[status] = (statusCounts[status] || 0) + 1;
+          list.push({ id: child.key, ...item, status });
           const column = shipmentColumns[status] || shipmentColumns.Requested;
           column?.appendChild(renderShipmentCard(child.key, item));
         });
+        shipmentsData = list;
+        if (shipmentCountRequested) shipmentCountRequested.textContent = statusCounts.Requested || 0;
+        if (shipmentCountApproved) shipmentCountApproved.textContent = statusCounts.Approved || 0;
+        if (shipmentCountShipped) shipmentCountShipped.textContent = statusCounts.Shipped || 0;
         setStat('shipmentsPending', pendingCount);
         updateSyncStamp('shipments');
         Object.entries(shipmentColumns).forEach(([status, column]) => {
@@ -2141,6 +2292,7 @@
             column.innerHTML = '<p class="text-sm text-slate-500">No shipments in this stage.</p>';
           }
         });
+        renderShipmentManager();
       });
     }
 
@@ -2899,6 +3051,21 @@
     supportUnrepliedToggle?.addEventListener('change', event => {
       supportFilters.onlyUnreplied = event.target.checked;
       renderSupportList();
+    });
+
+    shipmentSearchInput?.addEventListener('input', event => {
+      shipmentFilters.search = event.target.value;
+      renderShipmentManager();
+    });
+
+    shipmentStatusFilter?.addEventListener('change', event => {
+      shipmentFilters.status = event.target.value;
+      renderShipmentManager();
+    });
+
+    shipmentSortSelect?.addEventListener('change', event => {
+      shipmentFilters.sort = event.target.value;
+      renderShipmentManager();
     });
 
     resetWizard();
