@@ -38,6 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const notificationList = document.getElementById("notification-list");
     const notificationIndicator = document.getElementById("notification-indicator");
     const notificationIndicatorMobile = document.getElementById("notification-indicator-mobile");
+    const notificationClearAll = document.getElementById("notification-clear-all");
+    const notificationClearOld = document.getElementById("notification-clear-old");
     const themeToggleStandaloneDesktop = document.getElementById("theme-toggle-desktop-standalone");
     const themeToggleChipDesktop = document.getElementById("theme-toggle-desktop-chip");
     const mobileInventoryLink = document.getElementById("mobile-inventory-link");
@@ -73,6 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let latestNotificationTimestamp = 0;
       let lastSeenTimestamp = Number(localStorage.getItem("pullz-last-notification") || 0);
       let notificationCache = [];
+      const notificationRetentionMs = 30 * 24 * 60 * 60 * 1000;
       const dismissedNotifications = new Set(
         JSON.parse(localStorage.getItem("pullz-dismissed-notifications") || "[]").filter(Boolean)
       );
@@ -92,6 +95,15 @@ document.addEventListener("DOMContentLoaded", () => {
         toggle(notificationIndicatorMobile);
       };
 
+      const updateNotificationActions = (items = []) => {
+        const hasItems = items.length > 0;
+        if (notificationClearAll) notificationClearAll.disabled = !hasItems;
+        if (notificationClearOld) {
+          const hasOld = items.some((item) => (item.createdAt || 0) < Date.now() - notificationRetentionMs);
+          notificationClearOld.disabled = !hasOld;
+        }
+      };
+
       const renderNotifications = (items = []) => {
         if (!notificationList) return;
         notificationList.innerHTML = "";
@@ -102,6 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
           notificationCache = [];
           notificationList.innerHTML = '<p class="notification-empty">No notifications yet.</p>';
           updateNotificationBadge([]);
+          updateNotificationActions([]);
           return;
         }
 
@@ -137,6 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             updateNotificationBadge(notificationCache);
+            updateNotificationActions(notificationCache);
           });
 
           header.appendChild(heading);
@@ -168,6 +182,35 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         updateNotificationBadge(visibleItems);
+        updateNotificationActions(visibleItems);
+      };
+
+      const dismissNotificationsById = (ids = []) => {
+        ids.forEach((id) => dismissedNotifications.add(id));
+        persistDismissed();
+      };
+
+      const clearAllNotifications = (event) => {
+        event?.stopPropagation();
+        if (!notificationCache.length) return;
+        dismissNotificationsById(notificationCache.map((item) => item.id));
+        notificationCache = [];
+        if (notificationList) {
+          notificationList.innerHTML = '<p class="notification-empty">No notifications yet.</p>';
+        }
+        updateNotificationBadge([]);
+        updateNotificationActions([]);
+      };
+
+      const clearOldNotifications = (event) => {
+        event?.stopPropagation();
+        if (!notificationCache.length) return;
+        const cutoff = Date.now() - notificationRetentionMs;
+        const oldItems = notificationCache.filter((item) => (item.createdAt || 0) < cutoff);
+        if (!oldItems.length) return;
+        dismissNotificationsById(oldItems.map((item) => item.id));
+        const remaining = notificationCache.filter((item) => (item.createdAt || 0) >= cutoff);
+        renderNotifications(remaining);
       };
 
       const attachNotificationStream = () => {
@@ -211,6 +254,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!btn) return;
         btn.addEventListener("click", toggleNotificationPanel);
       });
+
+      if (notificationClearAll) {
+        notificationClearAll.addEventListener("click", clearAllNotifications);
+      }
+
+      if (notificationClearOld) {
+        notificationClearOld.addEventListener("click", clearOldNotifications);
+      }
 
       document.addEventListener("click", (event) => {
         if (!notificationPanel || notificationPanel.classList.contains("hidden")) return;

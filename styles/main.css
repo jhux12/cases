@@ -781,6 +781,7 @@ body.dark-mode .notification-center {
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .notification-center__eyebrow {
@@ -794,6 +795,50 @@ body.dark-mode .notification-center {
 .notification-center__title {
   font-weight: 700;
   color: var(--text-primary);
+}
+
+.notification-center__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.notification-action-button {
+  border-radius: 999px;
+  border: 1px solid var(--card-border);
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--text-primary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.notification-action-button:hover {
+  transform: translateY(-1px);
+  background: rgba(99, 102, 241, 0.18);
+  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.2);
+}
+
+.notification-action-button--danger {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+}
+
+.notification-action-button--danger:hover {
+  background: rgba(239, 68, 68, 0.18);
+  box-shadow: 0 8px 18px rgba(239, 68, 68, 0.2);
+}
+
+.notification-action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
 .notification-list {
