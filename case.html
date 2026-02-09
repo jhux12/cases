@@ -374,6 +374,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (event.target === modal) hideSignInModal();
   });
   if (loginBtn) loginBtn.addEventListener('click', redirectToAuth);
+
+  if (window.firebase?.auth) {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) hideSignInModal();
+    });
+  }
 });
 
 const formatGems = (num) => {
