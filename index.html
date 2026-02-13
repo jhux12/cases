@@ -752,6 +752,44 @@
         </div>
     </div>
 
+    <!-- Gemini AI Strategy Assistant -->
+    <section class="py-12 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white shadow-xl rounded-2xl p-6 sm:p-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-lg">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                    </span>
+                    <div>
+                        <h2 class="text-2xl font-semibold text-gray-900">Gemini-powered pack strategy</h2>
+                        <p class="text-sm text-gray-500">Use Google's Gemini model to brainstorm collecting ideas with live AI responses.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <label for="gemini-prompt" class="block text-sm font-medium text-gray-700">Ask anything about your next rip:</label>
+                    <textarea id="gemini-prompt" rows="4" class="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-900 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Suggest a strategy for maximizing legendary pulls this weekend..."></textarea>
+
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <p id="gemini-status" class="text-xs text-gray-500">Ready to connect to Gemini.</p>
+                        <button id="gemini-run" class="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                            <i class="fas fa-paper-plane"></i>
+                            Ask Gemini
+                        </button>
+                    </div>
+
+                    <div class="rounded-xl border border-gray-200 bg-gray-900/90 p-5 text-gray-100">
+                        <div class="flex items-center gap-2 text-sm font-medium text-indigo-300">
+                            <i class="fas fa-robot"></i>
+                            Gemini response
+                        </div>
+                        <pre id="gemini-output" class="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-indigo-100">Ask Gemini for collecting advice to see the response here.</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Add Gems Modal -->
     <div id="addGemsModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
         <div class="absolute inset-0 bg-black opacity-60"></div>
@@ -969,6 +1007,7 @@
     <script type="module" src="scripts/hot-cards.js"></script>
     <script type="module" src="scripts/auth.js"></script>
     <script type="module" src="scripts/packs.js"></script>
+    <script type="module" src="scripts/gemini.js"></script>
     <script src="scripts/popups.js"></script>
     <script src="scripts/footer.js"></script>
     <script src="scripts/topup.js"></script>
