@@ -1,7 +1,26 @@
 // scripts/topup.js
 
-// ✅ Initialize Stripe at the top of the file
-const stripe = Stripe("pk_live_51RM3wNI76TkBIa1xnQWZ9STeBxaOh3AnT5vu9bMyj457wP3Uqr2AgEYxAzul0223nVcroXWABtfn2Qwo3B7zgTO2009FgUEDq4");
+let stripeInstance = null;
+
+function getStripe() {
+  if (stripeInstance) {
+    return stripeInstance;
+  }
+
+  const publishableKey = window.APP_CONFIG?.stripe?.publishableKey;
+  if (!publishableKey) {
+    console.warn('[topup] Stripe publishable key not provided. Payments are disabled.');
+    return null;
+  }
+
+  if (typeof Stripe !== 'function') {
+    console.error('[topup] Stripe.js failed to load.');
+    return null;
+  }
+
+  stripeInstance = Stripe(publishableKey);
+  return stripeInstance;
+}
 
 // Load and inject the top-up popup component
 async function loadTopupPopup() {
@@ -97,17 +116,29 @@ window.addEventListener("load", loadTopupPopup);
 
 // Stripe redirect with loading indicator
 function redirectToCheckout(event, priceId, button) {
-  event.preventDefault();
+  event?.preventDefault?.();
 
-  const originalText = button.innerHTML;
-  button.disabled = true;
-  button.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Loading...`;
+  const stripe = getStripe();
+  if (!stripe) {
+    alert('Payments are temporarily unavailable. Please try again later.');
+    return;
+  }
+
+  const targetButton = button || (event?.currentTarget instanceof HTMLElement ? event.currentTarget : null);
+  const originalText = targetButton?.innerHTML;
+
+  if (targetButton) {
+    targetButton.disabled = true;
+    targetButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Loading...`;
+  }
 
   const user = firebase.auth().currentUser;
   if (!user) {
     alert("Please sign in to purchase gems.");
-    button.disabled = false;
-    button.innerHTML = originalText;
+    if (targetButton) {
+      targetButton.disabled = false;
+      targetButton.innerHTML = originalText;
+    }
     return;
   }
 
@@ -125,11 +156,18 @@ function redirectToCheckout(event, priceId, button) {
     })
     .then((docRef) => {
       docRef.onSnapshot((snap) => {
-        const { error, sessionId } = snap.data();
+        const data = snap.data();
+        if (!data) {
+          return;
+        }
+
+        const { error, sessionId } = data;
         if (error) {
           alert(`An error occurred: ${error.message}`);
-          button.disabled = false;
-          button.innerHTML = originalText;
+          if (targetButton) {
+            targetButton.disabled = false;
+            targetButton.innerHTML = originalText;
+          }
         }
         if (sessionId) {
           stripe.redirectToCheckout({ sessionId });

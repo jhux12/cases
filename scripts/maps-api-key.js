@@ -1,3 +1,10 @@
-// Set your Google Maps API key here. Leave blank to disable autocomplete.
-// Example: window.GOOGLE_MAPS_API_KEY = "YOUR_API_KEY_HERE";
-window.GOOGLE_MAPS_API_KEY = "AIzaSyBlvbjMQrnGczRRZX9hDze4MqlU4etkuPw";
+// Set the Google Maps API key from runtime configuration
+(function configureGoogleMaps(global) {
+  const key = global.APP_CONFIG?.googleMaps?.apiKey;
+  if (typeof key === 'string' && key.trim()) {
+    global.GOOGLE_MAPS_API_KEY = key.trim();
+  } else {
+    global.GOOGLE_MAPS_API_KEY = '';
+    console.warn('[maps-api-key] Google Maps API key not provided; autocomplete disabled.');
+  }
+})(window);
