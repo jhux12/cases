@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Packly.gg | Battle Room</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles/battle.css" />
+</head>
+<body class="battle-room">
+  <div id="site-header"></div>
+  <!-- header.js will populate the dynamic site header -->
+  <main class="battle-room-layout">
+    <section class="room-header">
+      <div>
+        <p class="eyebrow">Battle Room</p>
+        <h1 id="room-title">Loading battle...</h1>
+        <p id="room-status" class="subtitle">Waiting for data</p>
+      </div>
+      <div class="room-actions">
+        <button id="start-battle" class="primary">Start Battle</button>
+        <button id="next-round" class="secondary">Roll Next Round</button>
+      </div>
+    </section>
+
+    <section class="players-grid">
+      <article class="player-panel" id="player-a">
+        <header>
+          <p class="eyebrow">Player A</p>
+          <h2 id="player-a-name">--</h2>
+          <p class="subtitle" id="player-a-total">Total: 0 💎</p>
+        </header>
+        <div class="reveal" id="player-a-reveal">Waiting for roll...</div>
+        <ul class="round-history" id="player-a-history"></ul>
+      </article>
+      <article class="player-panel" id="player-b">
+        <header>
+          <p class="eyebrow">Player B</p>
+          <h2 id="player-b-name">--</h2>
+          <p class="subtitle" id="player-b-total">Total: 0 💎</p>
+        </header>
+        <div class="reveal" id="player-b-reveal">Waiting for roll...</div>
+        <ul class="round-history" id="player-b-history"></ul>
+      </article>
+    </section>
+
+    <section class="round-strip">
+      <div>
+        <p class="eyebrow">Current Round</p>
+        <h3 id="round-label">-</h3>
+        <p id="round-pack" class="subtitle"></p>
+      </div>
+      <div class="winner-banner" id="winner-banner" hidden></div>
+    </section>
+  </main>
+
+  <script src="scripts/battle-room.js"></script>
+</body>
+</html>

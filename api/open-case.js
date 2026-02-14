@@ -1,16 +1,14 @@
-const crypto = require('crypto');
 const admin = require('firebase-admin');
+const { rollPrizeForPack } = require('../lib/openingEngine');
 
 function sendCorsHeaders(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
 function initFirebase() {
   if (admin.apps.length) return admin.app();
-
-  console.log('OPEN-CASE ENV present?', !!process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
 
   const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
   if (!serviceAccountJson) {
@@ -19,80 +17,12 @@ function initFirebase() {
 
   const decodedJson = Buffer.from(serviceAccountJson, 'base64').toString('utf8');
   const serviceAccount = JSON.parse(decodedJson);
-  const databaseURL = process.env.FIREBASE_DATABASE_URL || 'https://cases-e5b4e-default-rtdb.firebaseio.com';
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL,
   });
 
   return admin.app();
-}
-
-function ensurePrizes(caseData) {
-  const prizes = Object.entries(caseData.prizes || {})
-    .map(([prizeId, prize]) => ({
-      ...prize,
-      prizeId: prize.prizeId || prize.id || prizeId,
-      odds: Number(prize.odds) || 0,
-      value: Number(prize.value) || 0,
-    }))
-    .filter((prize) => prize.odds > 0);
-
-  const totalOdds = prizes.reduce((sum, prize) => sum + prize.odds, 0);
-  if (!prizes.length || totalOdds <= 0) {
-    throw new Error('Invalid prize configuration');
-  }
-
-  return { prizes, totalOdds };
-}
-
-function createServerSeed() {
-  const seed = crypto.randomBytes(32).toString('hex');
-  const hash = crypto.createHash('sha256').update(seed).digest('hex');
-  return { seed, hash };
-}
-
-function hashRoll(serverSeed, clientSeed, nonce) {
-  const rollHash = crypto
-    .createHash('sha256')
-    .update(`${serverSeed}:${clientSeed}:${nonce}`)
-    .digest('hex');
-
-  const rollInt = BigInt('0x' + rollHash.slice(0, 13));
-  const rollFraction = Number(rollInt) / Number(1n << 52n);
-
-  return { rollHash, rollFraction };
-}
-
-function pickPrize(prizes, totalOdds, rollFraction) {
-  const target = rollFraction * totalOdds;
-  let cumulative = 0;
-  let winningPrize = prizes[prizes.length - 1];
-
-  for (const prize of prizes) {
-    cumulative += prize.odds;
-    if (target < cumulative) {
-      winningPrize = prize;
-      break;
-    }
-  }
-
-  return winningPrize;
-}
-
-async function getSeeds(db, uid) {
-  const seedsSnap = await db.ref(`serverSeeds/${uid}`).once('value');
-  let seeds = seedsSnap.val();
-
-  if (!seeds || !seeds.current || !seeds.next) {
-    const current = createServerSeed();
-    const next = createServerSeed();
-    seeds = { current, next };
-    await db.ref(`serverSeeds/${uid}`).set(seeds);
-  }
-
-  return seeds;
 }
 
 module.exports = async (req, res) => {
@@ -110,7 +40,7 @@ module.exports = async (req, res) => {
 
   try {
     const app = initFirebase();
-    const db = app.database();
+    const firestore = app.firestore();
 
     let body = req.body;
     if (typeof body === 'string') {
@@ -121,7 +51,13 @@ module.exports = async (req, res) => {
       }
     }
 
-    const { idToken, caseId } = body || {};
+    const authHeader = req.headers.authorization || '';
+    const bearerToken = authHeader.startsWith('Bearer ')
+      ? authHeader.slice(7)
+      : null;
+
+    const idToken = body.idToken || bearerToken;
+    const caseId = body.caseId;
     if (!idToken || !caseId) {
       res.status(400).json({ error: 'idToken and caseId are required' });
       return;
@@ -134,111 +70,92 @@ module.exports = async (req, res) => {
     }
 
     const uid = decoded.uid;
-
-    const [caseSnap, userSnap, provablyFairSnap, seeds] = await Promise.all([
-      db.ref(`cases/${caseId}`).once('value'),
-      db.ref(`users/${uid}`).once('value'),
-      db.ref(`users/${uid}/provablyFair`).once('value'),
-      getSeeds(db, uid),
-    ]);
-
-    if (!caseSnap.exists()) {
+    const packRef = firestore.collection('packs').doc(caseId);
+    const packSnap = await packRef.get();
+    if (!packSnap.exists) {
       res.status(404).json({ error: 'Case not found' });
       return;
     }
 
-    const caseData = caseSnap.val();
-    const { prizes, totalOdds } = ensurePrizes(caseData);
+    const packData = packSnap.data();
+    const priceGems = Number(packData.priceGems ?? packData.price ?? 0);
+    const isFreeCase = !!packData.isFree;
 
-    const provablyFair = provablyFairSnap.val() || {};
-    const clientSeed = provablyFair.clientSeed || 'default';
-    const nonce = Number.isFinite(provablyFair.nonce) ? provablyFair.nonce : 0;
+    const { prize, rollMeta, packSnapshot } = await rollPrizeForPack({
+      firestore,
+      packId: caseId,
+      userId: uid,
+      clientSeed: body.clientSeed
+    });
 
-    const { rollHash, rollFraction } = hashRoll(seeds.current.seed, clientSeed, nonce);
-    const winningPrize = pickPrize(prizes, totalOdds, rollFraction);
-
-    const userData = userSnap.val() || {};
-    const price = Number(caseData.price) || 0;
-    const isFreeCase = !!caseData.isFree;
-    const balance = Number(userData.balance) || 0;
-
-    if (!isFreeCase && balance < price) {
-      res.status(400).json({ error: 'Insufficient balance' });
-      return;
-    }
+    const userRef = firestore.collection('users').doc(uid);
+    const inventoryRef = userRef.collection('inventory').doc();
+    const historyRef = userRef.collection('unboxHistory').doc(inventoryRef.id);
+    const spinRef = firestore.collection('spins').doc();
 
     const now = Date.now();
-    const inventoryRef = db.ref(`users/${uid}/inventory`).push();
-    const unboxKey = inventoryRef.key;
 
-    const unboxData = {
-      name: winningPrize.name,
-      image: winningPrize.image,
-      rarity: winningPrize.rarity,
-      value: Number.isFinite(winningPrize.value) ? winningPrize.value : 0,
-      odds: winningPrize.odds,
-      prizeId: winningPrize.prizeId,
-      timestamp: now,
-      sold: false,
-    };
+    await firestore.runTransaction(async (tx) => {
+      const userSnap = await tx.get(userRef);
+      const userData = userSnap.exists ? userSnap.data() : {};
+      const balance = Number(userData.gems ?? userData.balance ?? 0);
 
-    const updatedBalance = isFreeCase ? balance : balance - price;
+      if (!isFreeCase && balance < priceGems) {
+        throw new Error('Insufficient balance');
+      }
 
-    const nextSeeds = {
-      current: seeds.next,
-      next: createServerSeed(),
-    };
+      const unboxData = {
+        name: prize.name,
+        image: prize.image || prize.imageUrl,
+        rarity: prize.rarity,
+        valueGems: Number.isFinite(prize.valueGems) ? prize.valueGems : Number(prize.value || 0),
+        odds: prize.odds,
+        prizeId: prize.prizeId,
+        timestamp: now,
+        sold: false,
+        packId: caseId,
+      };
 
-    const updates = {
-      [`users/${uid}/inventory/${unboxKey}`]: unboxData,
-      [`users/${uid}/unboxHistory/${unboxKey}`]: unboxData,
-      [`users/${uid}/provablyFair/nonce`]: nonce + 1,
-      [`users/${uid}/provablyFair/clientSeed`]: clientSeed,
-      [`users/${uid}/provablyFair/serverSeedHash`]: nextSeeds.current.hash,
-      [`serverSeeds/${uid}`]: nextSeeds,
-    };
+      const updatedBalance = isFreeCase ? balance : balance - priceGems;
 
-    const spinRef = db.ref(`spins/${uid}`).push();
-    const spinId = spinRef.key;
-    updates[`spins/${uid}/${spinId}`] = {
-      createdAt: now,
-      caseId,
-      nonceUsed: nonce,
-      clientSeed,
-      serverSeedRevealed: seeds.current.seed,
-      serverSeedHashUsed: seeds.current.hash,
-      rollHash,
-      prize: { ...unboxData },
-    };
+      tx.set(inventoryRef, unboxData);
+      tx.set(historyRef, unboxData);
+      tx.set(spinRef, {
+        createdAt: now,
+        caseId,
+        packSnapshot,
+        rollMeta,
+        prize: unboxData,
+        userId: uid,
+      });
 
-    if (!isFreeCase) {
-      updates[`users/${uid}/balance`] = updatedBalance;
-    }
+      if (!isFreeCase) {
+        tx.set(userRef, { gems: updatedBalance }, { merge: true });
+      }
+      if (isFreeCase) {
+        tx.set(userRef, { freeCaseOpened: true }, { merge: true });
+      }
+    });
 
-    if (isFreeCase) {
-      updates[`users/${uid}/freeCaseOpened`] = true;
-    }
-
-    await db.ref().update(updates);
+    const userSnapFinal = await userRef.get();
+    const finalBalance = Number(userSnapFinal.data()?.gems ?? userSnapFinal.data()?.balance ?? 0);
 
     res.status(200).json({
-      prize: winningPrize,
-      unboxData: { ...unboxData, key: unboxKey },
-      balance: updatedBalance,
+      prize,
+      balance: finalBalance,
       provablyFair: {
-        serverSeedHashUsed: seeds.current.hash,
-        serverSeedRevealed: seeds.current.seed,
-        clientSeed,
-        nonceUsed: nonce,
-        rollHash,
+        serverSeedHashUsed: rollMeta.serverSeedHashUsed,
+        serverSeedRevealed: rollMeta.serverSeedRevealed,
+        clientSeed: rollMeta.clientSeed,
+        nonceUsed: rollMeta.nonceUsed,
+        rollHash: rollMeta.rollHash,
         formula: 'SHA256(serverSeed:clientSeed:nonce)',
       },
     });
   } catch (error) {
     console.error('OPEN-CASE ERROR:', error?.message || error);
-    res.status(500).json({
-      error: 'Server error',
-      message: error?.message || String(error),
+    res.status(error.message === 'Insufficient balance' ? 400 : 500).json({
+      error: error.message || 'Server error',
     });
   }
 };

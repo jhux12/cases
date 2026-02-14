@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Packly.gg | Battle Mode</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles/battle.css" />
+</head>
+<body class="battle-page">
+  <div id="site-header"></div>
+  <!-- header.js will populate the dynamic site header -->
+
+  <main class="battle-layout">
+    <section class="top-bar">
+      <div class="title-block">
+        <p class="eyebrow">Battle Mode</p>
+        <h1>Battle Mode</h1>
+        <p class="subtitle">Open the same packs. Highest total wins.</p>
+      </div>
+      <div class="balance" id="balance-display">Balance: 💎 0</div>
+    </section>
+
+    <section class="battle-grid">
+      <section class="panel create-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Host</p>
+            <h2>Create Battle</h2>
+          </div>
+        </div>
+        <form id="create-battle-form" class="form-grid">
+          <label class="field">
+            <span>Battle Name</span>
+            <input type="text" id="battle-name" name="battleName" placeholder="Midnight Clash" maxlength="40" />
+          </label>
+          <label class="field">
+            <span>Players</span>
+            <select id="battle-players" name="players" disabled>
+              <option value="2">2 (two-player battles)</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Mode</span>
+            <select id="battle-mode" name="mode">
+              <option value="total">Total Value Wins</option>
+              <option value="bestSingle">Best Single Pull</option>
+              <option value="mostRare">Most Rare Pull</option>
+            </select>
+          </label>
+        </form>
+
+        <div class="pack-selector">
+          <div class="selector-header">
+            <div>
+              <p class="eyebrow">Packs</p>
+              <h3>Select Packs</h3>
+            </div>
+            <div class="search-box">
+              <input type="search" id="pack-search" placeholder="Search packs" aria-label="Search packs" />
+            </div>
+          </div>
+          <div id="pack-grid" class="pack-grid" aria-live="polite"></div>
+        </div>
+
+        <div class="summary-box" id="summary-box">
+          <div>
+            <p class="label">Total Packs</p>
+            <p class="value" id="total-packs">0</p>
+          </div>
+          <div>
+            <p class="label">Cost per Player</p>
+            <p class="value" id="cost-per-player">0</p>
+          </div>
+          <div>
+            <p class="label">Total Pot</p>
+            <p class="value" id="total-pot">0</p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="create-public" class="primary" disabled>Create Public Battle</button>
+          <button id="create-private" class="secondary" disabled>Create Private Battle</button>
+        </div>
+      </section>
+
+      <section class="panel lobby-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Lobby</p>
+            <h2>Battle Lobby</h2>
+          </div>
+          <div class="tabs" role="tablist">
+            <button class="tab active" data-tab="public" role="tab" aria-selected="true">Public Battles</button>
+            <button class="tab" data-tab="my" role="tab" aria-selected="false">My Battles</button>
+          </div>
+        </div>
+        <div id="lobby-list" class="lobby-list" aria-live="polite"></div>
+      </section>
+    </section>
+
+    <section class="how-it-works">
+      <h3>How it works</h3>
+      <div class="steps">
+        <div class="step">
+          <span class="step-number">1</span>
+          <div>
+            <p class="step-title">Create battle</p>
+            <p class="step-text">Choose packs and invite a head-to-head challenger.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-number">2</span>
+          <div>
+            <p class="step-title">Players join</p>
+            <p class="step-text">Friends or public players enter and lock in.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-number">3</span>
+          <div>
+            <p class="step-title">Open & score</p>
+            <p class="step-text">Open together, tally totals, highest wins.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-header">
+        <h3 id="modal-title">Notice</h3>
+        <button id="modal-close" class="icon-button" aria-label="Close modal">×</button>
+      </div>
+      <p id="modal-message"></p>
+      <div class="modal-actions">
+        <button id="modal-ok" class="primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/battle.js"></script>
+</body>
+</html>
