@@ -82,19 +82,136 @@
             align-items: center;
         }
 
+        .hot-drops-section {
+            position: relative;
+        }
+
+        .hot-drops-card {
+            position: relative;
+            overflow: hidden;
+            padding: 2.5rem;
+            border-radius: 28px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            background: radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.15), transparent 38%),
+                        radial-gradient(circle at 80% 10%, rgba(99, 102, 241, 0.18), transparent 42%),
+                        linear-gradient(145deg, rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.4));
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        .hot-drops-card::after {
+            content: '';
+            position: absolute;
+            inset: 18px;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            pointer-events: none;
+        }
+
+        .hot-drops-header {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hot-drops-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.16), rgba(99, 102, 241, 0.18));
+            color: #c7d2fe;
+        }
+
+        .hot-drops-title-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .hot-drops-title {
+            font-size: clamp(1.9rem, 2vw + 1rem, 2.6rem);
+            font-weight: 800;
+            color: #f8fafc;
+            letter-spacing: -0.01em;
+        }
+
+        .hot-drops-subtitle {
+            color: #cbd5e1;
+            max-width: 720px;
+        }
+
+        .hot-drops-legends {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem;
+            color: #e2e8f0;
+        }
+
+        .hot-drops-legends a {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.85rem;
+            border-radius: 999px;
+            color: #a5b4fc;
+            background: rgba(99, 102, 241, 0.14);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .hot-drops-legends a:hover {
+            color: #c7d2fe;
+            border-color: rgba(103, 232, 249, 0.4);
+            box-shadow: 0 8px 18px rgba(99, 102, 241, 0.25);
+        }
+
+        .hot-drops-carousel {
+            position: relative;
+        }
+
+        .hot-drops-carousel::before {
+            content: '';
+            position: absolute;
+            inset: 12px 18px 0;
+            border-radius: 22px;
+            background: linear-gradient(120deg, rgba(56, 189, 248, 0.12), rgba(99, 102, 241, 0.08));
+            filter: blur(28px);
+            z-index: 0;
+        }
+
         .hot-reel-wrapper {
             position: relative;
             max-width: 1100px;
             width: 100%;
             height: auto;
-            min-height: 260px;
-            padding: 2.5rem 2rem;
+            min-height: 270px;
+            padding: 2.4rem 2rem;
             margin-left: auto;
             margin-right: auto;
-            background: linear-gradient(135deg,#ffffff 0%,#f1f5f9 100%);
-            border: 1px solid #e2e8f0;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 24px;
-            box-shadow: 0 25px 45px rgba(15,23,42,0.08);
+            box-shadow: 0 18px 34px rgba(0, 0, 0, 0.38);
+            z-index: 1;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+        }
+
+        .hot-reel-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 24% 26%, rgba(99, 102, 241, 0.12), transparent 45%),
+                        radial-gradient(circle at 78% 68%, rgba(45, 212, 191, 0.14), transparent 48%);
+            pointer-events: none;
         }
 
         .hot-reel-wrapper .reel {
@@ -103,7 +220,7 @@
         }
 
         .hot-reel-wrapper .tile {
-            flex: 0 0 200px;
+            flex: 0 0 210px;
             height: auto;
             min-height: 100%;
             display: flex;
@@ -111,77 +228,103 @@
             justify-content: flex-start;
             align-items: center;
             gap: 0.75rem;
-            padding: 1.25rem 1rem;
+            padding: 1.15rem 1rem 1.05rem;
             margin: 0 12px;
-            border-radius: 18px;
-            border: 1px solid rgba(148,163,184,0.35);
-            background: rgba(255,255,255,0.98);
-            color: #0f172a;
-            box-shadow: 0 22px 38px rgba(148,163,184,0.25);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+            color: #e2e8f0;
+            box-shadow: 0 18px 32px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         }
 
         .hot-reel-wrapper .tile:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 28px 46px rgba(15,23,42,0.18);
+            transform: translateY(-4px);
+            border-color: rgba(99, 102, 241, 0.42);
+            box-shadow: 0 22px 40px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(99, 102, 241, 0.2);
+        }
+
+        .hot-reel-wrapper .tile::after {
+            content: '';
+            position: absolute;
+            inset: 12px;
+            border-radius: 14px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0));
+            pointer-events: none;
+        }
+
+        .hot-reel-wrapper .tile img {
+            width: 100%;
+            height: 170px;
+            object-fit: contain;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+            padding: 0.6rem;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
         }
 
         .hot-reel-wrapper .tile-info {
             position: static;
             width: 100%;
-            font-size: 0.8rem;
-            background: transparent;
-            padding: 0;
-            border-radius: 0;
+            font-size: 0.85rem;
+            background: rgba(15, 23, 42, 0.38);
+            padding: 0.65rem 0.55rem 0.3rem;
+            border-radius: 12px;
             text-align: center;
             display: flex;
             flex-direction: column;
-            gap: 0.35rem;
+            gap: 0.4rem;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
         .hot-reel-wrapper .tile-info .name {
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 0.01em;
-            color: #1f2937;
-        }
-
-        .hot-reel-wrapper .pill {
-            margin-top: 6px;
-            text-transform: uppercase;
-            font-size: 0.65rem;
-            letter-spacing: 0.08em;
-        }
-
-        .hot-reel-wrapper .tile img {
-            width: 100%;
-            height: 160px;
-            object-fit: contain;
-            border-radius: 14px;
-            background: linear-gradient(135deg,rgba(241,245,249,0.6),rgba(255,255,255,0.9));
-            padding: 0.5rem;
+            color: #f8fafc;
         }
 
         .hot-reel-wrapper .tile-info .price {
             margin-top: 0;
-            color: #0b172a;
-            gap: 0.35rem;
-            font-weight: 700;
+            color: #e2e8f0;
+            gap: 0.45rem;
+            font-weight: 800;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0.32rem 0.85rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #f8fafc;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
         }
 
         .hot-reel-wrapper .tile-info .price img {
-            width: 0.75rem;
-            height: 0.75rem;
-            filter: drop-shadow(0 2px 6px rgba(15,23,42,0.12));
+            width: 1rem;
+            height: 1rem;
+            filter: drop-shadow(0 2px 6px rgba(15, 23, 42, 0.25));
+            flex-shrink: 0;
+        }
+
+        .hot-reel-wrapper .tile-info .price svg {
+            width: 1rem;
+            height: 1rem;
+            filter: drop-shadow(0 2px 6px rgba(15, 23, 42, 0.25));
+            flex-shrink: 0;
         }
 
         .hot-reel-wrapper .tile-info .price span {
-            font-weight: 700;
-            color: #0f172a;
+            font-weight: 800;
+            color: #f8fafc;
         }
 
-        .hot-reel-wrapper .tile-info .name {
-            color: #0f172a;
-            font-weight: 700;
+        .hot-reel-wrapper .pill {
+            margin-top: 2px;
+            align-self: center;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            letter-spacing: 0.08em;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .pill {
@@ -192,50 +335,73 @@
         }
 
         .pill.common {
-            background: #e2e8f0;
-            color: #475569;
+            background: linear-gradient(90deg, #e2e8f0, #cbd5e1);
+            color: #1f2937;
         }
 
         .pill.uncommon {
-            background: #dcfce7;
-            color: #047857;
+            background: linear-gradient(90deg, #4ade80, #22c55e);
+            color: #03261b;
         }
 
         .pill.rare {
-            background: #dbeafe;
-            color: #1d4ed8;
+            background: linear-gradient(90deg, #60a5fa, #3b82f6);
+            color: #0b162f;
         }
 
         .pill.ultrarare {
-            background: #ede9fe;
-            color: #6d28d9;
+            background: linear-gradient(90deg, #c084fc, #a855f7);
+            color: #260b35;
         }
 
         body.dark-mode .hot-reel-wrapper {
-            background: linear-gradient(135deg, #111827 0%, #0b1224 100%);
-            border-color: var(--card-border);
+            background: rgba(10, 14, 28, 0.75);
+            border-color: rgba(255, 255, 255, 0.06);
             color: var(--text-primary);
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 20px 38px rgba(0, 0, 0, 0.5);
         }
 
         body.dark-mode .hot-reel-wrapper .tile {
-            background: var(--card-surface);
-            border-color: var(--card-border);
-            color: var(--text-primary);
-            box-shadow: 0 22px 38px rgba(0, 0, 0, 0.25);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            border-color: rgba(148, 163, 184, 0.35);
+            color: #e2e8f0;
+            box-shadow: 0 18px 32px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        body.dark-mode .hot-reel-wrapper .tile-info {
+            background: rgba(8, 12, 24, 0.65);
         }
 
         body.dark-mode .hot-reel-wrapper .tile-info .price,
         body.dark-mode .hot-reel-wrapper .tile-info .name {
-            color: var(--text-primary);
+            color: #f8fafc;
+        }
+
+        body.dark-mode .hot-drops-card {
+            background: radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.12), transparent 38%),
+                        radial-gradient(circle at 80% 10%, rgba(99, 102, 241, 0.14), transparent 42%),
+                        linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.75));
+            border-color: rgba(255, 255, 255, 0.05);
         }
 
         .pill.legendary {
-            background: #fef3c7;
-            color: #92400e;
+            background: linear-gradient(90deg, #fcd34d, #fbbf24);
+            color: #1f2937;
         }
 
         @media (max-width: 640px) {
+            .hot-drops-card {
+                padding: 1.5rem 1.25rem;
+            }
+
+            .hot-drops-title-row {
+                gap: 0.5rem;
+            }
+
+            .hot-drops-legends {
+                gap: 0.5rem;
+            }
+
             .hot-reel-wrapper {
                 min-height: 220px;
                 padding: 1.75rem 1.25rem;
@@ -505,22 +671,30 @@
     </div>
 
     <!-- Featured Cards Section -->
-    <div class="py-12 bg-transparent">
+    <section class="py-12 bg-transparent hot-drops-section">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="lg:text-center">
-                <h2 class="text-base text-cyan-300 font-semibold tracking-wide uppercase">Recent Drops</h2>
-                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-white sm:text-4xl">
-                    Hot items from recent packs
-                </p>
-            </div>
+            <div class="hot-drops-card">
+                <div class="hot-drops-header">
+                    <span class="hot-drops-kicker"><i class="fas fa-wand-magic-sparkles"></i>Recent drops</span>
+                    <div class="hot-drops-title-row">
+                        <h2 class="hot-drops-title">Live pulls</h2>
+                    </div>
+                    <p class="hot-drops-subtitle">Fresh hits from the community.</p>
+                    <div class="hot-drops-legends">
+                        <span class="pill-compact"><i class="fas fa-wand-magic-sparkles mr-2"></i>Rare</span>
+                        <span class="pill-compact"><i class="fas fa-fire mr-2"></i>Hot</span>
+                        <a href="marketplace.html"><i class="fas fa-store"></i>Shop</a>
+                    </div>
+                </div>
 
-            <div class="mt-10">
-                <div class="reel-wrapper hot-reel-wrapper">
-                    <div id="hot-items-spinner" class="reel"></div>
+                <div class="hot-drops-carousel">
+                    <div class="reel-wrapper hot-reel-wrapper">
+                        <div id="hot-items-spinner" class="reel"></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
     <!-- Available Packs Section -->
     <div id="available-packs" class="py-12 bg-transparent">
