@@ -1,3 +1,13 @@
+const ensurePacklyPopup = () => {
+  if (window.showPacklyPopup || document.getElementById("packly-popup-loader")) return;
+  const popupScript = document.createElement("script");
+  popupScript.id = "packly-popup-loader";
+  popupScript.src = "scripts/packly-popup.js";
+  document.head.appendChild(popupScript);
+};
+
+ensurePacklyPopup();
+
 document.addEventListener("DOMContentLoaded", () => {
   const waitForElement = (selector, callback) => {
     const el = document.querySelector(selector);
