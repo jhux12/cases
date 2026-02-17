@@ -1,117 +1,126 @@
 <!-- header.html -->
-<nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200 backdrop-blur bg-white/80">
+<nav class="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-200/20">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between h-16">
-      <div class="flex items-center">
-        <a href="index.html" class="flex-shrink-0 flex items-center">
-          <span class="text-2xl font-bold gradient-text logo-animate">Pullz.gg</span>
-        </a>
-        <div class="hidden md:ml-6 md:flex md:space-x-8">
-            <a href="index.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700">
-              <i class="fas fa-box-open mr-1"></i>Open Packs
-            </a>
-            <a href="marketplace.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700">
-              <i class="fas fa-store mr-1"></i>Marketplace
-            </a>
-            <a href="rewards.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700">
-              <i class="fas fa-gift mr-1"></i>Rewards
-            </a>
-        </div>
-      </div>
-      <div class="hidden md:ml-6 md:flex md:items-center md:space-x-6">
-        <button id="theme-toggle-desktop-standalone" class="theme-toggle" type="button" aria-label="Toggle dark mode">
-          <i class="fas fa-moon"></i>
-        </button>
-        <div id="auth-buttons" class="flex items-center space-x-4">
-          <a id="signin-desktop" href="auth.html" class="text-sm font-medium text-gray-700 hover:text-gray-900">Sign In</a>
-          <a id="register-desktop" href="auth.html#register" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Register</a>
-        </div>
-        <div id="user-area" class="hidden md:hidden md:items-center md:space-x-4">
-          <div id="user-toolbar-desktop" class="user-toolbar hidden">
-            <div id="user-balance" class="hidden balance-chip items-center gap-2 px-2.5 py-1 text-white">
-              <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
-                <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 object-contain" alt="Gems" />
-              </div>
-              <div class="flex flex-col leading-tight">
-                <span id="balance-amount" class="balance-amount text-sm">0</span>
-                <span class="balance-label">gems</span>
-              </div>
-              <button id="topup-button" class="topup-chip ml-2 hidden">+</button>
-            </div>
-            <button id="theme-toggle-desktop-chip" class="theme-toggle chip-toggle hidden" type="button" aria-label="Toggle dark mode">
-              <i class="fas fa-moon"></i>
-            </button>
-            <button id="notification-bell" class="notification-button hidden" aria-label="Notifications">
-              <i class="fas fa-bell"></i>
-            </button>
-          </div>
-          <div class="ml-2 relative flex-shrink-0">
-            <button id="dropdown-toggle" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-50 focus:outline-none">
-              <span id="username-display">User</span>
-              <svg class="w-5 h-5 ml-2 -mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-              </svg>
-            </button>
-            <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-              <div class="py-1">
-                <a href="inventory.html" class="user-nav-link block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Inventory</a>
-                <a href="profile.html" class="user-nav-link block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-                <a href="how-it-works.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">How It Works</a>
-                <a id="logout-desktop" href="#" class="hidden block px-4 py-2 text-sm text-red-500 hover:bg-gray-100">Logout</a>
-              </div>
-            </div>
+    <div class="nav-shell mt-4 px-4 sm:px-6 py-3">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <a href="index.html" class="flex-shrink-0 flex items-center">
+            <span class="text-2xl font-bold gradient-text logo-animate">Pullz.gg</span>
+          </a>
+          <div class="hidden md:flex nav-rail">
+            <a href="index.html" class="nav-pill active"><i class="fas fa-box-open"></i> Mystery Boxes</a>
+            <a href="box-battles.html" class="nav-pill"><i class="fas fa-gamepad"></i> Battles</a>
+            <a href="marketplace.html" class="nav-pill"><i class="fas fa-store"></i> Marketplace</a>
+            <a href="rewards.html" class="nav-pill"><i class="fas fa-gift"></i> Rewards</a>
           </div>
         </div>
-      </div>
-      <div class="-mr-2 flex items-center md:hidden">
-        <div id="user-toolbar-mobile" class="user-toolbar mr-3">
-          <div id="user-balance-mobile-header" class="hidden balance-chip items-center gap-2 px-2.5 py-1 text-white">
-            <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
-              <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 object-contain" alt="Gems" />
-            </div>
-            <div class="flex flex-col leading-tight">
-              <span id="balance-amount-mobile" class="balance-amount text-sm">0</span>
-              <span class="balance-label">gems</span>
-            </div>
-            <button id="topup-button-mobile-header" class="topup-chip hidden">+</button>
-          </div>
-          <button id="notification-bell-mobile" class="notification-button hidden" aria-label="Notifications">
-            <i class="fas fa-bell"></i>
-          </button>
+
+        <div class="flex items-center gap-2 md:hidden">
           <button id="menu-toggle" type="button" class="menu-toggle-button" aria-expanded="false" aria-label="Open main menu">
             <i class="fas fa-bars"></i>
           </button>
         </div>
+
+        <div class="hidden md:flex items-center gap-3">
+          <button id="theme-toggle-desktop-standalone" class="theme-toggle" type="button" aria-label="Toggle dark mode">
+            <i class="fas fa-moon"></i>
+          </button>
+          <div id="auth-buttons" class="flex items-center gap-2">
+            <a id="signin-desktop" href="auth.html" class="nav-cta secondary">Sign In</a>
+            <a id="register-desktop" href="auth.html#register" class="nav-cta">Register</a>
+          </div>
+          <div id="user-area" class="hidden items-center gap-3">
+            <div id="user-toolbar-desktop" class="user-toolbar hidden">
+              <div id="user-balance" class="hidden balance-chip items-center gap-2 px-2.5 py-1 text-white">
+                <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
+                  <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 object-contain" alt="Gems" />
+                </div>
+                <div class="flex flex-col leading-tight">
+                  <span id="balance-amount" class="balance-amount text-sm">0</span>
+                  <span class="balance-label">gems</span>
+                </div>
+                <button id="topup-button" class="topup-chip ml-2 hidden">+</button>
+              </div>
+              <button id="theme-toggle-desktop-chip" class="theme-toggle chip-toggle hidden" type="button" aria-label="Toggle dark mode">
+                <i class="fas fa-moon"></i>
+              </button>
+              <button id="notification-bell" class="notification-button hidden" aria-label="Notifications">
+                <i class="fas fa-bell"></i>
+              </button>
+            </div>
+            <div class="relative flex-shrink-0">
+              <button id="dropdown-toggle" class="inline-flex justify-center w-full px-4 py-2 text-sm font-semibold text-white rounded-xl bg-white/10 hover:bg-white/15 focus:outline-none">
+                <span id="username-display">User</span>
+                <svg class="w-5 h-5 ml-2 -mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-56 rounded-xl shadow-lg bg-slate-900 ring-1 ring-white/10">
+                <div class="py-1">
+                  <a href="inventory.html" class="user-nav-link block px-4 py-2 text-sm text-slate-100 hover:bg-white/10">Inventory</a>
+                  <a href="profile.html" class="user-nav-link block px-4 py-2 text-sm text-slate-100 hover:bg-white/10">Profile</a>
+                  <a href="how-it-works.html" class="block px-4 py-2 text-sm text-slate-100 hover:bg-white/10">How It Works</a>
+                  <a id="logout-desktop" href="#" class="hidden block px-4 py-2 text-sm text-red-300 hover:bg-white/10">Logout</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 hidden lg:flex items-center justify-between gap-3">
+        <div class="nav-rail flex-wrap">
+          <a href="rewards.html" class="nav-pill"><i class="fas fa-coins"></i> Buy Gems</a>
+          <a href="#available-packs" class="nav-pill"><i class="fas fa-shoe-prints"></i> Dunks</a>
+          <a href="#available-packs" class="nav-pill"><i class="fas fa-tshirt"></i> Streetwear</a>
+          <a href="#available-packs" class="nav-pill"><i class="fas fa-headphones"></i> Tech & Audio</a>
+          <a href="#available-packs" class="nav-pill"><i class="fas fa-gift"></i> Gift & Win</a>
+        </div>
+        <div class="flex items-center gap-2">
+          <div id="user-toolbar-desktop-secondary" class="user-toolbar hidden">
+            <div id="user-balance-secondary" class="hidden balance-chip items-center gap-2 px-2.5 py-1 text-white">
+              <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
+                <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 object-contain" alt="Gems" />
+              </div>
+              <div class="flex flex-col leading-tight">
+                <span id="balance-amount-secondary" class="balance-amount text-sm">0</span>
+                <span class="balance-label">gems</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-      <div id="mobile-dropdown" class="md:hidden hidden">
-      <div class="pt-2 pb-3 space-y-1">
-        <a href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-box-open mr-2"></i>Open Packs</a>
-        <a href="marketplace.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-store mr-2"></i>Marketplace</a>
-        <a href="rewards.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300"><i class="fas fa-gift mr-2"></i>Rewards</a>
-      </div>
-      <div class="pt-4 pb-3 border-t border-gray-200">
-        <div class="px-4 mb-3">
-          <button id="theme-toggle-mobile-menu" class="theme-toggle menu-entry w-full" type="button" aria-label="Toggle dark mode">
-            <div class="flex items-center gap-3">
-              <span class="menu-entry-icon">
-                <i class="fas fa-moon"></i>
-              </span>
-              <div class="text-left leading-tight">
-                <div class="text-sm font-semibold text-gray-800 dark:text-slate-100">Theme</div>
-                <div class="text-xs text-gray-500 dark:text-slate-300">Light / Dark</div>
-              </div>
+
+  <div id="mobile-dropdown" class="md:hidden hidden">
+    <div class="pt-2 pb-3 space-y-1">
+      <a href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-200 hover:bg-white/5 hover:border-white/20"><i class="fas fa-box-open mr-2"></i>Open Packs</a>
+      <a href="marketplace.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-200 hover:bg-white/5 hover:border-white/20"><i class="fas fa-store mr-2"></i>Marketplace</a>
+      <a href="rewards.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-200 hover:bg-white/5 hover:border-white/20"><i class="fas fa-gift mr-2"></i>Rewards</a>
+      <a href="box-battles.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-200 hover:bg-white/5 hover:border-white/20"><i class="fas fa-gamepad mr-2"></i>Battles</a>
+    </div>
+    <div class="pt-4 pb-3 border-t border-white/10">
+      <div class="px-4 mb-3">
+        <button id="theme-toggle-mobile-menu" class="theme-toggle menu-entry w-full" type="button" aria-label="Toggle dark mode">
+          <div class="flex items-center gap-3">
+            <span class="menu-entry-icon">
+              <i class="fas fa-moon"></i>
+            </span>
+            <div class="text-left leading-tight">
+              <div class="text-sm font-semibold text-gray-100">Theme</div>
+              <div class="text-xs text-gray-400">Light / Dark</div>
             </div>
-            <span class="theme-state-label text-xs font-semibold px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-100">Light</span>
-          </button>
-        </div>
-        <div class="space-y-1">
-          <a id="mobile-inventory-link" href="inventory.html" class="hidden block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Inventory</a>
-          <a id="mobile-profile-link" href="profile.html" class="hidden block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Profile</a>
-        <a href="how-it-works.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">How It Works</a>
-        <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Sign In</a>
-        <a id="mobile-register-button" href="auth.html#register" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100">Register</a>
+          </div>
+          <span class="theme-state-label text-xs font-semibold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-100">Light</span>
+        </button>
+      </div>
+      <div class="space-y-1">
+        <a id="mobile-inventory-link" href="inventory.html" class="hidden block px-4 py-2 text-base font-medium text-gray-300 hover:bg-white/5">Inventory</a>
+        <a id="mobile-profile-link" href="profile.html" class="hidden block px-4 py-2 text-base font-medium text-gray-300 hover:bg-white/5">Profile</a>
+        <a href="how-it-works.html" class="block px-4 py-2 text-base font-medium text-gray-300 hover:bg-white/5">How It Works</a>
+        <a id="mobile-auth-button" href="auth.html" class="block px-4 py-2 text-base font-medium text-gray-300 hover:bg-white/5">Sign In</a>
+        <a id="mobile-register-button" href="auth.html#register" class="block px-4 py-2 text-base font-medium text-gray-300 hover:bg-white/5">Register</a>
       </div>
     </div>
   </div>
