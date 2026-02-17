@@ -155,6 +155,7 @@
       <nav class="flex-1 px-4 space-y-1">
         <button type="button" data-section="overview" class="admin-nav-link active"><i class="fa-solid fa-chart-line"></i>Overview</button>
         <button type="button" data-section="cases" class="admin-nav-link"><i class="fa-solid fa-box-open"></i>Cases & Pick'em</button>
+        <button type="button" data-section="vending" class="admin-nav-link"><i class="fa-solid fa-martini-glass-citrus"></i>Vending Machines</button>
         <button type="button" data-section="shipments" class="admin-nav-link"><i class="fa-solid fa-truck"></i>Shipments</button>
         <button type="button" data-section="support" class="admin-nav-link"><i class="fa-solid fa-inbox"></i>Support Inbox</button>
         <button type="button" data-section="users" class="admin-nav-link"><i class="fa-solid fa-users"></i>User Directory</button>
@@ -190,6 +191,7 @@
           <div class="flex gap-2 overflow-x-auto hide-scrollbar">
             <button type="button" data-section="overview" class="admin-nav-link active"><i class="fa-solid fa-chart-line"></i>Overview</button>
             <button type="button" data-section="cases" class="admin-nav-link"><i class="fa-solid fa-box-open"></i>Cases</button>
+            <button type="button" data-section="vending" class="admin-nav-link"><i class="fa-solid fa-martini-glass-citrus"></i>Vending</button>
             <button type="button" data-section="shipments" class="admin-nav-link"><i class="fa-solid fa-truck"></i>Shipments</button>
             <button type="button" data-section="support" class="admin-nav-link"><i class="fa-solid fa-inbox"></i>Support</button>
             <button type="button" data-section="users" class="admin-nav-link"><i class="fa-solid fa-users"></i>Users</button>
@@ -803,6 +805,165 @@
               </form>
             </div>
           </section>
+          <section id="vending-section" class="hidden space-y-8">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p class="text-xs uppercase tracking-[0.35em] text-slate-500">Vending</p>
+                <h2 class="text-2xl font-semibold text-white">Vending machine manager</h2>
+              </div>
+              <div class="text-sm text-slate-400" id="vending-sync-admin">Waiting for first sync…</div>
+            </div>
+
+            <div class="grid gap-6 lg:grid-cols-3">
+              <form id="vending-form" class="glass-card space-y-4 lg:col-span-2">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-lg font-semibold text-white">Create vending machine</h3>
+                  <span class="text-xs text-slate-500">Publishes instantly</span>
+                </div>
+                <div class="grid gap-4 md:grid-cols-2">
+                  <label class="block space-y-2">
+                    <span class="text-sm text-slate-300">Name</span>
+                    <input id="vending-name" type="text" class="form-input" placeholder="Mythic Machines" required />
+                  </label>
+                  <label class="block space-y-2">
+                    <span class="text-sm text-slate-300">Price (USD)</span>
+                    <input id="vending-price" type="number" step="0.01" min="0" class="form-input" placeholder="24.99" required />
+                  </label>
+                  <label class="block space-y-2">
+                    <span class="text-sm text-slate-300">Image URL</span>
+                    <input id="vending-image" type="url" class="form-input" placeholder="https://.../machine.png" required />
+                  </label>
+                  <label class="block space-y-2">
+                    <span class="text-sm text-slate-300">Destination link (optional)</span>
+                    <input id="vending-link" type="url" class="form-input" placeholder="Auto-generated if left blank" />
+                  </label>
+                </div>
+                <label class="block space-y-2">
+                  <span class="text-sm text-slate-300">Description</span>
+                  <textarea id="vending-description" rows="3" class="form-textarea" placeholder="Short copy for the landing card"></textarea>
+                </label>
+                <div class="grid gap-3 md:grid-cols-2">
+                  <label class="glass-subcard space-y-2">
+                    <div class="flex items-center justify-between text-xs text-slate-400">
+                      <span>Common %</span><span class="text-sky-300">Default 40</span>
+                    </div>
+                    <input id="rarity-common" type="number" min="0" max="100" step="0.1" class="form-input" placeholder="40" />
+                  </label>
+                  <label class="glass-subcard space-y-2">
+                    <div class="flex items-center justify-between text-xs text-slate-400">
+                      <span>Rare %</span><span class="text-indigo-300">Default 30</span>
+                    </div>
+                    <input id="rarity-rare" type="number" min="0" max="100" step="0.1" class="form-input" placeholder="30" />
+                  </label>
+                  <label class="glass-subcard space-y-2">
+                    <div class="flex items-center justify-between text-xs text-slate-400">
+                      <span>Epic %</span><span class="text-purple-300">Default 20</span>
+                    </div>
+                    <input id="rarity-epic" type="number" min="0" max="100" step="0.1" class="form-input" placeholder="20" />
+                  </label>
+                  <label class="glass-subcard space-y-2">
+                    <div class="flex items-center justify-between text-xs text-slate-400">
+                      <span>Legendary %</span><span class="text-amber-300">Default 10</span>
+                    </div>
+                    <input id="rarity-legendary" type="number" min="0" max="100" step="0.1" class="form-input" placeholder="10" />
+                  </label>
+                </div>
+                <div class="space-y-4">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-slate-400">
+                    <span>Prize pools (Name, weight, optional image) — add items per rarity like you do for packs.</span>
+                    <span class="text-slate-500">Weights are relative within each rarity.</span>
+                  </div>
+                  <div class="grid gap-4 md:grid-cols-2">
+                    <div class="glass-subcard space-y-3">
+                      <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span class="font-semibold text-sky-200">Common items</span>
+                        <span class="text-slate-500">Starter | 1 | https://...</span>
+                      </div>
+                      <div class="grid gap-2 md:grid-cols-3">
+                        <input id="item-name-common" type="text" class="form-input" placeholder="Item name" />
+                        <input id="item-weight-common" type="number" min="0" step="0.01" class="form-input" placeholder="Weight" />
+                        <input id="item-image-common" type="url" class="form-input" placeholder="Image URL (optional)" />
+                      </div>
+                      <button type="button" data-rarity="common" class="vending-add-item inline-flex items-center gap-2 rounded-lg bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-100 hover:bg-sky-500/30">
+                        <i class="fa-solid fa-plus"></i> Add common item
+                      </button>
+                      <div id="items-list-common" class="space-y-2 text-sm"></div>
+                      <textarea id="items-common" rows="3" class="form-textarea hidden" placeholder="Starter Bundle | 1 | https://.../starter.png&#10;Warm-up Pack | 1 | https://.../warm.png"></textarea>
+                    </div>
+                    <div class="glass-subcard space-y-3">
+                      <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span class="font-semibold text-indigo-200">Rare items</span>
+                        <span class="text-slate-500">Rare Pack | 2 | https://...</span>
+                      </div>
+                      <div class="grid gap-2 md:grid-cols-3">
+                        <input id="item-name-rare" type="text" class="form-input" placeholder="Item name" />
+                        <input id="item-weight-rare" type="number" min="0" step="0.01" class="form-input" placeholder="Weight" />
+                        <input id="item-image-rare" type="url" class="form-input" placeholder="Image URL (optional)" />
+                      </div>
+                      <button type="button" data-rarity="rare" class="vending-add-item inline-flex items-center gap-2 rounded-lg bg-indigo-500/20 px-3 py-2 text-xs font-semibold text-indigo-100 hover:bg-indigo-500/30">
+                        <i class="fa-solid fa-plus"></i> Add rare item
+                      </button>
+                      <div id="items-list-rare" class="space-y-2 text-sm"></div>
+                      <textarea id="items-rare" rows="3" class="form-textarea hidden" placeholder="Rare Neon Case | 2 | https://.../rare.png&#10;Holo Sticker | 1 | https://.../holo.png"></textarea>
+                    </div>
+                    <div class="glass-subcard space-y-3">
+                      <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span class="font-semibold text-purple-200">Epic items</span>
+                        <span class="text-slate-500">Epic Drop | 3 | https://...</span>
+                      </div>
+                      <div class="grid gap-2 md:grid-cols-3">
+                        <input id="item-name-epic" type="text" class="form-input" placeholder="Item name" />
+                        <input id="item-weight-epic" type="number" min="0" step="0.01" class="form-input" placeholder="Weight" />
+                        <input id="item-image-epic" type="url" class="form-input" placeholder="Image URL (optional)" />
+                      </div>
+                      <button type="button" data-rarity="epic" class="vending-add-item inline-flex items-center gap-2 rounded-lg bg-purple-500/20 px-3 py-2 text-xs font-semibold text-purple-100 hover:bg-purple-500/30">
+                        <i class="fa-solid fa-plus"></i> Add epic item
+                      </button>
+                      <div id="items-list-epic" class="space-y-2 text-sm"></div>
+                      <textarea id="items-epic" rows="3" class="form-textarea hidden" placeholder="Epic Hardware Drop | 3 | https://.../epic.png"></textarea>
+                    </div>
+                    <div class="glass-subcard space-y-3">
+                      <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span class="font-semibold text-amber-200">Legendary items</span>
+                        <span class="text-slate-500">Legendary | 5 | https://...</span>
+                      </div>
+                      <div class="grid gap-2 md:grid-cols-3">
+                        <input id="item-name-legendary" type="text" class="form-input" placeholder="Item name" />
+                        <input id="item-weight-legendary" type="number" min="0" step="0.01" class="form-input" placeholder="Weight" />
+                        <input id="item-image-legendary" type="url" class="form-input" placeholder="Image URL (optional)" />
+                      </div>
+                      <button type="button" data-rarity="legendary" class="vending-add-item inline-flex items-center gap-2 rounded-lg bg-amber-500/20 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/30">
+                        <i class="fa-solid fa-plus"></i> Add legendary item
+                      </button>
+                      <div id="items-list-legendary" class="space-y-2 text-sm"></div>
+                      <textarea id="items-legendary" rows="3" class="form-textarea hidden" placeholder="Legendary Skin | 5 | https://.../legendary.png"></textarea>
+                    </div>
+                  </div>
+                </div>
+                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-500/90 hover:bg-indigo-500 px-4 py-3 font-semibold shadow-lg">
+                  <i class="fa-solid fa-floppy-disk"></i> Publish vending machine
+                </button>
+              </form>
+              <div class="glass-card">
+                <h3 class="text-lg font-semibold text-white mb-3">Publishing tips</h3>
+                <ul class="space-y-2 text-sm text-slate-300">
+                  <li>• Use a 3:4 image ratio for the thumbnail.</li>
+                  <li>• Odds fields are optional—defaults are applied if blank.</li>
+                  <li>• Leave destination blank to auto-generate a link after publishing.</li>
+                  <li>• Add prize pools per rarity using “Name | weight | image URL (optional)”. Weights decide pull likelihood inside each rarity.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="glass-card">
+              <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <h3 class="text-lg font-semibold text-white">Published vending machines</h3>
+                <span class="text-xs text-slate-500">Auto-refreshing from Firestore</span>
+              </div>
+              <div id="vending-list-admin" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
+              <p id="vending-empty-admin" class="hidden text-sm text-slate-400">No vending machines published yet.</p>
+            </div>
+          </section>
           <section id="marketplace-section" class="hidden space-y-8">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div>
@@ -1145,13 +1306,62 @@
       support: document.getElementById('sync-support'),
       marketplace: document.getElementById('sync-marketplace')
     };
+    const vendingElements = {
+      form: document.getElementById('vending-form'),
+      list: document.getElementById('vending-list-admin'),
+      empty: document.getElementById('vending-empty-admin'),
+      sync: document.getElementById('vending-sync-admin'),
+      name: document.getElementById('vending-name'),
+      price: document.getElementById('vending-price'),
+      image: document.getElementById('vending-image'),
+      link: document.getElementById('vending-link'),
+      description: document.getElementById('vending-description'),
+      items: {
+        common: document.getElementById('items-common'),
+        rare: document.getElementById('items-rare'),
+        epic: document.getElementById('items-epic'),
+        legendary: document.getElementById('items-legendary')
+      },
+      itemInputs: {
+        common: {
+          name: document.getElementById('item-name-common'),
+          weight: document.getElementById('item-weight-common'),
+          image: document.getElementById('item-image-common'),
+          list: document.getElementById('items-list-common'),
+        },
+        rare: {
+          name: document.getElementById('item-name-rare'),
+          weight: document.getElementById('item-weight-rare'),
+          image: document.getElementById('item-image-rare'),
+          list: document.getElementById('items-list-rare'),
+        },
+        epic: {
+          name: document.getElementById('item-name-epic'),
+          weight: document.getElementById('item-weight-epic'),
+          image: document.getElementById('item-image-epic'),
+          list: document.getElementById('items-list-epic'),
+        },
+        legendary: {
+          name: document.getElementById('item-name-legendary'),
+          weight: document.getElementById('item-weight-legendary'),
+          image: document.getElementById('item-image-legendary'),
+          list: document.getElementById('items-list-legendary'),
+        }
+      },
+      rarities: {
+        common: document.getElementById('rarity-common'),
+        rare: document.getElementById('rarity-rare'),
+        epic: document.getElementById('rarity-epic'),
+        legendary: document.getElementById('rarity-legendary')
+      }
+    };
     const shipmentColumns = {
       Requested: document.getElementById('shipments-requested'),
       Approved: document.getElementById('shipments-approved'),
       Shipped: document.getElementById('shipments-shipped')
     };
 
-    const sectionIds = ['overview', 'cases', 'shipments', 'support', 'users', 'notifications', 'marketplace', 'quests', 'rewards'];
+    const sectionIds = ['overview', 'cases', 'vending', 'shipments', 'support', 'users', 'notifications', 'marketplace', 'quests', 'rewards'];
 
     let casesData = [];
     let vaultsData = [];
@@ -1238,6 +1448,149 @@
       setTimeout(() => {
         toast.style.display = 'none';
       }, 3200);
+    }
+
+    function parseItemsInput(value = '') {
+      return value
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => {
+          const parts = line.split('|').map(v => (v || '').trim());
+          const namePart = parts[0] || 'Mystery reward';
+          const weightPart = parts[1];
+          const imagePart = parts[2];
+          return {
+            name: namePart,
+            weight: Math.max(0.0001, parseFloat(weightPart) || 1),
+          image: imagePart || ''
+        };
+      });
+    }
+
+    const vendingItemsState = {
+      common: [],
+      rare: [],
+      epic: [],
+      legendary: []
+    };
+
+    function syncTextareaFromState(rarity) {
+      if (!vendingElements.items?.[rarity]) return;
+      const rows = (vendingItemsState[rarity] || []).map(item => `${item.name} | ${item.weight} | ${item.image || ''}`);
+      vendingElements.items[rarity].value = rows.join('\n');
+    }
+
+    function renderVendingItems(rarity) {
+      const target = vendingElements.itemInputs?.[rarity]?.list;
+      if (!target) return;
+      const pool = vendingItemsState[rarity] || [];
+      target.innerHTML = '';
+      if (!pool.length) {
+        target.innerHTML = '<p class="text-xs text-slate-500">No items added yet.</p>';
+        syncTextareaFromState(rarity);
+        return;
+      }
+      pool.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between gap-2 rounded-lg bg-slate-900/70 border border-slate-800/80 px-3 py-2';
+        row.innerHTML = `
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-white">${item.name || 'Prize'}</p>
+            <p class="text-xs text-slate-400">Weight: ${item.weight} ${item.image ? '• img' : ''}</p>
+          </div>
+          <button type="button" data-rarity="${rarity}" data-index="${idx}" class="vending-remove-item text-xs text-rose-300 hover:text-rose-200">Remove</button>
+        `;
+        target.appendChild(row);
+      });
+      syncTextareaFromState(rarity);
+    }
+
+    function addVendingItem(rarity) {
+      const inputs = vendingElements.itemInputs?.[rarity];
+      if (!inputs) return;
+      const name = (inputs.name?.value || '').trim();
+      const weight = Math.max(0.0001, parseFloat(inputs.weight?.value) || 1);
+      const image = (inputs.image?.value || '').trim();
+      if (!name) return showToast('Enter a name for the item');
+      vendingItemsState[rarity] = [...(vendingItemsState[rarity] || []), { name, weight, image }];
+      if (inputs.name) inputs.name.value = '';
+      if (inputs.weight) inputs.weight.value = '';
+      if (inputs.image) inputs.image.value = '';
+      renderVendingItems(rarity);
+    }
+
+    function resetVendingItems() {
+      ['common', 'rare', 'epic', 'legendary'].forEach((rarity) => {
+        vendingItemsState[rarity] = [];
+        renderVendingItems(rarity);
+      });
+    }
+
+    resetVendingItems();
+
+    function buildItemsPayload() {
+      if (!vendingElements.items) return {};
+      const byState = (rarity) => {
+        const fromState = vendingItemsState[rarity] || [];
+        if (fromState.length) return fromState;
+        return parseItemsInput(vendingElements.items[rarity]?.value || '');
+      };
+      return {
+        common: byState('common'),
+        rare: byState('rare'),
+        epic: byState('epic'),
+        legendary: byState('legendary'),
+      };
+    }
+
+    function renderVendingMachinesAdmin(items = []) {
+      const { list, empty } = vendingElements;
+      if (!list || !empty) return;
+      list.innerHTML = '';
+      if (!items.length) {
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      items.forEach((item) => {
+        const fallbackLink = item.link || (item.id ? `vending.html?id=${item.id}` : '#');
+        const itemCounts = item.items || {};
+        const badgeRow = ['common', 'rare', 'epic', 'legendary']
+          .map((key) => {
+            const count = Array.isArray(itemCounts[key]) ? itemCounts[key].length : 0;
+            const label = key.charAt(0).toUpperCase() + key.slice(1);
+            const colors = {
+              common: 'bg-cyan-500/15 text-cyan-100 border border-cyan-400/30',
+              rare: 'bg-indigo-500/15 text-indigo-100 border border-indigo-400/30',
+              epic: 'bg-purple-500/15 text-purple-100 border border-purple-400/30',
+              legendary: 'bg-amber-500/15 text-amber-100 border border-amber-400/30',
+            };
+            return `<span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.65rem] font-semibold ${colors[key] || 'bg-white/10 border border-white/10'}">${label}: ${count}</span>`;
+          })
+          .join('');
+        const card = document.createElement('article');
+        card.className = 'glass-subcard p-4 space-y-3 flex flex-col';
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-xs uppercase tracking-[0.3em] text-slate-500">${item.tag || 'Featured'}</p>
+              <h4 class="text-lg font-semibold text-white">${item.name || 'Vending Machine'}</h4>
+            </div>
+            <span class="text-sm font-semibold text-emerald-300">$${Number(item.price || 0).toFixed(2)}</span>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-slate-800/70">
+            <img src="${item.image || 'https://placehold.co/360x220/0f172a/94a3b8?text=Vending'}" alt="${item.name || 'Vending machine'}" class="w-full h-40 object-cover" />
+          </div>
+          <p class="text-sm text-slate-300 line-clamp-3">${item.description || 'Published via admin panel.'}</p>
+          <div class="flex flex-wrap gap-2 text-[11px] text-slate-200/90">${badgeRow}</div>
+          <div class="text-xs text-slate-400">Link: <a href="${fallbackLink}" class="text-indigo-300 break-all">${item.link || fallbackLink}</a></div>
+          <div class="flex items-center gap-2">
+            <button data-id="${item.id}" class="inline-flex items-center gap-2 text-xs rounded-lg px-3 py-2 bg-rose-500/20 text-rose-200 hover:bg-rose-500/30 delete-vending">Delete</button>
+          </div>
+        `;
+        list.appendChild(card);
+      });
     }
 
     function getCaseImage(data) {
@@ -1469,6 +1822,24 @@
       });
     });
 
+    document.querySelectorAll('.vending-add-item').forEach((button) => {
+      button.addEventListener('click', () => {
+        const rarity = button.dataset.rarity;
+        if (rarity) addVendingItem(rarity);
+      });
+    });
+
+    document.getElementById('vending-form')?.addEventListener('click', (e) => {
+      const target = e.target.closest('.vending-remove-item');
+      if (!target) return;
+      const rarity = target.dataset.rarity;
+      const index = Number(target.dataset.index);
+      if (!rarity || Number.isNaN(index)) return;
+      const pool = vendingItemsState[rarity] || [];
+      vendingItemsState[rarity] = pool.filter((_, i) => i !== index);
+      renderVendingItems(rarity);
+    });
+
     if (logoutButton) {
       logoutButton.addEventListener('click', () => {
         firebase.auth().signOut();
@@ -1489,6 +1860,48 @@
             globalSearchInput.blur();
           }
         }
+      });
+    }
+
+    if (vendingElements.form) {
+      vendingElements.form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const providedLink = vendingElements.link.value.trim();
+        const payload = {
+          name: vendingElements.name.value.trim(),
+          price: parseFloat(vendingElements.price.value) || 0,
+          image: vendingElements.image.value.trim(),
+          link: providedLink,
+          description: vendingElements.description.value.trim(),
+          items: buildItemsPayload(),
+          rarities: {
+            common: parseFloat(vendingElements.rarities.common.value) || 40,
+            rare: parseFloat(vendingElements.rarities.rare.value) || 30,
+            epic: parseFloat(vendingElements.rarities.epic.value) || 20,
+            legendary: parseFloat(vendingElements.rarities.legendary.value) || 10,
+          },
+          createdAt: Date.now(),
+        };
+
+        firestore.collection('vendingMachines').add(payload).then((docRef) => {
+          if (!providedLink && docRef?.id) {
+            const autoLink = `vending.html?id=${docRef.id}`;
+            return docRef.update({ link: autoLink }).then(() => autoLink);
+          }
+          return providedLink;
+        }).then(() => {
+          showToast('✅ Vending machine published');
+          vendingElements.form.reset();
+          resetVendingItems();
+        }).catch(() => showToast('❌ Failed to publish vending machine'));
+      });
+
+      vendingElements.list?.addEventListener('click', (event) => {
+        const target = event.target.closest('.delete-vending');
+        if (!target) return;
+        const id = target.dataset.id;
+        if (!id) return;
+        firestore.collection('vendingMachines').doc(id).delete().then(() => showToast('🗑️ Removed vending machine'));
       });
     }
 
@@ -1990,6 +2403,24 @@
       if (data.isFree) return 'Free case';
       const value = Number(data.price || 0);
       return `$${value.toFixed(2)}`;
+    }
+
+    function loadVendingMachines() {
+      const { list, empty, sync } = vendingElements;
+      if (!list || !sync) return;
+      sync.textContent = 'Syncing…';
+      firestore
+        .collection('vendingMachines')
+        .orderBy('createdAt', 'desc')
+        .onSnapshot((snapshot) => {
+          const items = [];
+          snapshot.forEach((doc) => items.push({ id: doc.id, ...(doc.data() || {}) }));
+          sync.textContent = `Last updated ${new Date().toLocaleTimeString()}`;
+          renderVendingMachinesAdmin(items);
+          empty?.classList.toggle('hidden', items.length > 0);
+        }, () => {
+          sync.textContent = 'Unable to load vending machines';
+        });
     }
 
     function badge(label, classes) {
@@ -2920,6 +3351,7 @@
       showSection('overview');
       loadHomeSpinnerConfig();
       loadCases();
+      loadVendingMachines();
       loadShipments();
       loadSupportForms();
       loadNotificationsAdmin();
