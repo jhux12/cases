@@ -653,6 +653,10 @@
                       <span>Target vs actual margin</span>
                       <span id="wizard-summary-margin" class="font-semibold text-indigo-200">--</span>
                     </div>
+                    <div class="flex items-center justify-between text-sm text-slate-300">
+                      <span>Spice level</span>
+                      <span id="wizard-summary-spice" class="font-semibold text-rose-200">Auto after odds</span>
+                    </div>
                   </div>
                   <div class="glass-subcard space-y-2">
                     <p class="text-sm font-semibold text-white">Inline checks</p>
@@ -1200,6 +1204,7 @@
     const wizardSummaryOdds = document.getElementById('wizard-summary-odds');
     const wizardSummaryEV = document.getElementById('wizard-summary-ev');
     const wizardSummaryMargin = document.getElementById('wizard-summary-margin');
+    const wizardSummarySpice = document.getElementById('wizard-summary-spice');
     const wizardSummaryChecks = document.getElementById('wizard-summary-checks');
     const wizardImagePreview = document.getElementById('wizard-image-preview');
     const wizardImagePlaceholder = document.getElementById('wizard-image-placeholder');
@@ -1225,6 +1230,7 @@
     let wizardLastPublished = {};
     let wizardEditingKey = null;
     let wizardEditingPath = null;
+    let wizardSpiceLevel = '';
 
     function resetPrizesSection() {
       prizesSection.innerHTML = basePrizeMarkup;
@@ -1635,6 +1641,35 @@
       return { odds: normalized, ev };
     }
 
+    function inferSpiceLevel(prizes, odds, riskValue = 55) {
+      const combined = prizes.map((p, idx) => ({
+        value: Number(p.value) || 0,
+        odds: Number(odds[idx]) || 0
+      })).filter(entry => !Number.isNaN(entry.odds));
+
+      if (!combined.length) return '';
+
+      combined.sort((a, b) => (b.value || 0) - (a.value || 0));
+      const chunkSize = Math.max(1, Math.ceil(combined.length / 3));
+      const topOddsShare = combined.slice(0, chunkSize).reduce((sum, prize) => sum + prize.odds, 0);
+      const highestPrizeOdds = combined[0]?.odds || 0;
+      const riskScore = Math.min(Math.max(Number(riskValue) || 0, 0), 100) / 100;
+
+      if (topOddsShare < 20 || highestPrizeOdds < 3 || riskScore >= 0.7) return 'hard';
+      if (topOddsShare < 40 || riskScore >= 0.45) return 'medium';
+      return 'easy';
+    }
+
+    function updateWizardSpiceDisplay(level) {
+      if (!wizardSummarySpice) return;
+      const labels = {
+        easy: '🌶️ Easy',
+        medium: '🌶️🌶️ Medium',
+        hard: '🌶️🌶️🌶️ Hard'
+      };
+      wizardSummarySpice.textContent = labels[level] || 'Auto after odds';
+    }
+
     function generateWizardOdds(forceMargin) {
       const basics = collectWizardBasics();
       const prizes = collectWizardPrizes();
@@ -1643,7 +1678,7 @@
         wizardValidation.textContent = 'Add prizes before generating odds.';
         return;
       }
-      const risk = wizardRiskSlider ? wizardRiskSlider.value : 55;
+      const risk = wizardRiskSlider ? Number(wizardRiskSlider.value) : 55;
       const tiltMin = 0.05 + (risk / 200);
       const tiltMax = 2.75 + (risk / 120);
       let low = tiltMin;
@@ -1668,6 +1703,8 @@
       wizardValidation.textContent = `EV $${ev.toFixed(2)} vs target $${targetEV.toFixed(2)} (tilt ${wizardTilt.toFixed(2)})`;
       wizardExplanation.textContent = `Odds favor lower-value items to hit the target EV while respecting your risk slider (${risk}%) and margin. Higher-value tiers stay rarer to protect margin.`;
       updateWizardSummary(prizes, odds, basics, ev, targetEV);
+      wizardSpiceLevel = inferSpiceLevel(prizes, odds, risk);
+      updateWizardSpiceDisplay(wizardSpiceLevel);
       wizardSimOutput.textContent = 'Run a quick simulation to preview pulls.';
     }
 
@@ -1754,6 +1791,8 @@
       wizardSummaryChecks.innerHTML = '<li>Total odds must equal 100%.</li><li>No negative or blank odds.</li><li>EV should be ≤ price unless free.</li>';
       wizardSummaryEV.textContent = '$0.00';
       wizardSummaryMargin.textContent = '--';
+      wizardSpiceLevel = '';
+      updateWizardSpiceDisplay(wizardSpiceLevel);
       previewWizardImage('');
       addWizardPrize();
       addWizardPrize();
@@ -1775,6 +1814,8 @@
       document.getElementById('wizard-pack-vault').checked = path === 'vaults';
       document.getElementById('wizard-pack-card-back').value = item.cardBack || '';
       previewWizardImage(item.image || '');
+      wizardSpiceLevel = item.spiceLevel || '';
+      updateWizardSpiceDisplay(wizardSpiceLevel);
       wizardPrizeList.innerHTML = '';
       Object.values(item.prizes || {}).forEach(p => addWizardPrize(p));
       if (!wizardPrizeList.children.length) {
@@ -1834,6 +1875,7 @@
       }
       const path = basics.vaultMode ? 'vaults' : 'cases';
       const id = wizardEditingKey || db.ref(path).push().key;
+      const derivedSpice = wizardSpiceLevel || inferSpiceLevel(prizes, wizardGeneratedOdds, wizardRiskSlider ? Number(wizardRiskSlider.value) : 55);
       const data = {
         name: basics.name || 'Wizard pack',
         price: basics.price,
@@ -1843,6 +1885,7 @@
         image: basics.image,
         cardBack: basics.cardBack,
         vault: basics.vaultMode,
+        spiceLevel: derivedSpice,
         categories: { featured: basics.featured },
         prizes: {}
       };
