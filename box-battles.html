@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Box Battles | Pullz.gg</title>
+  <title>Pack Battles | Pullz.gg</title>
 
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -58,7 +58,7 @@
     .pill.live{border-color:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,.2) inset}
     dialog[open]{animation:fadeIn .12s ease-out}
     @keyframes fadeIn{from{opacity:.0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
-    /* Spinner styling – scaled down for Box Battles */
+    /* Spinner styling – scaled down for Pack Battles */
     .reel-host .reel{display:flex;will-change:transform;padding:1rem 0}
     .reel-host .tile{flex:0 0 110px;margin:0 6px;position:relative;background:#2a2f3a;border:1px solid #3a4050;border-radius:12px;padding:4px;box-shadow:0 2px 4px rgba(0,0,0,0.5);color:#f1f5f9;transition:transform .2s,box-shadow .2s}
     .reel-host .tile img{width:100px;height:140px;object-fit:cover;border-radius:8px}
@@ -90,7 +90,7 @@
     <!-- Hero -->
     <section class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Box Battles</h1>
+        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Pack Battles</h1>
         <p class="text-gray-600 mt-1">Winner takes all. Spin across N rounds — highest total wins the cost.</p>
       </div>
       <div class="flex items-center gap-3">
@@ -161,7 +161,7 @@
               <option value="2">2</option><option value="3">3</option><option value="4" selected>4</option>
             </select>
           </div>
-          <div id="selection-summary" class="text-sm text-gray-600">0 boxes selected — Cost: 0</div>
+          <div id="selection-summary" class="text-sm text-gray-600">0 packs selected — Cost: 0</div>
           <button id="create-lobby" class="w-full mt-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-400 hover:to-blue-400">
             Create Lobby
           </button>
@@ -197,7 +197,7 @@
     import { renderSpinner, spinToPrize, getRarityColor } from './scripts/spinner.js';
     const BOT_AVATAR_URL = 'https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ChatGPT%20Image%20Aug%2010%2C%202025%2C%2011_08_17%20PM.png?alt=media&token=4950e6a0-1cf9-4c7b-aa56-686dc42693a8';
     /***** DESCRIPTION FOR CODEX *****
-     - Build a Winner-Takes-All Box Battles page that:
+     - Build a Winner-Takes-All Pack Battles page that:
        1) Lists open battles (#battle-list) and my battles (#my-battles).
        2) Lets user create a lobby via #battle-form (choose packs; spinCount equals number selected; choose playerCount).
        3) On join, if seats < max at countdown end, fill with bots.
@@ -402,7 +402,7 @@
     function updatePackSummary(){
       const packs = gatherSelectedPacks();
       const total = packs.reduce((s,p)=>s+p.price,0);
-      $('#selection-summary').textContent = `${packs.length} boxes selected — Cost: ${total}`;
+      $('#selection-summary').textContent = `${packs.length} packs selected — Cost: ${total}`;
       $('#spin-count').value = packs.length;
     }
 

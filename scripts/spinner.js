@@ -2,7 +2,7 @@
 const spinnerPrizesMap = {};
 const targetIndex = 15;
 
-// Exported so other modules (like box battles) can reuse the same color map
+// Exported so other modules (like pack battles) can reuse the same color map
 export function getRarityColor(rarity) {
   const base = rarity?.toLowerCase().replace(/\s+/g, '');
   switch (base) {
