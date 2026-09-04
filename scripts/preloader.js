@@ -39,6 +39,38 @@
       background-clip: text;
       color: transparent;
     }
+    #preloader-refresh {
+      display: none;
+      width: min(22rem, calc(100vw - 2rem));
+      text-align: center;
+    }
+    #preloader.needs-refresh #preloader-progress {
+      display: none;
+    }
+    #preloader.needs-refresh #preloader-refresh {
+      display: block;
+    }
+    #preloader-refresh-title {
+      margin: 0 0 0.5rem;
+      font-size: clamp(1.25rem, 5vw, 1.5rem);
+      font-weight: 700;
+    }
+    #preloader-refresh-copy {
+      margin: 0 0 1rem;
+      font-size: 0.95rem;
+      opacity: 0.78;
+    }
+    #preloader-refresh-button {
+      min-height: 2.75rem;
+      padding: 0.65rem 1.25rem;
+      border: 0;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
     @keyframes bounce {
       0%, 100% {
         transform: translateY(-25%);
@@ -63,6 +95,11 @@
   preloader.innerHTML = `
     <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/ChatGPT%20Image%20Aug%2010%2C%202025%2C%2011_08_17%20PM.png?alt=media&token=4950e6a0-1cf9-4c7b-aa56-686dc42693a8" alt="Mascot">
     <div id="preloader-progress">0%</div>
+    <div id="preloader-refresh" role="alert">
+      <p id="preloader-refresh-title">Ripza hit a snag</p>
+      <p id="preloader-refresh-copy">Refresh the page to try again.</p>
+      <button id="preloader-refresh-button" type="button">Refresh</button>
+    </div>
   `;
   document.body.appendChild(preloader);
 
@@ -88,8 +125,18 @@
     progressEl.textContent = `${Math.floor(current)}%`;
   }, 100);
 
+  const refreshTimeout = setTimeout(() => {
+    clearInterval(interval);
+    preloader.classList.add('needs-refresh');
+  }, 15000);
+
+  document.getElementById('preloader-refresh-button').addEventListener('click', () => {
+    window.location.reload();
+  });
+
   window.addEventListener('load', () => {
     clearInterval(interval);
+    clearTimeout(refreshTimeout);
     progressEl.textContent = '100%';
     preloader.classList.add('fade-out');
     setTimeout(() => {

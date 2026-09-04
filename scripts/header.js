@@ -21,8 +21,14 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
-            <a href="index.html" class="flex-shrink-0 flex items-center">
-              <span class="text-2xl font-bold gradient-text logo-animate">pullz.gg</span>
+            <a href="index.html" class="flex-shrink-0 flex items-center" aria-label="Ripza home">
+              <img
+                class="site-logo h-7 sm:h-8 w-auto max-w-[8.5rem] sm:max-w-[10rem] object-contain"
+                src="assets/png/pullz-horizontal-dark-2400.png"
+                data-dark-src="assets/png/pullz-horizontal-dark-2400.png"
+                data-light-src="assets/png/assetspngpullz-horizontal-light-2400.png"
+                alt="Ripza"
+              >
             </a>
             <div class="hidden md:ml-6 md:flex md:space-x-8">
               <a data-nav="index.html" href="index.html" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"><i class="fas fa-box-open mr-1"></i>Open Packs</a>
@@ -237,6 +243,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.toggle('dark-mode', isDark);
     document.documentElement.classList.toggle('dark-mode', isDark);
     localStorage.setItem('pullz-theme', isDark ? 'dark' : 'light');
+
+    header.querySelectorAll('.site-logo').forEach((logo) => {
+      logo.src = isDark ? logo.dataset.darkSrc : logo.dataset.lightSrc;
+    });
 
     setThemeColor(isDark);
 
