@@ -304,7 +304,7 @@
     <div class="flex justify-center items-center gap-4 mt-6">
       <button id="open-case-button" class="relative px-6 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-extrabold flex items-center justify-center gap-2 shadow transition-transform transform hover:scale-105 focus:outline-none overflow-hidden">
         <span class="relative z-10 flex items-center gap-2 cta-on-gradient">
-          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 gem-icon" />
+          <img src="https://firebasestorage.googleapis.com/v0/b/hyperdrop-6476c.firebasestorage.app/o/packswebp%2Fripzacoin.webp?alt=media&token=e04bf3dc-a5b1-4b7e-89e1-125e144a3013" class="w-4 h-4 gem-icon" />
           <span id="button-price">...</span>
         </span>
       </button>
@@ -502,10 +502,10 @@ function showMultiWinPopup(prizes) {
       <div class="prize-card bg-white rounded-xl p-4 flex flex-col items-center text-gray-900">
         <img src="${prize.image}" class="w-32 h-32 object-contain mb-2 rounded-lg shadow-md" />
         <div class="text-sm font-semibold mb-1">${prize.name}</div>
-        <div class="flex items-center gap-1 text-yellow-300 text-sm mb-2"><img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4" />${formatGems(getEffectiveValue(prize))}</div>
+        <div class="flex items-center gap-1 text-yellow-300 text-sm mb-2"><img src="https://firebasestorage.googleapis.com/v0/b/hyperdrop-6476c.firebasestorage.app/o/packswebp%2Fripzacoin.webp?alt=media&token=e04bf3dc-a5b1-4b7e-89e1-125e144a3013" class="w-4 h-4" />${formatGems(getEffectiveValue(prize))}</div>
         <div class="flex gap-2 w-full mt-2">
           <button id="keep-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 text-white text-sm font-bold flex items-center justify-center gap-1"><i class="fas fa-box-open"></i> Add to Inventory</button>
-          <button id="sell-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 text-white text-sm font-bold flex items-center justify-center gap-1"><img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4" />Sell for ${formatGems(getSellRefund(prize))}</button>
+          <button id="sell-btn" class="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 text-white text-sm font-bold flex items-center justify-center gap-1"><img src="https://firebasestorage.googleapis.com/v0/b/hyperdrop-6476c.firebasestorage.app/o/packswebp%2Fripzacoin.webp?alt=media&token=e04bf3dc-a5b1-4b7e-89e1-125e144a3013" class="w-4 h-4" />Sell for ${formatGems(getSellRefund(prize))}</button>
         </div>
       </div>`;
 
@@ -682,7 +682,7 @@ const getOpenButtonContent = () => {
   return `
     <div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 blur-xl opacity-50 z-0 animate-spin-slow"></div>
     <span class="relative z-10 flex items-center gap-2 cta-on-gradient">
-      <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-5 h-5" />
+      <img src="https://firebasestorage.googleapis.com/v0/b/hyperdrop-6476c.firebasestorage.app/o/packswebp%2Fripzacoin.webp?alt=media&token=e04bf3dc-a5b1-4b7e-89e1-125e144a3013" class="w-5 h-5" />
       <span id="button-price">${formatGems(caseData.price || 0)}</span>
     </span>`;
 };
@@ -787,7 +787,7 @@ if (repeatedBestDrops.length) {
     </div>
     <div class="flex items-center justify-between px-2 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-medium cta-on-gradient">
       <div class="flex items-center gap-1 cta-on-gradient">
-        <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4" />
+        <img src="https://firebasestorage.googleapis.com/v0/b/hyperdrop-6476c.firebasestorage.app/o/packswebp%2Fripzacoin.webp?alt=media&token=e04bf3dc-a5b1-4b7e-89e1-125e144a3013" class="w-4 h-4" />
         <span class="cta-on-gradient prize-card-value">${displayValue}</span>
       </div>
       <span class="cta-on-gradient prize-card-odds">${displayOdds}</span>
@@ -1309,7 +1309,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <h3 id="prize-popup-name" class="text-xl font-semibold text-center text-gray-900"></h3>
         <div class="flex flex-wrap items-center justify-center gap-3 text-sm">
           <div class="flex items-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r from-indigo-50 to-blue-50 border border-blue-200 text-blue-700 shadow-sm">
-            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 gem-icon" alt="Gem" />
+            <img src="https://firebasestorage.googleapis.com/v0/b/hyperdrop-6476c.firebasestorage.app/o/packswebp%2Fripzacoin.webp?alt=media&token=e04bf3dc-a5b1-4b7e-89e1-125e144a3013" class="w-4 h-4 gem-icon" alt="Gem" />
             <span id="prize-popup-value" class="font-semibold"></span>
           </div>
           <div class="flex items-center gap-2 px-3 py-2 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 shadow-sm">

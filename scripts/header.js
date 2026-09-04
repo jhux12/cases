@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <div id="user-toolbar-desktop" class="user-toolbar hidden">
                 <div id="user-balance" class="hidden balance-chip items-center gap-2 px-2.5 py-1 text-white">
                   <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
-                    <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 object-contain" alt="Gems" />
+                    <img src="https://firebasestorage.googleapis.com/v0/b/hyperdrop-6476c.firebasestorage.app/o/packswebp%2Fripzacoin.webp?alt=media&token=e04bf3dc-a5b1-4b7e-89e1-125e144a3013" class="w-4 h-4 object-contain" alt="Gems" />
                   </div>
                   <div class="flex flex-col leading-tight">
                     <span id="balance-amount" class="balance-amount text-sm">0</span>
@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div id="user-toolbar-mobile" class="user-toolbar mr-3">
               <div id="user-balance-mobile-header" class="hidden balance-chip items-center gap-2 px-2.5 py-1 text-white">
                 <div class="balance-icon flex items-center justify-center w-7 h-7 rounded-full">
-                  <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-4 h-4 object-contain" alt="Gems" />
+                  <img src="https://firebasestorage.googleapis.com/v0/b/hyperdrop-6476c.firebasestorage.app/o/packswebp%2Fripzacoin.webp?alt=media&token=e04bf3dc-a5b1-4b7e-89e1-125e144a3013" class="w-4 h-4 object-contain" alt="Gems" />
                 </div>
                 <div class="flex flex-col leading-tight">
                   <span id="balance-amount-mobile" class="balance-amount text-sm">0</span>

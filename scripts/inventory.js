@@ -195,7 +195,7 @@ function renderItems(items) {
     const rarityBadge = item.rarity
       ? `<span class="pill ${rarityClassMap[rarityKey] || 'common'}">${item.rarity}</span>`
       : '';
-    const valueBadge = `<span class="value-chip">Value ${formatGems(effectiveValue)} <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" width="14" height="14" class="gem-icon" alt="Gems" /></span>`;
+    const valueBadge = `<span class="value-chip">Value ${formatGems(effectiveValue)} <img src="https://firebasestorage.googleapis.com/v0/b/hyperdrop-6476c.firebasestorage.app/o/packswebp%2Fripzacoin.webp?alt=media&token=e04bf3dc-a5b1-4b7e-89e1-125e144a3013" width="14" height="14" class="gem-icon" alt="Gems" /></span>`;
     const shipMarkup = (() => {
       if (isVoucher && !disabled) {
         return '<span class="muted-chip">Voucher — Redeem Only</span>';
@@ -227,7 +227,7 @@ function renderItems(items) {
         <div class="item-actions">
           <button onclick="sellBack('${item.key}')" class="action-button sell-button" ${disabled ? 'disabled' : ''}>
             <span>Sell for ${formatGems(refund)}</span>
-            <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" width="14" height="14" class="gem-icon" alt="Gems" />
+            <img src="https://firebasestorage.googleapis.com/v0/b/hyperdrop-6476c.firebasestorage.app/o/packswebp%2Fripzacoin.webp?alt=media&token=e04bf3dc-a5b1-4b7e-89e1-125e144a3013" width="14" height="14" class="gem-icon" alt="Gems" />
           </button>
           ${shipMarkup}
         </div>
