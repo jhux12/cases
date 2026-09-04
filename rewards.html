@@ -23,7 +23,7 @@
         <span class="block text-gray-900">FREE DAILY</span>
         <span class="block gradient-text">REWARDS</span>
       </h1>
-      <p class="text-gray-700 mb-6">Spend more gems and open more boxes to improve your rewards!</p>
+      <p class="text-gray-700 mb-6">Spend more gems and open more packs to improve your rewards!</p>
     </section>
 
     <section id="wheel-wrapper" class="relative flex justify-center overflow-hidden h-[320px] w-full">
@@ -240,7 +240,7 @@
           const updates = { balance };
           if (!isAdmin) updates.lastWheelSpin = now;
           await userRef.update(updates);
-          toast.innerHTML = `✅ You won ${reward.label} <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="inline w-4 h-4 gem-icon" alt="Gems">!`;
+          toast.innerHTML = `✅ You won ${reward.label} <img src="https://firebasestorage.googleapis.com/v0/b/hyperdrop-6476c.firebasestorage.app/o/packswebp%2Fripzacoin.webp?alt=media&token=e04bf3dc-a5b1-4b7e-89e1-125e144a3013" class="inline w-4 h-4 gem-icon" alt="Gems">!`;
           toast.classList.remove('hidden');
           setTimeout(() => toast.classList.add('hidden'), 3000);
           if (isAdmin) button.disabled = false;
@@ -261,7 +261,7 @@
   <script>
     function createGem() {
       const gem = document.createElement('img');
-      gem.src = 'https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff';
+      gem.src = 'https://firebasestorage.googleapis.com/v0/b/hyperdrop-6476c.firebasestorage.app/o/packswebp%2Fripzacoin.webp?alt=media&token=e04bf3dc-a5b1-4b7e-89e1-125e144a3013';
       gem.className = 'gem';
       gem.style.left = Math.random() * 100 + 'vw';
       const duration = 4 + Math.random() * 3;

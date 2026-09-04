@@ -2,7 +2,7 @@
 const spinnerPrizesMap = {};
 const targetIndex = 15;
 
-// Exported so other modules (like box battles) can reuse the same color map
+// Exported so other modules (like pack battles) can reuse the same color map
 export function getRarityColor(rarity) {
   const base = rarity?.toLowerCase().replace(/\s+/g, '');
   switch (base) {
@@ -73,7 +73,7 @@ export function renderSpinner(prizes, winningPrize = null, isPreview = false, id
         <img src="${prize.image}" class="h-[100px] object-contain drop-shadow-md rounded-xl" />
         <div class="mt-1 text-xs text-white bg-black/50 px-2 py-0.5 rounded-sm flex items-center gap-1">
           <span>${prize.value.toLocaleString()}</span>
-          <img src="https://firebasestorage.googleapis.com/v0/b/cases-e5b4e.firebasestorage.app/o/diamond.png?alt=media&token=244f4b80-1832-4c7c-89da-747a1f8457ff" class="w-3 h-3" alt="Gem" />
+          <img src="https://firebasestorage.googleapis.com/v0/b/hyperdrop-6476c.firebasestorage.app/o/packswebp%2Fripzacoin.webp?alt=media&token=e04bf3dc-a5b1-4b7e-89e1-125e144a3013" class="w-3 h-3" alt="Gem" />
         </div>
       </div>
     `;
